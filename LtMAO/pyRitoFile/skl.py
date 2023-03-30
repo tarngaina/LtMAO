@@ -1,42 +1,59 @@
-from LtMAO.utils.bin_io import BinIO
-from LtMAO.utils import Hash
+from LtMAO.pyRitoFile.io import BinStream
+from LtMAO.pyRitoFile.utils import Hash
 
 
 class SKLJoint:
-    __slots__ = (
-        'name', 'parent'
-    )
 
     def __init__(self):
-        self.name = None
+        self.flags = None
+        self.id = None
         self.parent = None
+        self.hash = None
+        self.radius = None
+        self.local_translate = None
+        self.local_rotate = None
+        self.local_scale = None
+        self.ibind_translate = None
+        self.ibind_rotate = None
+        self.ibind_scale = None
+        self.name = None
 
 
 class SKL:
     def __init__(self):
+        self.file_size = None
+        self.signature = None
+        self.version = None
+        self.flags = None
+        self.name = None
+        self.asset = None
         self.joints = []
         self.influences = []
 
     def read(self, path):
         with open(path, 'rb') as f:
-            bs = BinaryStream(f)
+            bs = BinStream(f)
 
-            bs.pad(4)  # resource size
-            magic = bs.read_uint32()
-            if magic == 0x22FD4FC3:
+            # read signature first to check legacy or not
+            bs.pad(4)
+            signature, = bs.read_u32()
+            bs.seek(0)
+
+            if signature == 0x22FD4FC3:
                 # new skl data
-                version = bs.read_uint32()
-                if version != 0:
+                self.file_size, self.signature, self.version, = bs.read_u32(3)
+                if self.version != 0:
                     raise Exception(
-                        f'[SKL.read()]: Unsupported file version: {version}')
-
-                bs.pad(2)  # flags
-                joint_count = bs.read_uint16()
-                influence_count = bs.read_uint32()
-                joints_offset = bs.read_int32()
-                bs.pad(4)  # joint indices offset
-                influences_offset = bs.read_int32()
-                # name offset, asset name offset, joint names offset, 5 reserved offset
+                        f'[SKL.read()]: Unsupported file version: {self.version}')
+                # unknown
+                self.flags, = bs.read_u16()
+                # counts
+                joint_count, = bs.read_u16()
+                influence_count, = bs.read_u32()
+                # offsets
+                joints_offset, joint_ids_offset, influences_offset, name_offset, asset_offset, bones_names_offset, = bs.read_i32(
+                    6)
+                # reserved offset
                 bs.pad(32)
 
                 # read joints
@@ -46,85 +63,65 @@ class SKL:
                     for i in range(joint_count):
                         joint = self.joints[i]
 
-                        bs.pad(4)  # flags and id
-                        joint.parent = bs.read_int16()  # cant be uint
-                        bs.pad(2)  # flags
-                        joint_hash = bs.read_uint32()
-                        bs.pad(4)  # radius
-
-                        # local & iglobal translation, scale, rotation (quat)
-                        bs.pad(80)
-
+                        joint.flags, = bs.read_u16()
+                        joint.id, joint.parent, = bs.read_i16(2)
+                        bs.pad(2)  # pad
+                        joint.hash, = bs.read_u32()
+                        joint.radius, bs.read_f()
+                        joint.local_translate, = bs.read_vec3()
+                        joint.local_scale, = bs.read_vec3()
+                        joint.local_rotate, = bs.read_quat()
+                        joint.ibind_translate, = bs.read_vec3()
+                        joint.ibind_scale, = bs.read_vec3()
+                        joint.ibind_rotate, = bs.read_quat()
                         # name
-                        joint_name_offset = bs.read_int32()
+                        joint_name_offset, = bs.read_i32()
                         return_offset = bs.tell()
-                        bs.seek(return_offset - 4 + joint_name_offset)
-                        joint.name = bs.read_char_until_zero()
-
-                        # skl convert 0.1 fix before return
-                        # (2 empty bytes asset name override on first joint)
-                        if i == 0 and joint.name == '':
-                            # pad 1 more
-                            bs.pad(1)
-                            # read the rest
-                            joint.name = bs.read_char_until_zero()
-
-                            # brute force unhash 2 letters
-
-                            table = '_abcdefighjklmnopqrstuvwxyz'
-                            names = [
-                                a+b+joint.name for a in table for b in table]
-                            founds = [name.capitalize() for name in names if Hash.elf(
-                                name) == joint_hash]
-                            if len(founds) == 1:
-                                joint.name = founds[0]
-                            else:
-                                msg = ' Sugest name: ' + \
-                                    ', '.join(founds) if len(
-                                        founds) > 1 else ''
-                                print(
-                                    f'[SKL.load()]: {joint.name} is a bad joint name, please rename it.{msg}')
-
+                        bs.seek(return_offset-4 + joint_name_offset)
+                        joint.name, = bs.read_c_until0()
                         bs.seek(return_offset)
 
                 # read influences
                 if influences_offset > 0 and influence_count > 0:
                     bs.seek(influences_offset)
-                    self.influences = bs.read_uint16(influence_count, True)
-
-                # i think that is all we need, reading joint_indices_offset, name and asset name doesnt help anything
+                    self.influences = bs.read_u16(influence_count)
+                # name and asset string
+                if name_offset:
+                    self.name, = bs.read_c_until0()
+                if asset_offset:
+                    self.asset, = bs.read_c_until0()
             else:
-                # legacy
-                # because signature in old skl is first 8bytes
-                # need to go back pos 0 to read 8bytes again
-                bs.seek(0)
-
-                magic = bs.read_ascii(8)
-                if magic != 'r3d2sklt':
+                self.signature, = bs.read_a(8)
+                if self.signature != 'r3d2sklt':
                     raise Exception(
-                        f'[SKL.read()]: Wrong file signature: {magic}')
+                        f'[SKL.read()]: Wrong file signature: {self.signature}')
 
-                version = bs.read_uint32()
-                if version not in (1, 2):
+                self.version, = bs.read_uint32()
+                if self.version not in (1, 2):
                     raise Exception(
-                        f'[SKL.read()]: Unsupported file version: {version}')
+                        f'[SKL.read()]: Unsupported file version: {self.version}')
 
-                bs.pad(4)  # designer id or skl id
+                # skeleton id
+                self.id, = bs.read_u32()
 
-                joint_count = bs.read_uint32()
+                joint_count, = bs.read_u32()
                 self.joints = [SKLJoint() for i in range(joint_count)]
                 for i in range(joint_count):
                     joint = self.joints[i]
 
-                    joint.name = bs.read_padded_ascii(32)
-                    joint.parent = bs.read_int32()  # -1, cant be uint
-                    bs.pad(4)  # radius/scale - pad
-                    bs.pad(48)  # 12 float matrix
+                    joint.name, = bs.read_a_padded(32)
+                    joint.parent, = bs.read_i32()
+                    joint.radius, = bs.read_f()
+                    joint.global_matrix = [0.0]*16
+                    for c in range(3):
+                        for r in range(4):
+                            joint.global_matrix[r*4+c], = bs.read_f()
+                    joint.global_matrix[15] = 1.0
 
                 # read influences
-                if version == 1:
+                if self.version == 1:
                     self.influences = list(range(joint_count))
 
-                if version == 2:
-                    influence_count = bs.read_uint32()
-                    self.influences = bs.read_uint32(influence_count, True)
+                if self.version == 2:
+                    influence_count, = bs.read_u32()
+                    self.influences = bs.read_u32(influence_count)

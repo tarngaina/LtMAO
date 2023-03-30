@@ -8,7 +8,7 @@
             "name": "Python: LtMAO",
             "type": "python",
             "request": "launch",
-            "python": "${workspaceFolder}/LtMAO/pyembed/python.exe",
+            "python": "${workspaceFolder}/LtMAO/pyEmbed/python.exe",
             "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal",
             "justMyCode": true,
