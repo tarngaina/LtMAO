@@ -3,40 +3,50 @@ import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
 from LtMAO import pyRitoFile
-from LtMAO import keeper
+from LtMAO import manager
 from memory_profiler import profile
 
-TRANSPARENT = 'transparent'
-ctk.set_appearance_mode('system')
-tk_widgets = keeper.Keeper()
 
-
-def create_main_app():
+def create_main_app_and_frames():
     # create main app
     tk_widgets.main_tk = ctk.CTk()
-    tk_widgets.main_tk.geometry('1000x600')
+    tk_widgets.main_tk.geometry('1000x620')
     tk_widgets.main_tk.title('LtMAO')
-    tk_widgets.main_tk.rowconfigure(0, weight=1)
+
+    tk_widgets.main_tk.rowconfigure(0, weight=100)
+    tk_widgets.main_tk.rowconfigure(1, weight=1)
     tk_widgets.main_tk.columnconfigure(0, weight=1)
-    tk_widgets.main_tk.columnconfigure(1, weight=9)
+    # create main top frame
+    tk_widgets.maintop_frame = ctk.CTkFrame(
+        tk_widgets.main_tk,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.maintop_frame.grid(
+        row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
+    # create main bottom frame
+    tk_widgets.mainbottom_frame = ctk.CTkFrame(
+        tk_widgets.main_tk,
+        height=30
+    )
+    tk_widgets.mainbottom_frame.grid(
+        row=1, column=0, padx=0, pady=2, sticky=tk.NSEW)
 
-
-def create_mainleft_frame():
+    tk_widgets.maintop_frame.rowconfigure(0, weight=1)
+    tk_widgets.maintop_frame.columnconfigure(0, weight=1)
+    tk_widgets.maintop_frame.columnconfigure(1, weight=9)
     # create main left frame
     tk_widgets.mainleft_frame = ctk.CTkFrame(
-        tk_widgets.main_tk
+        tk_widgets.maintop_frame,
+        fg_color=TRANSPARENT
     )
     tk_widgets.mainleft_frame.grid(
-        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
-
-
-def create_mainright_frame():
+        row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
     # create main right frame
     tk_widgets.mainright_frame = ctk.CTkFrame(
-        tk_widgets.main_tk
+        tk_widgets.maintop_frame
     )
     tk_widgets.mainright_frame.grid(
-        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=0, column=1, padx=0, pady=0, sticky=tk.NSEW)
 
 
 def create_left_controls():
@@ -49,9 +59,9 @@ def create_left_controls():
 
     # init pages data
     tk_widgets.pages = [
-        keeper.Keeper(),
-        keeper.Keeper(),
-        keeper.Keeper()
+        manager.Keeper(),
+        manager.Keeper(),
+        manager.Keeper()
     ]
 
     # create left controls buttons
@@ -96,7 +106,13 @@ def create_left_controls():
 def create_right_pages(selected):
     # destroy right frame
     tk_widgets.mainright_frame.destroy()
-    create_mainright_frame()
+    # recreate main right frame
+    tk_widgets.mainright_frame = ctk.CTkFrame(
+        tk_widgets.maintop_frame
+    )
+    tk_widgets.mainright_frame.grid(
+        row=0, column=1, padx=0, pady=0, sticky=tk.NSEW)
+
     # create page depend on selected page
     if selected == 0:
         tk_widgets.mainright_frame.columnconfigure(0, weight=1)
@@ -409,10 +425,6 @@ def create_right_pages(selected):
                 tk_widgets.pages[1].vtable_frame.destroy()
                 tk_widgets.pages[1].htable_frame.destroy()
                 tk_widgets.pages[1].table_loaded = False
-                # del tk widgets from memory?
-                # del tk_widgets.pages[1].table_widgets
-                # del tk_widgets.pages[1].vtable_frame
-                # del tk_widgets.pages[1].htable_frame
             tk_widgets.pages[1].clear_button = ctk.CTkButton(
                 tk_widgets.pages[1].action_frame,
                 text='Clear',
@@ -429,12 +441,41 @@ def create_right_pages(selected):
         tk_widgets.mainright_frame.rowconfigure(1, weight=69)
 
 
-def start():
-    # create UI
-    create_main_app()
-    create_mainleft_frame()
-    create_mainright_frame()
-    create_left_controls()
+def create_mini_log_and_progress_bar():
+    tk_widgets.mainbottom_frame.columnconfigure(0, weight=1)
+    tk_widgets.mainbottom_frame.rowconfigure(0, weight=1)
+    tk_widgets.mainbottom_frame.rowconfigure(1, weight=1)
+    tk_widgets.bottom_widgets = manager.Keeper()
 
-    # loop the UI
-    tk_widgets.main_tk.mainloop()
+    # create mini log
+    tk_widgets.bottom_widgets.minilog_label = ctk.CTkLabel(
+        tk_widgets.mainbottom_frame,
+        text='Testing',
+        anchor=tk.W,
+        justify=tk.CENTER
+    )
+    tk_widgets.bottom_widgets.minilog_label.grid(
+        row=0, column=0, padx=10, pady=1, sticky=tk.NSEW)
+    manager.Log.single_label = tk_widgets.bottom_widgets.minilog_label
+    # create progress bar
+    tk_widgets.bottom_widgets.progress_bar = ctk.CTkProgressBar(
+        tk_widgets.mainbottom_frame,
+        height=1,
+        indeterminate_speed=1
+    )
+    tk_widgets.bottom_widgets.progress_bar.grid(
+        row=1, column=0, padx=5, pady=1, sticky=tk.NSEW)
+
+
+# init variable
+TRANSPARENT = 'transparent'
+ctk.set_appearance_mode('system')
+tk_widgets = manager.Keeper()
+
+# create UI
+create_main_app_and_frames()
+create_left_controls()
+create_mini_log_and_progress_bar()
+
+# loop the UI
+tk_widgets.main_tk.mainloop()

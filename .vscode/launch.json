@@ -5,11 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: LtMAO",
+            "name": "Python: LtMAO UI",
             "type": "python",
             "request": "launch",
-            "python": "${workspaceFolder}/LtMAO/pyEmbed/python.exe",
-            "program": "${workspaceFolder}/main.py",
+            "python": "${workspaceFolder}/epython/python.exe",
+            "program": "${workspaceFolder}/src/main.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "env": {

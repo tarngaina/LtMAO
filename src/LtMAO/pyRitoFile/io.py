@@ -1,5 +1,5 @@
 from struct import Struct
-from LtMAO.pyRitoFile.structures import Vector, Quaternion
+from LtMAO.pyRitoFile.structs import Vector, Quaternion
 
 
 class BinStream:

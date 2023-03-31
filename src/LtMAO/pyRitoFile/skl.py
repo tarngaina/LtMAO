@@ -1,5 +1,5 @@
 from LtMAO.pyRitoFile.io import BinStream
-from LtMAO.pyRitoFile.utils import Hash
+from LtMAO.pyRitoFile.hash import Elf
 
 
 class SKLJoint:
