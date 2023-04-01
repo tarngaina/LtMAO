@@ -1,1 +1,1 @@
-start /B "%~dp0epython" "pythonw.exe" "%~dp0src\main.py"
+start "" "%~dp0epython\pythonw.exe" "%~dp0src\main.py"

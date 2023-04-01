@@ -1,10 +1,11 @@
-import threading
+
 import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
 from LtMAO import pyRitoFile
-from LtMAO import manager
+from LtMAO.prettyUI.helper import Keeper, Log, ProgressBar
 from memory_profiler import profile
+from threading import Thread
 
 
 def create_main_app_and_frames():
@@ -59,9 +60,9 @@ def create_left_controls():
 
     # init pages data
     tk_widgets.pages = [
-        manager.Keeper(),
-        manager.Keeper(),
-        manager.Keeper()
+        Keeper(),
+        Keeper(),
+        Keeper()
     ]
 
     # create left controls buttons
@@ -221,6 +222,8 @@ def create_right_pages(selected):
 
             # create load button
             def load_cmd():
+                ProgressBar.show()
+                ProgressBar.set(0)
                 joint_names = []
                 mask_names = []
                 weights = []
@@ -228,8 +231,9 @@ def create_right_pages(selected):
                 skl_path = tk_widgets.pages[1].skl_entry.get()
                 if skl_path != '':
                     skl_file = pyRitoFile.SKL()
-                    skl_file.read(skl_path)
+                    skl_file.read_safe(skl_path)
                     joint_names = [joint.name for joint in skl_file.joints]
+                ProgressBar.set(0.1)
                 # read bin
                 bin_path = tk_widgets.pages[1].bin_entry.get()
                 if bin_path != '':
@@ -238,11 +242,13 @@ def create_right_pages(selected):
                     mask_names = [mask for mask, weights in bin_file.masks]
                     weights = [weights for mask,
                                weights in bin_file.masks]
+                ProgressBar.set(0.2)
 
                 # get table row and column length
                 tk_widgets.pages[1].table_row = len(joint_names)
                 tk_widgets.pages[1].table_column = len(mask_names)
                 if tk_widgets.pages[1].table_row == 0 and tk_widgets.pages[1].table_column == 0:
+                    ProgressBar.hide()
                     return
                 # create/load table frame
                 if not tk_widgets.pages[1].table_loaded:
@@ -271,17 +277,31 @@ def create_right_pages(selected):
                         0, weight=1)
                     tk_widgets.pages[1].vtable_frame.columnconfigure(
                         0, weight=1)
+                    # update width of vertical scroll table frame (must)
+                    tk_widgets.pages[1].htable_frame.configure(
+                        width=170+(tk_widgets.pages[1].table_column+1)*100
+                    )
+                    tk_widgets.pages[1].htable_frame.update_idletasks()
+                    tk_widgets.pages[1].vtable_frame.configure(
+                        width=170+(tk_widgets.pages[1].table_column+1)*100
+                    )
+                    tk_widgets.pages[1].vtable_frame.update_idletasks()
+
                 else:
                     # destroy loaded table
                     for widget in tk_widgets.pages[1].table_widgets:
                         if widget != None:
                             widget.destroy()
-
+                ProgressBar.set(0.3)
                 # init empty table widgets
                 tk_widgets.pages[1].table_widgets = [
                     None]*((tk_widgets.pages[1].table_row+1)*(tk_widgets.pages[1].table_column+1))
-
+                ProgressBar.set(0.0)
+                progress = 0
+                total_progress = (
+                    tk_widgets.pages[1].table_row+1)*(tk_widgets.pages[1].table_column+1)
                 # validate input as weight: x in [0.0, 1.0] cmd
+
                 def validate_weight_cmd(x):
                     num_count = 0
                     not01_count = 0
@@ -306,7 +326,6 @@ def create_right_pages(selected):
                         if not01_count > 0:
                             return False
                     return True
-
                 for j in range(tk_widgets.pages[1].table_column+1):
                     for i in range(tk_widgets.pages[1].table_row+1):
                         windex = i*(tk_widgets.pages[1].table_column+1)+j
@@ -352,17 +371,19 @@ def create_right_pages(selected):
                         tk_widgets.pages[1].table_widgets[windex].grid(
                             row=i, column=j, padx=5, pady=5, sticky=tk.NSEW)
 
-                # update width of vertical scroll table frame (must)
-                tk_widgets.pages[1].vtable_frame.configure(
-                    width=170+(tk_widgets.pages[1].table_column+1)*100
-                )
-                tk_widgets.pages[1].vtable_frame.update_idletasks()
+                        progress += 1
+                        ProgressBar.set(progress/total_progress)
+
                 # mark as table loaded
                 tk_widgets.pages[1].table_loaded = True
+                ProgressBar.hide()
+
+            def load_thrd():
+                Thread(target=load_cmd, daemon=True).start()
             tk_widgets.pages[1].load_button = ctk.CTkButton(
                 tk_widgets.pages[1].action_frame,
                 text='Load',
-                command=load_cmd
+                command=load_thrd
             )
             tk_widgets.pages[1].load_button.grid(
                 row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -445,7 +466,7 @@ def create_mini_log_and_progress_bar():
     tk_widgets.mainbottom_frame.columnconfigure(0, weight=1)
     tk_widgets.mainbottom_frame.rowconfigure(0, weight=1)
     tk_widgets.mainbottom_frame.rowconfigure(1, weight=1)
-    tk_widgets.bottom_widgets = manager.Keeper()
+    tk_widgets.bottom_widgets = Keeper()
 
     # create mini log
     tk_widgets.bottom_widgets.minilog_label = ctk.CTkLabel(
@@ -456,21 +477,23 @@ def create_mini_log_and_progress_bar():
     )
     tk_widgets.bottom_widgets.minilog_label.grid(
         row=0, column=0, padx=10, pady=1, sticky=tk.NSEW)
-    manager.Log.single_label = tk_widgets.bottom_widgets.minilog_label
+    Log.minilog_label = tk_widgets.bottom_widgets.minilog_label
     # create progress bar
     tk_widgets.bottom_widgets.progress_bar = ctk.CTkProgressBar(
         tk_widgets.mainbottom_frame,
         height=1,
-        indeterminate_speed=1
+        determinate_speed=1
     )
-    tk_widgets.bottom_widgets.progress_bar.grid(
+    ProgressBar.hide_cmd = tk_widgets.bottom_widgets.progress_bar.grid_forget
+    ProgressBar.show_cmd = lambda: tk_widgets.bottom_widgets.progress_bar.grid(
         row=1, column=0, padx=5, pady=1, sticky=tk.NSEW)
+    ProgressBar.progress_bar = tk_widgets.bottom_widgets.progress_bar
 
 
 # init variable
 TRANSPARENT = 'transparent'
 ctk.set_appearance_mode('system')
-tk_widgets = manager.Keeper()
+tk_widgets = Keeper()
 
 # create UI
 create_main_app_and_frames()

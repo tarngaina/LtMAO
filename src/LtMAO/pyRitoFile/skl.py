@@ -1,3 +1,4 @@
+from LtMAO.prettyUI.helper import Log, ProgressBar
 from LtMAO.pyRitoFile.io import BinStream
 from LtMAO.pyRitoFile.hash import Elf
 
@@ -29,6 +30,13 @@ class SKL:
         self.asset = None
         self.joints = []
         self.influences = []
+
+    def read_safe(self, path):
+        try:
+            self.read(path)
+        except Exception as e:
+            Log.append(e, e.message)
+            ProgressBar.hide()
 
     def read(self, path):
         with open(path, 'rb') as f:
