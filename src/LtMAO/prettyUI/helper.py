@@ -24,3 +24,5 @@ class Log:
             if Log.minilog_label != None:
                 Log.minilog_label.configure(text=Log.messages[-1])
                 Log.minilog_label.update_idletasks()
+            if len(Log.messages) > 1000:
+                Log.messages = Log.messages[-1000:]
