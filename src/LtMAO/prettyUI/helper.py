@@ -1,5 +1,10 @@
 from threading import Thread
 from time import sleep
+from datetime import datetime
+
+
+def now():
+    return datetime.now().strftime('%H:%M:%S.%f')[:-3]
 
 
 class Keeper:
@@ -14,27 +19,8 @@ class Log:
     @staticmethod
     def add(text):
         messages = text.split('\n')
-        Log.messages.extend(msg for msg in text)
-        if Log.minilog_label != None:
-            Log.minilog_label.configure(text=Log.messages[-1])
-
-
-class ProgressBar:
-    progress_bar = None
-    show_cmd = None
-    hide_cmd = None
-
-    @staticmethod
-    def show():
-        if ProgressBar.progress_bar != None:
-            ProgressBar.show_cmd()
-
-    @staticmethod
-    def hide():
-        if ProgressBar.progress_bar != None:
-            ProgressBar.hide_cmd()
-
-    @staticmethod
-    def set(value):
-        if ProgressBar.progress_bar != None:
-            ProgressBar.progress_bar.set(value)
+        if len(messages) > 0:
+            Log.messages.extend(f'[{now()}] {msg}' for msg in messages)
+            if Log.minilog_label != None:
+                Log.minilog_label.configure(text=Log.messages[-1])
+                Log.minilog_label.update_idletasks()

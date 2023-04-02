@@ -1,6 +1,7 @@
-from LtMAO.prettyUI.helper import Log, ProgressBar
+from LtMAO.prettyUI.helper import Log
 from LtMAO.pyRitoFile.io import BinStream
 from LtMAO.pyRitoFile.hash import Elf
+from threading import Thread
 
 
 class SKLJoint:
@@ -35,11 +36,12 @@ class SKL:
         try:
             self.read(path)
         except Exception as e:
-            Log.append(e, e.message)
-            ProgressBar.hide()
+            Log.add(str(e))
 
     def read(self, path):
         with open(path, 'rb') as f:
+            Log.add(f'Running: Read {path}')
+
             bs = BinStream(f)
 
             # read signature first to check legacy or not
@@ -49,10 +51,11 @@ class SKL:
 
             if signature == 0x22FD4FC3:
                 # new skl data
-                self.file_size, self.signature, self.version, = bs.read_u32(3)
+                self.file_size, self.signature, self.version, = bs.read_u32(
+                    3)
                 if self.version != 0:
                     raise Exception(
-                        f'[SKL.read()]: Unsupported file version: {self.version}')
+                        f'Failed: Read {path}: Unsupported file version: {self.version}')
                 # unknown
                 self.flags, = bs.read_u16()
                 # counts
@@ -102,12 +105,12 @@ class SKL:
                 self.signature, = bs.read_a(8)
                 if self.signature != 'r3d2sklt':
                     raise Exception(
-                        f'[SKL.read()]: Wrong file signature: {self.signature}')
+                        f'Failed: Read {path}: Wrong file signature: {self.signature}')
 
                 self.version, = bs.read_uint32()
                 if self.version not in (1, 2):
                     raise Exception(
-                        f'[SKL.read()]: Unsupported file version: {self.version}')
+                        f'Failed: Read {path}: Unsupported file version: {self.version}')
 
                 # skeleton id
                 self.id, = bs.read_u32()
@@ -133,3 +136,5 @@ class SKL:
                 if self.version == 2:
                     influence_count, = bs.read_u32()
                     self.influences = bs.read_u32(influence_count)
+
+            Log.add(f'Done: Read {path}')
