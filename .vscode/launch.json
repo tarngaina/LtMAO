@@ -15,6 +15,18 @@
             "env": {
                 "PYDEVD_DISABLE_FILE_VALIDATION": "1"
             }
+        },
+        {
+            "name": "Python: Test",
+            "type": "python",
+            "request": "launch",
+            "python": "${workspaceFolder}/epython/python.exe",
+            "program": "${workspaceFolder}/src/test.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYDEVD_DISABLE_FILE_VALIDATION": "1"
+            }
         }
     ]
 }

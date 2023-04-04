@@ -1,11 +1,8 @@
 from LtMAO.prettyUI.helper import Log
 from LtMAO.pyRitoFile.io import BinStream
-from LtMAO.pyRitoFile.hash import Elf
-from threading import Thread
 
 
 class SKLJoint:
-
     def __init__(self):
         self.flags = None
         self.id = None
@@ -32,16 +29,10 @@ class SKL:
         self.joints = []
         self.influences = []
 
-    def read_safe(self, path):
-        try:
-            self.read(path)
-        except Exception as e:
-            Log.add(str(e))
-
     def read(self, path):
-        with open(path, 'rb') as f:
-            Log.add(f'Running: Read {path}')
+        Log.add(f'Running: Read {path}')
 
+        with open(path, 'rb') as f:
             bs = BinStream(f)
 
             # read signature first to check legacy or not
@@ -137,4 +128,4 @@ class SKL:
                     influence_count, = bs.read_u32()
                     self.influences = bs.read_u32(influence_count)
 
-            Log.add(f'Done: Read {path}')
+        Log.add(f'Done: Read {path}')

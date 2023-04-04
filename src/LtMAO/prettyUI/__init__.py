@@ -2,8 +2,10 @@
 import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
+from traceback import format_exception
 from LtMAO import pyRitoFile
 from LtMAO.prettyUI.helper import Keeper, Log
+from LtMAO.pyRitoFile.hash import FNV1a
 from memory_profiler import profile
 from threading import Thread
 
@@ -193,7 +195,7 @@ def create_right_pages(selected):
                 bin_path = tkfd.askopenfilename(
                     title='Select Animation BIN file',
                     filetypes=(
-                        ('BIN files', ['*.bin', '*.py']),
+                        ('BIN files', ['*.bin']),
                         ('All files', '*.*')
                     )
                 )
@@ -231,16 +233,27 @@ def create_right_pages(selected):
                 skl_path = tk_widgets.pages[1].skl_entry.get()
                 if skl_path != '':
                     skl_file = pyRitoFile.SKL()
-                    skl_file.read_safe(skl_path)
+                    skl_file.read(skl_path)
                     joint_names = [joint.name for joint in skl_file.joints]
                 # read bin
                 bin_path = tk_widgets.pages[1].bin_entry.get()
                 if bin_path != '':
                     bin_file = pyRitoFile.BIN()
-                    bin_file.get_mask(bin_path)
-                    mask_names = [mask for mask, weights in bin_file.masks]
-                    weights = [weights for mask,
-                               weights in bin_file.masks]
+                    bin_file.read(bin_path)
+                    entry = bin_file.entries[0]
+                    if entry.type != FNV1a('animationGraphData'):
+                        raise Exception(
+                            'Failed: Get weights: Not Animation BIN.')
+                    mMaskDataMap = next(
+                        (field for field in entry.fields if field.hash == FNV1a('mMaskDataMap')), None)
+                    if mMaskDataMap == None:
+                        raise Exception(
+                            'Failed: Get weights: No mMaskDataMap in this BIN.')
+                    for key in mMaskDataMap.values:
+                        for field in mMaskDataMap.values[key]:
+                            if field.hash == FNV1a('mWeightList'):
+                                mask_names.append(key)
+                                weights.append(field.values)
 
                 # get table row and column length
                 tk_widgets.pages[1].table_row = len(joint_names)
@@ -354,7 +367,7 @@ def create_right_pages(selected):
                             # safe weight value if joints number > masks number
                             weight_value = '0'
                             try:
-                                weight_value = weights[j-1][i-1]
+                                weight_value = f'{weights[j-1][i-1]:.3}'
                             except:
                                 pass
                             tk_widgets.pages[1].table_widgets[windex].insert(
@@ -417,7 +430,7 @@ def create_right_pages(selected):
                     defaultextension='.txt'
                 )
                 if bin_path != '':
-                    bin_file.save_mask(bin_path)
+                    print('Triggered save')
             tk_widgets.pages[1].save_button = ctk.CTkButton(
                 tk_widgets.pages[1].action_frame,
                 text='Save',
@@ -478,10 +491,22 @@ TRANSPARENT = 'transparent'
 ctk.set_appearance_mode('system')
 tk_widgets = Keeper()
 
-# create UI
-create_main_app_and_frames()
-create_left_controls()
-create_mini_log()
 
-# loop the UI
-tk_widgets.main_tk.mainloop()
+# redirect tkinter error print
+def rce(self, *args):
+    err = format_exception(*args)
+    Log.add(err)
+    print(''.join(err))
+
+
+ctk.CTk.report_callback_exception = rce
+
+
+def start():
+    # create UI
+    create_main_app_and_frames()
+    create_left_controls()
+    create_mini_log()
+
+    # loop the UI
+    tk_widgets.main_tk.mainloop()

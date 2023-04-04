@@ -18,7 +18,12 @@ class Log:
 
     @staticmethod
     def add(text):
+
+        if isinstance(text, list):
+            text = ''.join(text)
         messages = text.split('\n')
+        while '' in messages:
+            messages.remove('')
         if len(messages) > 0:
             Log.messages.extend(f'[{now()}] {msg}' for msg in messages)
             if Log.minilog_label != None:
