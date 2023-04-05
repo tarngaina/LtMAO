@@ -5,7 +5,7 @@ import tkinter.filedialog as tkfd
 from traceback import format_exception
 from LtMAO import pyRitoFile
 from LtMAO.prettyUI.helper import Keeper, Log
-from LtMAO.pyRitoFile.hash import FNV1a
+from LtMAO import amv
 from memory_profiler import profile
 from threading import Thread
 
@@ -238,26 +238,13 @@ def create_right_pages(selected):
                 # read bin
                 bin_path = tk_widgets.pages[1].bin_entry.get()
                 if bin_path != '':
-                    bin_file = pyRitoFile.BIN()
-                    bin_file.read(bin_path)
-                    entry = bin_file.entries[0]
-                    if entry.type != FNV1a('animationGraphData'):
-                        raise Exception(
-                            'Failed: Get weights: Not Animation BIN.')
-                    mMaskDataMap = next(
-                        (field for field in entry.fields if field.hash == FNV1a('mMaskDataMap')), None)
-                    if mMaskDataMap == None:
-                        raise Exception(
-                            'Failed: Get weights: No mMaskDataMap in this BIN.')
-                    for key in mMaskDataMap.values:
-                        for field in mMaskDataMap.values[key].values:
-                            if field.hash == FNV1a('mWeightList'):
-                                mask_names.append(key)
-                                weights.append(field.values)
+                    mask_data = amv.get_weights(amv.read_bin(bin_path))
+                    mask_names, weights = list(
+                        mask_data.keys()), list(mask_data.values())
 
                 # get table row and column length
                 tk_widgets.pages[1].table_row = len(joint_names)
-                tk_widgets.pages[1].table_column = len(mask_names)
+                tk_widgets.pages[1].table_column = len(mask_data)
                 if tk_widgets.pages[1].table_row == 0 and tk_widgets.pages[1].table_column == 0:
                     return
 
@@ -397,6 +384,18 @@ def create_right_pages(selected):
                 if not tk_widgets.pages[1].table_loaded:
                     return
 
+                # save to txt file (bin later)
+                bin_path = tkfd.asksaveasfilename(
+                    title='Select output Animation BIN path',
+                    filetypes=(
+                        ('BIN files', '*.bin'),
+                        ('All files', '*.*')
+                    ),
+                    defaultextension='.bin'
+                )
+                if bin_path == '':
+                    return
+
                 # dump [(mask, weights),...]
                 # start from column 1 because column 0 is just joint names
                 mask_data = {}
@@ -419,34 +418,10 @@ def create_right_pages(selected):
 
                     mask_data[mask_name] = weights
 
-                # init bin
-                bin_file = pyRitoFile.BIN()
-                bin_file.read(tk_widgets.pages[1].bin_entry.get())
-                entry = bin_file.entries[0]
-                if entry.type != FNV1a('animationGraphData'):
-                    raise Exception(
-                        'Failed: Get weights: Not Animation BIN.')
-                mMaskDataMap = next(
-                    (field for field in entry.fields if field.hash == FNV1a('mMaskDataMap')), None)
-                if mMaskDataMap == None:
-                    raise Exception(
-                        'Failed: Get weights: No mMaskDataMap in this BIN.')
-                for key in mMaskDataMap.values:
-                    for field in mMaskDataMap.values[key].values:
-                        if field.hash == FNV1a('mWeightList'):
-                            field.values = mask_data[key]
-
-                # save to txt file (bin later)
-                bin_path = tkfd.asksaveasfilename(
-                    title='Select output Animation BIN path',
-                    filetypes=(
-                        ('BIN files', '*.bin'),
-                        ('All files', '*.*')
-                    ),
-                    defaultextension='.bin'
-                )
-                if bin_path != '':
-                    bin_file.write(bin_path)
+                # set weights and save bin
+                bin_file = amv.read_bin(tk_widgets.pages[1].bin_entry.get())
+                amv.set_weights(bin_file, mask_data)
+                amv.write_bin(bin_path, bin_file)
             tk_widgets.pages[1].save_button = ctk.CTkButton(
                 tk_widgets.pages[1].action_frame,
                 text='Save As',
