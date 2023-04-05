@@ -250,7 +250,7 @@ def create_right_pages(selected):
                         raise Exception(
                             'Failed: Get weights: No mMaskDataMap in this BIN.')
                     for key in mMaskDataMap.values:
-                        for field in mMaskDataMap.values[key]:
+                        for field in mMaskDataMap.values[key].values:
                             if field.hash == FNV1a('mWeightList'):
                                 mask_names.append(key)
                                 weights.append(field.values)
@@ -397,10 +397,9 @@ def create_right_pages(selected):
                 if not tk_widgets.pages[1].table_loaded:
                     return
 
-                # init bin
-                bin_file = pyRitoFile.BIN()
                 # dump [(mask, weights),...]
                 # start from column 1 because column 0 is just joint names
+                mask_data = {}
                 for j in range(1, tk_widgets.pages[1].table_column+1):
                     mask_name = None
                     weights = []
@@ -416,24 +415,41 @@ def create_right_pages(selected):
                         else:
                             weight = tk_widgets.pages[1].table_widgets[windex].get(
                             )
-                            weights.append(weight)
+                            weights.append(float(weight))
 
-                    bin_file.masks.append((mask_name, weights))
+                    mask_data[mask_name] = weights
+
+                # init bin
+                bin_file = pyRitoFile.BIN()
+                bin_file.read(tk_widgets.pages[1].bin_entry.get())
+                entry = bin_file.entries[0]
+                if entry.type != FNV1a('animationGraphData'):
+                    raise Exception(
+                        'Failed: Get weights: Not Animation BIN.')
+                mMaskDataMap = next(
+                    (field for field in entry.fields if field.hash == FNV1a('mMaskDataMap')), None)
+                if mMaskDataMap == None:
+                    raise Exception(
+                        'Failed: Get weights: No mMaskDataMap in this BIN.')
+                for key in mMaskDataMap.values:
+                    for field in mMaskDataMap.values[key].values:
+                        if field.hash == FNV1a('mWeightList'):
+                            field.values = mask_data[key]
 
                 # save to txt file (bin later)
                 bin_path = tkfd.asksaveasfilename(
-                    title='Select output TXT path',
+                    title='Select output Animation BIN path',
                     filetypes=(
-                        ('TXT files', '*.txt'),
+                        ('BIN files', '*.bin'),
                         ('All files', '*.*')
                     ),
-                    defaultextension='.txt'
+                    defaultextension='.bin'
                 )
                 if bin_path != '':
-                    print('Triggered save')
+                    bin_file.write(bin_path)
             tk_widgets.pages[1].save_button = ctk.CTkButton(
                 tk_widgets.pages[1].action_frame,
-                text='Save',
+                text='Save As',
                 command=save_cmd
             )
             tk_widgets.pages[1].save_button.grid(

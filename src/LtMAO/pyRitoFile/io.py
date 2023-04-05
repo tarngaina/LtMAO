@@ -17,6 +17,13 @@ class BinStream:
     def pad(self, length):
         self.stream.seek(length, 1)
 
+    def end(self):
+        return_offset = self.stream.tell()
+        self.stream.seek(0, 2)
+        e = self.stream.tell()
+        self.stream.seek(return_offset)
+        return e
+
     # read
 
     def read_fmt(self, fmt, fmt_size):
@@ -85,3 +92,63 @@ class BinStream:
                 break
             s += chr(c)
         return s,
+
+    # write
+
+    def write_fmt(self, fmt, *values):
+        self.stream.write(Struct(fmt).pack(*values))
+
+    def write(self, values):
+        self.stream.write(values)
+
+    def write_b(self, *values):
+        self.stream.write(Struct(f'<{len(values)}?').pack(*values))
+
+    def write_i8(self, *values):
+        self.stream.write(Struct(f'<{len(values)}b').pack(*values))
+
+    def write_u8(self, *values):
+        self.stream.write(Struct(f'<{len(values)}B').pack(*values))
+
+    def write_i16(self, *values):
+        self.stream.write(Struct(f'<{len(values)}h').pack(*values))
+
+    def write_u16(self, *values):
+        self.stream.write(Struct(f'<{len(values)}H').pack(*values))
+
+    def write_i32(self, *values):
+        self.stream.write(Struct(f'<{len(values)}i').pack(*values))
+
+    def write_u32(self, *values):
+        self.stream.write(Struct(f'<{len(values)}I').pack(*values))
+
+    def write_i64(self, *values):
+        self.stream.write(Struct(f'<{len(values)}q').pack(*values))
+
+    def write_u64(self, *values):
+        self.stream.write(Struct(f'<{len(values)}Q').pack(*values))
+
+    def write_f(self, *values):
+        self.stream.write(Struct(f'<{len(values)}f').pack(*values))
+
+    def write_vec2(self, *values):
+        floats = [f for vec in values for f in vec]
+        self.stream.write(Struct(f'<{len(floats)}f').pack(*floats))
+
+    def write_vec3(self, *values):
+        floats = [f for vec in values for f in vec]
+        self.stream.write(Struct(f'<{len(floats)}f').pack(*floats))
+
+    def write_vec4(self, *values):
+        floats = [f for vec in values for f in vec]
+        self.stream.write(Struct(f'<{len(floats)}f').pack(*floats))
+
+    def write_quat(self, *values):
+        floats = [f for quat in values for f in quat]
+        self.stream.write(Struct(f'<{len(floats)}f').pack(*floats))
+
+    def write_a(self, value):
+        self.stream.write(value.encode('ascii'))
+
+    def write_a_padded(self, value, length):
+        self.stream.write(value.encode('ascii') + b'\x00'*(length-len(value)))
