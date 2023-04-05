@@ -2,12 +2,12 @@
 import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
-from traceback import format_exception
-from LtMAO import pyRitoFile
+
+from LtMAO import pyRitoFile, amv
 from LtMAO.prettyUI.helper import Keeper, Log
-from LtMAO import amv
-from memory_profiler import profile
+
 from threading import Thread
+from traceback import format_exception
 
 
 def create_main_app_and_frames():
@@ -224,7 +224,7 @@ def create_right_pages(selected):
 
             # create load button
             def load_cmd():
-                Log.add('Running: Load weight table.')
+                Log.add('Running: Load weight table')
 
                 joint_names = []
                 mask_names = []
@@ -232,21 +232,22 @@ def create_right_pages(selected):
                 # read skl
                 skl_path = tk_widgets.pages[1].skl_entry.get()
                 if skl_path != '':
-                    skl_file = pyRitoFile.SKL()
-                    skl_file.read(skl_path)
+                    skl_file = pyRitoFile.read_skl(skl_path)
                     joint_names = [joint.name for joint in skl_file.joints]
                 # read bin
                 bin_path = tk_widgets.pages[1].bin_entry.get()
                 if bin_path != '':
-                    mask_data = amv.get_weights(amv.read_bin(bin_path))
+                    bin_file = amv.read_bin(bin_path)
+                    mask_data = amv.get_weights(bin_file)
                     mask_names, weights = list(
                         mask_data.keys()), list(mask_data.values())
 
                 # get table row and column length
                 tk_widgets.pages[1].table_row = len(joint_names)
                 tk_widgets.pages[1].table_column = len(mask_data)
-                if tk_widgets.pages[1].table_row == 0 and tk_widgets.pages[1].table_column == 0:
-                    return
+                if tk_widgets.pages[1].table_row == 0:
+                    raise Exception(
+                        'Failed: Load weight table: No joints found in this SKL.')
 
                 # create/load table frame
                 if not tk_widgets.pages[1].table_loaded:
@@ -369,7 +370,7 @@ def create_right_pages(selected):
                     row=0, column=0, sticky=tk.NSEW)
                 # mark as table loaded
                 tk_widgets.pages[1].table_loaded = True
-                Log.add('Done: Load weight table.')
+                Log.add('Done: Load weight table')
 
             tk_widgets.pages[1].load_button = ctk.CTkButton(
                 tk_widgets.pages[1].action_frame,
@@ -432,7 +433,7 @@ def create_right_pages(selected):
 
             # create clear button
             def clear_cmd():
-                Log.add('Running: Clear weight table.')
+                Log.add('Running: Clear weight table')
                 if not tk_widgets.pages[1].table_loaded:
                     return
                 # destroy tk widgets
@@ -442,7 +443,7 @@ def create_right_pages(selected):
                 tk_widgets.pages[1].vtable_frame.grid_forget()
                 tk_widgets.pages[1].htable_frame.grid_forget()
                 tk_widgets.pages[1].table_loaded = False
-                Log.add('Done: Clear weight table.')
+                Log.add('Done: Clear weight table')
             tk_widgets.pages[1].clear_button = ctk.CTkButton(
                 tk_widgets.pages[1].action_frame,
                 text='Clear',

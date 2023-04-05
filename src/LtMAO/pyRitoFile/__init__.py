@@ -1,5 +1,5 @@
 from LtMAO.pyRitoFile.skl import SKL, SKLJoint
-from LtMAO.pyRitoFile.bin import BIN, BINField, BINFieldType, BINEntry, BINPatch
+from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINEncoder
 
 
 def read_skl(path):
