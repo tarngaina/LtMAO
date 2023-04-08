@@ -30,8 +30,6 @@ class SKL:
         self.influences = []
 
     def read(self, path):
-        Log.add(f'Running: Read {path}')
-
         with open(path, 'rb') as f:
             bs = BinStream(f)
 
@@ -127,5 +125,3 @@ class SKL:
                 if self.version == 2:
                     influence_count, = bs.read_u32()
                     self.influences = bs.read_u32(influence_count)
-
-        Log.add(f'Done: Read {path}')
