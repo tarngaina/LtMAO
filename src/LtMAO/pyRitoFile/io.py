@@ -1,5 +1,5 @@
 from struct import Struct
-from LtMAO.pyRitoFile.structs import Vector, Quaternion
+from LtMAO.pyRitoFile.structs import Vector, Quaternion, Matrix4
 
 
 class BinStream:
@@ -59,24 +59,27 @@ class BinStream:
     def read_u64(self, count=1):
         return Struct(f'<{count}Q').unpack(self.stream.read(count*8))
 
-    def read_f(self, count=1):
+    def read_f32(self, count=1):
         return Struct(f'<{count}f').unpack(self.stream.read(count*4))
 
     def read_vec2(self, count=1):
         floats = Struct(f'<{count*2}f').unpack(self.stream.read(count*8))
-        return [Vector(floats[i], floats[i-1]) for i in range(0, len(floats), 2)]
+        return [Vector(floats[i], floats[i+1]) for i in range(0, len(floats), 2)]
 
     def read_vec3(self, count=1):
         floats = Struct(f'<{count*3}f').unpack(self.stream.read(count*12))
-        return [Vector(floats[i], floats[i-1], floats[i-2]) for i in range(0, len(floats), 3)]
+        return [Vector(floats[i], floats[i+1], floats[i+2]) for i in range(0, len(floats), 3)]
 
     def read_vec4(self, count=1):
         floats = Struct(f'<{count*4}f').unpack(self.stream.read(count*16))
-        return [Vector(floats[i], floats[i-1], floats[i-2], floats[i-3]) for i in range(0, len(floats), 4)]
+        return [Vector(floats[i], floats[i+1], floats[i+2], floats[i+3]) for i in range(0, len(floats), 4)]
 
     def read_quat(self, count=1):
         floats = Struct(f'<{count*4}f').unpack(self.stream.read(count*16))
-        return [Quaternion(floats[i], floats[i-1], floats[i-2], floats[i-3]) for i in range(0, len(floats), 4)]
+        return [Quaternion(floats[i], floats[i+1], floats[i+2], floats[i+3]) for i in range(0, len(floats), 4)]
+
+    def read_mtx4(self):
+        return Matrix4(*Struct(f'16f').unpack(self.stream.read(64))),
 
     def read_a(self, length):
         return self.stream.read(length).decode('ascii'),
@@ -128,7 +131,7 @@ class BinStream:
     def write_u64(self, *values):
         self.stream.write(Struct(f'<{len(values)}Q').pack(*values))
 
-    def write_f(self, *values):
+    def write_f32(self, *values):
         self.stream.write(Struct(f'<{len(values)}f').pack(*values))
 
     def write_vec2(self, *values):
@@ -146,6 +149,9 @@ class BinStream:
     def write_quat(self, *values):
         floats = [f for quat in values for f in quat]
         self.stream.write(Struct(f'<{len(floats)}f').pack(*floats))
+
+    def write_mtx4(self, mtx4):
+        self.stream.write(Struct('16f').pack(f for f in mtx4))
 
     def write_a(self, value):
         self.stream.write(value.encode('ascii'))

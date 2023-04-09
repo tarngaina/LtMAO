@@ -44,26 +44,26 @@ class BINHelper:
             value = bs.read_i64()[0]
         elif value_type == BINType.U64:
             value = bs.read_u64()[0]
-        elif value_type == BINType.Float:
-            value = bs.read_f()[0]
+        elif value_type == BINType.F32:
+            value = bs.read_f32()[0]
         elif value_type == BINType.Vec2:
             value = bs.read_vec2()[0]
         elif value_type == BINType.Vec3:
             value = bs.read_vec3()[0]
         elif value_type == BINType.Vec4:
             value = bs.read_vec4()[0]
-        elif value_type == BINType.Matrix4:
-            value = bs.read_f(16)
-        elif value_type == BINType.Color:
+        elif value_type == BINType.Mtx4:
+            value = bs.read_mtx4()[0]
+        elif value_type == BINType.RGBA:
             value = bs.read_u8(4)
         elif value_type == BINType.String:
             size, = bs.read_u16()
             value = bs.read_a(size)[0]
         elif value_type == BINType.Hash:
             value = hex(bs.read_u32()[0])
-        elif value_type == BINType.Path:
+        elif value_type == BINType.File:
             value = bs.read_u64()[0]
-        elif value_type == BINType.Struct or value_type == BINType.Embed:
+        elif value_type == BINType.Pointer or value_type == BINType.Embed:
             field = BINField()
             field.hash_type = hex(bs.read_u32()[0])
             if field.hash_type != 0:
@@ -86,7 +86,7 @@ class BINHelper:
         field = BINField()
         field.hash = hex(bs.read_u32()[0])
         field.type = BINHelper.fix_type(bs.read_u8()[0])
-        if field.type == BINType.Container1 or field.type == BINType.Container2:
+        if field.type == BINType.List or field.type == BINType.List2:
             field.value_type = BINHelper.fix_type(bs.read_u8()[0])
             bs.pad(4)  # size
             count, = bs.read_u32()
@@ -94,7 +94,7 @@ class BINHelper:
                 BINHelper.read_value(bs, field.value_type)
                 for i in range(count)
             ]
-        elif field.type == BINType.Struct or field.type == BINType.Embed:
+        elif field.type == BINType.Pointer or field.type == BINType.Embed:
             field.hash_type = hex(bs.read_u32()[0])
             if field.hash_type != 0:
                 bs.pad(4)  # size
@@ -153,8 +153,8 @@ class BINHelper:
         elif value_type == BINType.U64:
             bs.write_u64(value)
             value_size += 8
-        elif value_type == BINType.Float:
-            bs.write_f(value)
+        elif value_type == BINType.F32:
+            bs.write_f32(value)
             value_size += 4
         elif value_type == BINType.Vec2:
             bs.write_vec2(value)
@@ -165,10 +165,10 @@ class BINHelper:
         elif value_type == BINType.Vec4:
             bs.write_vec4(value)
             value_size += 16
-        elif value_type == BINType.Matrix4:
-            bs.write_f(*value)
+        elif value_type == BINType.Mtx4:
+            bs.write_mtx4(value)
             value_size += 64
-        elif value_type == BINType.Color:
+        elif value_type == BINType.RGBA:
             bs.write_u8(*value)
             value_size += 4
         elif value_type == BINType.String:
@@ -179,10 +179,10 @@ class BINHelper:
         elif value_type == BINType.Hash:
             bs.write_u32(int(value, 16))
             value_size += 4
-        elif value_type == BINType.Path:
+        elif value_type == BINType.File:
             bs.write_u64(value)
             value_size += 8
-        elif value_type == BINType.Struct or value_type == BINType.Embed:
+        elif value_type == BINType.Pointer or value_type == BINType.Embed:
             field = value  # treat the value as BINField
             if field.data == None:
                 bs.write_u32(0)
@@ -216,7 +216,7 @@ class BINHelper:
         field_size = 5 if header_size else 0
         bs.write_u32(int(field.hash, 16))
         bs.write_u8(field.type.value)
-        if field.type == BINType.Container1 or field.type == BINType.Container2:
+        if field.type == BINType.List or field.type == BINType.List2:
             bs.write_u8(field.value_type.value)
 
             return_offset = bs.tell()
@@ -231,7 +231,7 @@ class BINHelper:
             BINHelper.size_offsets.append((return_offset, content_size))
 
             field_size += content_size
-        elif field.type == BINType.Struct or field.type == BINType.Embed:
+        elif field.type == BINType.Pointer or field.type == BINType.Embed:
             if field.data == None:
                 bs.write_u32(0)  # hash_type
                 field_size += 4
@@ -297,19 +297,19 @@ class BINType(Enum):
     U32 = 7
     I64 = 8
     U64 = 9
-    Float = 10
+    F32 = 10
     Vec2 = 11
     Vec3 = 12
     Vec4 = 13
-    Matrix4 = 14
-    Color = 15
+    Mtx4 = 14
+    RGBA = 15
     String = 16
     Hash = 17
-    Path = 18
+    File = 18
     # complex
-    Container1 = 128
-    Container2 = 129
-    Struct = 130
+    List = 128
+    List2 = 129
+    Pointer = 130
     Embed = 131
     Link = 132
     Option = 133
@@ -333,10 +333,10 @@ class BINField:
 
     def __json__(self):
         dic = vars(self)
-        if self.type == BINType.Container1 or self.type == BINType.Container2:
+        if self.type == BINType.List or self.type == BINType.List2:
             dic.pop('key_type')
             dic.pop('hash_type')
-        elif self.type == BINType.Struct or self.type == BINType.Embed:
+        elif self.type == BINType.Pointer or self.type == BINType.Embed:
             dic.pop('key_type')
             dic.pop('value_type')
         elif self.type == BINType.Map:
@@ -436,7 +436,7 @@ class BIN:
                     patch.data = BINHelper.read_value(bs, patch.type)
 
     def write(self, path):
-        with open(path, 'wb+') as f:
+        with open(path, 'wb') as f:
             bs = BinStream(f)
             # header
             if self.is_patch:

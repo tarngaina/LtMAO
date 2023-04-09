@@ -19,14 +19,14 @@ def create_main_app_and_frames():
     tk_widgets.main_tk.rowconfigure(0, weight=100)
     tk_widgets.main_tk.rowconfigure(1, weight=1)
     tk_widgets.main_tk.columnconfigure(0, weight=1)
-    # create main top frame
+    # create top frame
     tk_widgets.maintop_frame = ctk.CTkFrame(
         tk_widgets.main_tk,
         fg_color=TRANSPARENT
     )
     tk_widgets.maintop_frame.grid(
         row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
-    # create main bottom frame
+    # create bottom frame
     tk_widgets.mainbottom_frame = ctk.CTkFrame(
         tk_widgets.main_tk,
         height=30
@@ -36,15 +36,15 @@ def create_main_app_and_frames():
 
     tk_widgets.maintop_frame.rowconfigure(0, weight=1)
     tk_widgets.maintop_frame.columnconfigure(0, weight=1)
-    tk_widgets.maintop_frame.columnconfigure(1, weight=9)
-    # create main left frame
+    tk_widgets.maintop_frame.columnconfigure(1, weight=100)
+    # create top left frame
     tk_widgets.mainleft_frame = ctk.CTkFrame(
         tk_widgets.maintop_frame,
         fg_color=TRANSPARENT
     )
     tk_widgets.mainleft_frame.grid(
         row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
-    # create main right frame
+    # create top right frame
     tk_widgets.mainright_frame = ctk.CTkFrame(
         tk_widgets.maintop_frame
     )
@@ -52,8 +52,11 @@ def create_main_app_and_frames():
         row=0, column=1, padx=0, pady=0, sticky=tk.NSEW)
 
 
-def create_left_controls():
-    # create left controls
+def create_page_controls():
+    # change top left & top right weight
+    tk_widgets.mainright_frame.columnconfigure(0, weight=1)
+    tk_widgets.mainright_frame.rowconfigure(0, weight=1)
+
     tk_widgets.mainleft_frame.columnconfigure(0, weight=1)
     tk_widgets.mainleft_frame.rowconfigure(0, weight=1)
     tk_widgets.mainleft_frame.rowconfigure(1, weight=1)
@@ -62,16 +65,6 @@ def create_left_controls():
     tk_widgets.mainleft_frame.rowconfigure(4, weight=1)
     tk_widgets.mainleft_frame.rowconfigure(5, weight=1)
     tk_widgets.mainleft_frame.rowconfigure(6, weight=69)
-
-    # init pages data
-    tk_widgets.pages = [
-        Keeper(),
-        Keeper(),
-        Keeper(),
-        Keeper(),
-        Keeper(),
-        Keeper()
-    ]
 
     # create left controls buttons
     def control_cmd(x):
@@ -84,7 +77,7 @@ def create_left_controls():
                 # empty background for other controls
                 control_button.configure(fg_color=TRANSPARENT)
         # create page depend on control
-        create_right_pages(x)
+        select_right_page(x)
     tk_widgets.select_control = control_cmd
     tk_widgets.control_buttons = [
         ctk.CTkButton(
@@ -118,49 +111,74 @@ def create_left_controls():
             command=lambda: control_cmd(5)
         )
     ]
-    # easier reference
-    tk_widgets.AMV = tk_widgets.pages[2]
-
-    # get active color for active control
-    tk_widgets.active_control_fg_color = tk_widgets.control_buttons[0].cget(
-        'fg_color')
     for id, control_button in enumerate(tk_widgets.control_buttons):
         control_button.grid(
             row=id, column=0, padx=5, pady=5, sticky=tk.N+tk.EW)
+    # get active color for active control
+    tk_widgets.active_control_fg_color = tk_widgets.control_buttons[0].cget(
+        'fg_color')
+
+    # init pages data base on control buttons
+    tk_widgets.pages = []
+    for i in range(len(tk_widgets.control_buttons)):
+        # each keeper for each page
+        tk_widgets.pages.append(Keeper())
+        # init page frame
+        tk_widgets.pages[i].page_frame = None
+
+    # reference page
+    tk_widgets.AMV = tk_widgets.pages[2]
+    tk_widgets.LOG = tk_widgets.pages[4]
+
+    # create frame that need to be created first
+    tk_widgets.LOG.page_frame = ctk.CTkFrame(
+        tk_widgets.mainright_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.LOG.page_frame.grid(
+        row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
+    tk_widgets.LOG.page_frame.columnconfigure(0, weight=1)
+    tk_widgets.LOG.page_frame.rowconfigure(0, weight=1)
+    tk_widgets.LOG.log_textbox = ctk.CTkTextbox(
+        tk_widgets.LOG.page_frame,
+        corner_radius=0,
+        wrap=tk.WORD,
+        state=tk.DISABLED,
+        border_spacing=10
+    )
+    tk_widgets.LOG.log_textbox.grid(row=0, column=0, sticky=tk.NSEW)
+    Log.log_textbox = tk_widgets.LOG.log_textbox
+    # select first page
     tk_widgets.select_control(0)
 
 
-def create_right_pages(selected):
-    # destroy right frame
-    tk_widgets.mainright_frame.destroy()
-    # recreate main right frame
-    tk_widgets.mainright_frame = ctk.CTkFrame(
-        tk_widgets.maintop_frame
-    )
-    tk_widgets.mainright_frame.grid(
-        row=0, column=1, padx=0, pady=0, sticky=tk.NSEW)
+def select_right_page(selected):
+    for page in tk_widgets.pages:
+        if page.page_frame != None:
+            page.page_frame.grid_forget()
 
     # create page depend on selected page
     if selected == 0:
-        tk_widgets.mainright_frame.columnconfigure(0, weight=1)
-        tk_widgets.mainright_frame.rowconfigure(0, weight=1)
-        tk_widgets.mainright_frame.rowconfigure(1, weight=69)
+        pass
     elif selected == 1:
-        tk_widgets.mainright_frame.columnconfigure(0, weight=1)
-        tk_widgets.mainright_frame.rowconfigure(0, weight=1)
-        tk_widgets.mainright_frame.rowconfigure(1, weight=69)
+        pass
     elif selected == 2:
-        # animaskviewer page
-        tk_widgets.mainright_frame.columnconfigure(0, weight=1)
-        tk_widgets.mainright_frame.rowconfigure(0, weight=1)
-        tk_widgets.mainright_frame.rowconfigure(1, weight=1)
-        tk_widgets.mainright_frame.rowconfigure(2, weight=69)
-        tk_widgets.AMV.table_loaded = False
+        if tk_widgets.AMV.page_frame == None:
+            tk_widgets.AMV.page_frame = ctk.CTkFrame(
+                tk_widgets.mainright_frame,
+                fg_color=TRANSPARENT,
+            )
+            tk_widgets.AMV.page_frame.columnconfigure(0, weight=1)
+            tk_widgets.AMV.page_frame.rowconfigure(0, weight=1)
+            tk_widgets.AMV.page_frame.rowconfigure(1, weight=1)
+            tk_widgets.AMV.page_frame.rowconfigure(2, weight=69)
 
-        def create_inputs():
+            tk_widgets.AMV.table_loaded = False
+            tk_widgets.AMV.bin_loaded = None
+
             # create input frame
             tk_widgets.AMV.input_frame = ctk.CTkFrame(
-                tk_widgets.mainright_frame,
+                tk_widgets.AMV.page_frame,
                 fg_color=TRANSPARENT
             )
             tk_widgets.AMV.input_frame.grid(
@@ -222,10 +240,9 @@ def create_right_pages(selected):
             tk_widgets.AMV.binbrowse_button.grid(
                 row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
-        def create_actions():
             # create action frame
             tk_widgets.AMV.action_frame = ctk.CTkFrame(
-                tk_widgets.mainright_frame, fg_color=TRANSPARENT)
+                tk_widgets.AMV.page_frame, fg_color=TRANSPARENT)
             tk_widgets.AMV.action_frame.grid(
                 row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
             tk_widgets.AMV.action_frame.columnconfigure(0, weight=1)
@@ -251,7 +268,8 @@ def create_right_pages(selected):
                 bin_path = tk_widgets.AMV.bin_entry.get()
                 if bin_path != '':
                     Log.add(f'Running: Read {bin_path}')
-                    bin_file = amv.read_bin(bin_path)
+                    bin_file = pyRitoFile.read_bin(bin_path)
+                    tk_widgets.AMV.bin_loaded = bin_file
                     Log.add(f'Done: Read {bin_path}')
                     mask_data = amv.get_weights(bin_file)
                     mask_names, weights = list(
@@ -262,13 +280,13 @@ def create_right_pages(selected):
                 tk_widgets.AMV.table_column = len(mask_data)
                 if tk_widgets.AMV.table_row == 0:
                     raise Exception(
-                        'Failed: Load weight table: No joints found in this SKL.')
+                        'Failed: Load weight table: No joints found.')
 
-                # create/load table frame
+                # create table frame
                 if not tk_widgets.AMV.table_loaded:
                     # create horizontal scroll table frame
                     tk_widgets.AMV.htable_frame = ctk.CTkScrollableFrame(
-                        tk_widgets.mainright_frame,
+                        tk_widgets.AMV.page_frame,
                         fg_color=TRANSPARENT,
                         orientation=ctk.HORIZONTAL
                     )
@@ -362,7 +380,7 @@ def create_right_pages(selected):
                                 justify=tk.RIGHT,
                                 validate='all',
                                 validatecommand=(
-                                    (tk_widgets.mainright_frame.register(
+                                    (tk_widgets.AMV.page_frame.register(
                                         validate_weight_cmd)),
                                     '%P'
                                 )
@@ -386,7 +404,6 @@ def create_right_pages(selected):
                 # mark as table loaded
                 tk_widgets.AMV.table_loaded = True
                 Log.add('Done: Load weight table')
-
             tk_widgets.AMV.load_button = ctk.CTkButton(
                 tk_widgets.AMV.action_frame,
                 text='Load',
@@ -435,7 +452,7 @@ def create_right_pages(selected):
                     mask_data[mask_name] = weights
 
                 # set weights and save bin
-                bin_file = amv.read_bin(tk_widgets.AMV.bin_entry.get())
+                bin_file = tk_widgets.AMV.bin_loaded
                 amv.set_weights(bin_file, mask_data)
                 amv.write_bin(bin_path, bin_file)
             tk_widgets.AMV.save_button = ctk.CTkButton(
@@ -457,6 +474,7 @@ def create_right_pages(selected):
                         widget.destroy()
                 tk_widgets.AMV.vtable_frame.grid_forget()
                 tk_widgets.AMV.htable_frame.grid_forget()
+                tk_widgets.AMV.bin_loaded = None
                 tk_widgets.AMV.table_loaded = False
                 Log.add('Done: Clear weight table')
             tk_widgets.AMV.clear_button = ctk.CTkButton(
@@ -467,20 +485,16 @@ def create_right_pages(selected):
             tk_widgets.AMV.clear_button.grid(
                 row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
 
-        create_inputs()
-        create_actions()
+        tk_widgets.AMV.page_frame.grid(
+            row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
     elif selected == 3:
-        tk_widgets.mainright_frame.columnconfigure(0, weight=1)
-        tk_widgets.mainright_frame.rowconfigure(0, weight=1)
-        tk_widgets.mainright_frame.rowconfigure(1, weight=69)
+        pass
     elif selected == 4:
-        tk_widgets.mainright_frame.columnconfigure(0, weight=1)
-        tk_widgets.mainright_frame.rowconfigure(0, weight=1)
-        tk_widgets.mainright_frame.rowconfigure(1, weight=69)
+        # Log
+        tk_widgets.LOG.page_frame.grid(
+            row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
     elif selected == 5:
-        tk_widgets.mainright_frame.columnconfigure(0, weight=1)
-        tk_widgets.mainright_frame.rowconfigure(0, weight=1)
-        tk_widgets.mainright_frame.rowconfigure(1, weight=69)
+        pass
 
 
 def create_mini_log():
@@ -498,6 +512,11 @@ def create_mini_log():
     )
     tk_widgets.bottom_widgets.minilog_label.grid(
         row=0, column=0, padx=10, pady=0, sticky=tk.NSEW)
+
+    tk_widgets.bottom_widgets.minilog_label.bind(
+        '<Button-1>',
+        lambda event: tk_widgets.select_control(4)
+    )
     Log.minilog_label = tk_widgets.bottom_widgets.minilog_label
 
 
@@ -520,7 +539,7 @@ ctk.CTk.report_callback_exception = rce
 def start():
     # create UI
     create_main_app_and_frames()
-    create_left_controls()
+    create_page_controls()
     create_mini_log()
 
     # loop the UI

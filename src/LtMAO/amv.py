@@ -9,14 +9,14 @@ def get_weights(bin):
         raise Exception(
             'Failed: Get weights: Not Animation BIN.')
     mMaskDataMap = next(
-        (field for field in entry.fields if field.hash == bin_hash('mMaskDataMap')), None)
+        (data for data in entry.data if data.hash == bin_hash('mMaskDataMap')), None)
     if mMaskDataMap == None:
         raise Exception(
             'Failed: Get weights: No mMaskDataMap in this BIN.')
-    for key in mMaskDataMap.values:
-        for field in mMaskDataMap.values[key].values:
+    for key in mMaskDataMap.data:
+        for field in mMaskDataMap.data[key].data:
             if field.hash == bin_hash('mWeightList'):
-                mask_data[key] = field.values
+                mask_data[key] = field.data
 
     return mask_data
 
@@ -27,11 +27,11 @@ def set_weights(bin, mask_data):
         raise Exception(
             'Failed: Get weights: Not Animation BIN.')
     mMaskDataMap = next(
-        (field for field in entry.fields if field.hash == bin_hash('mMaskDataMap')), None)
+        (data for data in entry.data if data.hash == bin_hash('mMaskDataMap')), None)
     if mMaskDataMap == None:
         raise Exception(
             'Failed: Get weights: No mMaskDataMap in this BIN.')
-    for key in mMaskDataMap.values:
-        for field in mMaskDataMap.values[key].values:
+    for key in mMaskDataMap.data:
+        for field in mMaskDataMap.data[key].data:
             if field.hash == bin_hash('mWeightList'):
-                field.values = mask_data[key]
+                field.data = mask_data[key]

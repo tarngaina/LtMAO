@@ -1,5 +1,3 @@
-from threading import Thread
-from time import sleep
 from datetime import datetime
 
 
@@ -15,6 +13,7 @@ class Keeper:
 class Log:
     messages = []
     minilog_label = None
+    log_textbox = None
 
     @staticmethod
     def add(text):
@@ -25,9 +24,18 @@ class Log:
         while '' in messages:
             messages.remove('')
         if len(messages) > 0:
-            Log.messages.extend(f'[{now()}] {msg}' for msg in messages)
-            if Log.minilog_label != None:
-                Log.minilog_label.configure(text=Log.messages[-1])
-                Log.minilog_label.update_idletasks()
-            if len(Log.messages) > 1000:
-                Log.messages = Log.messages[-1000:]
+            for msg in messages:
+                timed_msg = f'[{now()}] {msg}'
+                # add messages to log
+                Log.messages.append(timed_msg)
+
+                # update UI log
+                if Log.log_textbox != None:
+                    Log.log_textbox.configure(state='normal')
+                    Log.log_textbox.insert('end', timed_msg+'\n')
+                    Log.log_textbox.configure(state='disabled')
+
+                # update UI minilog
+                if Log.minilog_label != None:
+                    Log.minilog_label.configure(text=Log.messages[-1])
+                    Log.minilog_label.update_idletasks()
