@@ -196,9 +196,9 @@ class Matrix4:
         translate = Vector(self.m, self.n, self.o)
 
         scale = Vector(
-            sqrt(self.a*self.a + self.b*self.b + self.c*self.c),
-            sqrt(self.e*self.e + self.f*self.f + self.g*self.g),
-            sqrt(self.i*self.i + self.j*self.j + self.k*self.k)
+            self.p * sqrt(self.a**2 + self.b**2 + self.c**2),
+            self.p * sqrt(self.e**2 + self.f**2 + self.g**2),
+            self.p * sqrt(self.i**2 + self.j**2 + self.k**2)
         )
 
         r_mat = Matrix4(
@@ -209,8 +209,16 @@ class Matrix4:
                 0, 0, 0, 1
             )
         )
+        dott = (r_mat.b * r_mat.g - r_mat.c * r_mat.f) * r_mat.i \
+            + (r_mat.c * r_mat.e - r_mat.a * r_mat.g) * r_mat.j \
+            + (r_mat.a * r_mat.f - r_mat.b * r_mat.e) * r_mat.k
+        if dott < 0:
+            scale.x *= -1
+            r_mat.a *= -1
+            r_mat.b *= -1
+            r_mat.c *= -1
         trace = r_mat.a + r_mat.f + r_mat.k
-        if trace > 0.0:
+        if trace > 0.00000001:
             s = sqrt(trace + 1.0)
             i_s = 0.5 / s
             rotate = Quaternion(

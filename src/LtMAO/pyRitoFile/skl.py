@@ -144,10 +144,10 @@ class SKL:
                 # old matrix to local translation, ibind rotation
                 for i in range(joint_count):
                     joint = self.joints[i]
-                    ibind = old_matrices[i].inverse()
                     local = old_matrices[i] if joint.parent == - \
-                        1 else old_matrices[i] * ibind
+                        1 else old_matrices[i] * old_matrices[joint.parent].inverse()
                     joint.local_translate, joint.local_rotate, joint.local_scale = local.decompose()
+                    ibind = old_matrices[i].inverse()
                     joint.ibind_translate, joint.ibind_rotate, joint.ibind_scale = ibind.decompose()
 
                 # read influences
