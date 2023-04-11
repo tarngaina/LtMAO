@@ -1,7 +1,7 @@
 from LtMAO.pyRitoFile.skl import SKL, SKLJoint, SKLEncoder
 from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINEncoder
 from LtMAO.pyRitoFile.bnk import BNK
-from json import dump
+from json import dump, dumps
 
 
 def write_json(path, obj):
@@ -10,6 +10,13 @@ def write_json(path, obj):
             dump(obj, f, indent=4, cls=SKLEncoder)
         elif isinstance(obj, BIN):
             dump(obj, f, indent=4, cls=BINEncoder)
+
+
+def to_json(obj):
+    if isinstance(obj, SKL):
+        return dumps(obj, indent=4, cls=SKLEncoder)
+    elif isinstance(obj, BIN):
+        return dumps(obj, indent=4, cls=BINEncoder)
 
 
 def read_skl(path):

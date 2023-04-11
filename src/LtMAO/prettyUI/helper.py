@@ -34,6 +34,7 @@ class Log:
                     Log.log_textbox.configure(state='normal')
                     Log.log_textbox.insert('end', timed_msg+'\n')
                     Log.log_textbox.configure(state='disabled')
+                    Log.log_textbox.see('end')
 
                 # update UI minilog
                 if Log.minilog_label != None:

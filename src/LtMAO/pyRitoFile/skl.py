@@ -1,6 +1,6 @@
 from LtMAO.pyRitoFile.io import BinStream
 from LtMAO.pyRitoFile.structs import Matrix4
-from LtMAO.pyRitoFile.hash import Elf
+from LtMAO.pyRitoFile.hash import Elf, FNV1a
 from json import JSONEncoder
 
 
@@ -98,6 +98,7 @@ class SKL:
                         return_offset = bs.tell()
                         bs.seek(return_offset-4 + joint_name_offset)
                         joint.name, = bs.read_c_until0()
+                        joint.bin_hash = hex(FNV1a(joint.name))
                         bs.seek(return_offset)
 
                 # read influences
@@ -130,6 +131,7 @@ class SKL:
                     joint = self.joints[i]
 
                     joint.name, = bs.read_a_padded(32)
+                    joint.bin_hash = hex(FNV1a(joint.name))
                     joint.id = i
                     joint.hash = Elf(joint.name)
                     joint.parent, = bs.read_i32()
