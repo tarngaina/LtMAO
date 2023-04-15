@@ -321,7 +321,7 @@ class BINType(Enum):
 
 
 class BINField:
-    __slot__ = ('hash', 'type', 'hash_type', 'key_type', 'value_type', 'data')
+    __slots__ = ('hash', 'type', 'hash_type', 'key_type', 'value_type', 'data')
 
     def __init__(self):
         self.hash = None
@@ -332,7 +332,7 @@ class BINField:
         self.data = []
 
     def __json__(self):
-        dic = vars(self)
+        dic = {key: getattr(self, key) for key in self.__slots__}
         if self.type == BINType.List or self.type == BINType.List2:
             dic.pop('key_type')
             dic.pop('hash_type')
@@ -349,7 +349,7 @@ class BINField:
 
 
 class BINPatch:
-    __slot__ = ('hash', 'path', 'type', 'data')
+    __slots__ = ('hash', 'path', 'type', 'data')
 
     def __init__(self):
         self.hash = None
@@ -358,11 +358,11 @@ class BINPatch:
         self.data = None
 
     def __json__(self):
-        return vars(self)
+        return {key: getattr(self, key) for key in self.__slots__}
 
 
 class BINEntry:
-    __slot__ = ('hash', 'type', 'data')
+    __slots__ = ('hash', 'type', 'data')
 
     def __init__(self):
         self.hash = None
@@ -370,10 +370,15 @@ class BINEntry:
         self.data = []
 
     def __json__(self):
-        return vars(self)
+        return {key: getattr(self, key) for key in self.__slots__}
 
 
 class BIN:
+    __slots__ = (
+        'signature', 'version', 'is_patch',
+        'links', 'entries', 'patches'
+    )
+
     def __init__(self):
         self.signature = None
         self.version = None
@@ -383,7 +388,7 @@ class BIN:
         self.patches = []
 
     def __json__(self):
-        return vars(self)
+        return {key: getattr(self, key) for key in self.__slots__}
 
     def read(self, path):
         with open(path, 'rb') as f:
@@ -487,3 +492,68 @@ class BIN:
             for offset, size in BINHelper.size_offsets:
                 bs.seek(offset)
                 bs.write_u32(size)
+
+    def un_hash(self, hashtables=None):
+        if hashtables == None:
+            return
+
+        def un_hash_value(value_type, value):
+            if value_type in (BINType.List, BINType.List2):
+                value.value_type = hashtables['hashes.bintypes.txt'].get(
+                    value.value_type, value.value_type
+                )
+                for value in value.data:
+                    un_hash_value(value)
+            elif value_type in (BINType.Embed, BINType.Pointer):
+                value.hash_type = hashtables['hashes.bintypes.txt'].get(
+                    value.hash_type, value.hash_type
+                )
+                for field in value.data:
+                    un_hash_field(value)
+
+        def un_hash_field(field):
+            field.hash = hashtables['hashes.binfields.txt'].get(
+                field.hash, field.hash
+            )
+            field.type = hashtables['hashes.bintypes.txt'].get(
+                field.type, field.type
+            )
+            if field.type in (BINType.List, BINType.List2):
+                field.value_type = hashtables['hashes.bintypes.txt'].get(
+                    field.value_type, field.value_type
+                )
+                for value in field.data:
+                    un_hash_value(field.value_type, value)
+            elif field.type in (BINType.Embed, BINType.Pointer):
+                field.hash_type = hashtables['hashes.bintypes.txt'].get(
+                    field.hash_type, field.hash_type
+                )
+                for field in field.data:
+                    un_hash_field(field)
+            elif field.type == BINType.Option:
+                field.value_type = hashtables['hashes.bintypes.txt'].get(
+                    field.value_type, field.value_type
+                )
+                un_hash_value(field.value_type, field.data)
+            elif field.type == BINType.Map:
+                field.key_type = hashtables['hashes.bintypes.txt'].get(
+                    field.key_type, field.key_type
+                )
+                field.value_type = hashtables['hashes.bintypes.txt'].get(
+                    field.value_type, field.value_type
+                )
+                for key, value in field.data.items():
+                    un_hash_value(field.key_type, key)
+                    un_hash_value(field.value_type, value)
+            else:
+                un_hash_value(field.type, field.data)
+
+        for entry in self.entries:
+            entry.hash = hashtables['hashes.binentries.txt'].get(
+                entry.hash, entry.hash
+            )
+            entry.type = hashtables['hashes.bintypes.txt'].get(
+                entry.type, entry.type
+            )
+            for field in entry.data:
+                un_hash_field(field)

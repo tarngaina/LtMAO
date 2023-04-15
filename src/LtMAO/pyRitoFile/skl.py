@@ -13,6 +13,12 @@ class SKLEncoder(JSONEncoder):
 
 
 class SKLJoint:
+    __slots__ = (
+        'id', 'name', 'bin_hash', 'parent', 'hash', 'radius', 'flags',
+        'local_translate', 'local_rotate', 'local_scale',
+        'ibind_translate', 'ibind_rotate', 'ibind_scale'
+    )
+
     def __init__(self):
         self.id = None
         self.name = None
@@ -29,10 +35,15 @@ class SKLJoint:
         self.ibind_scale = None
 
     def __json__(self):
-        return vars(self)
+        return {key: getattr(self, key) for key in self.__slots__}
 
 
 class SKL:
+    __slots__ = (
+        'file_size', 'signature', 'version', 'flags',
+        'name', 'asset', 'joints', 'influences'
+    )
+
     def __init__(self):
         self.file_size = None
         self.signature = None
@@ -44,7 +55,7 @@ class SKL:
         self.influences = []
 
     def __json__(self):
-        return vars(self)
+        return {key: getattr(self, key) for key in self.__slots__}
 
     def read(self, path):
         with open(path, 'rb') as f:
@@ -61,7 +72,7 @@ class SKL:
                     3)
                 if self.version != 0:
                     raise Exception(
-                        f'Failed: Read {path}: Unsupported file version: {self.version}')
+                        f'Failed: Read SKL {path}: Unsupported file version: {self.version}')
                 self.signature = hex(self.signature)
                 # unknown
                 self.flags, = bs.read_u16()
@@ -114,12 +125,12 @@ class SKL:
                 self.signature, = bs.read_a(8)
                 if self.signature != 'r3d2sklt':
                     raise Exception(
-                        f'Failed: Read {path}: Wrong file signature: {self.signature}')
+                        f'Failed: Read SKL {path}: Wrong file signature: {self.signature}')
 
                 self.version, = bs.read_u32()
                 if self.version not in (1, 2):
                     raise Exception(
-                        f'Failed: Read {path}: Unsupported file version: {self.version}')
+                        f'Failed: Read SKL {path}: Unsupported file version: {self.version}')
 
                 # skeleton id
                 self.id, = bs.read_u32()

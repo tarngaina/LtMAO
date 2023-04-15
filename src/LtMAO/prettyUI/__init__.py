@@ -1,9 +1,10 @@
-
+import os
+import os.path
 import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
 
-from LtMAO import pyRitoFile, animask_viewer, leaguefile_inspector
+from LtMAO import pyRitoFile, cdtb_hashes, animask_viewer, leaguefile_inspector
 from LtMAO.prettyUI.helper import Keeper, Log
 
 from traceback import format_exception
@@ -130,7 +131,7 @@ def create_page_controls():
     tk_widgets.AMV = tk_widgets.pages[2]
     tk_widgets.LOG = tk_widgets.pages[4]
 
-    # create frame that need to be created first
+    # bonus init stuffs
     tk_widgets.LOG.page_frame = ctk.CTkFrame(
         tk_widgets.mainright_frame,
         fg_color=TRANSPARENT
@@ -148,6 +149,7 @@ def create_page_controls():
     )
     tk_widgets.LOG.log_textbox.grid(row=0, column=0, sticky=tk.NSEW)
     Log.log_textbox = tk_widgets.LOG.log_textbox
+
     # select first page
     tk_widgets.select_control(0)
 
@@ -195,6 +197,147 @@ def select_right_page(selected):
             tk_widgets.LFI.view_frame.columnconfigure(0, weight=1)
             tk_widgets.LFI.view_frame.unbind_all('<MouseWheel>')
 
+            # read one file function
+            def read_file(file_path, ignore_error=False):
+                path, size, json = leaguefile_inspector.try_read(
+                    file_path, ignore_error)
+                if ignore_error:
+                    if size == None and json == None:
+                        return
+
+                # id of this file
+                file_frame_id = len(tk_widgets.LFI.loaded_list)
+                # create file frame
+                file_frame = ctk.CTkFrame(
+                    tk_widgets.LFI.view_frame
+                )
+                file_frame.grid(row=file_frame_id, column=0,
+                                padx=2, pady=5, sticky=tk.NSEW)
+                file_frame.columnconfigure(0, weight=1)
+                file_frame.rowconfigure(0, weight=1)
+                # create top file frame
+                top_file_frame = ctk.CTkFrame(
+                    file_frame
+                )
+                top_file_frame.grid(row=0, column=0,
+                                    padx=0, pady=0, sticky=tk.NSEW)
+                top_file_frame.columnconfigure(0, weight=0)
+                top_file_frame.columnconfigure(1, weight=1)
+                top_file_frame.columnconfigure(2, weight=0)
+                top_file_frame.columnconfigure(3, weight=0)
+                top_file_frame.rowconfigure(0, weight=1)
+                # create file button
+
+                def view_cmd(file_frame_id):
+                    toggle = tk_widgets.LFI.loaded_list[file_frame_id][2]
+                    text_frame = tk_widgets.LFI.loaded_list[file_frame_id][3]
+                    toggle = not toggle
+                    if toggle:
+                        text_frame.grid(row=1, column=0,
+                                        padx=0, pady=0, sticky=tk.NSEW)
+
+                    else:
+                        text_frame.grid_forget()
+                    tk_widgets.LFI.loaded_list[file_frame_id][2] = toggle
+                view_button = ctk.CTkButton(
+                    top_file_frame,
+                    text='+',
+                    width=30,
+                    command=lambda: view_cmd(file_frame_id)
+                )
+                view_button.grid(row=0, column=0, padx=2,
+                                 pady=2, sticky=tk.W)
+                # create file label
+                file_label = ctk.CTkLabel(
+                    top_file_frame,
+                    text=f'[{size}] {path}',
+                    anchor=tk.W,
+                    justify=tk.LEFT
+                )
+                file_label.grid(row=0, column=1, padx=2,
+                                pady=2, sticky=tk.W)
+                # create search entry
+                search_entry = ctk.CTkEntry(
+                    top_file_frame,
+                    placeholder_text='Search',
+                    width=300
+                )
+                search_entry.grid(row=0, column=2, padx=0,
+                                  pady=0, sticky=tk.E)
+
+                def search_cmd(event, search_entry, file_frame_id, switch=False):
+                    if event.char == '\r' and switch == False:
+                        return
+
+                    textbox = tk_widgets.LFI.loaded_list[file_frame_id][4]
+                    # reset hightlight
+                    textbox.tag_remove('search', '1.0', tk.END)
+                    pattern = search_entry.get()
+                    if switch == False:
+                        start_pos = '1.0'
+                    else:
+                        start_pos = tk_widgets.LFI.loaded_list[file_frame_id][5]
+                    start_pos = textbox.search(
+                        pattern,
+                        start_pos,
+                        nocase=True,
+                        stopindex=tk.END,
+                        forwards=True
+                    )
+                    if start_pos != '':
+                        end_pos = f'{start_pos} + {len(pattern)}c'
+                        textbox.tag_config(
+                            "search", background="grey")
+                        textbox.tag_add('search', start_pos, end_pos)
+                        textbox.see(start_pos)
+                        tk_widgets.LFI.loaded_list[file_frame_id][5] = end_pos
+
+                search_entry.bind('<KeyRelease>', lambda event: search_cmd(
+                    event, search_entry, file_frame_id))
+                search_entry.bind('<Return>', lambda event: search_cmd(
+                    event, search_entry, file_frame_id, True))
+                # create remove button
+
+                def remove_cmd(file_frame_id):
+                    loaded_file = tk_widgets.LFI.loaded_list.pop(
+                        file_frame_id)
+                    file_frame = loaded_file[0]
+                    file_frame.grid_forget()
+                    file_frame.destroy()
+                remove_button = ctk.CTkButton(
+                    top_file_frame,
+                    text='X',
+                    width=30,
+                    command=lambda: remove_cmd(file_frame_id)
+                )
+                remove_button.grid(row=0, column=3, padx=2,
+                                   pady=2, sticky=tk.W)
+                # create bottom file frame
+                bottom_file_frame = ctk.CTkFrame(
+                    file_frame
+                )
+                bottom_file_frame.columnconfigure(0, weight=1)
+                bottom_file_frame.rowconfigure(0, weight=1)
+                # create file text
+                file_text = ctk.CTkTextbox(
+                    bottom_file_frame
+                )
+                file_text.insert('1.0', json)
+                file_text.configure(
+                    state=tk.DISABLED,
+                    wrap=tk.NONE,
+                    height=340
+                )
+                file_text.grid(row=0, column=0, padx=2,
+                               pady=2, sticky=tk.NSEW)
+                # add this file to list
+                tk_widgets.LFI.loaded_list.append(
+                    [file_frame, top_file_frame, False,
+                        bottom_file_frame, file_text, '1.0']
+                )
+
+            # create file read button
+
             def fileread_cmd():
                 file_path = tkfd.askopenfilename(
                     title='Select League file',
@@ -217,123 +360,8 @@ def select_right_page(selected):
                 )
                 if file_path != '':
                     Log.add(f'Running: Read {file_path}')
-                    path, size, json = leaguefile_inspector.try_read(file_path)
+                    read_file(file_path)
                     Log.add(f'Done: Read {file_path}')
-
-                    # id of this file
-                    file_frame_id = len(tk_widgets.LFI.loaded_list)
-                    # create file frame
-                    file_frame = ctk.CTkFrame(
-                        tk_widgets.LFI.view_frame
-                    )
-                    file_frame.grid(row=file_frame_id, column=0,
-                                    padx=2, pady=5, sticky=tk.NSEW)
-                    file_frame.columnconfigure(0, weight=1)
-                    file_frame.rowconfigure(0, weight=1)
-                    # create top file frame
-                    top_file_frame = ctk.CTkFrame(
-                        file_frame
-                    )
-                    top_file_frame.grid(row=0, column=0,
-                                        padx=0, pady=0, sticky=tk.NSEW)
-                    top_file_frame.columnconfigure(0, weight=0)
-                    top_file_frame.columnconfigure(1, weight=1)
-                    top_file_frame.columnconfigure(2, weight=0)
-                    top_file_frame.rowconfigure(0, weight=1)
-                    # create file button
-
-                    def view_cmd(file_frame_id):
-                        toggle = tk_widgets.LFI.loaded_list[file_frame_id][2]
-                        text_frame = tk_widgets.LFI.loaded_list[file_frame_id][3]
-                        toggle = not toggle
-                        if toggle:
-                            text_frame.grid(row=1, column=0,
-                                            padx=0, pady=0, sticky=tk.NSEW)
-
-                        else:
-                            text_frame.grid_forget()
-                        tk_widgets.LFI.loaded_list[file_frame_id][2] = toggle
-                    view_button = ctk.CTkButton(
-                        top_file_frame,
-                        text='+',
-                        width=30,
-                        command=lambda: view_cmd(file_frame_id)
-                    )
-                    view_button.grid(row=0, column=0, padx=2,
-                                     pady=2, sticky=tk.W)
-                    # create file label
-                    file_label = ctk.CTkLabel(
-                        top_file_frame,
-                        text=f'[{size}] {path}',
-                        anchor=tk.W,
-                        justify=tk.LEFT
-                    )
-                    file_label.grid(row=0, column=1, padx=2,
-                                    pady=2, sticky=tk.W)
-                    # create search entry
-                    search_entry = ctk.CTkEntry(
-                        top_file_frame,
-                        placeholder_text='Search',
-                        width=300
-                    )
-                    search_entry.grid(row=0, column=2, padx=0,
-                                      pady=0, sticky=tk.E)
-
-                    def search_cmd(event, search_entry, file_frame_id, switch=False):
-                        if event.char == '\r' and switch == False:
-                            return
-
-                        textbox = tk_widgets.LFI.loaded_list[file_frame_id][4]
-                        # reset hightlight
-                        textbox.tag_remove('search', '1.0', tk.END)
-                        pattern = search_entry.get()
-                        if switch == False:
-                            start_pos = '1.0'
-                        else:
-                            start_pos = tk_widgets.LFI.loaded_list[file_frame_id][5]
-                        start_pos = textbox.search(
-                            pattern,
-                            start_pos,
-                            nocase=True,
-                            stopindex=tk.END,
-                            forwards=True
-                        )
-                        if start_pos != '':
-                            end_pos = f'{start_pos} + {len(pattern)}c'
-                            textbox.tag_config(
-                                "search", background="grey")
-                            textbox.tag_add('search', start_pos, end_pos)
-                            textbox.see(start_pos)
-                            tk_widgets.LFI.loaded_list[file_frame_id][5] = end_pos
-
-                    search_entry.bind('<KeyRelease>', lambda event: search_cmd(
-                        event, search_entry, file_frame_id))
-                    search_entry.bind('<Return>', lambda event: search_cmd(
-                        event, search_entry, file_frame_id, True))
-                    # create bottom file frame
-                    bottom_file_frame = ctk.CTkFrame(
-                        file_frame
-                    )
-                    bottom_file_frame.columnconfigure(0, weight=1)
-                    bottom_file_frame.rowconfigure(0, weight=1)
-                    # create file text
-                    file_text = ctk.CTkTextbox(
-                        bottom_file_frame
-                    )
-                    file_text.insert('1.0', json)
-                    file_text.configure(
-                        state=tk.DISABLED,
-                        wrap=tk.NONE,
-                        height=340
-                    )
-                    file_text.grid(row=0, column=0, padx=2,
-                                   pady=2, sticky=tk.NSEW)
-                    # add this file to list
-                    tk_widgets.LFI.loaded_list.append(
-                        [file_frame, top_file_frame, False,
-                            bottom_file_frame, file_text, '1.0']
-                    )
-
             tk_widgets.LFI.fileread_button = ctk.CTkButton(
                 tk_widgets.LFI.input_frame,
                 text='Read File',
@@ -342,13 +370,20 @@ def select_right_page(selected):
             )
             tk_widgets.LFI.fileread_button.grid(
                 row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+            # create folder read button
 
             def folderread_cmd():
                 dir_path = tkfd.askdirectory(
                     title='Select Folder'
                 )
                 if dir_path != '':
-                    pass
+                    Log.add(f'Running: Read {dir_path}')
+                    for root, dirs, files in os.walk(dir_path):
+                        for file in files:
+                            file_path = os.path.join(
+                                root, file).replace('\\', '/')
+                            read_file(file_path, ignore_error=True)
+                    Log.add(f'Done: Read {dir_path}')
             tk_widgets.LFI.folderread_button = ctk.CTkButton(
                 tk_widgets.LFI.input_frame,
                 text='Read Folder',
@@ -357,9 +392,17 @@ def select_right_page(selected):
             )
             tk_widgets.LFI.folderread_button.grid(
                 row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+            # create clear button
 
             def clear_cmd():
-                pass
+                loaded_file_count = len(tk_widgets.LFI.loaded_list)
+                if loaded_file_count == 0:
+                    return
+                for loaded_file in tk_widgets.LFI.loaded_list:
+                    file_frame = loaded_file[0]
+                    file_frame.grid_forget()
+                    file_frame.destroy()
+                tk_widgets.LFI.loaded_list.clear()
             tk_widgets.LFI.clear_button = ctk.CTkButton(
                 tk_widgets.LFI.input_frame,
                 text='Clear',
@@ -486,7 +529,7 @@ def select_right_page(selected):
 
                 # get table row and column length
                 tk_widgets.AMV.table_row = len(joint_names)
-                tk_widgets.AMV.table_column = len(mask_data)
+                tk_widgets.AMV.table_column = len(mask_names)
                 if tk_widgets.AMV.table_row == 0:
                     raise Exception(
                         'Failed: Load weight table: No joints found.')
@@ -663,7 +706,7 @@ def select_right_page(selected):
                 # set weights and save bin
                 bin_file = tk_widgets.AMV.bin_loaded
                 animask_viewer.set_weights(bin_file, mask_data)
-                animask_viewer.write_bin(bin_path, bin_file)
+                pyRitoFile.write_bin(bin_path, bin_file)
             tk_widgets.AMV.save_button = ctk.CTkButton(
                 tk_widgets.AMV.action_frame,
                 text='Save As',
@@ -750,6 +793,9 @@ def start():
     create_main_app_and_frames()
     create_page_controls()
     create_mini_log()
+
+    cdtb_hashes.CDTB.LOG = Log.add
+    cdtb_hashes.CDTB.sync_in_thread()
 
     # loop the UI
     tk_widgets.main_tk.mainloop()

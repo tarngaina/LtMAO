@@ -1,4 +1,8 @@
+from LtMAO.cdtb_hashes import CDTB
 from LtMAO import pyRitoFile
 
-skl = pyRitoFile.read_skl('D:/test/neeko.skl')
-pyRitoFile.write_skl('D:/test/neeko_new.skl', skl)
+CDTB.LOG = print
+CDTB.sync_all()
+
+b = pyRitoFile.read_bin('D:/test/skin0.bin')
+b.un_hash(CDTB.HASHTABLES)
