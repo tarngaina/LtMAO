@@ -51,7 +51,7 @@ class CDTB:
             lines = f.readlines()
             items = [line[:-1].split() for line in lines]
             CDTB.HASHTABLES[filename] = {
-                '0x'+item[0]: item[1] for item in items
+                item[0]: item[1] for item in items
             }
         CDTB.LOG(f'Done: Sync hash: {filename}')
 

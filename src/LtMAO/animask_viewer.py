@@ -1,4 +1,8 @@
-from LtMAO.pyRitoFile.hash import bin_hash
+from LtMAO.pyRitoFile.hash import FNV1a
+
+
+def bin_hash(name):
+    return f'{FNV1a(name):08x}'
 
 
 def get_weights(bin):

@@ -15,7 +15,3 @@ def FNV1a(s):
     for b in s.encode('ascii').lower():
         h = ((h ^ b) * 0x01000193) % 0x100000000
     return h
-
-
-def bin_hash(s):
-    return hex(FNV1a(s))
