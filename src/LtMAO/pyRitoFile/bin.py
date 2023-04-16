@@ -1,6 +1,19 @@
 from LtMAO.pyRitoFile.io import BinStream
+from LtMAO.pyRitoFile.hash import FNV1a
 from enum import Enum
 from json import JSONEncoder
+
+
+def hex_to_name(hashtables, table_name, hash):
+    return hashtables[table_name].get(hash, hash)
+
+
+def hash_to_hex(hash):
+    return f'{hash:08x}'
+
+
+def name_to_hex(name):
+    return hash_to_hex(FNV1a(name))
 
 
 class BINEncoder(JSONEncoder):
@@ -60,12 +73,12 @@ class BINHelper:
             size, = bs.read_u16()
             value = bs.read_a(size)[0]
         elif value_type == BINType.Hash:
-            value = hex(bs.read_u32()[0])
+            value = hash_to_hex(bs.read_u32()[0])
         elif value_type == BINType.File:
             value = bs.read_u64()[0]
         elif value_type == BINType.Pointer or value_type == BINType.Embed:
             field = BINField()
-            field.hash_type = hex(bs.read_u32()[0])
+            field.hash_type = hash_to_hex(bs.read_u32()[0])
             if field.hash_type != 0:
                 field.type = value_type
                 bs.pad(4)  # size
@@ -84,7 +97,7 @@ class BINHelper:
     @staticmethod
     def read_field(bs):
         field = BINField()
-        field.hash = hex(bs.read_u32()[0])
+        field.hash = hash_to_hex(bs.read_u32()[0])
         field.type = BINHelper.fix_type(bs.read_u8()[0])
         if field.type == BINType.List or field.type == BINType.List2:
             field.value_type = BINHelper.fix_type(bs.read_u8()[0])
@@ -95,7 +108,7 @@ class BINHelper:
                 for i in range(count)
             ]
         elif field.type == BINType.Pointer or field.type == BINType.Embed:
-            field.hash_type = hex(bs.read_u32()[0])
+            field.hash_type = hash_to_hex(bs.read_u32()[0])
             if field.hash_type != 0:
                 bs.pad(4)  # size
                 count, = bs.read_u16()
@@ -421,9 +434,9 @@ class BIN:
             for i in range(entry_count):
                 entry = self.entries[i]
 
-                entry.type = hex(entry_types[i])
+                entry.type = hash_to_hex(entry_types[i])
                 bs.pad(4)  # size
-                entry.hash = hex(bs.read_u32()[0])
+                entry.hash = hash_to_hex(bs.read_u32()[0])
 
                 field_count, = bs.read_u16()
                 entry.data = [BINHelper.read_field(
@@ -434,7 +447,7 @@ class BIN:
                 self.patches = [BINPatch() for i in range(patch_count)]
                 for i in range(patch_count):
                     patch = self.patches[i]
-                    patch.hash = hex(bs.read_u32()[0])
+                    patch.hash = hash_to_hex(bs.read_u32()[0])
                     bs.pad(4)  # size
                     patch.type = BINHelper.fix_type(bs.read_u8()[0])
                     patch.path, = bs.read_a(bs.read_u16()[0])
@@ -497,63 +510,48 @@ class BIN:
         if hashtables == None:
             return
 
-        def un_hash_value(value_type, value):
-            if value_type in (BINType.List, BINType.List2):
-                value.value_type = hashtables['hashes.bintypes.txt'].get(
-                    value.value_type, value.value_type
-                )
-                for value in value.data:
-                    un_hash_value(value)
+        def un_hash_value(value, value_type):
+            if value_type == BINType.Hash:
+                return hex_to_name(hashtables, 'hashes.binhashes.txt', value)
+            elif value_type in (BINType.List, BINType.List2):
+                value.data = [un_hash_value(v, value_type) for v in value.data]
             elif value_type in (BINType.Embed, BINType.Pointer):
-                value.hash_type = hashtables['hashes.bintypes.txt'].get(
-                    value.hash_type, value.hash_type
-                )
-                for field in value.data:
-                    un_hash_field(value)
+                value.hash_type = hex_to_name(
+                    hashtables, 'hashes.bintypes.txt',  value.hash_type)
+                for f in value.data:
+                    un_hash_field(f)
+            return value
 
         def un_hash_field(field):
-            field.hash = hashtables['hashes.binfields.txt'].get(
-                field.hash, field.hash
-            )
-            field.type = hashtables['hashes.bintypes.txt'].get(
-                field.type, field.type
-            )
+            field.hash = hex_to_name(
+                hashtables, 'hashes.binfields.txt', field.hash)
+            field.type = hex_to_name(
+                hashtables, 'hashes.bintypes.txt', field.type)
             if field.type in (BINType.List, BINType.List2):
-                field.value_type = hashtables['hashes.bintypes.txt'].get(
-                    field.value_type, field.value_type
-                )
-                for value in field.data:
-                    un_hash_value(field.value_type, value)
+                field.value_type = hex_to_name(
+                    hashtables, 'hashes.bintypes.txt', field.value_type)
+                field.data = [un_hash_value(v, field.value_type)
+                              for v in field.data]
             elif field.type in (BINType.Embed, BINType.Pointer):
-                field.hash_type = hashtables['hashes.bintypes.txt'].get(
-                    field.hash_type, field.hash_type
-                )
-                for field in field.data:
-                    un_hash_field(field)
-            elif field.type == BINType.Option:
-                field.value_type = hashtables['hashes.bintypes.txt'].get(
-                    field.value_type, field.value_type
-                )
-                un_hash_value(field.value_type, field.data)
+                field.hash_type = hex_to_name(
+                    hashtables, 'hashes.bintypes.txt', field.hash_type)
+                for f in field.data:
+                    un_hash_field(f)
             elif field.type == BINType.Map:
-                field.key_type = hashtables['hashes.bintypes.txt'].get(
-                    field.key_type, field.key_type
-                )
-                field.value_type = hashtables['hashes.bintypes.txt'].get(
-                    field.value_type, field.value_type
-                )
-                for key, value in field.data.items():
-                    un_hash_value(field.key_type, key)
-                    un_hash_value(field.value_type, value)
+                field.key_type = hex_to_name(
+                    hashtables, 'hashes.bintypes.txt', field.key_type)
+                field.value_type = hex_to_name(
+                    hashtables, 'hashes.bintypes.txt', field.value_type)
+                field.data = {
+                    un_hash_value(key, field.key_type): un_hash_value(value, field.value_type) for key, value in field.data.items()
+                }
             else:
-                un_hash_value(field.type, field.data)
+                field.data = un_hash_value(field.data, field.type)
 
         for entry in self.entries:
-            entry.hash = hashtables['hashes.binentries.txt'].get(
-                entry.hash, entry.hash
-            )
-            entry.type = hashtables['hashes.bintypes.txt'].get(
-                entry.type, entry.type
-            )
+            entry.hash = hex_to_name(
+                hashtables, 'hashes.binentries.txt', entry.hash)
+            entry.type = hex_to_name(
+                hashtables, 'hashes.bintypes.txt', entry.type)
             for field in entry.data:
                 un_hash_field(field)
