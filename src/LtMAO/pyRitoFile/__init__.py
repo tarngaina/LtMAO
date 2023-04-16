@@ -3,6 +3,7 @@ from LtMAO.pyRitoFile.skn import SKN, SKNEncoder
 from LtMAO.pyRitoFile.so import SO, SOEncoder
 from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINEncoder
 from LtMAO.pyRitoFile.bnk import BNK
+from LtMAO.pyRitoFile.wad import WAD, WADEncoder
 from json import dump, dumps
 
 
@@ -16,6 +17,8 @@ def write_json(path, obj):
             dump(obj, f, indent=4, cls=SKNEncoder)
         elif isinstance(obj, BIN):
             dump(obj, f, indent=4, cls=BINEncoder)
+        elif isinstance(obj, WAD):
+            dump(obj, f, indent=4, cls=WADEncoder)
 
 
 def to_json(obj):
@@ -27,6 +30,8 @@ def to_json(obj):
         return dumps(obj, indent=4, cls=SOEncoder)
     elif isinstance(obj, BIN):
         return dumps(obj, indent=4, cls=BINEncoder)
+    elif isinstance(obj, WAD):
+        return dumps(obj, indent=4, cls=WADEncoder)
 
 
 def read_skl(path):
@@ -77,3 +82,13 @@ def read_bin(path):
 
 def write_bin(path, bin):
     bin.write(path)
+
+
+def read_wad(path):
+    wad = WAD()
+    wad.read(path)
+    return wad
+
+
+def write_wad(path, wad):
+    wad.write(path)

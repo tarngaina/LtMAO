@@ -200,9 +200,9 @@ def select_right_page(selected):
             tk_widgets.LFI.view_frame.unbind_all('<MouseWheel>')
 
             # read one file function
-            def read_file(file_path, ignore_error=False):
+            def read_file(file_path, hastables=None, ignore_error=False):
                 path, size, json = leaguefile_inspector.try_read(
-                    file_path, ignore_error)
+                    file_path, hastables, ignore_error)
                 if ignore_error:
                     if size == None and json == None:
                         return
@@ -380,8 +380,8 @@ def select_right_page(selected):
                                 '*.scb',
                                 '*.anm',
                                 '*.mapgeo',
-                                '*.bnk'
-
+                                '*.bnk',
+                                '*.wad.client'
                             )
                          ),
                         ('All files', '*.*')
@@ -389,11 +389,9 @@ def select_right_page(selected):
                 )
                 if file_path != '':
                     Log.add(f'Running: Read {file_path}')
-                    cdtb_hashes.CDTB.read_hashes(
-                        'hashes.binentries.txt', 'hashes.binfields.txt', 'hashes.bintypes.txt', 'hashes.binhashes.txt')
-                    read_file(file_path)
-                    cdtb_hashes.CDTB.free_hashes(
-                        'hashes.binentries.txt', 'hashes.binfields.txt', 'hashes.bintypes.txt', 'hashes.binhashes.txt')
+                    cdtb_hashes.CDTB.read_all()
+                    read_file(file_path, cdtb_hashes.CDTB.HASHTABLES)
+                    cdtb_hashes.CDTB.free_all()
                     Log.add(f'Done: Read {file_path}')
             tk_widgets.LFI.fileread_button = ctk.CTkButton(
                 tk_widgets.LFI.input_frame,
@@ -412,15 +410,14 @@ def select_right_page(selected):
                 if dir_path != '':
 
                     Log.add(f'Running: Read {dir_path}')
-                    cdtb_hashes.CDTB.read_hashes(
-                        'hashes.binentries.txt', 'hashes.binfields.txt', 'hashes.bintypes.txt', 'hashes.binhashes.txt')
+                    cdtb_hashes.CDTB.read_all()
                     for root, dirs, files in os.walk(dir_path):
                         for file in files:
                             file_path = os.path.join(
                                 root, file).replace('\\', '/')
-                            read_file(file_path, ignore_error=True)
-                    cdtb_hashes.CDTB.free_hashes(
-                        'hashes.binentries.txt', 'hashes.binfields.txt', 'hashes.bintypes.txt', 'hashes.binhashes.txt')
+                            read_file(
+                                file_path, cdtb_hashes.CDTB.HASHTABLES, ignore_error=True)
+                    cdtb_hashes.CDTB.free_all()
                     Log.add(f'Done: Read {dir_path}')
             tk_widgets.LFI.folderread_button = ctk.CTkButton(
                 tk_widgets.LFI.input_frame,
