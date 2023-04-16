@@ -1,5 +1,4 @@
-import os
-import os.path
+
 import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
@@ -7,6 +6,9 @@ import tkinter.filedialog as tkfd
 from LtMAO import pyRitoFile, cdtb_hashes, animask_viewer, leaguefile_inspector
 from LtMAO.prettyUI.helper import Keeper, Log
 
+import os
+import os.path
+from threading import Thread
 from traceback import format_exception
 
 
@@ -265,45 +267,65 @@ def select_right_page(selected):
                 search_entry.grid(row=0, column=2, padx=0,
                                   pady=0, sticky=tk.E)
 
-                def search_cmd(event, search_entry, file_frame_id, switch=False):
-                    if event.char == '\r' and switch == False:
-                        return
-
+                def search_cmd(event, search_entry, file_frame_id):
                     textbox = tk_widgets.LFI.loaded_list[file_frame_id][4]
                     # reset hightlight
                     textbox.tag_remove('search', '1.0', tk.END)
                     pattern = search_entry.get()
-                    if switch == False:
-                        start_pos = '1.0'
-                    else:
-                        start_pos = tk_widgets.LFI.loaded_list[file_frame_id][5]
-                    start_pos = textbox.search(
+                    if pattern == '':
+                        # no pattern to search
+                        return
+                    # search from last search position if enter key else new search
+                    return_key = event.char == '\r'
+                    start_pos = tk_widgets.LFI.loaded_list[file_frame_id][5] if return_key else '1.0'
+                    # first search
+                    found_pos = textbox.search(
                         pattern,
                         start_pos,
                         nocase=True,
                         stopindex=tk.END,
                         forwards=True
                     )
-                    if start_pos != '':
-                        end_pos = f'{start_pos} + {len(pattern)}c'
-                        textbox.tag_config(
-                            "search", background="grey")
-                        textbox.tag_add('search', start_pos, end_pos)
-                        textbox.see(start_pos)
-                        tk_widgets.LFI.loaded_list[file_frame_id][5] = end_pos
+                    if found_pos == '':
+                        # if this search is trigger by enter key
+                        # and last search position recorded
+                        # but found empty,
+                        # search again at 1.0 to cycle searching
+                        if return_key and start_pos != '1.0':
+                            found_pos = textbox.search(
+                                pattern,
+                                '1.0',
+                                nocase=True,
+                                stopindex=tk.END,
+                                forwards=True
+                            )
+                            if found_pos == '':
+                                # safe case because we search again
+                                return
+                        else:
+                            # do nothing
+                            return
+                    # highlight pattern
+                    end_pos = f'{found_pos} + {len(pattern)}c'
+                    textbox.tag_config(
+                        "search", background="grey")
+                    textbox.tag_add('search', found_pos, end_pos)
+                    # jump to see search pattern
+                    textbox.see(found_pos)
+                    # save search position
+                    tk_widgets.LFI.loaded_list[file_frame_id][5] = end_pos
 
                 search_entry.bind('<KeyRelease>', lambda event: search_cmd(
                     event, search_entry, file_frame_id))
-                search_entry.bind('<Return>', lambda event: search_cmd(
-                    event, search_entry, file_frame_id, True))
                 # create remove button
 
                 def remove_cmd(file_frame_id):
-                    loaded_file = tk_widgets.LFI.loaded_list.pop(
-                        file_frame_id)
-                    file_frame = loaded_file[0]
-                    file_frame.grid_forget()
-                    file_frame.destroy()
+                    if not tk_widgets.LFI.loaded_list[file_frame_id][6]:
+                        file_frame = tk_widgets.LFI.loaded_list[file_frame_id][0]
+                        file_frame.grid_forget()
+                        file_frame.destroy()
+                        tk_widgets.LFI.loaded_list[file_frame_id][6] = True
+
                 remove_button = ctk.CTkButton(
                     top_file_frame,
                     text='X',
@@ -332,8 +354,15 @@ def select_right_page(selected):
                                pady=2, sticky=tk.NSEW)
                 # add this file to list
                 tk_widgets.LFI.loaded_list.append(
-                    [file_frame, top_file_frame, False,
-                        bottom_file_frame, file_text, '1.0']
+                    [
+                        file_frame,
+                        top_file_frame,
+                        False,  # expand or not
+                        bottom_file_frame,
+                        file_text,
+                        '1.0',  # text search pos
+                        False  # deleted or not
+                    ]
                 )
 
             # create file read button
@@ -360,7 +389,11 @@ def select_right_page(selected):
                 )
                 if file_path != '':
                     Log.add(f'Running: Read {file_path}')
+                    cdtb_hashes.CDTB.read_hashes(
+                        'hashes.binentries.txt', 'hashes.binfields.txt', 'hashes.bintypes.txt', 'hashes.binhashes.txt')
                     read_file(file_path)
+                    cdtb_hashes.CDTB.free_hashes(
+                        'hashes.binentries.txt', 'hashes.binfields.txt', 'hashes.bintypes.txt', 'hashes.binhashes.txt')
                     Log.add(f'Done: Read {file_path}')
             tk_widgets.LFI.fileread_button = ctk.CTkButton(
                 tk_widgets.LFI.input_frame,
@@ -377,12 +410,17 @@ def select_right_page(selected):
                     title='Select Folder'
                 )
                 if dir_path != '':
+
                     Log.add(f'Running: Read {dir_path}')
+                    cdtb_hashes.CDTB.read_hashes(
+                        'hashes.binentries.txt', 'hashes.binfields.txt', 'hashes.bintypes.txt', 'hashes.binhashes.txt')
                     for root, dirs, files in os.walk(dir_path):
                         for file in files:
                             file_path = os.path.join(
                                 root, file).replace('\\', '/')
                             read_file(file_path, ignore_error=True)
+                    cdtb_hashes.CDTB.free_hashes(
+                        'hashes.binentries.txt', 'hashes.binfields.txt', 'hashes.bintypes.txt', 'hashes.binhashes.txt')
                     Log.add(f'Done: Read {dir_path}')
             tk_widgets.LFI.folderread_button = ctk.CTkButton(
                 tk_widgets.LFI.input_frame,
@@ -399,10 +437,12 @@ def select_right_page(selected):
                 if loaded_file_count == 0:
                     return
                 for loaded_file in tk_widgets.LFI.loaded_list:
-                    file_frame = loaded_file[0]
-                    file_frame.grid_forget()
-                    file_frame.destroy()
+                    if not loaded_file[6]:
+                        file_frame = loaded_file[0]
+                        file_frame.grid_forget()
+                        file_frame.destroy()
                 tk_widgets.LFI.loaded_list.clear()
+                Log.add(f'Done: Cleared all loaded files.')
             tk_widgets.LFI.clear_button = ctk.CTkButton(
                 tk_widgets.LFI.input_frame,
                 text='Clear',

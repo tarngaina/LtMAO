@@ -5,7 +5,7 @@ from json import JSONEncoder
 
 
 def hex_to_name(hashtables, table_name, hash):
-    return hashtables[table_name].get(hash, hash)
+    return hashtables.get(table_name, {}).get(hash, hash)
 
 
 def hash_to_hex(hash):
