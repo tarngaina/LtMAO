@@ -1,5 +1,11 @@
+from io import BytesIO
 from LtMAO.pyRitoFile.io import BinStream
+from LtMAO.pyRitoFile.hash import FNV1a
 from json import JSONEncoder
+
+
+def bin_hash(name):
+    return f'{FNV1a(name):08x}'
 
 
 class SKNEncoder(JSONEncoder):
@@ -31,11 +37,13 @@ class SKNVertex:
 
 class SKNSubmesh:
     __slots__ = (
-        'name', 'vertex_start', 'vertex_count', 'index_start', 'index_count'
+        'name', 'bin_hash',
+        'vertex_start', 'vertex_count', 'index_start', 'index_count'
     )
 
     def __init__(self):
         self.name = None
+        self.bin_hash = None
         self.vertex_start = None
         self.vertex_count = None
         self.index_start = None
@@ -67,8 +75,9 @@ class SKN:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
 
-    def read(self, path):
-        with open(path, 'rb') as f:
+    def read(self, path, raw=None):
+        IO = open(path, 'rb') if raw == None else BytesIO(raw)
+        with IO as f:
             bs = BinStream(f)
 
             self.signature, = bs.read_u32()
@@ -89,6 +98,7 @@ class SKN:
 
                 submesh = SKNSubmesh()
                 submesh.name = 'Base'
+                submesh.name = bin_hash(submesh.name)
                 submesh.vertex_start = 0
                 submesh.vertex_count = vertex_count
                 submesh.index_start = 0
@@ -101,6 +111,7 @@ class SKN:
                 for i in range(submesh_count):
                     submesh = self.submeshes[i]
                     submesh.name, = bs.read_a_padded(64)
+                    submesh.bin_hash = bin_hash(submesh.name)
                     submesh.vertex_start, submesh.vertex_count, submesh.index_start, submesh.index_count = bs.read_u32(
                         4)
 

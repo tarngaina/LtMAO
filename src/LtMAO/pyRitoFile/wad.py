@@ -1,6 +1,38 @@
+from io import BytesIO
 from LtMAO.pyRitoFile.io import BinStream
 from json import JSONEncoder
 from enum import Enum
+import gzip
+import pyzstd
+
+signature_to_extension = {
+    b'OggS': 'ogg',
+    bytes.fromhex('00010000'): 'ttf',
+    bytes.fromhex('1a45dfa3'): 'webm',
+    b'true': 'ttf',
+    b'OTTO\0': 'otf',
+    b'"use strict";': 'min.js',
+    b'<template ': 'template.html',
+    b'<!-- Elements -->': 'template.html',
+    b'DDS ': 'dds',
+    b'<svg': 'svg',
+    b'PROP': 'bin',
+    b'PTCH': 'bin',
+    b'BKHD': 'bnk',
+    b'r3d2Mesh': 'scb',
+    b'r3d2anmd': 'anm',
+    b'r3d2canm': 'anm',
+    b'r3d2sklt': 'skl',
+    b'r3d2': 'wpk',
+    bytes.fromhex('33221100'): 'skn',
+    b'PreLoadBuildingBlocks = {': 'preload',
+    b'\x1bLuaQ\x00\x01\x04\x04': 'luabin',
+    b'\x1bLuaQ\x00\x01\x04\x08': 'luabin64',
+    bytes.fromhex('023d0028'): 'troybin',
+    b'[ObjectBegin]': 'sco',
+    b'OEGM': 'mapgeo',
+    b'TEX\0': 'tex'
+}
 
 
 def hex_to_name(hashtables, table_name, hash):
@@ -40,7 +72,9 @@ class WADChunk:
 
     def __json__(self):
         # return {key: getattr(self, key) for key in self.__slots__}
-        return vars(self)
+        dic = vars(self)
+        dic.pop('data')
+        return dic
 
 
 class WAD:
@@ -52,8 +86,9 @@ class WAD:
         # return {key: getattr(self, key) for key in self.__slots__}
         return vars(self)
 
-    def read(self, path):
-        with open(path, 'rb') as f:
+    def read(self, path, raw=None):
+        IO = open(path, 'rb') if raw == None else BytesIO(raw)
+        with IO as f:
             bs = BinStream(f)
 
             self.signature, = bs.read_a(2)
@@ -93,6 +128,30 @@ class WAD:
                 chunk.subchunk_start, = bs.read_u16()
                 chunk.subchunk_count = chunk.compression_type.value >> 4
                 chunk.checksum = bs.read_u64()[0] if major >= 2 else 0
+
+            for chunk in self.chunks:
+                bs.seek(chunk.offset)
+                data = f.read(chunk.compressed_size)
+                if chunk.compression_type == WADCompressionType.Raw:
+                    chunk.data = data
+                elif chunk.compression_type == WADCompressionType.Gzip:
+                    chunk.data = gzip.decompress(data)
+                elif chunk.compression_type == WADCompressionType.Satellite:
+                    print(data)  # ???
+                    chunk.data = None
+                elif chunk.compression_type == WADCompressionType.Zstd:
+                    chunk.data = pyzstd.decompress(data)
+                elif chunk.compression_type == WADCompressionType.ZstdChunked:
+                    if data[:4] == b'\x28\xb5\x2f\xfd':  # zstd header
+                        chunk.data = pyzstd.decompress(data)
+                    chunk.data = data
+
+                chunk.extension = None
+                for signature, extension in signature_to_extension.items():
+                    if chunk.data.startswith(signature):
+                        chunk.extension = extension
+                        break
+        
 
     def un_hash(self, hashtables=None):
         if hashtables == None:

@@ -1,7 +1,12 @@
+from io import BytesIO
 from LtMAO.pyRitoFile.io import BinStream
 from LtMAO.pyRitoFile.structs import Matrix4
 from LtMAO.pyRitoFile.hash import Elf, FNV1a
 from json import JSONEncoder
+
+
+def bin_hash(name):
+    return f'{FNV1a(name):08x}'
 
 
 class SKLEncoder(JSONEncoder):
@@ -57,8 +62,9 @@ class SKL:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
 
-    def read(self, path):
-        with open(path, 'rb') as f:
+    def read(self, path, raw=None):
+        IO = open(path, 'rb') if raw == None else BytesIO(raw)
+        with IO as f:
             bs = BinStream(f)
 
             # read signature first to check legacy or not
@@ -109,7 +115,7 @@ class SKL:
                         return_offset = bs.tell()
                         bs.seek(return_offset-4 + joint_name_offset)
                         joint.name, = bs.read_c_until0()
-                        joint.bin_hash = hex(FNV1a(joint.name))
+                        joint.bin_hash = bin_hash(joint.name)
                         bs.seek(return_offset)
 
                 # read influences
@@ -133,7 +139,7 @@ class SKL:
                         f'Failed: Read SKL {path}: Unsupported file version: {self.version}')
 
                 # skeleton id
-                self.id, = bs.read_u32()
+                skeleton_id, = bs.read_u32()
 
                 joint_count, = bs.read_u32()
                 self.joints = [SKLJoint() for i in range(joint_count)]
@@ -142,7 +148,7 @@ class SKL:
                     joint = self.joints[i]
 
                     joint.name, = bs.read_a_padded(32)
-                    joint.bin_hash = hex(FNV1a(joint.name))
+                    joint.bin_hash = bin_hash(joint.name)
                     joint.id = i
                     joint.hash = Elf(joint.name)
                     joint.parent, = bs.read_i32()

@@ -34,9 +34,9 @@ def to_json(obj):
         return dumps(obj, indent=4, cls=WADEncoder)
 
 
-def read_skl(path):
+def read_skl(path, raw=None):
     skl = SKL()
-    skl.read(path)
+    skl.read(path, raw)
     return skl
 
 
@@ -44,9 +44,9 @@ def write_skl(path, skl):
     skl.write(path)
 
 
-def read_skn(path):
+def read_skn(path, raw=None):
     skn = SKN()
-    skn.read(path)
+    skn.read(path, raw)
     return skn
 
 
@@ -54,9 +54,9 @@ def write_skn(path, skn):
     skn.write(path)
 
 
-def read_sco(path):
+def read_sco(path, raw=None):
     so = SO()
-    so.read_sco(path)
+    so.read_sco(path, raw)
     return so
 
 
@@ -64,9 +64,9 @@ def write_sco(path, so):
     so.write_sco(path)
 
 
-def read_scb(path):
+def read_scb(path, raw=None):
     so = SO()
-    so.read_scb(path)
+    so.read_scb(path, raw)
     return so
 
 
@@ -74,9 +74,9 @@ def write_scb(path, so):
     so.write_scb(path)
 
 
-def read_bin(path):
+def read_bin(path, raw=None):
     bin = BIN()
-    bin.read(path)
+    bin.read(path, raw)
     return bin
 
 
@@ -84,9 +84,9 @@ def write_bin(path, bin):
     bin.write(path)
 
 
-def read_wad(path):
+def read_wad(path, raw=None):
     wad = WAD()
-    wad.read(path)
+    wad.read(path, raw)
     return wad
 
 

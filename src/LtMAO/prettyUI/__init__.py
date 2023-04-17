@@ -3,7 +3,7 @@ import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
 
-from LtMAO import pyRitoFile, cdtb_hashes, animask_viewer, leaguefile_inspector
+from LtMAO import morehashes, pyRitoFile, cdtb_hashes, leaguefile_inspector, animask_viewer
 from LtMAO.prettyUI.helper import Keeper, Log
 
 import os
@@ -99,7 +99,7 @@ def create_page_controls():
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
-            text='vo_helper',
+            text='morehashes',
             command=lambda: control_cmd(3)
         ),
         ctk.CTkButton(
@@ -131,6 +131,7 @@ def create_page_controls():
     # reference page
     tk_widgets.LFI = tk_widgets.pages[1]
     tk_widgets.AMV = tk_widgets.pages[2]
+    tk_widgets.MH = tk_widgets.pages[3]
     tk_widgets.LOG = tk_widgets.pages[4]
 
     # bonus init stuffs
@@ -368,7 +369,7 @@ def select_right_page(selected):
             # create file read button
 
             def fileread_cmd():
-                file_path = tkfd.askopenfilename(
+                file_paths = tkfd.askopenfilenames(
                     title='Select League file',
                     filetypes=(
                         ('League files',
@@ -387,12 +388,13 @@ def select_right_page(selected):
                         ('All files', '*.*')
                     )
                 )
-                if file_path != '':
-                    Log.add(f'Running: Read {file_path}')
-                    cdtb_hashes.CDTB.read_all()
-                    read_file(file_path, cdtb_hashes.CDTB.HASHTABLES)
-                    cdtb_hashes.CDTB.free_all()
-                    Log.add(f'Done: Read {file_path}')
+                if len(file_paths) > 0:
+                    for file_path in file_paths:
+                        Log.add(f'Running: Read {file_path}')
+                        cdtb_hashes.CDTB.read_all()
+                        read_file(file_path, cdtb_hashes.CDTB.HASHTABLES)
+                        cdtb_hashes.CDTB.free_all()
+                        Log.add(f'Done: Read {file_path}')
             tk_widgets.LFI.fileread_button = ctk.CTkButton(
                 tk_widgets.LFI.input_frame,
                 text='Read File',
@@ -777,7 +779,68 @@ def select_right_page(selected):
         tk_widgets.AMV.page_frame.grid(
             row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
     elif selected == 3:
-        pass
+        if tk_widgets.MH.page_frame == None:
+            tk_widgets.MH.page_frame = ctk.CTkFrame(
+                tk_widgets.mainright_frame,
+                fg_color=TRANSPARENT,
+            )
+            tk_widgets.MH.page_frame.columnconfigure(0, weight=1)
+            tk_widgets.MH.page_frame.rowconfigure(0, weight=1)
+            tk_widgets.MH.page_frame.rowconfigure(1, weight=699)
+
+            # create input frame
+            tk_widgets.MH.input_frame = ctk.CTkFrame(
+                tk_widgets.MH.page_frame,
+                fg_color=TRANSPARENT
+            )
+            tk_widgets.MH.input_frame.grid(
+                row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+            tk_widgets.MH.input_frame.rowconfigure(0, weight=1)
+            tk_widgets.MH.input_frame.columnconfigure(0, weight=1)
+            tk_widgets.MH.input_frame.columnconfigure(1, weight=1)
+            tk_widgets.MH.input_frame.columnconfigure(2, weight=699)
+
+            # create file read button
+            def fileextract_cmd():
+                file_paths = tkfd.askopenfilenames(
+                    title='Select WAD/BIN/SKN/SKL file',
+                    filetypes=(
+                        ('League files',
+                            (
+                                '*.wad.client',
+                                '*.bin',
+                                '*.skn',
+                                '*.skl'
+                            )
+                         ),
+                        ('All files', '*.*')
+                    )
+                )
+                if len(file_paths) > 0:
+                    morehashes.extract(*file_paths)
+            tk_widgets.MH.fileread_button = ctk.CTkButton(
+                tk_widgets.MH.input_frame,
+                text='Extract From Files',
+                anchor=tk.CENTER,
+                command=fileextract_cmd
+            )
+            tk_widgets.MH.fileread_button.grid(
+                row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+            # create folder read button
+            def folderextract_cmd():
+                pass
+            tk_widgets.MH.folderread_button = ctk.CTkButton(
+                tk_widgets.MH.input_frame,
+                text='Extract From Folder',
+                anchor=tk.CENTER,
+                command=folderextract_cmd
+            )
+            tk_widgets.MH.folderread_button.grid(
+                row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+        tk_widgets.MH.page_frame.grid(
+            row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
     elif selected == 4:
         # Log
         tk_widgets.LOG.page_frame.grid(
@@ -831,8 +894,10 @@ def start():
     create_page_controls()
     create_mini_log()
 
+    # init value
     cdtb_hashes.CDTB.LOG = Log.add
     cdtb_hashes.CDTB.sync_in_thread()
+    morehashes.LOG = Log.add
 
     # loop the UI
     tk_widgets.main_tk.mainloop()

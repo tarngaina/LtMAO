@@ -1,3 +1,4 @@
+from io import BytesIO
 from LtMAO.pyRitoFile.io import BinStream
 from LtMAO.pyRitoFile.hash import FNV1a
 from enum import Enum
@@ -403,8 +404,9 @@ class BIN:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
 
-    def read(self, path):
-        with open(path, 'rb') as f:
+    def read(self, path, raw=None):
+        IO = open(path, 'rb') if raw == None else BytesIO(raw)
+        with IO as f:
             bs = BinStream(f)
             # header
             self.signature, = bs.read_a(4)
