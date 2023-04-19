@@ -124,7 +124,7 @@ class CustomHashes:
     @staticmethod
     def free_hashes(*filenames):
         for filename in filenames:
-            del CustomHashes.HASHTABLES[filename]
+            del HASHTABLES[filename]
 
     @staticmethod
     def free_binhashes(*filenames):
@@ -162,8 +162,8 @@ def combine_cdtb_into_customhashes(*filenames):
         # write combined hashes
         with open(ch_file, 'w+') as f:
             f.writelines(
-                f'{hash} {name}\n'
-                for hash, name in sorted(
+                f'{key} {value}\n'
+                for key, value in sorted(
                     hashtable.items(), key=lambda item: item[1]
                 )
             )
@@ -226,6 +226,7 @@ def extract_hash(*file_paths):
                     except:
                         LOG(
                             f'Failed: Extract Hashes: Skipped {chunk.hash}.{chunk.extension}')
+
                 elif chunk.extension == 'skl':
                     try:
                         extract_skl(read_skl('', raw=chunk.data))
@@ -281,8 +282,8 @@ def extract_hash(*file_paths):
         # write combined hashes
         with open(ch_file, 'w+') as f:
             f.writelines(
-                f'{hash} {name}\n'
-                for hash, name in sorted(
+                f'{key} {value}\n'
+                for key, value in sorted(
                     hashtable.items(), key=lambda item: item[1]
                 )
             )

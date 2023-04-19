@@ -393,7 +393,7 @@ def select_right_page(selected):
                     for file_path in file_paths:
                         Log.add(f'Running: Read {file_path}')
                         read_file(
-                            file_path, hash_manager.CustomHashes.HASHTABLES)
+                            file_path, hash_manager.HASHTABLES)
                         Log.add(f'Done: Read {file_path}')
                     hash_manager.CustomHashes.free_all()
             tk_widgets.LFI.fileread_button = ctk.CTkButton(
@@ -808,8 +808,8 @@ def select_right_page(selected):
                 if tk_widgets.CH.extracting_thread == None:
                     allow = True
                 else:
-                    if tk_widgets.CH.extracting_thread.is_alive():
-                        allow = False
+                    if not tk_widgets.CH.extracting_thread.is_alive():
+                        allow = True
 
                 if allow:
                     file_paths = tkfd.askopenfilenames(
@@ -852,8 +852,9 @@ def select_right_page(selected):
                 if tk_widgets.CH.extracting_thread == None:
                     allow = True
                 else:
-                    if tk_widgets.CH.extracting_thread.is_alive():
-                        allow = False
+                    if not tk_widgets.CH.extracting_thread.is_alive():
+                        allow = True
+
                 if allow:
                     dir_path = tkfd.askdirectory(
                         title='Select Folder To Extract',

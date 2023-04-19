@@ -68,7 +68,7 @@ class WADCompressionType(Enum):
 
 class WADChunk:
     __slots__ = (
-        'hash', 'offset', 
+        'hash', 'offset',
         'compressed_size', 'decompressed_size', 'compression_type',
         'duplicated', 'subchunk_start', 'subchunk_count',
         'checksum', 'data', 'extension'
@@ -79,7 +79,7 @@ class WADChunk:
         self.offset = None
         self.compressed_size = None
         self.decompressed_size = None
-        self.compressed_type = None
+        self.compression_type = None
         self.duplicated = None
         self.subchunk_start = None
         self.subchunk_count = None
@@ -90,6 +90,7 @@ class WADChunk:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__ if key != 'data'}
 
+
 class WAD:
     __slots__ = ('signature', 'version', 'chunks')
 
@@ -99,7 +100,7 @@ class WAD:
         self.chunks = []
 
     def __json__(self):
-        return {key: getattr(self, key) for key in self.__slots__}
+        return {key: getattr(self, key) for key in self.__slots__ if key != 'IO'}
 
     def read(self, path, raw=None):
         IO = open(path, 'rb') if raw == None else BytesIO(raw)
