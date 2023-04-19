@@ -27,9 +27,9 @@ class Log:
             for msg in messages:
                 # delete limit log
                 if len(Log.messages) > 1000:
-                    Log.messages = []
+                    Log.messages.pop(0)
                     Log.log_textbox.configure(state='normal')
-                    Log.log_textbox.delete('0.0', 'end')
+                    Log.log_textbox.delete('1.0', '2.0')
                     Log.log_textbox.configure(state='disabled')
 
                 timed_msg = f'[{now()}] {msg}'

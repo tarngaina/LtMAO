@@ -67,24 +67,39 @@ class WADCompressionType(Enum):
 
 
 class WADChunk:
+    __slots__ = (
+        'hash', 'offset', 
+        'compressed_size', 'decompressed_size', 'compression_type',
+        'duplicated', 'subchunk_start', 'subchunk_count',
+        'checksum', 'data', 'extension'
+    )
+
     def __init__(self):
-        pass
+        self.hash = None
+        self.offset = None
+        self.compressed_size = None
+        self.decompressed_size = None
+        self.compressed_type = None
+        self.duplicated = None
+        self.subchunk_start = None
+        self.subchunk_count = None
+        self.checksum = None
+        self.data = None
+        self.extension = None
 
     def __json__(self):
-        # return {key: getattr(self, key) for key in self.__slots__}
-        dic = vars(self)
-        dic.pop('data')
-        return dic
-
+        return {key: getattr(self, key) for key in self.__slots__ if key != 'data'}
 
 class WAD:
+    __slots__ = ('signature', 'version', 'chunks')
 
     def __init__(self):
-        pass
+        self.signature = None
+        self.version = None
+        self.chunks = []
 
     def __json__(self):
-        # return {key: getattr(self, key) for key in self.__slots__}
-        return vars(self)
+        return {key: getattr(self, key) for key in self.__slots__}
 
     def read(self, path, raw=None):
         IO = open(path, 'rb') if raw == None else BytesIO(raw)
@@ -137,14 +152,10 @@ class WAD:
                 elif chunk.compression_type == WADCompressionType.Gzip:
                     chunk.data = gzip.decompress(data)
                 elif chunk.compression_type == WADCompressionType.Satellite:
-                    print(data)  # ???
+                    # Satellite is not supported
                     chunk.data = None
-                elif chunk.compression_type == WADCompressionType.Zstd:
+                elif chunk.compression_type in (WADCompressionType.Zstd, WADCompressionType.ZstdChunked):
                     chunk.data = pyzstd.decompress(data)
-                elif chunk.compression_type == WADCompressionType.ZstdChunked:
-                    if data[:4] == b'\x28\xb5\x2f\xfd':  # zstd header
-                        chunk.data = pyzstd.decompress(data)
-                    chunk.data = data
 
                 chunk.extension = None
                 for signature, extension in signature_to_extension.items():
