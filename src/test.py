@@ -1,10 +1,34 @@
+from cProfile import Profile
+from pstats import Stats
 
-from LtMAO import pyRitoFile
-from LtMAO.cdtb_hashes import CDTB
 
-CDTB.sync_all()
-CDTB.read_hashes('hashes.game.txt')
-b = pyRitoFile.read_wad('D:/test/Milio.wad.client')
-b.un_hash(CDTB.HASHTABLES)
-pyRitoFile.write_json('D:/test/milio.json', b)
-CDTB.free_all()
+# profile
+def db(func):
+    pr = Profile()
+    pr.enable()
+
+    func()
+
+    pr.disable()
+    stats = Stats(pr)
+    stats.sort_stats('tottime').print_stats(20)
+
+
+def test():
+    hashes = {}
+    with open(f'./prefs/hashes/morehashes/hashes.game.txt', 'r') as f:
+        for line in f:
+            key, value = line[:-1].split()
+            hashes[key] = value
+
+
+def test2():
+    hashes = {}
+    with open(f'./prefs/hashes/morehashes/hashes.game.txt', 'r') as f:
+        for line in f:
+            key, value = line[:16], line[17:-1]
+            hashes[key] = value
+
+
+db(test)
+db(test2)

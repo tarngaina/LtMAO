@@ -1,5 +1,4 @@
 from LtMAO.pyRitoFile import to_json, SKL, SKN, SO, BIN, WAD
-from LtMAO.cdtb_hashes import CDTB
 from os import stat
 
 

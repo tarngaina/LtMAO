@@ -151,7 +151,6 @@ class WAD:
                     if chunk.data.startswith(signature):
                         chunk.extension = extension
                         break
-        
 
     def un_hash(self, hashtables=None):
         if hashtables == None:
