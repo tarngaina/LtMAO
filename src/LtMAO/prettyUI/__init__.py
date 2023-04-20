@@ -986,7 +986,7 @@ def select_right_page(selected):
             # theme
             tk_widgets.ST.theme_label = ctk.CTkLabel(
                 tk_widgets.ST.scroll_frame,
-                text='Theme',
+                text='Theme:',
                 anchor=tk.W
             )
             tk_widgets.ST.theme_label.grid(
@@ -1009,14 +1009,22 @@ def select_right_page(selected):
             tk_widgets.ST.theme_option.grid(
                 row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
-            # log limit
+            # log
+            tk_widgets.ST.log_label = ctk.CTkLabel(
+                tk_widgets.ST.scroll_frame,
+                text='Log',
+                anchor=tk.W
+            )
+            tk_widgets.ST.log_label.grid(
+                row=2, column=0, padx=10, pady=10, sticky=tk.NSEW)
+            # limit message
             tk_widgets.ST.loglimit_label = ctk.CTkLabel(
                 tk_widgets.ST.scroll_frame,
-                text='Log Limit',
+                text='Limit Messages:',
                 anchor=tk.W
             )
             tk_widgets.ST.loglimit_label.grid(
-                row=2, column=0, padx=20, pady=5, sticky=tk.NSEW)
+                row=3, column=0, padx=20, pady=5, sticky=tk.NSEW)
 
             def loglimit_cmd(choice):
                 Log.limit = int(choice)
@@ -1033,7 +1041,7 @@ def select_right_page(selected):
             )
             tk_widgets.ST.loglimit_option.set(setting.get('Log.limit', '100'))
             tk_widgets.ST.loglimit_option.grid(
-                row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
+                row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
         tk_widgets.ST.page_frame.grid(
             row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
