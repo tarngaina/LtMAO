@@ -15,20 +15,8 @@ def db(func):
 
 
 def test():
-    hashes = {}
-    with open(f'./prefs/hashes/morehashes/hashes.game.txt', 'r') as f:
-        for line in f:
-            key, value = line[:-1].split()
-            hashes[key] = value
-
-
-def test2():
-    hashes = {}
-    with open(f'./prefs/hashes/morehashes/hashes.game.txt', 'r') as f:
-        for line in f:
-            key, value = line[:16], line[17:-1]
-            hashes[key] = value
+    from LtMAO.pyRitoFile import read_wad
+    w = read_wad('D:/test/milio.wad.client')
 
 
 db(test)
-db(test2)

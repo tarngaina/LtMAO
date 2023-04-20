@@ -102,22 +102,20 @@ class WAD:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__ if key != 'IO'}
 
-    def read(self, path, raw=None):
+    def read(self, path, raw=None, read_data=False):
         IO = open(path, 'rb') if raw == None else BytesIO(raw)
         with IO as f:
             bs = BinStream(f)
-
+            # read header
             self.signature, = bs.read_a(2)
             if self.signature != 'RW':
                 raise Exception(
                     f'Failed: Read WAD {path}: Wrong file signature: {self.signature}')
-
             major, minor = bs.read_u8(2)
             self.version = float(f'{major}.{minor}')
             if major > 3:
                 raise Exception(
                     f'Failed: Read WAD {path}: Unsupported file version: {self.version}')
-
             data_checksum = 0
             if major == 2:
                 ecdsa_len = bs.read_u8()
@@ -129,12 +127,11 @@ class WAD:
             if major == 1 or major == 2:
                 toc_start_offset, toc_file_entry_size = bs.read_u16(
                     2)
-
+            # read chunks
             chunk_count, = bs.read_u32()
             self.chunks = [WADChunk() for i in range(chunk_count)]
             for i in range(chunk_count):
                 chunk = self.chunks[i]
-
                 chunk.hash = hash_to_hex(bs.read_u64()[0])
                 chunk.offset, chunk.compressed_size, chunk.decompressed_size, = bs.read_u32(
                     3)
@@ -144,29 +141,35 @@ class WAD:
                 chunk.subchunk_start, = bs.read_u16()
                 chunk.subchunk_count = chunk.compression_type.value >> 4
                 chunk.checksum = bs.read_u64()[0] if major >= 2 else 0
-
             for chunk in self.chunks:
+                # read data and decompress
                 bs.seek(chunk.offset)
                 data = f.read(chunk.compressed_size)
                 if chunk.compression_type == WADCompressionType.Raw:
-                    chunk.data = data
+                    data = data
                 elif chunk.compression_type == WADCompressionType.Gzip:
-                    chunk.data = gzip.decompress(data)
+                    data = gzip.decompress(data)
                 elif chunk.compression_type == WADCompressionType.Satellite:
                     # Satellite is not supported
-                    chunk.data = None
+                    data = None
                 elif chunk.compression_type in (WADCompressionType.Zstd, WADCompressionType.ZstdChunked):
-                    chunk.data = pyzstd.decompress(data)
-
+                    data = pyzstd.decompress(data)
+                # guess extension
                 chunk.extension = None
                 for signature, extension in signature_to_extension.items():
-                    if chunk.data.startswith(signature):
+                    if data.startswith(signature):
                         chunk.extension = extension
                         break
+                    # guess skl
+                    if data[4:8] == bytes.fromhex('c34ffd22'):
+                        chunk.extension = 'skl'
+                # save data in memory?
+                if read_data:
+                    chunk.data = data
 
     def un_hash(self, hashtables=None):
         if hashtables == None:
             return
-
         for chunk in self.chunks:
             chunk.hash = hex_to_name(hashtables, 'hashes.game.txt', chunk.hash)
+        self.chunks = sorted(self.chunks, key=lambda chunk: chunk.hash)

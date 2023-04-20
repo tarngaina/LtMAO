@@ -3,13 +3,27 @@ import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
 
-from LtMAO import pyRitoFile, hash_manager, leaguefile_inspector, animask_viewer
+from LtMAO import setting, pyRitoFile, hash_manager, leaguefile_inspector, animask_viewer
 from LtMAO.prettyUI.helper import Keeper, Log
 
 import os
 import os.path
 from threading import Thread
 from traceback import format_exception
+
+# init variable
+TRANSPARENT = 'transparent'
+tk_widgets = Keeper()
+
+
+def rce(self, *args):
+    # redirect tkinter error print
+    err = format_exception(*args)
+    Log.add(err)
+    print(''.join(err))
+
+
+ctk.CTk.report_callback_exception = rce
 
 
 def create_main_app_and_frames():
@@ -70,14 +84,18 @@ def create_page_controls():
 
     # create left controls buttons
     def control_cmd(x):
+        # update control display
         for id, control_button in enumerate(tk_widgets.control_buttons):
             if id == x:
-                # highlight the active control
                 control_button.configure(
-                    fg_color=tk_widgets.active_control_fg_color)
+                    fg_color=tk_widgets.c_active_fg,
+                    text_color=tk_widgets.c_active_text
+                )
             else:
-                # empty background for other controls
-                control_button.configure(fg_color=TRANSPARENT)
+                control_button.configure(
+                    fg_color=tk_widgets.c_nonactive_fg,
+                    text_color=tk_widgets.c_nonactive_text
+                )
         # create page depend on control
         select_right_page(x)
     tk_widgets.select_control = control_cmd
@@ -116,9 +134,12 @@ def create_page_controls():
     for id, control_button in enumerate(tk_widgets.control_buttons):
         control_button.grid(
             row=id, column=0, padx=5, pady=5, sticky=tk.N+tk.EW)
-    # get active color for active control
-    tk_widgets.active_control_fg_color = tk_widgets.control_buttons[0].cget(
-        'fg_color')
+    # get color for controls
+    temp_button = ctk.CTkButton(None)
+    tk_widgets.c_active_fg = temp_button.cget('fg_color')
+    tk_widgets.c_nonactive_fg = TRANSPARENT
+    tk_widgets.c_active_text = temp_button.cget('text_color')
+    tk_widgets.c_nonactive_text = ctk.CTkLabel(None).cget('text_color')
 
     # init pages data base on control buttons
     tk_widgets.pages = []
@@ -131,8 +152,9 @@ def create_page_controls():
     # reference page
     tk_widgets.LFI = tk_widgets.pages[1]
     tk_widgets.AMV = tk_widgets.pages[2]
-    tk_widgets.CH = tk_widgets.pages[3]
+    tk_widgets.HM = tk_widgets.pages[3]
     tk_widgets.LOG = tk_widgets.pages[4]
+    tk_widgets.ST = tk_widgets.pages[5]
 
     # bonus init stuffs
     tk_widgets.LOG.page_frame = ctk.CTkFrame(
@@ -779,36 +801,81 @@ def select_right_page(selected):
         tk_widgets.AMV.page_frame.grid(
             row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
     elif selected == 3:
-        if tk_widgets.CH.page_frame == None:
-            tk_widgets.CH.page_frame = ctk.CTkFrame(
+        if tk_widgets.HM.page_frame == None:
+            tk_widgets.HM.page_frame = ctk.CTkFrame(
                 tk_widgets.mainright_frame,
                 fg_color=TRANSPARENT,
             )
-            tk_widgets.CH.page_frame.columnconfigure(0, weight=1)
-            tk_widgets.CH.page_frame.rowconfigure(0, weight=1)
-            tk_widgets.CH.page_frame.rowconfigure(1, weight=699)
+            tk_widgets.HM.page_frame.columnconfigure(0, weight=1)
+            tk_widgets.HM.page_frame.rowconfigure(0, weight=1)
+            tk_widgets.HM.page_frame.rowconfigure(1, weight=1)
+            tk_widgets.HM.page_frame.rowconfigure(2, weight=699)
 
-            tk_widgets.CH.extracting_thread = None
+            tk_widgets.HM.extracting_thread = None
 
-            # create input frame
-            tk_widgets.CH.input_frame = ctk.CTkFrame(
-                tk_widgets.CH.page_frame,
+            # create info frame
+            tk_widgets.HM.info_frame = ctk.CTkFrame(
+                tk_widgets.HM.page_frame,
                 fg_color=TRANSPARENT
             )
-            tk_widgets.CH.input_frame.grid(
+            tk_widgets.HM.info_frame.grid(
                 row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
-            tk_widgets.CH.input_frame.rowconfigure(0, weight=1)
-            tk_widgets.CH.input_frame.columnconfigure(0, weight=1)
-            tk_widgets.CH.input_frame.columnconfigure(1, weight=1)
-            tk_widgets.CH.input_frame.columnconfigure(2, weight=699)
+            tk_widgets.HM.info_frame.columnconfigure(0, weight=1)
+            tk_widgets.HM.info_frame.columnconfigure(1, weight=0)
+            tk_widgets.HM.info_frame.columnconfigure(2, weight=699)
+            tk_widgets.HM.info_frame.rowconfigure(0, weight=1)
+
+            folder_label_text = [
+                f'CDTB: {hash_manager.CDTB.local_dir}',
+                f'Extracted: {hash_manager.ExtractedHashes.local_dir}',
+                f'Custom: {hash_manager.CustomHashes.local_dir}'
+            ]
+
+            def folder_cmd(index):
+                if index == 0:
+                    os.startfile(os.path.abspath(
+                        hash_manager.CDTB.local_dir))
+                elif index == 1:
+                    os.startfile(os.path.abspath(
+                        hash_manager.ExtractedHashes.local_dir))
+                else:
+                    os.startfile(os.path.abspath(
+                        hash_manager.CustomHashes.local_dir))
+            for i in range(3):
+                folder_label = ctk.CTkLabel(
+                    tk_widgets.HM.info_frame,
+                    text=folder_label_text[i],
+                    anchor=tk.W
+                )
+                folder_label.grid(row=i, column=0, padx=5,
+                                  pady=5, sticky=tk.NSEW)
+                folder_button = ctk.CTkButton(
+                    tk_widgets.HM.info_frame,
+                    text='Open',
+                    command=lambda index=i: folder_cmd(index)
+                )
+                folder_button.grid(row=i, column=1, padx=5,
+                                   pady=5, sticky=tk.NSEW)
+
+            # create input frame
+            tk_widgets.HM.input_frame = ctk.CTkFrame(
+                tk_widgets.HM.page_frame,
+                fg_color=TRANSPARENT
+            )
+            tk_widgets.HM.input_frame.grid(
+                row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+            tk_widgets.HM.input_frame.rowconfigure(0, weight=1)
+            tk_widgets.HM.input_frame.columnconfigure(0, weight=1)
+            tk_widgets.HM.input_frame.columnconfigure(1, weight=1)
+            tk_widgets.HM.input_frame.columnconfigure(2, weight=699)
 
             # create file read button
             def fileextract_cmd():
                 allow = False
-                if tk_widgets.CH.extracting_thread == None:
+                if tk_widgets.HM.extracting_thread == None:
                     allow = True
                 else:
-                    if not tk_widgets.CH.extracting_thread.is_alive():
+                    if not tk_widgets.HM.extracting_thread.is_alive():
                         allow = True
 
                 if allow:
@@ -827,32 +894,32 @@ def select_right_page(selected):
                         )
                     )
                     if len(file_paths) > 0:
-                        tk_widgets.CH.extracting_thread = Thread(
-                            target=lambda: hash_manager.extract_hash(
+                        tk_widgets.HM.extracting_thread = Thread(
+                            target=lambda: hash_manager.ExtractedHashes.extract(
                                 *file_paths),
                             daemon=True
                         )
-                        tk_widgets.CH.extracting_thread.start()
+                        tk_widgets.HM.extracting_thread.start()
                 else:
                     Log.add(
                         'Failed: Extract From Files: Another Thread is running, wait for it to finished.')
 
-            tk_widgets.CH.fileread_button = ctk.CTkButton(
-                tk_widgets.CH.input_frame,
+            tk_widgets.HM.fileread_button = ctk.CTkButton(
+                tk_widgets.HM.input_frame,
                 text='Extract From Files',
                 anchor=tk.CENTER,
                 command=fileextract_cmd
             )
-            tk_widgets.CH.fileread_button.grid(
+            tk_widgets.HM.fileread_button.grid(
                 row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
             # create folder read button
             def folderextract_cmd():
                 allow = False
-                if tk_widgets.CH.extracting_thread == None:
+                if tk_widgets.HM.extracting_thread == None:
                     allow = True
                 else:
-                    if not tk_widgets.CH.extracting_thread.is_alive():
+                    if not tk_widgets.HM.extracting_thread.is_alive():
                         allow = True
 
                 if allow:
@@ -866,33 +933,110 @@ def select_right_page(selected):
                                 file_paths.append(os.path.join(
                                     root, file).replace('\\', '/'))
                         if len(file_paths) > 0:
-                            tk_widgets.CH.extracting_thread = Thread(
-                                target=lambda: hash_manager.extract_hash(
+                            tk_widgets.HM.extracting_thread = Thread(
+                                target=lambda: hash_manager.ExtractedHashes.extract(
                                     *file_paths),
                                 daemon=True
                             )
-                            tk_widgets.CH.extracting_thread.start()
+                            tk_widgets.HM.extracting_thread.start()
                 else:
                     Log.add(
                         'Failed: Extract From Files: Another Thread is running, wait for it to finished.')
 
-            tk_widgets.CH.folderread_button = ctk.CTkButton(
-                tk_widgets.CH.input_frame,
+            tk_widgets.HM.folderread_button = ctk.CTkButton(
+                tk_widgets.HM.input_frame,
                 text='Extract From Folder',
                 anchor=tk.CENTER,
                 command=folderextract_cmd
             )
-            tk_widgets.CH.folderread_button.grid(
+            tk_widgets.HM.folderread_button.grid(
                 row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
-        tk_widgets.CH.page_frame.grid(
+        tk_widgets.HM.page_frame.grid(
             row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
     elif selected == 4:
         # Log
         tk_widgets.LOG.page_frame.grid(
             row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
     elif selected == 5:
-        pass
+        if tk_widgets.ST.page_frame == None:
+            tk_widgets.ST.page_frame = ctk.CTkFrame(
+                tk_widgets.mainright_frame,
+                fg_color=TRANSPARENT,
+            )
+            tk_widgets.ST.page_frame.columnconfigure(0, weight=1)
+            tk_widgets.ST.page_frame.rowconfigure(0, weight=1)
+
+            tk_widgets.ST.scroll_frame = ctk.CTkScrollableFrame(
+                tk_widgets.ST.page_frame,
+                fg_color=TRANSPARENT
+            )
+            tk_widgets.ST.scroll_frame.grid(
+                row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
+
+            # general
+            tk_widgets.ST.general_label = ctk.CTkLabel(
+                tk_widgets.ST.scroll_frame,
+                text='General',
+                anchor=tk.W
+            )
+            tk_widgets.ST.general_label.grid(
+                row=0, column=0, padx=10, pady=10, sticky=tk.NSEW)
+
+            # theme
+            tk_widgets.ST.theme_label = ctk.CTkLabel(
+                tk_widgets.ST.scroll_frame,
+                text='Theme',
+                anchor=tk.W
+            )
+            tk_widgets.ST.theme_label.grid(
+                row=1, column=0, padx=20, pady=5, sticky=tk.NSEW)
+
+            def theme_cmd(choice):
+                ctk.set_appearance_mode(choice)
+                setting.set('theme', choice)
+                setting.save()
+            tk_widgets.ST.theme_option = ctk.CTkOptionMenu(
+                tk_widgets.ST.scroll_frame,
+                values=[
+                    'light',
+                    'dark',
+                    'system'
+                ],
+                command=theme_cmd
+            )
+            tk_widgets.ST.theme_option.set(setting.get('theme', 'system'))
+            tk_widgets.ST.theme_option.grid(
+                row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+            # log limit
+            tk_widgets.ST.loglimit_label = ctk.CTkLabel(
+                tk_widgets.ST.scroll_frame,
+                text='Log Limit',
+                anchor=tk.W
+            )
+            tk_widgets.ST.loglimit_label.grid(
+                row=2, column=0, padx=20, pady=5, sticky=tk.NSEW)
+
+            def loglimit_cmd(choice):
+                Log.limit = int(choice)
+                setting.set('Log.limit', choice)
+                setting.save()
+            tk_widgets.ST.loglimit_option = ctk.CTkOptionMenu(
+                tk_widgets.ST.scroll_frame,
+                values=[
+                    '100',
+                    '1000',
+                    '10000'
+                ],
+                command=loglimit_cmd
+            )
+            tk_widgets.ST.loglimit_option.set(setting.get('Log.limit', '100'))
+            tk_widgets.ST.loglimit_option.grid(
+                row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+        tk_widgets.ST.page_frame.grid(
+            row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
 
 
 def create_mini_log():
@@ -918,29 +1062,16 @@ def create_mini_log():
     Log.minilog_label = tk_widgets.bottom_widgets.minilog_label
 
 
-# init variable
-TRANSPARENT = 'transparent'
-ctk.set_appearance_mode('system')
-tk_widgets = Keeper()
-
-
-# redirect tkinter error print
-def rce(self, *args):
-    err = format_exception(*args)
-    Log.add(err)
-    print(''.join(err))
-
-
-ctk.CTk.report_callback_exception = rce
-
-
 def start():
     # create UI
     create_main_app_and_frames()
     create_page_controls()
     create_mini_log()
 
-    # init value
+    # prepare and override settings
+    setting.prepare(Log.add)
+    ctk.set_appearance_mode(setting.get('theme', 'system'))
+    Log.limit = int(setting.get('Log.limit', '100'))
     hash_manager.prepare(Log.add)
 
     # loop the UI

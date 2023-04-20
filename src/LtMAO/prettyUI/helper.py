@@ -11,6 +11,7 @@ class Keeper:
 
 
 class Log:
+    limit = 1000
     messages = []
     minilog_label = None
     log_textbox = None
@@ -25,8 +26,8 @@ class Log:
             messages.remove('')
         if len(messages) > 0:
             for msg in messages:
-                # delete limit log
-                if len(Log.messages) > 1000:
+                # delete first line if reach limit
+                if len(Log.messages) > Log.limit:
                     Log.messages.pop(0)
                     Log.log_textbox.configure(state='normal')
                     Log.log_textbox.delete('1.0', '2.0')
