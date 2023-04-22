@@ -21,6 +21,14 @@ ALL_HASHES = BIN_HASHES + WAD_HASHES
 HASHTABLES = {key: {} for key in ALL_HASHES}
 
 
+def read_all():
+    CustomHashes.read_all()
+
+
+def free_all():
+    CustomHashes.free_all()
+
+
 def HASH_SEPARATOR(filename):
     # space separator in hashes txt
     # use this to skip using split()
@@ -158,25 +166,25 @@ class ExtractedHashes:
                     chunk.data = None
             elif file_path.endswith('.skn'):
                 try:
-                    extract_skn(read_skn('', raw=chunk.data))
-                    LOG(f'Done: Extract Hashes: {chunk.hash}.{chunk.extension}')
+                    extract_skn(read_skn(file_path))
+                    LOG(f'Done: Extract Hashes: {file_path}')
                 except:
                     LOG(
-                        f'Failed: Extract Hashes: Skipped {chunk.hash}.{chunk.extension}')
+                        f'Failed: Extract Hashes: Skipped {file_path}')
             elif file_path.endswith('.skl'):
                 try:
-                    extract_skl(read_skl('', raw=chunk.data))
-                    LOG(f'Done: Extract Hashes: {chunk.hash}.{chunk.extension}')
+                    extract_skl(read_skl(file_path))
+                    LOG(f'Done: Extract Hashes: {file_path}')
                 except:
                     LOG(
-                        f'Failed: Extract Hashes: Skipped {chunk.hash}.{chunk.extension}')
+                        f'Failed: Extract Hashes: Skipped {file_path}')
             elif file_path.endswith('.bin'):
                 try:
-                    extract_bin(read_bin('', raw=chunk.data))
-                    LOG(f'Done: Extract Hashes: {chunk.hash}.{chunk.extension}')
+                    extract_bin(read_bin(file_path))
+                    LOG(f'Done: Extract Hashes: {file_path}')
                 except:
                     LOG(
-                        f'Failed: Extract Hashes: Skipped {chunk.hash}.{chunk.extension}')
+                        f'Failed: Extract Hashes: Skipped {file_path}')
             LOG(f'Done: Extract Hashes: {file_path}')
         # write out hashes txt
         for filename, hashtable in hashtables.items():

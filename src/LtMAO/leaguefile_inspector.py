@@ -1,5 +1,7 @@
-from LtMAO.pyRitoFile import to_json, SKL, SKN, SO, BIN, WAD
+from LtMAO.pyRitoFile import to_json, read_skl, read_skn, read_sco, read_scb, read_bin, read_wad
 from os import stat
+
+LOG = print
 
 
 def to_human(size): return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) + \
@@ -7,52 +9,43 @@ def to_human(size): return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) +
         " EB"][max(size.bit_length()-1, 0)//10]
 
 
-def try_read(path, hashtables=None, ignore_error=False):
+def read_json(path, hashtables=None, ignore_error=False):
+    fsize = to_human(stat(path).st_size)
     try:
-        obj = SKL()
-        obj.read(path)
-        return path, to_human(stat(path).st_size), to_json(obj)
-    except:
-        pass
+        if path.endswith('.skl'):
+            obj = read_skl(path)
+            LOG(f'Done: File Inspector: Read SKL: {path}')
+            return path, fsize, to_json(obj)
+        elif path.endswith('.skn'):
+            obj = read_skn(path)
+            LOG(f'Done: File Inspector: Read SKL: {path}')
+            return path, fsize, to_json(obj)
+        elif path.endswith('.sco'):
+            obj = read_sco(path)
+            LOG(f'Done: File Inspector: Read SKL: {path}')
+            return path, fsize, to_json(obj)
+        elif path.endswith('.scb'):
+            obj = read_scb(path)
+            LOG(f'Done: File Inspector: Read SKL: {path}')
+            return path, fsize, to_json(obj)
+        elif path.endswith('.bin'):
+            obj = read_bin(path)
+            obj.un_hash(hashtables)
+            LOG(f'Done: File Inspector: Read SKL: {path}')
+            return path, fsize, to_json(obj)
+        elif path.endswith('.wad.client'):
+            obj = read_wad(path)
+            obj.un_hash(hashtables)
+            LOG(f'Done: File Inspector: Read SKL: {path}')
+            return path, fsize, to_json(obj)
+    except Exception as e:
+        if ignore_error:
+            return path, fsize, None
+        else:
+            raise e
+    return path, fsize, None
 
-    try:
-        obj = SKN()
-        obj.read(path)
-        return path, to_human(stat(path).st_size), to_json(obj)
-    except:
-        pass
 
-    try:
-        obj = SO()
-        obj.read_sco(path)
-        return path, to_human(stat(path).st_size), to_json(obj)
-    except:
-        pass
-
-    try:
-        obj = SO()
-        obj.read_scb(path)
-        return path, to_human(stat(path).st_size), to_json(obj)
-    except:
-        pass
-
-    try:
-        obj = BIN()
-        obj.read(path)
-        obj.un_hash(hashtables)
-        return path, to_human(stat(path).st_size), to_json(obj)
-    except:
-        pass
-
-    try:
-        obj = WAD()
-        obj.read(path)
-        obj.un_hash(hashtables)
-        return path, to_human(stat(path).st_size), to_json(obj)
-    except:
-        pass
-
-    if ignore_error:
-        return path, None, None
-    raise Exception(
-        'Failed: Try Read {path}: File is broken or not supported.')
+def prepare(_LOG):
+    global LOG
+    LOG = _LOG
