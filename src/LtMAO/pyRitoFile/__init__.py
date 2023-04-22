@@ -84,9 +84,9 @@ def write_bin(path, bin):
     bin.write(path)
 
 
-def read_wad(path, raw=None, read_data=False):
+def read_wad(path, raw=None, *, read_data=True, keep_data=False):
     wad = WAD()
-    wad.read(path, raw, read_data)
+    wad.read(path, raw, read_data=read_data, keep_data=keep_data)
     return wad
 
 

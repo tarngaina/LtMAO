@@ -1,0 +1,2 @@
+VERSION = "3.2.0"
+VERSION_TUPLE = (3, 2, 0)

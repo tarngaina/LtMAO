@@ -139,7 +139,7 @@ class ExtractedHashes:
         # extract hashes base on file types
         for file_path in file_paths:
             if file_path.endswith('.wad.client'):
-                wad = read_wad(file_path, read_data=True)
+                wad = read_wad(file_path, keep_data=True)
                 for chunk in wad.chunks:
                     if chunk.extension == 'skn':
                         try:

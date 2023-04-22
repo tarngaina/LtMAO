@@ -1,6 +1,8 @@
 from cProfile import Profile
 from pstats import Stats
 
+import xxhash
+
 
 # profile
 def db(func):
@@ -15,8 +17,8 @@ def db(func):
 
 
 def test():
-    from LtMAO.pyRitoFile import read_wad
-    w = read_wad('D:/test/milio.wad.client')
+    print(xxhash.xxh64(
+        'assets/challenges/config/00_crystals/challengecrystal_borderversion_bronze.ls_c2.tex').hexdigest())
 
 
 db(test)

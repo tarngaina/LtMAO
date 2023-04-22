@@ -4,6 +4,7 @@ from json import JSONEncoder
 from enum import Enum
 import gzip
 import pyzstd
+from xxhash import xxh64
 
 signature_to_extension = {
     b'OggS': 'ogg',
@@ -43,8 +44,8 @@ def hash_to_hex(hash):
     return f'{hash:016x}'
 
 
-# def name_to_hex(name):
-#   return hash_to_hex(FNV1a(name))
+def name_to_hex(name):
+    return xxh64(name.lower()).hexdigest()
 
 
 class WADEncoder(JSONEncoder):
@@ -102,7 +103,7 @@ class WAD:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__ if key != 'IO'}
 
-    def read(self, path, raw=None, read_data=False):
+    def read(self, path, raw=None, *, read_data=True, keep_data=False):
         IO = open(path, 'rb') if raw == None else BytesIO(raw)
         with IO as f:
             bs = BinStream(f)
@@ -141,35 +142,36 @@ class WAD:
                 chunk.subchunk_start, = bs.read_u16()
                 chunk.subchunk_count = chunk.compression_type.value >> 4
                 chunk.checksum = bs.read_u64()[0] if major >= 2 else 0
-            for chunk in self.chunks:
-                # read data and decompress
-                bs.seek(chunk.offset)
-                data = f.read(chunk.compressed_size)
-                if chunk.compression_type == WADCompressionType.Raw:
-                    data = data
-                elif chunk.compression_type == WADCompressionType.Gzip:
-                    data = gzip.decompress(data)
-                elif chunk.compression_type == WADCompressionType.Satellite:
-                    # Satellite is not supported
-                    data = None
-                elif chunk.compression_type in (WADCompressionType.Zstd, WADCompressionType.ZstdChunked):
-                    data = pyzstd.decompress(data)
-                # guess extension
-                chunk.extension = None
-                for signature, extension in signature_to_extension.items():
-                    if data.startswith(signature):
-                        chunk.extension = extension
-                        break
-                    # guess skl
+            if read_data:
+                for chunk in self.chunks:
+                    # read data and decompress
+                    bs.seek(chunk.offset)
+                    data = f.read(chunk.compressed_size)
+                    if chunk.compression_type == WADCompressionType.Raw:
+                        data = data
+                    elif chunk.compression_type == WADCompressionType.Gzip:
+                        data = gzip.decompress(data)
+                    elif chunk.compression_type == WADCompressionType.Satellite:
+                        # Satellite is not supported
+                        data = None
+                    elif chunk.compression_type in (WADCompressionType.Zstd, WADCompressionType.ZstdChunked):
+                        data = pyzstd.decompress(data)
+                    # guess extension
                     if data[4:8] == bytes.fromhex('c34ffd22'):
                         chunk.extension = 'skl'
-                # save data in memory?
-                if read_data:
-                    chunk.data = data
+                    else:
+                        for signature, extension in signature_to_extension.items():
+                            if data.startswith(signature):
+                                chunk.extension = extension
+                                break
+                    # keep data in memory?
+                    if keep_data:
+                        chunk.data = data
 
     def un_hash(self, hashtables=None):
         if hashtables == None:
             return
         for chunk in self.chunks:
             chunk.hash = hex_to_name(hashtables, 'hashes.game.txt', chunk.hash)
+            chunk.extension = '.'.join(chunk.hash.split('.')[1:])
         self.chunks = sorted(self.chunks, key=lambda chunk: chunk.hash)
