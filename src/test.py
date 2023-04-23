@@ -1,8 +1,6 @@
 from cProfile import Profile
 from pstats import Stats
 
-import xxhash
-
 
 # profile
 def db(func):
@@ -17,8 +15,12 @@ def db(func):
 
 
 def test():
-    print(xxhash.xxh64(
-        'assets/challenges/config/00_crystals/challengecrystal_borderversion_bronze.ls_c2.tex').hexdigest())
+    import pickle
+    from LtMAO import pyRitoFile
+
+    p = pickle.dumps(pyRitoFile.read_bin('D:/test/skin0.bin'))
+    bin = pickle.loads(p)
+    print(pyRitoFile.to_json(bin))
 
 
 db(test)

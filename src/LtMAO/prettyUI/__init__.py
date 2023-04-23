@@ -2,9 +2,8 @@
 import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
-from PIL import ImageTk
 
-from LtMAO import setting, pyRitoFile, hash_manager, leaguefile_inspector, animask_viewer, uvee
+from LtMAO import setting, pyRitoFile, wad_tool, hash_manager, leaguefile_inspector, animask_viewer, uvee
 from LtMAO.prettyUI.helper import Keeper, Log
 
 import os
@@ -172,6 +171,7 @@ def create_page_controls():
     tk_widgets.LFI = tk_widgets.pages[1]
     tk_widgets.AMV = tk_widgets.pages[2]
     tk_widgets.HM = tk_widgets.pages[3]
+    tk_widgets.NS = tk_widgets.pages[5]
     tk_widgets.UVEE = tk_widgets.pages[6]
     tk_widgets.LOG = tk_widgets.pages[8]
     tk_widgets.ST = tk_widgets.pages[9]
@@ -423,11 +423,11 @@ def select_right_page(selected):
                     )
                 )
                 if len(file_paths) > 0:
-                    hash_manager.read_all()
+                    hash_manager.read_all_hashes()
                     for file_path in file_paths:
                         read_file(
                             file_path, hash_manager.HASHTABLES)
-                    hash_manager.free_all()
+                    hash_manager.free_all_hashes()
             # create file read button
             tk_widgets.LFI.fileread_button = ctk.CTkButton(
                 tk_widgets.LFI.input_frame,
@@ -443,14 +443,14 @@ def select_right_page(selected):
                     title='Select Folder To Read'
                 )
                 if dir_path != '':
-                    hash_manager.read_all()
+                    hash_manager.read_all_hashes()
                     for root, dirs, files in os.walk(dir_path):
                         for file in files:
                             file_path = os.path.join(
                                 root, file).replace('\\', '/')
                             read_file(
                                 file_path, hash_manager.HASHTABLES, ignore_error=True)
-                    hash_manager.free_all()
+                    hash_manager.free_all_hashes()
             # create folder read button
             tk_widgets.LFI.folderread_button = ctk.CTkButton(
                 tk_widgets.LFI.input_frame,
@@ -966,7 +966,87 @@ def select_right_page(selected):
     elif selected == 4:
         pass
     elif selected == 5:
-        pass
+        if tk_widgets.NS.page_frame == None:
+            # create page frame
+            tk_widgets.NS.page_frame = ctk.CTkFrame(
+                tk_widgets.mainright_frame,
+                fg_color=TRANSPARENT,
+            )
+            tk_widgets.NS.page_frame.columnconfigure(0, weight=1)
+            tk_widgets.NS.page_frame.rowconfigure(0, weight=1)
+            tk_widgets.NS.page_frame.rowconfigure(1, weight=1)
+            tk_widgets.NS.page_frame.rowconfigure(2, weight=699)
+
+            # create input frame
+            tk_widgets.NS.input_frame = ctk.CTkFrame(
+                tk_widgets.NS.page_frame,
+                fg_color=TRANSPARENT
+            )
+            tk_widgets.NS.input_frame.grid(
+                row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+            tk_widgets.NS.input_frame.columnconfigure(0, weight=9)
+            tk_widgets.NS.input_frame.columnconfigure(1, weight=1)
+
+            # create champions folder entry
+            tk_widgets.NS.cfolder_entry = ctk.CTkEntry(
+                tk_widgets.NS.input_frame,
+            )
+            tk_widgets.NS.cfolder_entry.grid(
+                row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+            def browse_cmd():
+                skl_path = tkfd.askdirectory(
+                    title='Select Folder: League of Legends/Game/DATA/FINAL/Champions',
+                )
+                tk_widgets.NS.cfolder_entry.delete(0, tk.END)
+                tk_widgets.NS.cfolder_entry.insert(tk.END, skl_path)
+            # create browse button
+            tk_widgets.NS.browse_button = ctk.CTkButton(
+                tk_widgets.NS.input_frame,
+                text='Browse Champions folder',
+                anchor=tk.CENTER,
+                command=browse_cmd
+            )
+            tk_widgets.NS.browse_button.grid(
+                row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+            # create action frame
+            tk_widgets.NS.action_frame = ctk.CTkFrame(
+                tk_widgets.NS.page_frame, fg_color=TRANSPARENT)
+            tk_widgets.NS.action_frame.grid(
+                row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+            tk_widgets.NS.action_frame.columnconfigure(0, weight=1)
+            tk_widgets.NS.action_frame.columnconfigure(1, weight=699)
+            tk_widgets.NS.action_frame.columnconfigure(2, weight=1)
+            tk_widgets.NS.action_frame.columnconfigure(3, weight=1)
+
+            def start_cmd():
+                pass
+            tk_widgets.NS.start_button = ctk.CTkButton(
+                tk_widgets.NS.action_frame,
+                text='Start',
+                command=start_cmd
+            )
+            tk_widgets.NS.start_button.grid(
+                row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
+
+            def stop_cmd():
+                pass
+            tk_widgets.NS.stop_button = ctk.CTkButton(
+                tk_widgets.NS.action_frame,
+                text='Stop',
+                command=stop_cmd
+            )
+            tk_widgets.NS.stop_button.grid(
+                row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
+
+            tk_widgets.NS.config_textbox = ctk.CTkTextbox(
+                tk_widgets.NS.page_frame
+            )
+            tk_widgets.NS.config_textbox.grid(
+                row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        tk_widgets.NS.page_frame.grid(
+            row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
     elif selected == 6:
         if tk_widgets.UVEE.page_frame == None:
             # create page frame
@@ -1320,6 +1400,7 @@ def start():
     setting.prepare(Log.add)
     ctk.set_appearance_mode(setting.get('theme', 'system'))
     Log.limit = int(setting.get('Log.limit', '100'))
+    wad_tool.prepare(Log.add)
     hash_manager.prepare(Log.add)
     leaguefile_inspector.prepare(Log.add)
     uvee.prepare(Log.add)

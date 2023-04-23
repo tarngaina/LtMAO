@@ -1,4 +1,4 @@
-from io import BytesIO
+from io import BytesIO, StringIO
 from LtMAO.pyRitoFile.io import BinStream
 from LtMAO.pyRitoFile.structs import Vector
 from json import JSONEncoder
@@ -38,8 +38,8 @@ class SO:
         return {key: getattr(self, key) for key in self.__slots__}
 
     def read_sco(self, path, raw=None):
-        IO = open(path, 'r') if raw == None else BytesIO(raw)
-        with IO as f:
+        def IO(): return open(path, 'r') if raw == None else lambda: StringIO(raw.decode('ascii'))
+        with IO() as f:
             lines = f.readlines()
             lines = [line[:-1] for line in lines]
 
@@ -102,8 +102,8 @@ class SO:
                 index += 1
 
     def read_scb(self, path, raw=None):
-        IO = open(path, 'rb') if raw == None else BytesIO(raw)
-        with IO as f:
+        def IO(): return open(path, 'rb') if raw == None else lambda: BytesIO(raw)
+        with IO() as f:
             bs = BinStream(f)
 
             self.signature, = bs.read_a(8)

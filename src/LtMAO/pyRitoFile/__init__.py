@@ -1,9 +1,9 @@
 from LtMAO.pyRitoFile.skl import SKL, SKLJoint, SKLEncoder
 from LtMAO.pyRitoFile.skn import SKN, SKNEncoder
 from LtMAO.pyRitoFile.so import SO, SOEncoder
-from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINEncoder
+from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINEncoder, BINHelper
 from LtMAO.pyRitoFile.bnk import BNK
-from LtMAO.pyRitoFile.wad import WAD, WADEncoder
+from LtMAO.pyRitoFile.wad import WAD, WADEncoder, WADHelper
 from json import dump, dumps
 
 
@@ -84,9 +84,9 @@ def write_bin(path, bin):
     bin.write(path)
 
 
-def read_wad(path, raw=None, *, read_data=True, keep_data=False):
+def read_wad(path, raw=None):
     wad = WAD()
-    wad.read(path, raw, read_data=read_data, keep_data=keep_data)
+    wad.read(path, raw)
     return wad
 
 

@@ -21,12 +21,12 @@ ALL_HASHES = BIN_HASHES + WAD_HASHES
 HASHTABLES = {key: {} for key in ALL_HASHES}
 
 
-def read_all():
-    CustomHashes.read_all()
-
-
-def free_all():
-    CustomHashes.free_all()
+def read_all_hashes(): CustomHashes.read_all_hashes()
+def read_wad_hashes(): CustomHashes.read_wad_hashes()
+def read_bin_hashes(): CustomHashes.read_bin_hashes()
+def free_all_hashes(): CustomHashes.free_all_hashes()
+def free_wad_hashes(): CustomHashes.free_wad_hashes()
+def free_bin_hashes(): CustomHashes.free_bin_hashes()
 
 
 def HASH_SEPARATOR(filename):
@@ -139,31 +139,35 @@ class ExtractedHashes:
         # extract hashes base on file types
         for file_path in file_paths:
             if file_path.endswith('.wad.client'):
-                wad = read_wad(file_path, keep_data=True)
+                wad = read_wad(file_path)
                 for chunk in wad.chunks:
                     if chunk.extension == 'skn':
                         try:
+                            chunk.read_data(wad)
                             extract_skn(read_skn('', raw=chunk.data))
+                            chunk.free_data()
                             LOG(f'Done: Extract Hashes: {chunk.hash}.{chunk.extension}')
                         except:
                             LOG(
                                 f'Failed: Extract Hashes: Skipped {chunk.hash}.{chunk.extension}')
                     elif chunk.extension == 'skl':
                         try:
+                            chunk.read_data(wad)
                             extract_skl(read_skl('', raw=chunk.data))
+                            chunk.free_data()
                             LOG(f'Done: Extract Hashes: {chunk.hash}.{chunk.extension}')
                         except:
                             LOG(
                                 f'Failed: Extract Hashes: Skipped {chunk.hash}.{chunk.extension}')
                     elif chunk.extension == 'bin':
                         try:
+                            chunk.read_data(wad)
                             extract_bin(read_bin('', raw=chunk.data))
+                            chunk.free_data()
                             LOG(f'Done: Extract Hashes: {chunk.hash}.{chunk.extension}')
                         except:
                             LOG(
                                 f'Failed: Extract Hashes: Skipped {chunk.hash}.{chunk.extension}')
-                    # free memory
-                    chunk.data = None
             elif file_path.endswith('.skn'):
                 try:
                     extract_skn(read_skn(file_path))
@@ -226,15 +230,15 @@ class CustomHashes:
                         HASHTABLES[filename][line[:sep]] = line[sep+1:-1]
 
     @staticmethod
-    def read_binhashes():
+    def read_bin_hashes():
         CustomHashes.read_hashes(*BIN_HASHES)
 
     @staticmethod
-    def read_wadhashes():
+    def read_wad_hashes():
         CustomHashes.read_hashes(*WAD_HASHES)
 
     @staticmethod
-    def read_all():
+    def read_all_hashes():
         CustomHashes.read_hashes(*ALL_HASHES)
 
     @staticmethod
@@ -243,15 +247,15 @@ class CustomHashes:
             del HASHTABLES[filename]
 
     @staticmethod
-    def free_binhashes(*filenames):
+    def free_bin_hashes(*filenames):
         CustomHashes.free_hashes(*BIN_HASHES)
 
     @staticmethod
-    def free_wadhashes(*filenames):
+    def free_wad_hashes(*filenames):
         CustomHashes.free_hashes(*WAD_HASHES)
 
     @staticmethod
-    def free_all():
+    def free_all_hashes():
         CustomHashes.free_hashes(*ALL_HASHES)
 
 
