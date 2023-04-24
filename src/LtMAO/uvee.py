@@ -43,8 +43,7 @@ def uvee_skn(path):
         dir = os.path.dirname(path)
         base = os.path.basename(path).replace('.skn', '')
         uvee_dir = dir+f'/uvee_{base}'
-        if not os.path.exists(uvee_dir):
-            os.makedirs(uvee_dir)
+        os.makedirs(uvee_dir, exist_ok=True)
         img_path = os.path.join(
             uvee_dir, f'{submesh.name}.png').replace('\\', '/')
         img.save(img_path)

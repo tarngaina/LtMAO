@@ -15,12 +15,11 @@ def db(func):
 
 
 def test():
-    import pickle
-    from LtMAO import pyRitoFile
-
-    p = pickle.dumps(pyRitoFile.read_bin('D:/test/skin0.bin'))
-    bin = pickle.loads(p)
-    print(pyRitoFile.to_json(bin))
+    from LtMAO import no_skin, pyRitoFile
+    no_skin.process(
+        r'C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions')
+    # bin = pyRitoFile.read_bin('D:/test/skin1.bin')
+    # bin.write('D:/test/skin1_rewrite.bin')
 
 
 db(test)

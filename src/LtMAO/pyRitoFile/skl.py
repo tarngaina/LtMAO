@@ -63,7 +63,7 @@ class SKL:
         return {key: getattr(self, key) for key in self.__slots__}
 
     def read(self, path, raw=None):
-        def IO(): return open(path, 'rb') if raw == None else lambda: BytesIO(raw)
+        def IO(): return open(path, 'rb') if raw == None else BytesIO(raw)
         with IO() as f:
             bs = BinStream(f)
 

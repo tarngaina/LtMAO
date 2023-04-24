@@ -46,8 +46,7 @@ def prepare(_LOG):
     global LOG
     LOG = _LOG
     # ensure folder
-    if not os.path.exists(SETTINGS.local_dir):
-        os.makedirs(SETTINGS.local_dir)
+    os.makedirs(SETTINGS.local_dir, exist_ok=True)
     # ensure file
     if not os.path.exists(SETTINGS.local_file):
         with open(SETTINGS.local_file, 'w+') as f:

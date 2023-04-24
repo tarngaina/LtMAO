@@ -3,7 +3,7 @@ import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
 
-from LtMAO import setting, pyRitoFile, wad_tool, hash_manager, leaguefile_inspector, animask_viewer, uvee
+from LtMAO import setting, pyRitoFile, wad_tool, hash_manager, leaguefile_inspector, animask_viewer, no_skin, uvee
 from LtMAO.prettyUI.helper import Keeper, Log
 
 import os
@@ -930,7 +930,6 @@ def select_right_page(selected):
                 else:
                     if not tk_widgets.HM.extracting_thread.is_alive():
                         allow = True
-
                 if allow:
                     dir_path = tkfd.askdirectory(
                         title='Select Folder To Extract',
@@ -976,7 +975,8 @@ def select_right_page(selected):
             tk_widgets.NS.page_frame.rowconfigure(0, weight=1)
             tk_widgets.NS.page_frame.rowconfigure(1, weight=1)
             tk_widgets.NS.page_frame.rowconfigure(2, weight=699)
-
+            # init stuffs
+            tk_widgets.NS.working_thread = None
             # create input frame
             tk_widgets.NS.input_frame = ctk.CTkFrame(
                 tk_widgets.NS.page_frame,
@@ -986,7 +986,6 @@ def select_right_page(selected):
                 row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
             tk_widgets.NS.input_frame.columnconfigure(0, weight=9)
             tk_widgets.NS.input_frame.columnconfigure(1, weight=1)
-
             # create champions folder entry
             tk_widgets.NS.cfolder_entry = ctk.CTkEntry(
                 tk_widgets.NS.input_frame,
@@ -1009,7 +1008,6 @@ def select_right_page(selected):
             )
             tk_widgets.NS.browse_button.grid(
                 row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
-
             # create action frame
             tk_widgets.NS.action_frame = ctk.CTkFrame(
                 tk_widgets.NS.page_frame, fg_color=TRANSPARENT)
@@ -1018,10 +1016,21 @@ def select_right_page(selected):
             tk_widgets.NS.action_frame.columnconfigure(0, weight=1)
             tk_widgets.NS.action_frame.columnconfigure(1, weight=699)
             tk_widgets.NS.action_frame.columnconfigure(2, weight=1)
-            tk_widgets.NS.action_frame.columnconfigure(3, weight=1)
 
             def start_cmd():
-                pass
+                allow = False
+                if tk_widgets.NS.working_thread == None:
+                    allow = True
+                else:
+                    if not tk_widgets.NS.working_thread.is_alive():
+                        allow = True
+                if allow:
+                    tk_widgets.NS.working_thread = Thread(
+                        target=no_skin.process,
+                        args=(tk_widgets.NS.cfolder_entry.get(),),
+                        daemon=True
+                    ).start()
+
             tk_widgets.NS.start_button = ctk.CTkButton(
                 tk_widgets.NS.action_frame,
                 text='Start',
@@ -1029,21 +1038,11 @@ def select_right_page(selected):
             )
             tk_widgets.NS.start_button.grid(
                 row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
-
-            def stop_cmd():
-                pass
-            tk_widgets.NS.stop_button = ctk.CTkButton(
-                tk_widgets.NS.action_frame,
-                text='Stop',
-                command=stop_cmd
-            )
-            tk_widgets.NS.stop_button.grid(
-                row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
-
-            tk_widgets.NS.config_textbox = ctk.CTkTextbox(
+            # create skips textbox
+            tk_widgets.NS.skips_textbox = ctk.CTkTextbox(
                 tk_widgets.NS.page_frame
             )
-            tk_widgets.NS.config_textbox.grid(
+            tk_widgets.NS.skips_textbox.grid(
                 row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
         tk_widgets.NS.page_frame.grid(
             row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)

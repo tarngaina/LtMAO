@@ -7,7 +7,6 @@ class BinStream:
         self.stream = f
 
     # stream
-
     def tell(self):
         return self.stream.tell()
 
@@ -23,6 +22,9 @@ class BinStream:
         e = self.stream.tell()
         self.stream.seek(return_offset)
         return e
+
+    def close(self):
+        self.stream.close()
 
     # read
 

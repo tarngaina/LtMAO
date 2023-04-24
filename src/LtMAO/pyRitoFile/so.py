@@ -38,7 +38,7 @@ class SO:
         return {key: getattr(self, key) for key in self.__slots__}
 
     def read_sco(self, path, raw=None):
-        def IO(): return open(path, 'r') if raw == None else lambda: StringIO(raw.decode('ascii'))
+        def IO(): return open(path, 'r') if raw == None else StringIO(raw.decode('ascii'))
         with IO() as f:
             lines = f.readlines()
             lines = [line[:-1] for line in lines]
@@ -102,7 +102,7 @@ class SO:
                 index += 1
 
     def read_scb(self, path, raw=None):
-        def IO(): return open(path, 'rb') if raw == None else lambda: BytesIO(raw)
+        def IO(): return open(path, 'rb') if raw == None else BytesIO(raw)
         with IO() as f:
             bs = BinStream(f)
 

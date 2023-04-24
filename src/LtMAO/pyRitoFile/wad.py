@@ -6,7 +6,7 @@ import os
 import os.path
 import gzip
 import pyzstd
-from xxhash import xxh64
+from xxhash import xxh64, xxh3_64
 
 
 signature_to_extension = {
@@ -39,37 +39,101 @@ signature_to_extension = {
 }
 
 
-def hex_to_name(hashtables, table_name, hash):
-    return hashtables.get(table_name, {}).get(hash, hash)
-
-
 def hash_to_hex(hash):
     return f'{hash:016x}'
+
+
+def hex_to_hash(hex):
+    return int(hex, 16)
+
+
+def name_to_hash(name):
+    return xxh64(name.lower()).intdigest()
+
+
+def hex_to_name(hashtables, table_name, hash):
+    return hashtables.get(table_name, {}).get(hash, hash)
 
 
 def name_to_hex(name):
     return xxh64(name.lower()).hexdigest()
 
 
+def name_or_hex_to_hash(value):
+    try:
+        return hex_to_hash(value)
+    except:
+        return name_to_hash(value)
+
+
 class WADHelper:
     def unpack(wad, raw, LOG=print):
+        # ensure folder
         os.makedirs(raw, exist_ok=True)
+        bs = BinStream(open(wad, 'rb'))
         for chunk in wad.chunks:
-            chunk.read_data(wad)
-            fo_path = os.path.join(raw, chunk.hash)
+            chunk.read_data(bs)
+            # output file path of this chunk
+            file_path = os.path.join(raw, chunk.hash)
+            # add extension to file path if know
             if chunk.extension != None:
                 ext = f'.{chunk.extension}'
-                if not fo_path.endswith(ext):
-                    fo_path += ext
-            fo_path = fo_path.replace('\\', '/')
-            os.makedirs(os.path.dirname(fo_path), exist_ok=True)
-            with open(fo_path, 'wb') as fo:
+                if not file_path.endswith(ext):
+                    file_path += ext
+            file_path = file_path.replace('\\', '/')
+            # ensure folder of this file
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            # write out chunk data to file
+            with open(file_path, 'wb') as fo:
                 fo.write(chunk.data)
             chunk.free_data()
-            LOG(f'Done: Extracted: {chunk.hash}')
+            LOG(f'Done: Unpacked: {chunk.hash}')
+        bs.close()
 
-    def pack(raw, wad):
-        pass
+    def pack(raw, wad, LOG=print):
+        def check_hashed_name(basename):
+            try:
+                int(basename, 16)
+                return True
+            except:
+                return False
+        # create wad first with only infos
+        meta_wad = WAD()
+        file_paths = []
+        for root, dirs, files in os.walk(raw):
+            for id, file in enumerate(files):
+                # prepare paths of raw files
+                file_paths.append(os.path.join(root, file).replace('\\', '/'))
+                # prepare chunk hash: remove extension of hashed file
+                # example: 6bff35087d62f95d.bin -> 6bff35087d62f95d
+                basename = file.split('.')[0]
+                if check_hashed_name(basename):
+                    file = basename
+                # create chunk infos
+                chunk = WADChunk()
+                chunk.id = id
+                chunk.hash = os.path.relpath(os.path.join(
+                    root, file), raw).replace('\\', '/')
+                chunk.offset = 0
+                chunk.compressed_size = 0
+                chunk.decompressed_size = 0
+                chunk.compression_type = WADCompressionType.Zstd
+                chunk.duplicated = False
+                chunk.subchunk_start = 0
+                chunk.subchunk_count = 0
+                chunk.checksum = 0
+                meta_wad.chunks.append(chunk)
+        # write wad
+        meta_wad.write(wad)
+        # open back the wad, append data from raw files and rewrite info
+        bs = BinStream(open(wad, 'rb+'))
+        for id, chunk in enumerate(meta_wad.chunks):
+            with open(file_paths[id], 'rb') as f:
+                data = f.read()
+            chunk.write_data(bs, data)
+            chunk.free_data()
+            LOG(f'Done: Packed: {chunk.hash}')
+        bs.close()
 
 
 class WADEncoder(JSONEncoder):
@@ -93,13 +157,14 @@ class WADCompressionType(Enum):
 
 class WADChunk:
     __slots__ = (
-        'hash', 'offset',
+        'id', 'hash', 'offset',
         'compressed_size', 'decompressed_size', 'compression_type',
         'duplicated', 'subchunk_start', 'subchunk_count',
         'checksum', 'data', 'extension'
     )
 
     def __init__(self):
+        self.id = None
         self.hash = None
         self.offset = None
         self.compressed_size = None
@@ -118,36 +183,68 @@ class WADChunk:
     def free_data(self):
         self.data = None
 
-    def read_data(self, wad):
-        with wad.IO() as f:
-            bs = BinStream(f)
-            # read data and decompress
-            bs.seek(self.offset)
-            raw = bs.read(self.compressed_size)
-            if self.compression_type == WADCompressionType.Raw:
-                self.data = raw
-            elif self.compression_type == WADCompressionType.Gzip:
-                self.data = gzip.decompress(raw)
-            elif self.compression_type == WADCompressionType.Satellite:
-                # Satellite is not supported
-                self.data = None
-            elif self.compression_type in (WADCompressionType.Zstd, WADCompressionType.ZstdChunked):
-                self.data = pyzstd.decompress(raw)
-            # guess extension
-            if self.data[4:8] == bytes.fromhex('c34ffd22'):
-                self.extension = 'skl'
-            else:
-                for signature, extension in signature_to_extension.items():
-                    if self.data.startswith(signature):
-                        self.extension = extension
-                        break
+    def build(self, id, hash, data):
+        self.data = pyzstd.compress(data)
+        self.id = id
+        self.hash = hash
+        self.offset = 0
+        self.compressed_size = len(self.data)
+        self.decompressed_size = len(data)
+        self.compression_type = WADCompressionType.Zstd
+        self.duplicated = False
+        self.subchunk_start = 0
+        self.subchunk_count = 0
+        self.checksum = xxh3_64(self.data).intdigest()
+
+    def read_data(self, bs):
+        # read data and decompress
+        bs.seek(self.offset)
+        raw = bs.read(self.compressed_size)
+        if self.compression_type == WADCompressionType.Raw:
+            self.data = raw
+        elif self.compression_type == WADCompressionType.Gzip:
+            self.data = gzip.decompress(raw)
+        elif self.compression_type == WADCompressionType.Satellite:
+            # Satellite is not supported
+            self.data = None
+        elif self.compression_type in (WADCompressionType.Zstd, WADCompressionType.ZstdChunked):
+            self.data = pyzstd.decompress(raw)
+        # guess extension
+        if self.data[4:8] == bytes.fromhex('c34ffd22'):
+            self.extension = 'skl'
+        else:
+            for signature, extension in signature_to_extension.items():
+                if self.data.startswith(signature):
+                    self.extension = extension
+                    break
+
+    def write_data(self, bs, data):
+        self.data = pyzstd.compress(data)
+        self.compressed_size = len(self.data)
+        self.decompressed_size = len(data)
+        self.checksum = xxh3_64(self.data).intdigest()
+        # go to end file, save data offset and write chunk data
+        bs.seek(0, 2)
+        self.offset = bs.tell()
+        bs.write(self.data)
+        # go to this chunk offset and write stuffs
+        # hack: the first chunk start at 272 (because we write version 3.3)
+        chunk_offset = 272 + self.id * 32
+        bs.seek(chunk_offset)
+        bs.pad(8)  # pad hash
+        bs.write_u32(
+            self.offset,
+            self.compressed_size,
+            self.decompressed_size
+        )
+        bs.pad(4)  # pad compression type, duplicated and subchunk_start
+        bs.write_u64(self.checksum)
 
 
 class WAD:
-    __slots__ = ('IO', 'signature', 'version', 'chunks')
+    __slots__ = ('signature', 'version', 'chunks')
 
     def __init__(self):
-        self.IO = None
         self.signature = None
         self.version = None
         self.chunks = []
@@ -156,8 +253,7 @@ class WAD:
         return {key: getattr(self, key) for key in self.__slots__ if key != 'IO'}
 
     def read(self, path, raw=None):
-        def IO(): return open(path, 'rb') if raw == None else lambda: BytesIO(raw)
-        self.IO = IO
+        def IO(): return open(path, 'rb') if raw == None else BytesIO(raw)
         with IO() as f:
             bs = BinStream(f)
             # read header
@@ -170,14 +266,14 @@ class WAD:
             if major > 3:
                 raise Exception(
                     f'Failed: Read WAD {path}: Unsupported file version: {self.version}')
-            data_checksum = 0
+            wad_checksum = 0
             if major == 2:
                 ecdsa_len = bs.read_u8()
                 bs.pad(83)
-                data_checksum, = bs.read_u64()
+                wad_checksum, = bs.read_u64()
             elif major == 3:
                 bs.pad(256)
-                data_checksum, = bs.read_u64()
+                wad_checksum, = bs.read_u64()
             if major == 1 or major == 2:
                 toc_start_offset, toc_file_entry_size = bs.read_u16(
                     2)
@@ -186,6 +282,7 @@ class WAD:
             self.chunks = [WADChunk() for i in range(chunk_count)]
             for i in range(chunk_count):
                 chunk = self.chunks[i]
+                chunk.id = i
                 chunk.hash = hash_to_hex(bs.read_u64()[0])
                 chunk.offset, chunk.compressed_size, chunk.decompressed_size, = bs.read_u32(
                     3)
@@ -195,6 +292,29 @@ class WAD:
                 chunk.subchunk_start, = bs.read_u16()
                 chunk.subchunk_count = chunk.compression_type.value >> 4
                 chunk.checksum = bs.read_u64()[0] if major >= 2 else 0
+
+    def write(self, path):
+        with open(path, 'wb') as f:
+            bs = BinStream(f)
+            # write header
+            bs.write_a('RW')  # signature
+            bs.write_u8(3, 3)  # version
+            bs.write(b'\x00' * 256)  # pad 256 bytes
+            bs.write_u64(0)  # wad checksum
+            bs.write_u32(len(self.chunks))
+            # write chunks
+            for chunk in self.chunks:
+                test = name_or_hex_to_hash(chunk.hash)
+                bs.write_u64(test)
+                bs.write_u32(
+                    chunk.offset,
+                    chunk.compressed_size,
+                    chunk.decompressed_size
+                )
+                bs.write_u8(chunk.compression_type.value)
+                bs.write_b(chunk.duplicated)
+                bs.write_u16(chunk.subchunk_start)
+                bs.write_u64(chunk.checksum)
 
     def un_hash(self, hashtables=None):
         if hashtables == None:

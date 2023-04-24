@@ -3,8 +3,7 @@ import os
 import os.path
 import json
 from threading import Thread
-from LtMAO.pyRitoFile import read_wad, read_bin, read_skn, read_skl
-from LtMAO.pyRitoFile.hash import FNV1a
+from LtMAO import pyRitoFile
 
 LOG = print
 BIN_HASHES = (
@@ -98,7 +97,7 @@ class ExtractedHashes:
 
     def extract(*file_paths):
         def bin_hash(name):
-            return f'{FNV1a(name):08x}'
+            return f'{pyRitoFile.hash.FNV1a(name):08x}'
 
         hashtables = {
             'hashes.binentries.txt': {},
@@ -139,52 +138,45 @@ class ExtractedHashes:
         # extract hashes base on file types
         for file_path in file_paths:
             if file_path.endswith('.wad.client'):
-                wad = read_wad(file_path)
+                wad = pyRitoFile.read_wad(file_path)
+                bs = pyRitoFile.io.BinStream(open(file_path, 'rb'))
                 for chunk in wad.chunks:
-                    if chunk.extension == 'skn':
-                        try:
-                            chunk.read_data(wad)
-                            extract_skn(read_skn('', raw=chunk.data))
-                            chunk.free_data()
+                    chunk.read_data(bs)
+                    try:
+                        if chunk.extension == 'skn':
+                            extract_skn(pyRitoFile.read_skn(
+                                '', raw=chunk.data))
                             LOG(f'Done: Extract Hashes: {chunk.hash}.{chunk.extension}')
-                        except:
-                            LOG(
-                                f'Failed: Extract Hashes: Skipped {chunk.hash}.{chunk.extension}')
-                    elif chunk.extension == 'skl':
-                        try:
-                            chunk.read_data(wad)
-                            extract_skl(read_skl('', raw=chunk.data))
-                            chunk.free_data()
+                        elif chunk.extension == 'skl':
+                            extract_skl(pyRitoFile.read_skl(
+                                '', raw=chunk.data))
                             LOG(f'Done: Extract Hashes: {chunk.hash}.{chunk.extension}')
-                        except:
-                            LOG(
-                                f'Failed: Extract Hashes: Skipped {chunk.hash}.{chunk.extension}')
-                    elif chunk.extension == 'bin':
-                        try:
-                            chunk.read_data(wad)
-                            extract_bin(read_bin('', raw=chunk.data))
-                            chunk.free_data()
+                        elif chunk.extension == 'bin':
+                            extract_bin(pyRitoFile.read_bin(
+                                '', raw=chunk.data))
                             LOG(f'Done: Extract Hashes: {chunk.hash}.{chunk.extension}')
-                        except:
-                            LOG(
-                                f'Failed: Extract Hashes: Skipped {chunk.hash}.{chunk.extension}')
+                    except:
+                        LOG(
+                            f'Failed: Extract Hashes: Skipped {chunk.hash}.{chunk.extension}')
+                    chunk.free_data()
+                bs.close()
             elif file_path.endswith('.skn'):
                 try:
-                    extract_skn(read_skn(file_path))
+                    extract_skn(pyRitoFile.read_skn(file_path))
                     LOG(f'Done: Extract Hashes: {file_path}')
                 except:
                     LOG(
                         f'Failed: Extract Hashes: Skipped {file_path}')
             elif file_path.endswith('.skl'):
                 try:
-                    extract_skl(read_skl(file_path))
+                    extract_skl(pyRitoFile.read_skl(file_path))
                     LOG(f'Done: Extract Hashes: {file_path}')
                 except:
                     LOG(
                         f'Failed: Extract Hashes: Skipped {file_path}')
             elif file_path.endswith('.bin'):
                 try:
-                    extract_bin(read_bin(file_path))
+                    extract_bin(pyRitoFile.read_bin(file_path))
                     LOG(f'Done: Extract Hashes: {file_path}')
                 except:
                     LOG(
@@ -244,7 +236,7 @@ class CustomHashes:
     @staticmethod
     def free_hashes(*filenames):
         for filename in filenames:
-            del HASHTABLES[filename]
+            HASHTABLES[filename] = {}
 
     @staticmethod
     def free_bin_hashes(*filenames):
@@ -298,12 +290,9 @@ def prepare(_LOG):
         global LOG
         LOG = _LOG
         # ensure folder
-        if not os.path.exists(CDTB.local_dir):
-            os.makedirs(CDTB.local_dir)
-        if not os.path.exists(ExtractedHashes.local_dir):
-            os.makedirs(ExtractedHashes.local_dir)
-        if not os.path.exists(CustomHashes.local_dir):
-            os.makedirs(CustomHashes.local_dir)
+        os.makedirs(CDTB.local_dir, exist_ok=True)
+        os.makedirs(ExtractedHashes.local_dir, exist_ok=True)
+        os.makedirs(CustomHashes.local_dir, exist_ok=True)
         # sync CDTB hashesh
         CDTB.sync_all()
 

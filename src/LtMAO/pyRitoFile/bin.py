@@ -5,16 +5,31 @@ from enum import Enum
 from json import JSONEncoder
 
 
-def hex_to_name(hashtables, table_name, hash):
-    return hashtables.get(table_name, {}).get(hash, hash)
-
-
 def hash_to_hex(hash):
     return f'{hash:08x}'
 
 
+def hex_to_hash(hex):
+    return int(hex, 16)
+
+
+def name_to_hash(name):
+    return FNV1a(name)
+
+
+def hex_to_name(hashtables, table_name, hash):
+    return hashtables.get(table_name, {}).get(hash, hash)
+
+
 def name_to_hex(name):
-    return hash_to_hex(FNV1a(name))
+    return hash_to_hex(name_to_hash(name))
+
+
+def name_or_hex_to_hash(value):
+    try:
+        return hex_to_hash(value)
+    except:
+        return name_to_hash(value)
 
 
 class BINEncoder(JSONEncoder):
@@ -90,7 +105,7 @@ class BINHelper:
                 ]
             value = field
         elif value_type == BINType.Link:
-            value = bs.read_u32()[0]
+            value = hash_to_hex(bs.read_u32()[0])
         elif value_type == BINType.Flag:
             value = bs.read_u8()[0]
         return value
@@ -117,11 +132,15 @@ class BINHelper:
                     BINHelper.read_field(bs)
                     for i in range(count)
                 ]
+            else:
+                field.data = None
         elif field.type == BINType.Option:
             field.value_type = BINHelper.fix_type(bs.read_u8()[0])
             count, = bs.read_u8()
             if count != 0:
                 field.data = BINHelper.read_value(bs, field.value_type)
+            else:
+                field.data = None
         elif field.type == BINType.Map:
             field.key_type = BINHelper.fix_type(bs.read_u8()[0])
             field.value_type = BINHelper.fix_type(bs.read_u8()[0])
@@ -191,7 +210,7 @@ class BINHelper:
             bs.write_a(value)
             value_size += size + 2
         elif value_type == BINType.Hash:
-            bs.write_u32(int(value, 16))
+            bs.write_u32(name_or_hex_to_hash(value))
             value_size += 4
         elif value_type == BINType.File:
             bs.write_u64(value)
@@ -202,7 +221,7 @@ class BINHelper:
                 bs.write_u32(0)
                 value_size += 4
             else:
-                bs.write_u32(int(field.hash_type, 16))
+                bs.write_u32(name_or_hex_to_hash(field.hash_type))
                 value_size += 4
 
                 return_offset = bs.tell()
@@ -218,7 +237,7 @@ class BINHelper:
 
                 value_size += content_size
         elif value_type == BINType.Link:
-            bs.write_u32(value)
+            bs.write_u32(name_or_hex_to_hash(value))
             value_size += 4
         elif value_type == BINType.Flag:
             bs.write_u8(value)
@@ -228,7 +247,7 @@ class BINHelper:
     @staticmethod
     def write_field(bs, field, header_size):
         field_size = 5 if header_size else 0
-        bs.write_u32(int(field.hash, 16))
+        bs.write_u32(name_or_hex_to_hash(field.hash))
         bs.write_u8(field.type.value)
         if field.type == BINType.List or field.type == BINType.List2:
             bs.write_u8(field.value_type.value)
@@ -250,7 +269,7 @@ class BINHelper:
                 bs.write_u32(0)  # hash_type
                 field_size += 4
             else:
-                bs.write_u32(int(field.hash_type, 16))
+                bs.write_u32(name_or_hex_to_hash(field.hash_type))
                 field_size += 4
 
                 return_offset = bs.tell()
@@ -405,7 +424,7 @@ class BIN:
         return {key: getattr(self, key) for key in self.__slots__}
 
     def read(self, path, raw=None):
-        def IO(): return open(path, 'rb') if raw == None else lambda: BytesIO(raw)
+        def IO(): return open(path, 'rb') if raw == None else BytesIO(raw)
         with IO() as f:
             bs = BinStream(f)
             # header
@@ -455,8 +474,9 @@ class BIN:
                     patch.path, = bs.read_a(bs.read_u16()[0])
                     patch.data = BINHelper.read_value(bs, patch.type)
 
-    def write(self, path):
-        with open(path, 'wb') as f:
+    def write(self, path, raw=False):
+        def IO(): return open(path, 'wb') if raw == False else BytesIO()
+        with IO() as f:
             bs = BinStream(f)
             # header
             if self.is_patch:
@@ -472,7 +492,7 @@ class BIN:
             # entry_types + entries
             bs.write_u32(len(self.entries))
             for entry in self.entries:
-                bs.write_u32(int(entry.type, 16))
+                bs.write_u32(name_or_hex_to_hash(entry.type))
             BINHelper.size_offsets = []  # this help to write sizes
             for entry in self.entries:
                 return_offset = bs.tell()
@@ -480,7 +500,7 @@ class BIN:
                 bs.write_u32(0)  # size
                 entry_size = 4+2
 
-                bs.write_u32(int(entry.hash, 16))
+                bs.write_u32(name_or_hex_to_hash(entry.hash))
                 bs.write_u16(len(entry.data))
                 for field in entry.data:
                     entry_size += BINHelper.write_field(
@@ -490,7 +510,7 @@ class BIN:
             if self.is_patch:
                 bs.write_u32(len(self.patches))
                 for patch in self.patches:
-                    bs.write_u32(int(path.hash, 16))
+                    bs.write_u32(name_or_hex_to_hash(path.hash))
 
                     return_offset = bs.tell()
                     bs.write_u32(0)  # size
@@ -508,6 +528,9 @@ class BIN:
                 bs.seek(offset)
                 bs.write_u32(size)
 
+            f.seek(0)
+            return f.read()
+
     def un_hash(self, hashtables=None):
         if hashtables == None:
             return
@@ -515,6 +538,8 @@ class BIN:
         def un_hash_value(value, value_type):
             if value_type == BINType.Hash:
                 return hex_to_name(hashtables, 'hashes.binhashes.txt', value)
+            elif value_type == BINType.Link:
+                return hex_to_name(hashtables, 'hashes.binentries.txt', value)
             elif value_type in (BINType.List, BINType.List2):
                 value.data = [un_hash_value(v, value_type) for v in value.data]
             elif value_type in (BINType.Embed, BINType.Pointer):
