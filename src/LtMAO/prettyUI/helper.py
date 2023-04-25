@@ -15,6 +15,15 @@ class Log:
     messages = []
     tk_minilog = None
     tk_log = None
+    allow_tk_update = True
+
+    @staticmethod
+    def block_tk_update():
+        Log.allow_tk_update = False
+
+    @staticmethod
+    def free_tk_update():
+        Log.allow_tk_update = True
 
     @staticmethod
     def add(text):
@@ -52,7 +61,11 @@ class Log:
                 # why only update minilog instead of both log & minilog?
                 # because update one widget trigger update whole app
                 # no reason to call both
-                Log.tk_minilog.update_idletasks()
+                # btw, cooldown for tk update: 1 sec
+                if Log.allow_tk_update:
+                    Log.tk_minilog.update_idletasks()
+                    Log.block_tk_update()
+                    Log.tk_minilog.after(1000, Log.free_tk_update)
 
 
 """

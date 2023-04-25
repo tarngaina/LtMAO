@@ -153,7 +153,8 @@ class BinStream:
         self.stream.write(Struct(f'<{len(floats)}f').pack(*floats))
 
     def write_mtx4(self, mtx4):
-        self.stream.write(Struct('16f').pack(f for f in mtx4))
+        floats = [f for f in mtx4]
+        self.stream.write(Struct('16f').pack(*floats))
 
     def write_a(self, value):
         self.stream.write(value.encode('ascii'))

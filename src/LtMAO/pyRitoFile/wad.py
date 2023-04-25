@@ -183,19 +183,6 @@ class WADChunk:
     def free_data(self):
         self.data = None
 
-    def build(self, id, hash, data):
-        self.data = pyzstd.compress(data)
-        self.id = id
-        self.hash = hash
-        self.offset = 0
-        self.compressed_size = len(self.data)
-        self.decompressed_size = len(data)
-        self.compression_type = WADCompressionType.Zstd
-        self.duplicated = False
-        self.subchunk_start = 0
-        self.subchunk_count = 0
-        self.checksum = xxh3_64(self.data).intdigest()
-
     def read_data(self, bs):
         # read data and decompress
         bs.seek(self.offset)
@@ -207,8 +194,12 @@ class WADChunk:
         elif self.compression_type == WADCompressionType.Satellite:
             # Satellite is not supported
             self.data = None
-        elif self.compression_type in (WADCompressionType.Zstd, WADCompressionType.ZstdChunked):
+        elif self.compression_type == WADCompressionType.Zstd:
             self.data = pyzstd.decompress(raw)
+        elif self.compression_type == WADCompressionType.ZstdChunked:
+            if raw[:4] == b'\x28\xb5\x2f\xfd':
+                self.data = pyzstd.decompress(raw)
+            self.data = raw
         # guess extension
         if self.data[4:8] == bytes.fromhex('c34ffd22'):
             self.extension = 'skl'
@@ -220,6 +211,7 @@ class WADChunk:
 
     def write_data(self, bs, data):
         self.data = pyzstd.compress(data)
+        self.compression_type = WADCompressionType.Zstd
         self.compressed_size = len(self.data)
         self.decompressed_size = len(data)
         self.checksum = xxh3_64(self.data).intdigest()

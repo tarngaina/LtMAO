@@ -27,6 +27,15 @@ def rce(self, *args):
 ctk.CTk.report_callback_exception = rce
 
 
+def check_thread_safe(thread):
+    if thread == None:
+        return True
+    else:
+        if not thread.is_alive():
+            return True
+    return False
+
+
 def create_main_app_and_frames():
     # create main app
     tk_widgets.main_tk = ctk.CTk()
@@ -880,14 +889,7 @@ def select_right_page(selected):
 
             # create file read button
             def fileextract_cmd():
-                allow = False
-                if tk_widgets.HM.extracting_thread == None:
-                    allow = True
-                else:
-                    if not tk_widgets.HM.extracting_thread.is_alive():
-                        allow = True
-
-                if allow:
+                if check_thread_safe(tk_widgets.HM.extracting_thread):
                     file_paths = tkfd.askopenfilenames(
                         title='Select WAD/BIN/SKN/SKL File To Extract',
                         filetypes=(
@@ -911,7 +913,7 @@ def select_right_page(selected):
                         tk_widgets.HM.extracting_thread.start()
                 else:
                     Log.add(
-                        'Failed: Extract From Files: Another Thread is running, wait for it to finished.')
+                        'Failed: Extract Hashes: A thread is already running, wait for it to finished.')
 
             tk_widgets.HM.fileread_button = ctk.CTkButton(
                 tk_widgets.HM.input_frame,
@@ -924,13 +926,7 @@ def select_right_page(selected):
 
             # create folder read button
             def folderextract_cmd():
-                allow = False
-                if tk_widgets.HM.extracting_thread == None:
-                    allow = True
-                else:
-                    if not tk_widgets.HM.extracting_thread.is_alive():
-                        allow = True
-                if allow:
+                if check_thread_safe(tk_widgets.HM.extracting_thread):
                     dir_path = tkfd.askdirectory(
                         title='Select Folder To Extract',
                     )
@@ -949,7 +945,7 @@ def select_right_page(selected):
                             tk_widgets.HM.extracting_thread.start()
                 else:
                     Log.add(
-                        'Failed: Extract From Files: Another Thread is running, wait for it to finished.')
+                        'Failed: Extract Hashes: A thread is already running, wait for it to finished.')
 
             tk_widgets.HM.folderread_button = ctk.CTkButton(
                 tk_widgets.HM.input_frame,
@@ -1017,20 +1013,36 @@ def select_right_page(selected):
             tk_widgets.NS.action_frame.columnconfigure(1, weight=699)
             tk_widgets.NS.action_frame.columnconfigure(2, weight=1)
 
-            def start_cmd():
-                allow = False
-                if tk_widgets.NS.working_thread == None:
-                    allow = True
-                else:
-                    if not tk_widgets.NS.working_thread.is_alive():
-                        allow = True
-                if allow:
-                    tk_widgets.NS.working_thread = Thread(
-                        target=no_skin.process,
-                        args=(tk_widgets.NS.cfolder_entry.get(),),
-                        daemon=True
-                    ).start()
+            def save_skips_cmd():
+                no_skin.set_skips(
+                    tk_widgets.NS.skips_textbox.get('1.0', tk.END))
+                no_skin.save_skips()
+                Log.add('Done: Save SKIPS.json')
+            # create save SKIPS button
+            tk_widgets.NS.save_skips_button = ctk.CTkButton(
+                tk_widgets.NS.action_frame,
+                text='Save SKIPS',
+                command=save_skips_cmd
+            )
+            tk_widgets.NS.save_skips_button.grid(
+                row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
+            def start_cmd():
+                if check_thread_safe(tk_widgets.NS.working_thread):
+                    dir_path = tkfd.askdirectory(
+                        title='Select Output Folder'
+                    )
+                    if dir_path != '':
+                        tk_widgets.NS.working_thread = Thread(
+                            target=no_skin.parse,
+                            args=(tk_widgets.NS.cfolder_entry.get(),),
+                            daemon=True
+                        )
+                        tk_widgets.NS.working_thread.start()
+                else:
+                    Log.add(
+                        'Failed: Create NO SKIN mod: A thread is already running, wait for it to finished.')
+            # create start button
             tk_widgets.NS.start_button = ctk.CTkButton(
                 tk_widgets.NS.action_frame,
                 text='Start',
@@ -1040,8 +1052,15 @@ def select_right_page(selected):
                 row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
             # create skips textbox
             tk_widgets.NS.skips_textbox = ctk.CTkTextbox(
-                tk_widgets.NS.page_frame
+                tk_widgets.NS.page_frame,
+                wrap=tk.NONE
             )
+            def tab_pressed():
+                tk_widgets.NS.skips_textbox.insert('insert', ' '*4)
+                return 'break'
+            tk_widgets.NS.skips_textbox.bind(
+                '<Tab>', lambda e: tab_pressed())
+            tk_widgets.NS.skips_textbox.insert(tk.END, no_skin.get_skips())
             tk_widgets.NS.skips_textbox.grid(
                 row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
         tk_widgets.NS.page_frame.grid(
@@ -1402,6 +1421,7 @@ def start():
     wad_tool.prepare(Log.add)
     hash_manager.prepare(Log.add)
     leaguefile_inspector.prepare(Log.add)
+    no_skin.prepare(Log.add)
     uvee.prepare(Log.add)
 
     # loop the UI

@@ -16,10 +16,11 @@ def db(func):
 
 def test():
     from LtMAO import no_skin, pyRitoFile
-    no_skin.process(
+    no_skin.parse(
         r'C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions')
     # bin = pyRitoFile.read_bin('D:/test/skin1.bin')
     # bin.write('D:/test/skin1_rewrite.bin')
 
 
-db(test)
+if __name__ == '__main__':
+    db(test)
