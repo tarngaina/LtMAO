@@ -66,76 +66,6 @@ def name_or_hex_to_hash(value):
         return name_to_hash(value)
 
 
-class WADHelper:
-    def unpack(wad, raw, LOG=print):
-        # ensure folder
-        os.makedirs(raw, exist_ok=True)
-        bs = BinStream(open(wad, 'rb'))
-        for chunk in wad.chunks:
-            chunk.read_data(bs)
-            # output file path of this chunk
-            file_path = os.path.join(raw, chunk.hash)
-            # add extension to file path if know
-            if chunk.extension != None:
-                ext = f'.{chunk.extension}'
-                if not file_path.endswith(ext):
-                    file_path += ext
-            file_path = file_path.replace('\\', '/')
-            # ensure folder of this file
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            # write out chunk data to file
-            with open(file_path, 'wb') as fo:
-                fo.write(chunk.data)
-            chunk.free_data()
-            LOG(f'Done: Unpacked: {chunk.hash}')
-        bs.close()
-
-    def pack(raw, wad, LOG=print):
-        def check_hashed_name(basename):
-            try:
-                int(basename, 16)
-                return True
-            except:
-                return False
-        # create wad first with only infos
-        meta_wad = WAD()
-        file_paths = []
-        for root, dirs, files in os.walk(raw):
-            for id, file in enumerate(files):
-                # prepare paths of raw files
-                file_paths.append(os.path.join(root, file).replace('\\', '/'))
-                # prepare chunk hash: remove extension of hashed file
-                # example: 6bff35087d62f95d.bin -> 6bff35087d62f95d
-                basename = file.split('.')[0]
-                if check_hashed_name(basename):
-                    file = basename
-                # create chunk infos
-                chunk = WADChunk()
-                chunk.id = id
-                chunk.hash = os.path.relpath(os.path.join(
-                    root, file), raw).replace('\\', '/')
-                chunk.offset = 0
-                chunk.compressed_size = 0
-                chunk.decompressed_size = 0
-                chunk.compression_type = WADCompressionType.Zstd
-                chunk.duplicated = False
-                chunk.subchunk_start = 0
-                chunk.subchunk_count = 0
-                chunk.checksum = 0
-                meta_wad.chunks.append(chunk)
-        # write wad
-        meta_wad.write(wad)
-        # open back the wad, append data from raw files and rewrite info
-        bs = BinStream(open(wad, 'rb+'))
-        for id, chunk in enumerate(meta_wad.chunks):
-            with open(file_paths[id], 'rb') as f:
-                data = f.read()
-            chunk.write_data(bs, data)
-            chunk.free_data()
-            LOG(f'Done: Packed: {chunk.hash}')
-        bs.close()
-
-
 class WADEncoder(JSONEncoder):
     def default(self, obj):
         if hasattr(obj, '__json__'):
@@ -180,6 +110,18 @@ class WADChunk:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__ if key != 'data'}
 
+    def set_info(self, *, id=0, hash=0, offset=0, compressed_size=0, decompressed_size=0, compression_type=WADCompressionType.Zstd, duplicated=False, subchunk_start=0, subchunk_count=0, checksum=0):
+        self.id = id
+        self.hash = hash
+        self.offset = offset
+        self.compressed_size = compressed_size
+        self.decompressed_size = decompressed_size
+        self.compression_type = compression_type
+        self.duplicated = duplicated
+        self.subchunk_start = subchunk_start
+        self.subchunk_count = subchunk_count
+        self.checksum = checksum
+
     def free_data(self):
         self.data = None
 
@@ -201,13 +143,14 @@ class WADChunk:
                 self.data = pyzstd.decompress(raw)
             self.data = raw
         # guess extension
-        if self.data[4:8] == bytes.fromhex('c34ffd22'):
-            self.extension = 'skl'
-        else:
-            for signature, extension in signature_to_extension.items():
-                if self.data.startswith(signature):
-                    self.extension = extension
-                    break
+        if self.extension == None:
+            if self.data[4:8] == bytes.fromhex('c34ffd22'):
+                self.extension = 'skl'
+            else:
+                for signature, extension in signature_to_extension.items():
+                    if self.data.startswith(signature):
+                        self.extension = extension
+                        break
 
     def write_data(self, bs, data):
         self.data = pyzstd.compress(data)
@@ -244,10 +187,16 @@ class WAD:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__ if key != 'IO'}
 
+    def stream(self, path, mode, raw=None):
+        if raw != None:
+            if raw == True:  # the bool True value
+                return BinStream(BytesIO())
+            else:
+                return BinStream(BytesIO(raw))
+        return BinStream(open(path, mode))
+
     def read(self, path, raw=None):
-        def IO(): return open(path, 'rb') if raw == None else BytesIO(raw)
-        with IO() as f:
-            bs = BinStream(f)
+        with self.stream(path, 'rb', raw) as bs:
             # read header
             self.signature, = bs.read_a(2)
             if self.signature != 'RW':
@@ -285,9 +234,8 @@ class WAD:
                 chunk.subchunk_count = chunk.compression_type.value >> 4
                 chunk.checksum = bs.read_u64()[0] if major >= 2 else 0
 
-    def write(self, path):
-        with open(path, 'wb') as f:
-            bs = BinStream(f)
+    def write(self, path, raw=None):
+        with self.stream(path, 'wb', raw) as bs:
             # write header
             bs.write_a('RW')  # signature
             bs.write_u8(3, 3)  # version
@@ -307,6 +255,7 @@ class WAD:
                 bs.write_b(chunk.duplicated)
                 bs.write_u16(chunk.subchunk_start)
                 bs.write_u64(chunk.checksum)
+            return bs.raw() if raw else None
 
     def un_hash(self, hashtables=None):
         if hashtables == None:

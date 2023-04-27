@@ -15,11 +15,8 @@ def db(func):
 
 
 def test():
-    from LtMAO import no_skin, pyRitoFile
-    no_skin.parse(
-        r'C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions')
-    # bin = pyRitoFile.read_bin('D:/test/skin1.bin')
-    # bin.write('D:/test/skin1_rewrite.bin')
+    from LtMAO import wad_tool
+    wad_tool.pack('D:/test/test', 'D:/test/test.wad.client')
 
 
 if __name__ == '__main__':

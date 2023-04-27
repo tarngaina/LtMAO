@@ -423,10 +423,16 @@ class BIN:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
 
+    def stream(self, path, mode, raw=None):
+        if raw != None:
+            if raw == True:  # the bool True value
+                return BinStream(BytesIO())
+            else:
+                return BinStream(BytesIO(raw))
+        return BinStream(open(path, mode))
+
     def read(self, path, raw=None):
-        def IO(): return open(path, 'rb') if raw == None else BytesIO(raw)
-        with IO() as f:
-            bs = BinStream(f)
+        with self.stream(path, 'rb', raw) as bs:
             # header
             self.signature, = bs.read_a(4)
             if self.signature not in ('PROP', 'PTCH'):
@@ -474,10 +480,8 @@ class BIN:
                     patch.path, = bs.read_a(bs.read_u16()[0])
                     patch.data = BINHelper.read_value(bs, patch.type)
 
-    def write(self, path, raw=False):
-        def IO(): return open(path, 'wb') if raw == False else BytesIO()
-        with IO() as f:
-            bs = BinStream(f)
+    def write(self, path, raw=None):
+        with self.stream(path, 'wb', raw) as bs:
             # header
             if self.is_patch:
                 bs.write_a('PTCH')
@@ -527,9 +531,7 @@ class BIN:
             for offset, size in BINHelper.size_offsets:
                 bs.seek(offset)
                 bs.write_u32(size)
-
-            f.seek(0)
-            return f.read()
+            return bs.raw() if raw else None
 
     def un_hash(self, hashtables=None):
         if hashtables == None:

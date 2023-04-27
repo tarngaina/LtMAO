@@ -3,7 +3,7 @@ from LtMAO.pyRitoFile.skn import SKN, SKNEncoder
 from LtMAO.pyRitoFile.so import SO, SOEncoder
 from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINEncoder, BINHelper
 from LtMAO.pyRitoFile.bnk import BNK
-from LtMAO.pyRitoFile.wad import WAD, WADChunk, WADCompressionType, WADEncoder, WADHelper
+from LtMAO.pyRitoFile.wad import WAD, WADChunk, WADCompressionType, WADEncoder
 from LtMAO.pyRitoFile import hash
 from LtMAO.pyRitoFile import io
 from json import dump, dumps

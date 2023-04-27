@@ -12,18 +12,10 @@ class Keeper:
 
 class Log:
     limit = 1000
+    cooldown = 1000
     messages = []
     tk_minilog = None
     tk_log = None
-    allow_tk_update = True
-
-    @staticmethod
-    def block_tk_update():
-        Log.allow_tk_update = False
-
-    @staticmethod
-    def free_tk_update():
-        Log.allow_tk_update = True
 
     @staticmethod
     def add(text):
@@ -56,26 +48,3 @@ class Log:
                 # update UI minilog
                 if Log.tk_minilog != None:
                     Log.tk_minilog.configure(text=Log.messages[-1])
-
-                # update tkinter
-                # why only update minilog instead of both log & minilog?
-                # because update one widget trigger update whole app
-                # no reason to call both
-                # btw, cooldown for tk update: 1 sec
-                if Log.allow_tk_update:
-                    Log.tk_minilog.update_idletasks()
-                    Log.block_tk_update()
-                    Log.tk_minilog.after(1000, Log.free_tk_update)
-
-
-"""
-def emoji(emoji, size=32):
-    # convert emoji to CTkImage
-    font = ImageFont.truetype("seguiemj.ttf", size=int(size/1.5))
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
-    draw.text((size/2, size/2), emoji,
-              embedded_color=True, font=font, anchor="mm")
-    img = CTkImage(img, size=(size, size))
-    return img
-"""

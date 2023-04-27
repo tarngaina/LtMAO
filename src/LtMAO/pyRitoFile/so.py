@@ -35,11 +35,40 @@ class SO:
         self.colors = []
 
     def __json__(self):
-        return {key: getattr(self, key) for key in self.__slots__}
+        dic = {key: getattr(self, key)
+               for key in self.__slots__ if key not in ('indices', 'positions', 'uvs', 'colors')}
+        dic['indices[:15]'] = self.indices[:15] if self.indices != None else None
+        dic['uvs[:15]'] = self.uvs[:15] if self.uvs != None else None
+        dic['positions[:5]'] = self.positions[:5] if self.positions != None else None
+        dic['colors[:5]'] = self.colors[:5] if self.colors != None else None
+        return dic
+
+    def stream(self, path, mode, raw=None):
+        if raw != None:
+            if raw == True:  # the bool True value
+                return BinStream(BytesIO())
+            else:
+                return BinStream(BytesIO(raw))
+        return BinStream(open(path, mode))
+
+    def stream_sco(self, path, mode, raw=None):
+        if raw != None:
+            if raw == True:  # the bool True value
+                return StringIO()
+            else:
+                return StringIO(raw.decode('ascii'))
+        return open(path, mode)
+
+    def stream_scb(self, path, mode, raw=None):
+        if raw != None:
+            if raw == True:  # the bool True value
+                return BinStream(BytesIO())
+            else:
+                return BinStream(BytesIO(raw))
+        return BinStream(open(path, mode))
 
     def read_sco(self, path, raw=None):
-        def IO(): return open(path, 'r') if raw == None else StringIO(raw.decode('ascii'))
-        with IO() as f:
+        with self.stream_sco(path, 'r', raw) as f:
             lines = f.readlines()
             lines = [line[:-1] for line in lines]
 
@@ -102,10 +131,7 @@ class SO:
                 index += 1
 
     def read_scb(self, path, raw=None):
-        def IO(): return open(path, 'rb') if raw == None else BytesIO(raw)
-        with IO() as f:
-            bs = BinStream(f)
-
+        with self.stream_scb(path, 'rb', raw) as bs:
             self.signature, = bs.read_a(8)
             if self.signature != 'r3d2Mesh':
                 raise Exception(

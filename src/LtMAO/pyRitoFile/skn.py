@@ -73,13 +73,22 @@ class SKN:
         self.vertices = []
 
     def __json__(self):
-        return {key: getattr(self, key) for key in self.__slots__}
+        dic = {key: getattr(self, key)
+               for key in self.__slots__ if key not in ('indices', 'vertices')}
+        dic['indices[:15]'] = self.indices[:15] if self.indices != None else None
+        dic['vertices[:5]'] = self.vertices[:5] if self.vertices != None else None
+        return dic
+
+    def stream(self, path, mode, raw=None):
+        if raw != None:
+            if raw == True:  # the bool True value
+                return BinStream(BytesIO())
+            else:
+                return BinStream(BytesIO(raw))
+        return BinStream(open(path, mode))
 
     def read(self, path, raw=None):
-        def IO(): return open(path, 'rb') if raw == None else BytesIO(raw)
-        with IO() as f:
-            bs = BinStream(f)
-
+        with self.stream(path, 'rb', raw) as bs:
             self.signature, = bs.read_u32()
             if self.signature != 0x00112233:
                 raise Exception(

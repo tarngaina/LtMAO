@@ -62,11 +62,16 @@ class SKL:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
 
-    def read(self, path, raw=None):
-        def IO(): return open(path, 'rb') if raw == None else BytesIO(raw)
-        with IO() as f:
-            bs = BinStream(f)
+    def stream(self, path, mode, raw=None):
+        if raw != None:
+            if raw == True:  # the bool True value
+                return BinStream(BytesIO())
+            else:
+                return BinStream(BytesIO(raw))
+        return BinStream(open(path, mode))
 
+    def read(self, path, raw=None):
+        with self.stream(path, 'rb', raw) as bs:
             # read signature first to check legacy or not
             bs.pad(4)
             signature, = bs.read_u32()
@@ -177,10 +182,8 @@ class SKL:
                     influence_count, = bs.read_u32()
                     self.influences = bs.read_u32(influence_count)
 
-    def write(self, path):
-        with open(path, 'wb') as f:
-            bs = BinStream(f)
-
+    def write(self, path, raw=None):
+        with self.stream(path, 'wb', raw) as bs:
             # file size, magic, version
             bs.write_u32(0, 0x22FD4FC3, 0)
 
@@ -250,3 +253,4 @@ class SKL:
             # file size
             bs.seek(0)
             bs.write_u32(bs.end())
+            return bs.raw() if raw else None

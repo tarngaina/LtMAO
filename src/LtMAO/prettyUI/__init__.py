@@ -3,7 +3,7 @@ import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
 
-from LtMAO import setting, pyRitoFile, wad_tool, hash_manager, leaguefile_inspector, animask_viewer, no_skin, uvee
+from LtMAO import setting, pyRitoFile, wad_tool, hash_manager, leaguefile_inspector, animask_viewer, no_skin, uvee, ext_tools
 from LtMAO.prettyUI.helper import Keeper, Log
 
 import os
@@ -41,6 +41,9 @@ def create_main_app_and_frames():
     tk_widgets.main_tk = ctk.CTk()
     tk_widgets.main_tk.geometry('1000x620')
     tk_widgets.main_tk.title('LtMAO')
+    icon_file = './resources/appicon.ico'
+    if os.path.exists(icon_file):
+        tk_widgets.main_tk.iconbitmap(icon_file)
     # create main top-bottom frame
     tk_widgets.main_tk.rowconfigure(0, weight=100)
     tk_widgets.main_tk.rowconfigure(1, weight=1)
@@ -225,7 +228,9 @@ def select_right_page(selected):
             tk_widgets.LFI.page_frame.rowconfigure(0, weight=1)
             tk_widgets.LFI.page_frame.rowconfigure(1, weight=699)
             # init stuffs
+            tk_widgets.LFI.reading_thread = None
             tk_widgets.LFI.loaded_files = []
+            tk_widgets.LFI.use_ritobin = True
             # create input frame
             tk_widgets.LFI.input_frame = ctk.CTkFrame(
                 tk_widgets.LFI.page_frame,
@@ -237,7 +242,8 @@ def select_right_page(selected):
             tk_widgets.LFI.input_frame.columnconfigure(0, weight=1)
             tk_widgets.LFI.input_frame.columnconfigure(1, weight=1)
             tk_widgets.LFI.input_frame.columnconfigure(2, weight=1)
-            tk_widgets.LFI.input_frame.columnconfigure(3, weight=699)
+            tk_widgets.LFI.input_frame.columnconfigure(3, weight=1)
+            tk_widgets.LFI.input_frame.columnconfigure(4, weight=699)
             # create view frame
             tk_widgets.LFI.view_frame = ctk.CTkScrollableFrame(
                 tk_widgets.LFI.page_frame,
@@ -250,8 +256,12 @@ def select_right_page(selected):
             # read one file function
 
             def read_file(file_path, hastables=None, ignore_error=False):
-                path, size, json = leaguefile_inspector.read_json(
-                    file_path, hastables, ignore_error)
+                if file_path.endswith('.bin') and tk_widgets.LFI.use_ritobin:
+                    path, size, json = leaguefile_inspector.read_ritobin(
+                        file_path, ignore_error)
+                else:
+                    path, size, json = leaguefile_inspector.read_json(
+                        file_path, hastables, ignore_error)
                 if json == None:
                     return
                 # id of this file
@@ -279,13 +289,16 @@ def select_right_page(selected):
                 def view_cmd(file_frame_id):
                     toggle = tk_widgets.LFI.loaded_files[file_frame_id][2]
                     content_frame = tk_widgets.LFI.loaded_files[file_frame_id][3]
+                    search_entry = tk_widgets.LFI.loaded_files[file_frame_id][7]
                     toggle = not toggle
                     if toggle:
                         content_frame.grid(row=1, column=0,
                                            padx=0, pady=0, sticky=tk.NSEW)
-
+                        search_entry.grid(row=0, column=2, padx=0,
+                                          pady=0, sticky=tk.E)
                     else:
                         content_frame.grid_forget()
+                        search_entry.grid_forget()
                     tk_widgets.LFI.loaded_files[file_frame_id][2] = toggle
                 # create view button
                 view_button = ctk.CTkButton(
@@ -311,8 +324,6 @@ def select_right_page(selected):
                     placeholder_text='Search',
                     width=300
                 )
-                search_entry.grid(row=0, column=2, padx=0,
-                                  pady=0, sticky=tk.E)
 
                 def search_cmd(event, search_entry, file_frame_id):
                     file_text = tk_widgets.LFI.loaded_files[file_frame_id][4]
@@ -407,36 +418,48 @@ def select_right_page(selected):
                         content_frame,
                         file_text,
                         '1.0',  # text search pos
-                        False  # deleted or not
+                        False,  # deleted or not
+                        search_entry
                     ]
                 )
 
             def fileread_cmd():
-                file_paths = tkfd.askopenfilenames(
-                    title='Select League Files To Read',
-                    filetypes=(
-                        ('League files',
-                            (
-                                '*.bin',
-                                '*.skl',
-                                '*.skn',
-                                '*.sco',
-                                '*.scb',
-                                '*.anm',
-                                '*.mapgeo',
-                                '*.bnk',
-                                '*.wad.client'
-                            )
-                         ),
-                        ('All files', '*.*')
+                if check_thread_safe(tk_widgets.LFI.reading_thread):
+                    file_paths = tkfd.askopenfilenames(
+                        parent=tk_widgets.main_tk,
+                        title='Select League Files To Read',
+                        filetypes=(
+                            ('League files',
+                                (
+                                    '*.bin',
+                                    '*.skl',
+                                    '*.skn',
+                                    '*.sco',
+                                    '*.scb',
+                                    '*.anm',
+                                    '*.mapgeo',
+                                    '*.bnk',
+                                    '*.wad.client'
+                                )
+                             ),
+                            ('All files', '*.*')
+                        )
                     )
-                )
-                if len(file_paths) > 0:
-                    hash_manager.read_all_hashes()
-                    for file_path in file_paths:
-                        read_file(
-                            file_path, hash_manager.HASHTABLES)
-                    hash_manager.free_all_hashes()
+                    if len(file_paths) > 0:
+                        def fileread_thrd():
+                            hash_manager.read_all_hashes()
+                            for file_path in file_paths:
+                                read_file(
+                                    file_path, hash_manager.HASHTABLES)
+                            hash_manager.free_all_hashes()
+                        tk_widgets.LFI.reading_thread = Thread(
+                            target=fileread_thrd,
+                            daemon=True
+                        )
+                        tk_widgets.LFI.reading_thread.start()
+                else:
+                    Log.add(
+                        'Failed: File Inspector: A thread is already running, wait for it to finished.')
             # create file read button
             tk_widgets.LFI.fileread_button = ctk.CTkButton(
                 tk_widgets.LFI.input_frame,
@@ -448,18 +471,29 @@ def select_right_page(selected):
                 row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
             def folderread_cmd():
-                dir_path = tkfd.askdirectory(
-                    title='Select Folder To Read'
-                )
-                if dir_path != '':
-                    hash_manager.read_all_hashes()
-                    for root, dirs, files in os.walk(dir_path):
-                        for file in files:
-                            file_path = os.path.join(
-                                root, file).replace('\\', '/')
-                            read_file(
-                                file_path, hash_manager.HASHTABLES, ignore_error=True)
-                    hash_manager.free_all_hashes()
+                if check_thread_safe(tk_widgets.LFI.reading_thread):
+                    dir_path = tkfd.askdirectory(
+                        parent=tk_widgets.main_tk,
+                        title='Select Folder To Read'
+                    )
+                    if dir_path != '':
+                        def folderread_thrd():
+                            hash_manager.read_all_hashes()
+                            for root, dirs, files in os.walk(dir_path):
+                                for file in files:
+                                    file_path = os.path.join(
+                                        root, file).replace('\\', '/')
+                                    read_file(
+                                        file_path, hash_manager.HASHTABLES, ignore_error=True)
+                            hash_manager.free_all_hashes()
+                        tk_widgets.LFI.reading_thread = Thread(
+                            target=folderread_thrd,
+                            daemon=True
+                        )
+                        tk_widgets.LFI.reading_thread.start()
+                else:
+                    Log.add(
+                        'Failed: File Inspector: A thread is already running, wait for it to finished.')
             # create folder read button
             tk_widgets.LFI.folderread_button = ctk.CTkButton(
                 tk_widgets.LFI.input_frame,
@@ -490,6 +524,26 @@ def select_right_page(selected):
             )
             tk_widgets.LFI.clear_button.grid(
                 row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
+
+            def ritobin_cmd():
+                tk_widgets.LFI.use_ritobin = tk_widgets.LFI.use_ritobin_switch.get() == 1
+                setting.set('LFI.use_ritobin',
+                            tk_widgets.LFI.use_ritobin)
+                setting.save()
+            # create use ritobin switch
+            tk_widgets.LFI.use_ritobin_switch = ctk.CTkSwitch(
+                tk_widgets.LFI.input_frame,
+                text='Read BIN files using ritobin',
+                command=ritobin_cmd
+            )
+            tk_widgets.LFI.use_ritobin = setting.get(
+                'LFI.use_ritobin', False)
+            if tk_widgets.LFI.use_ritobin:
+                tk_widgets.LFI.use_ritobin_switch.select()
+            else:
+                tk_widgets.LFI.use_ritobin_switch.deselect()
+            tk_widgets.LFI.use_ritobin_switch.grid(
+                row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
 
         tk_widgets.LFI.page_frame.grid(
             row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
@@ -527,6 +581,7 @@ def select_right_page(selected):
 
             def sklbrowse_cmd():
                 skl_path = tkfd.askopenfilename(
+                    parent=tk_widgets.main_tk,
                     title='Select SKL file',
                     filetypes=(
                         ('SKL files', '*.skl'),
@@ -553,6 +608,7 @@ def select_right_page(selected):
 
             def binbrowse_cmd():
                 bin_path = tkfd.askopenfilename(
+                    parent=tk_widgets.main_tk,
                     title='Select Animation BIN file',
                     filetypes=(
                         ('BIN files', ['*.bin']),
@@ -750,6 +806,7 @@ def select_right_page(selected):
 
                 # save to txt file (bin later)
                 bin_path = tkfd.asksaveasfilename(
+                    parent=tk_widgets.main_tk,
                     title='Select output Animation BIN path',
                     filetypes=(
                         ('BIN files', '*.bin'),
@@ -891,6 +948,7 @@ def select_right_page(selected):
             def fileextract_cmd():
                 if check_thread_safe(tk_widgets.HM.extracting_thread):
                     file_paths = tkfd.askopenfilenames(
+                        parent=tk_widgets.main_tk,
                         title='Select WAD/BIN/SKN/SKL File To Extract',
                         filetypes=(
                             ('League files',
@@ -906,8 +964,8 @@ def select_right_page(selected):
                     )
                     if len(file_paths) > 0:
                         tk_widgets.HM.extracting_thread = Thread(
-                            target=lambda: hash_manager.ExtractedHashes.extract(
-                                *file_paths),
+                            target=hash_manager.ExtractedHashes.extract,
+                            args=file_paths,
                             daemon=True
                         )
                         tk_widgets.HM.extracting_thread.start()
@@ -928,6 +986,7 @@ def select_right_page(selected):
             def folderextract_cmd():
                 if check_thread_safe(tk_widgets.HM.extracting_thread):
                     dir_path = tkfd.askdirectory(
+                        parent=tk_widgets.main_tk,
                         title='Select Folder To Extract',
                     )
                     if dir_path != '':
@@ -938,8 +997,8 @@ def select_right_page(selected):
                                     root, file).replace('\\', '/'))
                         if len(file_paths) > 0:
                             tk_widgets.HM.extracting_thread = Thread(
-                                target=lambda: hash_manager.ExtractedHashes.extract(
-                                    *file_paths),
+                                target=hash_manager.ExtractedHashes.extract,
+                                args=file_paths,
                                 daemon=True
                             )
                             tk_widgets.HM.extracting_thread.start()
@@ -984,13 +1043,18 @@ def select_right_page(selected):
             tk_widgets.NS.input_frame.columnconfigure(1, weight=1)
             # create champions folder entry
             tk_widgets.NS.cfolder_entry = ctk.CTkEntry(
-                tk_widgets.NS.input_frame,
+                tk_widgets.NS.input_frame
             )
             tk_widgets.NS.cfolder_entry.grid(
                 row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+            cfolder = setting.get('game_folder', '')
+            if cfolder != '':
+                tk_widgets.NS.cfolder_entry.insert(
+                    tk.END, cfolder + '/DATA/FINAL/Champions')
 
             def browse_cmd():
                 skl_path = tkfd.askdirectory(
+                    parent=tk_widgets.main_tk,
                     title='Select Folder: League of Legends/Game/DATA/FINAL/Champions',
                 )
                 tk_widgets.NS.cfolder_entry.delete(0, tk.END)
@@ -1030,12 +1094,13 @@ def select_right_page(selected):
             def start_cmd():
                 if check_thread_safe(tk_widgets.NS.working_thread):
                     dir_path = tkfd.askdirectory(
+                        parent=tk_widgets.main_tk,
                         title='Select Output Folder'
                     )
                     if dir_path != '':
                         tk_widgets.NS.working_thread = Thread(
                             target=no_skin.parse,
-                            args=(tk_widgets.NS.cfolder_entry.get(),),
+                            args=(tk_widgets.NS.cfolder_entry.get(), dir_path,),
                             daemon=True
                         )
                         tk_widgets.NS.working_thread.start()
@@ -1055,6 +1120,7 @@ def select_right_page(selected):
                 tk_widgets.NS.page_frame,
                 wrap=tk.NONE
             )
+
             def tab_pressed():
                 tk_widgets.NS.skips_textbox.insert('insert', ' '*4)
                 return 'break'
@@ -1201,6 +1267,7 @@ def select_right_page(selected):
 
             def fileread_cmd():
                 file_paths = tkfd.askopenfilenames(
+                    parent=tk_widgets.main_tk,
                     title='Select SKN/SCO/SCB File To Extract',
                     filetypes=(
                         ('SKN/SCO/SCB files',
@@ -1228,6 +1295,7 @@ def select_right_page(selected):
 
             def folderread_cmd():
                 dir_path = tkfd.askdirectory(
+                    parent=tk_widgets.main_tk,
                     title='Select Folder To Extract'
                 )
                 if dir_path != '':
@@ -1347,6 +1415,46 @@ def select_right_page(selected):
             tk_widgets.ST.theme_option.grid(
                 row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
+            # game folder
+            tk_widgets.ST.gamedir_label = ctk.CTkLabel(
+                tk_widgets.ST.scroll_frame,
+                text='Game Folder:',
+                anchor=tk.W
+            )
+            tk_widgets.ST.gamedir_label.grid(
+                row=2, column=0, padx=20, pady=5, sticky=tk.NSEW)
+
+            def gamedir_cmd():
+                dir_path = tkfd.askdirectory(
+                    parent=tk_widgets.main_tk,
+                    title='Select League of Legends/Game Folder'
+                )
+                if dir_path != '':
+                    dir_path = dir_path.replace('\\', '/')
+                    if not os.path.exists(os.path.join(dir_path, 'League of Legends.exe')):
+                        raise Exception(
+                            f'Failed: Select League of Legends/Game: No "League of Legends.exe" found in {dir_path}')
+                    setting.set('game_folder', dir_path)
+                    setting.save()
+                    tk_widgets.ST.gamedir_value_label.configure(text=dir_path)
+
+            tk_widgets.ST.gamedir_button = ctk.CTkButton(
+                tk_widgets.ST.scroll_frame,
+                text='Browse',
+                command=gamedir_cmd
+            )
+            tk_widgets.ST.gamedir_button.grid(
+                row=2, column=1, padx=20, pady=5, sticky=tk.NSEW)
+
+            tk_widgets.ST.gamedir_value_label = ctk.CTkLabel(
+                tk_widgets.ST.scroll_frame,
+                text=setting.get(
+                    'game_folder', 'Please choose League of Legends/Game folder.'),
+                anchor=tk.W
+            )
+            tk_widgets.ST.gamedir_value_label.grid(
+                row=2, column=2, padx=20, pady=5, sticky=tk.NSEW)
+
             # log
             tk_widgets.ST.log_label = ctk.CTkLabel(
                 tk_widgets.ST.scroll_frame,
@@ -1354,7 +1462,7 @@ def select_right_page(selected):
                 anchor=tk.W
             )
             tk_widgets.ST.log_label.grid(
-                row=2, column=0, padx=10, pady=10, sticky=tk.NSEW)
+                row=3, column=0, padx=10, pady=10, sticky=tk.NSEW)
             # limit message
             tk_widgets.ST.loglimit_label = ctk.CTkLabel(
                 tk_widgets.ST.scroll_frame,
@@ -1362,7 +1470,7 @@ def select_right_page(selected):
                 anchor=tk.W
             )
             tk_widgets.ST.loglimit_label.grid(
-                row=3, column=0, padx=20, pady=5, sticky=tk.NSEW)
+                row=4, column=0, padx=20, pady=5, sticky=tk.NSEW)
 
             def loglimit_cmd(choice):
                 Log.limit = int(choice)
@@ -1379,7 +1487,7 @@ def select_right_page(selected):
             )
             tk_widgets.ST.loglimit_option.set(setting.get('Log.limit', '100'))
             tk_widgets.ST.loglimit_option.grid(
-                row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
+                row=4, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
         tk_widgets.ST.page_frame.grid(
             row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
@@ -1419,6 +1527,7 @@ def start():
     ctk.set_appearance_mode(setting.get('theme', 'system'))
     Log.limit = int(setting.get('Log.limit', '100'))
     wad_tool.prepare(Log.add)
+    ext_tools.prepare(Log.add)
     hash_manager.prepare(Log.add)
     leaguefile_inspector.prepare(Log.add)
     no_skin.prepare(Log.add)

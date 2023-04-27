@@ -6,6 +6,12 @@ class BinStream:
     def __init__(self, f):
         self.stream = f
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
     # stream
     def tell(self):
         return self.stream.tell()
@@ -25,6 +31,10 @@ class BinStream:
 
     def close(self):
         self.stream.close()
+
+    def raw(self):
+        self.seek(0)
+        return self.stream.read()
 
     # read
 
