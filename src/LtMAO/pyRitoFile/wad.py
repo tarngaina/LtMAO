@@ -110,17 +110,20 @@ class WADChunk:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__ if key != 'data'}
 
-    def set_info(self, *, id=0, hash=0, offset=0, compressed_size=0, decompressed_size=0, compression_type=WADCompressionType.Zstd, duplicated=False, subchunk_start=0, subchunk_count=0, checksum=0):
-        self.id = id
-        self.hash = hash
-        self.offset = offset
-        self.compressed_size = compressed_size
-        self.decompressed_size = decompressed_size
-        self.compression_type = compression_type
-        self.duplicated = duplicated
-        self.subchunk_start = subchunk_start
-        self.subchunk_count = subchunk_count
-        self.checksum = checksum
+    @staticmethod
+    def default(self, *, id=0, hash=0, offset=0, compressed_size=0, decompressed_size=0, compression_type=WADCompressionType.Raw, duplicated=False, subchunk_start=0, subchunk_count=0, checksum=0):
+        chunk = WADChunk()
+        chunk.id = id
+        chunk.hash = hash
+        chunk.offset = offset
+        chunk.compressed_size = compressed_size
+        chunk.decompressed_size = decompressed_size
+        chunk.compression_type = compression_type
+        chunk.duplicated = duplicated
+        chunk.subchunk_start = subchunk_start
+        chunk.subchunk_count = subchunk_count
+        chunk.checksum = checksum
+        return chunk
 
     def free_data(self):
         self.data = None
@@ -152,11 +155,15 @@ class WADChunk:
                         self.extension = extension
                         break
 
-    def write_data(self, bs, data):
-        self.data = pyzstd.compress(data)
-        self.compression_type = WADCompressionType.Zstd
+    def write_data(self, bs, chunk_id, chunk_hash, chunk_data):
+        if self.extension in ('bnk', 'wpk'):
+            self.data = chunk_data
+            self.compression_type = WADCompressionType.Raw
+        else:
+            self.data = pyzstd.compress(chunk_data)
+            self.compression_type = WADCompressionType.Zstd
         self.compressed_size = len(self.data)
-        self.decompressed_size = len(data)
+        self.decompressed_size = len(chunk_data)
         self.checksum = xxh3_64(self.data).intdigest()
         # go to end file, save data offset and write chunk data
         bs.seek(0, 2)
@@ -164,15 +171,18 @@ class WADChunk:
         bs.write(self.data)
         # go to this chunk offset and write stuffs
         # hack: the first chunk start at 272 (because we write version 3.3)
-        chunk_offset = 272 + self.id * 32
+        self.id = chunk_id
+        chunk_offset = 272 + chunk_id * 32
         bs.seek(chunk_offset)
-        bs.pad(8)  # pad hash
+        bs.write_u64(name_or_hex_to_hash(chunk_hash))
         bs.write_u32(
             self.offset,
             self.compressed_size,
             self.decompressed_size
         )
-        bs.pad(4)  # pad compression type, duplicated and subchunk_start
+        bs.write_u8(self.compression_type.value)
+        bs.write_b(False)
+        bs.write_u16(0)
         bs.write_u64(self.checksum)
 
 
@@ -244,8 +254,7 @@ class WAD:
             bs.write_u32(len(self.chunks))
             # write chunks
             for chunk in self.chunks:
-                test = name_or_hex_to_hash(chunk.hash)
-                bs.write_u64(test)
+                bs.write_u64(name_or_hex_to_hash(chunk.hash))
                 bs.write_u32(
                     chunk.offset,
                     chunk.compressed_size,

@@ -41,33 +41,30 @@ def unpack(wad_file, raw_dir):
 
 def pack(raw_dir, wad_file):
     # create wad first with only infos
-    wad = pyRitoFile.WAD()
-    file_paths = []
+    chunk_datas = []
+    chunk_hashes = []
     for root, dirs, files in os.walk(raw_dir):
         for id, file in enumerate(files):
-            # prepare paths of raw files
-            file_paths.append(os.path.join(root, file).replace('\\', '/'))
+            # prepare chunk datas
+            file_path = os.path.join(root, file).replace('\\', '/')
+            chunk_datas.append(file_path)
             # prepare chunk hash: remove extension of hashed file
             # example: 6bff35087d62f95d.bin -> 6bff35087d62f95d
             basename = file.split('.')[0]
             if check_hashed_name(basename):
                 file = basename
-            # create chunk infos
-            chunk = pyRitoFile.WADChunk()
-            chunk.set_info(
-                id=id,
-                hash=os.path.relpath(os.path.join(
-                    root, file), raw_dir).replace('\\', '/'),
-            )
-            wad.chunks.append(chunk)
+            chunk_hashes.append(os.path.relpath(
+                file_path, raw_dir).replace('\\', '/'))
     # write wad
+    wad = pyRitoFile.WAD()
+    wad.chunks = [pyRitoFile.WADChunk.default() for id in range(chunk_hashes)]
     wad.write(wad)
     # write wad chunk
     with wad.stream(wad_file, 'rb+') as bs:
         for id, chunk in enumerate(wad.chunks):
-            with open(file_paths[id], 'rb') as f:
-                data = f.read()
-            chunk.write_data(bs, data)
+            with open(chunk_datas[id], 'rb') as f:
+                chunk_data = f.read()
+            chunk.write_data(bs, id, chunk_hashes[id], chunk_data)
             chunk.free_data()
             LOG(f'Done: Packed: {chunk.hash}')
 

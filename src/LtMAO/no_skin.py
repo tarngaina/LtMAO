@@ -159,17 +159,13 @@ def parse(champions_dir, output_dir):
     os.makedirs(cache_dir, exist_ok=True)
     wad_file = f'{cache_dir}/Annie.wad.client'
     wad = pyRitoFile.WAD()
-    for id in range(len(swapped_chunks)):
-        chunk = pyRitoFile.WADChunk()
-        chunk.set_info(
-            id=id,
-            hash=swapped_chunks[id][0]
-        )
-        wad.chunks.append(chunk)
+    wad.chunks = [pyRitoFile.WADChunk.default()
+                  for id in range(len(swapped_chunks))]
     wad.write(wad_file)
     with wad.stream(wad_file, 'rb+') as bs:
         for id, chunk in enumerate(wad.chunks):
-            chunk.write_data(bs, data=swapped_chunks[id][1])
+            chunk.write_data(
+                bs, id, swapped_chunks[id][0], swapped_chunks[id][1])
     # create fantome
     meta_dir = os.path.join(cache_dir, 'META')
     os.makedirs(meta_dir, exist_ok=True)
