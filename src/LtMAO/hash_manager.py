@@ -229,6 +229,19 @@ class CustomHashes:
                         HASHTABLES[filename][line[:sep]] = line[sep+1:-1]
 
     @staticmethod
+    def write_hashes(*filenames):
+        for filename in filenames:
+            local_file = CustomHashes.local_file(filename)
+            # write combined hashes
+            with open(local_file, 'w+') as f:
+                f.writelines(
+                    f'{key} {value}\n'
+                    for key, value in sorted(
+                        HASHTABLES[filename].items(), key=lambda item: item[1]
+                    )
+                )
+
+    @staticmethod
     def read_bin_hashes():
         CustomHashes.read_hashes(*BIN_HASHES)
 

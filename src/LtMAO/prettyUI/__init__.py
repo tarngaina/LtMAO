@@ -3,7 +3,7 @@ import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
 
-from LtMAO import setting, pyRitoFile, wad_tool, hash_manager, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools
+from LtMAO import setting, pyRitoFile, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools
 from LtMAO.prettyUI.helper import Keeper, Log
 
 import os
@@ -11,6 +11,7 @@ import os.path
 from threading import Thread
 from traceback import format_exception
 
+LOG = Log.add
 # transparent color
 TRANSPARENT = 'transparent'
 # to keep all created widgets
@@ -20,7 +21,7 @@ tk_widgets = Keeper()
 def rce(self, *args):
     # redirect tkinter error print
     err = format_exception(*args)
-    Log.add(err)
+    LOG(err)
     print(''.join(err))
 
 
@@ -77,6 +78,76 @@ def create_main_app_and_frames():
         row=0, column=1, padx=0, pady=0, sticky=tk.NSEW)
 
 
+def create_CSLMAO_page():
+    # create page frame
+    tk_widgets.CSLMAO.page_frame = ctk.CTkFrame(
+        tk_widgets.mainright_frame,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.CSLMAO.page_frame.columnconfigure(0, weight=1)
+    tk_widgets.CSLMAO.page_frame.rowconfigure(0, weight=1)
+    tk_widgets.CSLMAO.page_frame.rowconfigure(1, weight=699)
+    # init stuffs
+    tk_widgets.CSLMAO.mods = []
+    # create action frame
+    tk_widgets.CSLMAO.action_frame = ctk.CTkFrame(
+        tk_widgets.CSLMAO.page_frame, fg_color=TRANSPARENT)
+    tk_widgets.CSLMAO.action_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.CSLMAO.action_frame.rowconfigure(0, weight=1)
+    tk_widgets.CSLMAO.action_frame.columnconfigure(0, weight=1)
+    tk_widgets.CSLMAO.action_frame.columnconfigure(1, weight=1)
+    tk_widgets.CSLMAO.action_frame.columnconfigure(2, weight=699)
+    # create import button
+    tk_widgets.CSLMAO.import_button = ctk.CTkButton(
+        tk_widgets.CSLMAO.action_frame,
+        text='Import'
+    )
+    tk_widgets.CSLMAO.import_button.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def new_cmd():
+        add_mod()
+    # create new button
+    tk_widgets.CSLMAO.new_button = ctk.CTkButton(
+        tk_widgets.CSLMAO.action_frame,
+        text='New',
+        command=new_cmd
+    )
+    tk_widgets.CSLMAO.new_button.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    # create modlist frame
+    tk_widgets.CSLMAO.modlist_frame = ctk.CTkScrollableFrame(
+        tk_widgets.CSLMAO.page_frame)
+    tk_widgets.CSLMAO.modlist_frame.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.CSLMAO.modlist_frame.rowconfigure(0, weight=1)
+    tk_widgets.CSLMAO.modlist_frame.columnconfigure(0, weight=1)
+
+    def add_mod():
+        id = len(tk_widgets.CSLMAO.mods)
+        # create mod frame
+        mod_frame = ctk.CTkFrame(
+            tk_widgets.CSLMAO.modlist_frame
+        )
+        mod_frame.grid(row=id, column=0, padx=2, pady=2, sticky=tk.NSEW)
+        # create mod label
+        mod_enable = ctk.CTkCheckBox(
+            mod_frame,
+            text='',
+            width=15
+        )
+        mod_enable.grid(row=id, column=0, sticky=tk.NSEW)
+        # create mod image
+        mod_image = ctk.CTkLabel(
+            mod_frame,
+            image=ctk.CTkImage(cslmao.CSLMAO.blank_image, size=(144, 81))
+        )
+        mod_image.grid(row=id, column=1, sticky=tk.NSEW)
+
+        tk_widgets.CSLMAO.mods.append((mod_frame, mod_enable))
+
+
 def create_LFI_page():
     # create page frame
     tk_widgets.LFI.page_frame = ctk.CTkFrame(
@@ -111,16 +182,16 @@ def create_LFI_page():
     tk_widgets.LFI.view_frame.grid(
         row=1, column=0, padx=0, pady=0, sticky=tk.NSEW)
     tk_widgets.LFI.view_frame.columnconfigure(0, weight=1)
-    tk_widgets.LFI.view_frame.unbind_all('<MouseWheel>')
-    # read one file function
+    tk_widgets.LFI.view_frame._parent_canvas.unbind_all('<MouseWheel>')
 
-    def read_file(file_path, hastables=None, ignore_error=False):
+    def read_file(file_path, hastables=None):
+        # read one file function
         if file_path.endswith('.bin') and tk_widgets.LFI.use_ritobin:
-            path, size, json = leaguefile_inspector.read_ritobin(
-                file_path, ignore_error)
+            path, fsize, ftype, json = leaguefile_inspector.read_ritobin(
+                file_path)
         else:
-            path, size, json = leaguefile_inspector.read_json(
-                file_path, hastables, ignore_error)
+            path, fsize, ftype, json = leaguefile_inspector.read_lfi(
+                file_path, hastables)
         if json == None:
             return
         # id of this file
@@ -171,7 +242,7 @@ def create_LFI_page():
         # create file label
         file_label = ctk.CTkLabel(
             head_frame,
-            text=f'[{size}] {path}',
+            text=f'[{fsize}] [{ftype.upper()}] {path}',
             anchor=tk.W,
             justify=tk.LEFT
         )
@@ -317,7 +388,7 @@ def create_LFI_page():
                 )
                 tk_widgets.LFI.reading_thread.start()
         else:
-            Log.add(
+            LOG(
                 'Failed: File Inspector: A thread is already running, wait for it to finished.')
     # create file read button
     tk_widgets.LFI.fileread_button = ctk.CTkButton(
@@ -343,7 +414,7 @@ def create_LFI_page():
                             file_path = os.path.join(
                                 root, file).replace('\\', '/')
                             read_file(
-                                file_path, hash_manager.HASHTABLES, ignore_error=True)
+                                file_path, hash_manager.HASHTABLES)
                     hash_manager.free_all_hashes()
                 tk_widgets.LFI.reading_thread = Thread(
                     target=folderread_thrd,
@@ -351,7 +422,7 @@ def create_LFI_page():
                 )
                 tk_widgets.LFI.reading_thread.start()
         else:
-            Log.add(
+            LOG(
                 'Failed: File Inspector: A thread is already running, wait for it to finished.')
     # create folder read button
     tk_widgets.LFI.folderread_button = ctk.CTkButton(
@@ -373,7 +444,7 @@ def create_LFI_page():
                 file_frame.grid_forget()
                 file_frame.destroy()
         tk_widgets.LFI.loaded_files.clear()
-        Log.add(f'Done: Cleared all loaded files.')
+        LOG(f'Done: Cleared all loaded files.')
     # create clear button
     tk_widgets.LFI.clear_button = ctk.CTkButton(
         tk_widgets.LFI.input_frame,
@@ -496,7 +567,7 @@ def create_AMV_page():
 
     # create load button
     def load_cmd():
-        Log.add('Running: Load weight table')
+        LOG('Running: Load weight table')
 
         joint_names = []
         mask_names = []
@@ -504,17 +575,17 @@ def create_AMV_page():
         # read skl
         skl_path = tk_widgets.AMV.skl_entry.get()
         if skl_path != '':
-            Log.add(f'Running: Read {skl_path}')
+            LOG(f'Running: Read {skl_path}')
             skl_file = pyRitoFile.read_skl(skl_path)
-            Log.add(f'Done: Read {skl_path}')
+            LOG(f'Done: Read {skl_path}')
             joint_names = [joint.name for joint in skl_file.joints]
         # read bin
         bin_path = tk_widgets.AMV.bin_entry.get()
         if bin_path != '':
-            Log.add(f'Running: Read {bin_path}')
+            LOG(f'Running: Read {bin_path}')
             bin_file = pyRitoFile.read_bin(bin_path)
             tk_widgets.AMV.bin_loaded = bin_file
-            Log.add(f'Done: Read {bin_path}')
+            LOG(f'Done: Read {bin_path}')
             mask_data = animask_viewer.get_weights(bin_file)
             mask_names, weights = list(
                 mask_data.keys()), list(mask_data.values())
@@ -647,7 +718,7 @@ def create_AMV_page():
             row=0, column=0, sticky=tk.NSEW)
         # mark as table loaded
         tk_widgets.AMV.table_loaded = True
-        Log.add('Done: Load weight table')
+        LOG('Done: Load weight table')
     tk_widgets.AMV.load_button = ctk.CTkButton(
         tk_widgets.AMV.action_frame,
         text='Load',
@@ -710,7 +781,7 @@ def create_AMV_page():
 
     # create clear button
     def clear_cmd():
-        Log.add('Running: Clear weight table')
+        LOG('Running: Clear weight table')
         if not tk_widgets.AMV.table_loaded:
             return
         # destroy tk widgets
@@ -721,7 +792,7 @@ def create_AMV_page():
         tk_widgets.AMV.htable_frame.grid_forget()
         tk_widgets.AMV.bin_loaded = None
         tk_widgets.AMV.table_loaded = False
-        Log.add('Done: Clear weight table')
+        LOG('Done: Clear weight table')
     tk_widgets.AMV.clear_button = ctk.CTkButton(
         tk_widgets.AMV.action_frame,
         text='Clear',
@@ -739,7 +810,8 @@ def create_HM_page():
     tk_widgets.HM.page_frame.columnconfigure(0, weight=1)
     tk_widgets.HM.page_frame.rowconfigure(0, weight=1)
     tk_widgets.HM.page_frame.rowconfigure(1, weight=1)
-    tk_widgets.HM.page_frame.rowconfigure(2, weight=699)
+    tk_widgets.HM.page_frame.rowconfigure(2, weight=1)
+    tk_widgets.HM.page_frame.rowconfigure(3, weight=699)
 
     tk_widgets.HM.extracting_thread = None
 
@@ -754,7 +826,7 @@ def create_HM_page():
     tk_widgets.HM.info_frame.columnconfigure(1, weight=0)
     tk_widgets.HM.info_frame.columnconfigure(2, weight=699)
     tk_widgets.HM.info_frame.rowconfigure(0, weight=1)
-
+    # create folder labels and folder buttons
     folder_label_text = [
         f'CDTB: {hash_manager.CDTB.local_dir}',
         f'Extracted: {hash_manager.ExtractedHashes.local_dir}',
@@ -799,7 +871,6 @@ def create_HM_page():
     tk_widgets.HM.input_frame.columnconfigure(1, weight=1)
     tk_widgets.HM.input_frame.columnconfigure(2, weight=699)
 
-    # create file read button
     def fileextract_cmd():
         if check_thread_safe(tk_widgets.HM.extracting_thread):
             file_paths = tkfd.askopenfilenames(
@@ -825,9 +896,9 @@ def create_HM_page():
                 )
                 tk_widgets.HM.extracting_thread.start()
         else:
-            Log.add(
+            LOG(
                 'Failed: Extract Hashes: A thread is already running, wait for it to finished.')
-
+    # create file read button
     tk_widgets.HM.fileread_button = ctk.CTkButton(
         tk_widgets.HM.input_frame,
         text='Extract From Files',
@@ -837,7 +908,6 @@ def create_HM_page():
     tk_widgets.HM.fileread_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
-    # create folder read button
     def folderextract_cmd():
         if check_thread_safe(tk_widgets.HM.extracting_thread):
             dir_path = tkfd.askdirectory(
@@ -858,9 +928,9 @@ def create_HM_page():
                     )
                     tk_widgets.HM.extracting_thread.start()
         else:
-            Log.add(
+            LOG(
                 'Failed: Extract Hashes: A thread is already running, wait for it to finished.')
-
+    # create folder read button
     tk_widgets.HM.folderread_button = ctk.CTkButton(
         tk_widgets.HM.input_frame,
         text='Extract From Folder',
@@ -869,6 +939,192 @@ def create_HM_page():
     )
     tk_widgets.HM.folderread_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    # create generate frame
+    tk_widgets.HM.generate_frame = ctk.CTkFrame(
+        tk_widgets.HM.page_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.HM.generate_frame.grid(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.HM.generate_frame.columnconfigure(0, weight=8)
+    tk_widgets.HM.generate_frame.columnconfigure(1, weight=2)
+    tk_widgets.HM.generate_frame.rowconfigure(0, weight=1)
+    tk_widgets.HM.generate_frame.rowconfigure(1, weight=1)
+    tk_widgets.HM.generate_frame.rowconfigure(2, weight=1)
+    tk_widgets.HM.generate_frame.rowconfigure(3, weight=1)
+    tk_widgets.HM.generate_frame.rowconfigure(4, weight=699)
+    # create bin label
+    tk_widgets.HM.bin_label = ctk.CTkLabel(
+        tk_widgets.HM.generate_frame,
+        text='Generate BIN hash:'
+    )
+    tk_widgets.HM.bin_label.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create add bin frame
+    tk_widgets.HM.addbin_frame = ctk.CTkFrame(
+        tk_widgets.HM.generate_frame
+    )
+    tk_widgets.HM.addbin_frame.grid(
+        row=0, column=1, padx=0, pady=0, sticky=tk.NSEW)
+    def addbin_cmd(filename):
+        rawlines = [
+            rawline
+            for rawline in tk_widgets.HM.binraw_text.get('1.0', 'end-1c').split('\n')
+            if rawline != ''
+        ]
+        hashlines = [
+            hashline
+            for hashline in tk_widgets.HM.binhash_text.get('1.0', 'end-1c').split('\n')
+            if hashline != ''
+        ]
+        if len(rawlines) > 0:
+            hash_manager.CustomHashes.read_hashes(filename)
+            for i in range(len(rawlines)):
+                hash_manager.HASHTABLES[filename][hashlines[i]] = rawlines[i]
+            hash_manager.CustomHashes.write_hashes(filename)
+            hash_manager.CustomHashes.free_hashes(filename)
+    # create add bin hash button
+    tk_widgets.HM.addentry_button = ctk.CTkButton(
+        tk_widgets.HM.addbin_frame,
+        text='->Entries',
+        width=50,
+        command=lambda: addbin_cmd('hashes.binentries.txt')
+    )
+    tk_widgets.HM.addentry_button.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.HM.addfield_button = ctk.CTkButton(
+        tk_widgets.HM.addbin_frame,
+        text='->Fields',
+        width=50,
+        command=lambda: addbin_cmd('hashes.binfields.txt')
+    )
+    tk_widgets.HM.addfield_button.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.HM.addtype_button = ctk.CTkButton(
+        tk_widgets.HM.addbin_frame,
+        text='->Types',
+        width=50,
+        command=lambda: addbin_cmd('hashes.bintypes.txt')
+    )
+    tk_widgets.HM.addtype_button.grid(
+        row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.HM.addhash_button = ctk.CTkButton(
+        tk_widgets.HM.addbin_frame,
+        text='->Hashes',
+        width=50,
+        command=lambda: addbin_cmd('hashes.binhashes.txt')
+    )
+    tk_widgets.HM.addhash_button.grid(
+        row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
+    def binraw_cmd():
+        raw = tk_widgets.HM.binraw_text.get('1.0', 'end-1c')
+        if raw != '':
+            hashlines = [pyRitoFile.bin_hash(
+                rawline) if rawline != '' else '' for rawline in raw.split('\n')]
+            tk_widgets.HM.binhash_text.configure(state=tk.NORMAL)
+            tk_widgets.HM.binhash_text.delete('1.0', tk.END)
+            tk_widgets.HM.binhash_text.insert('1.0', '\n'.join(hashlines))
+            tk_widgets.HM.binhash_text.configure(state=tk.DISABLED)
+        else:
+            tk_widgets.HM.binhash_text.configure(state=tk.NORMAL)
+            tk_widgets.HM.binhash_text.delete('1.0', tk.END)
+            tk_widgets.HM.binhash_text.configure(state=tk.DISABLED)
+    # create bin raw text
+    tk_widgets.HM.binraw_text = ctk.CTkTextbox(
+        tk_widgets.HM.generate_frame,
+        height=100,
+        wrap=tk.NONE
+    )
+    tk_widgets.HM.binraw_text.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.HM.binraw_text.bind('<KeyRelease>', lambda event: binraw_cmd())
+    # create bin hash text
+    tk_widgets.HM.binhash_text = ctk.CTkTextbox(
+        tk_widgets.HM.generate_frame,
+        height=100,
+        wrap=tk.NONE,
+        state=tk.DISABLED
+    )
+    tk_widgets.HM.binhash_text.grid(
+        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    # create wad label
+    tk_widgets.HM.wad_label = ctk.CTkLabel(
+        tk_widgets.HM.generate_frame,
+        text='Generate WAD hash:'
+    )
+    tk_widgets.HM.wad_label.grid(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create add wad frame
+    tk_widgets.HM.addwad_frame = ctk.CTkFrame(
+        tk_widgets.HM.generate_frame
+    )
+    tk_widgets.HM.addwad_frame.grid(
+        row=2, column=1, padx=0, pady=0, sticky=tk.NSEW)
+    def addwad_cmd(filename):
+        rawlines = [
+            rawline
+            for rawline in tk_widgets.HM.wadraw_text.get('1.0', 'end-1c').split('\n')
+            if rawline != ''
+        ]
+        hashlines = [
+            hashline
+            for hashline in tk_widgets.HM.wadhash_text.get('1.0', 'end-1c').split('\n')
+            if hashline != ''
+        ]
+        if len(rawlines) > 0:
+            hash_manager.CustomHashes.read_hashes(filename)
+            for i in range(len(rawlines)):
+                hash_manager.HASHTABLES[filename][hashlines[i]] = rawlines[i]
+            hash_manager.CustomHashes.write_hashes(filename)
+            hash_manager.CustomHashes.free_hashes(filename)
+    # create add bin hash button
+    tk_widgets.HM.addgame_button = ctk.CTkButton(
+        tk_widgets.HM.addwad_frame,
+        text='->Game',
+        width=50,
+        command=lambda: addwad_cmd('hashes.game.txt')
+    )
+    tk_widgets.HM.addgame_button.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.HM.addlcu_button = ctk.CTkButton(
+        tk_widgets.HM.addwad_frame,
+        text='->Lcu',
+        width=50,
+        command=lambda: addwad_cmd('hashes.lcu.txt')
+    )
+    tk_widgets.HM.addlcu_button.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    def wadraw_cmd():
+        raw = tk_widgets.HM.wadraw_text.get('1.0', 'end-1c')
+        if raw != '':
+            hashlines = [pyRitoFile.wad_hash(rawline)
+                         for rawline in raw.split('\n') if rawline != '']
+            tk_widgets.HM.wadhash_text.configure(state=tk.NORMAL)
+            tk_widgets.HM.wadhash_text.delete('1.0', tk.END)
+            tk_widgets.HM.wadhash_text.insert('1.0', '\n'.join(hashlines))
+            tk_widgets.HM.wadhash_text.configure(state=tk.DISABLED)
+        else:
+            tk_widgets.HM.wadhash_text.configure(state=tk.NORMAL)
+            tk_widgets.HM.wadhash_text.delete('1.0', tk.END)
+            tk_widgets.HM.wadhash_text.configure(state=tk.DISABLED)
+    # create wad raw text
+    tk_widgets.HM.wadraw_text = ctk.CTkTextbox(
+        tk_widgets.HM.generate_frame,
+        height=100,
+        wrap=tk.NONE
+    )
+    tk_widgets.HM.wadraw_text.grid(
+        row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.HM.wadraw_text.bind('<KeyRelease>', lambda event: wadraw_cmd())
+    # create wad hash text
+    tk_widgets.HM.wadhash_text = ctk.CTkTextbox(
+        tk_widgets.HM.generate_frame,
+        height=100,
+        wrap=tk.NONE,
+        state=tk.DISABLED
+    )
+    tk_widgets.HM.wadhash_text.grid(
+        row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
 
 def create_VH_page():
@@ -893,7 +1149,7 @@ def create_VH_page():
     tk_widgets.VH.input_frame.rowconfigure(0, weight=1)
     tk_widgets.VH.input_frame.columnconfigure(0, weight=9)
     tk_widgets.VH.input_frame.columnconfigure(1, weight=1)
-    # create champions folder entry
+    # create fantome entry
     tk_widgets.VH.fantome_entry = ctk.CTkEntry(
         tk_widgets.VH.input_frame
     )
@@ -916,16 +1172,15 @@ def create_VH_page():
         )
         if fantome_path != '':
             # update info text
-            info, image, wads = vo_helper.read_fantome(fantome_path)
+            info, image, wads = vo_helper.scan_fantome(fantome_path)
             info_text = 'Info:\n'
             info_text += ''.join(f'{key}: {info[key]}\n' for key in info)
             info_text += '\nFiles:\n'
             info_text += 'META/info.json\n'
-            if image != None:
+            if image:
                 info_text += 'META/image.png\n'
             if len(wads) > 0:
-                info_text += ''.join(f'{wad_name}\n' for wad_name,
-                                     wad_data in wads)
+                info_text += ''.join(f'{wad_name}\n' for wad_name in wads)
 
             tk_widgets.VH.info_text.configure(state=tk.NORMAL)
             tk_widgets.VH.info_text.delete('1.0', tk.END)
@@ -957,13 +1212,23 @@ def create_VH_page():
     tk_widgets.VH.action_frame.grid(
         row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.VH.action_frame.rowconfigure(0, weight=1)
-    tk_widgets.VH.action_frame.columnconfigure(0, weight=699)
+    tk_widgets.VH.action_frame.columnconfigure(0, weight=1)
     tk_widgets.VH.action_frame.columnconfigure(1, weight=1)
+    tk_widgets.VH.action_frame.columnconfigure(2, weight=699)
+    tk_widgets.VH.action_frame.columnconfigure(3, weight=1)
 
-    def make_cmd():
+    # create target options
+    tk_widgets.VH.target_option = ctk.CTkOptionMenu(
+        tk_widgets.VH.action_frame,
+        values=vo_helper.LANGS
+    )
+    tk_widgets.VH.target_option.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def taget_cmd():
         if not check_thread_safe(tk_widgets.VH.making_thread):
-            Log.add(
-                'Failed: Create NO SKIN mod: A thread is already running, wait for it to finished.')
+            LOG(
+                'Failed: Remake Fantomes: A thread is already running, wait for it to finished.')
             return
         dir_path = tkfd.askdirectory(
             parent=tk_widgets.main_tk,
@@ -977,20 +1242,56 @@ def create_VH_page():
             return
 
         def make_thrd():
+            LOG(f'Running: VO Hepler: Remake FANTOME {fantome_path}')
             info, image, wads = vo_helper.read_fantome(fantome_path)
-            vo_helper.make_fantome(fantome_name, dir_path, info, image, wads)
+            vo_helper.make_fantome(
+                fantome_name, dir_path, info, image, wads, [tk_widgets.VH.target_option.get()])
 
         tk_widgets.VH.making_thread = Thread(target=make_thrd, daemon=True)
         tk_widgets.VH.making_thread.start()
 
-    # create save SKIPS button
+    # create target button
+    tk_widgets.VH.target_button = ctk.CTkButton(
+        tk_widgets.VH.action_frame,
+        text='Remake For Selected Lang',
+        command=taget_cmd
+    )
+    tk_widgets.VH.target_button.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    def make_cmd():
+        if not check_thread_safe(tk_widgets.VH.making_thread):
+            LOG(
+                'Failed: Remake Fantomes: A thread is already running, wait for it to finished.')
+            return
+        dir_path = tkfd.askdirectory(
+            parent=tk_widgets.main_tk,
+            title='Select Output Folder'
+        )
+        if dir_path == '':
+            return
+        fantome_path = tk_widgets.VH.fantome_entry.get()
+        fantome_name = os.path.basename(fantome_path)
+        if fantome_path == '':
+            return
+
+        def make_thrd():
+            LOG(f'Running: VO Hepler: Remake FANTOME {fantome_path}')
+            info, image, wads = vo_helper.read_fantome(fantome_path)
+            vo_helper.make_fantome(
+                fantome_name, dir_path, info, image, wads, vo_helper.LANGS)
+
+        tk_widgets.VH.making_thread = Thread(target=make_thrd, daemon=True)
+        tk_widgets.VH.making_thread.start()
+
+    # create make all button
     tk_widgets.VH.make_button = ctk.CTkButton(
         tk_widgets.VH.action_frame,
-        text='Make VO FANTOMEs',
+        text='Remake For All Langs',
         command=make_cmd
     )
     tk_widgets.VH.make_button.grid(
-        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
 
 
 def create_NS_page():
@@ -1054,7 +1355,7 @@ def create_NS_page():
         no_skin.set_skips(
             tk_widgets.NS.skips_textbox.get('1.0', tk.END))
         no_skin.save_skips()
-        Log.add('Done: Save SKIPS.json')
+        LOG('Done: Save SKIPS.json')
     # create save SKIPS button
     tk_widgets.NS.save_skips_button = ctk.CTkButton(
         tk_widgets.NS.action_frame,
@@ -1078,7 +1379,7 @@ def create_NS_page():
                 )
                 tk_widgets.NS.working_thread.start()
         else:
-            Log.add(
+            LOG(
                 'Failed: Create NO SKIN mod: A thread is already running, wait for it to finished.')
     # create start button
     tk_widgets.NS.start_button = ctk.CTkButton(
@@ -1296,7 +1597,7 @@ def create_UVEE_page():
                 file_frame.grid_forget()
                 file_frame.destroy()
         tk_widgets.UVEE.loaded_files.clear()
-        Log.add(f'Done: Cleared all loaded images.')
+        LOG(f'Done: Cleared all loaded images.')
     # create clear button
     tk_widgets.UVEE.clear_button = ctk.CTkButton(
         tk_widgets.UVEE.input_frame,
@@ -1474,21 +1775,32 @@ def create_ST_page():
 
 
 def select_right_page(selected):
-    # hide other page
+    # hide all page
     for page in tk_widgets.pages:
         if page.page_frame != None:
             page.page_frame.grid_forget()
-
-    if tk_widgets.pages[selected].page_frame == None:
-        # create selected page
-        create_func = tk_widgets.create_right_page[selected]
-        if create_func != None:
-            create_func()
-
+    tk_widgets.ST.page_frame.grid_forget()
+    tk_widgets.LOG.page_frame.grid_forget()
     # show selected page
-    page_frame = tk_widgets.pages[selected].page_frame
-    if page_frame != None:
-        page_frame.grid(
+    if selected < 999:
+        # tool pages
+        if tk_widgets.pages[selected].page_frame == None:
+            # create selected tool page
+            create_func = tk_widgets.create_right_page[selected]
+            if create_func != None:
+                create_func()
+        # show selected tool page
+        page_frame = tk_widgets.pages[selected].page_frame
+        if page_frame != None:
+            page_frame.grid(
+                row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
+    elif selected == 999:
+        # log page
+        tk_widgets.LOG.page_frame.grid(
+            row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
+    else:
+        # setting page
+        tk_widgets.ST.page_frame.grid(
             row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
 
 
@@ -1503,24 +1815,46 @@ def create_page_controls():
     tk_widgets.mainleft_frame.rowconfigure(4, weight=1)
     tk_widgets.mainleft_frame.rowconfigure(5, weight=1)
     tk_widgets.mainleft_frame.rowconfigure(6, weight=1)
-    tk_widgets.mainleft_frame.rowconfigure(7, weight=699)
-    tk_widgets.mainleft_frame.rowconfigure(8, weight=1)
-    tk_widgets.mainleft_frame.rowconfigure(9, weight=1)
-    tk_widgets.mainleft_frame.rowconfigure(10, weight=1)
+    tk_widgets.mainleft_frame.rowconfigure(7, weight=1)
+    tk_widgets.mainleft_frame.rowconfigure(8, weight=699)
 
     def control_cmd(page):
-        # update control display
-        for id, control_button in enumerate(tk_widgets.control_buttons):
-            if id == page:
-                control_button.configure(
-                    fg_color=tk_widgets.c_active_fg,
-                    text_color=tk_widgets.c_active_text
-                )
-            else:
-                control_button.configure(
-                    fg_color=tk_widgets.c_nonactive_fg,
-                    text_color=tk_widgets.c_nonactive_text
-                )
+        # non active all controls
+        for control_button in tk_widgets.control_buttons:
+            control_button.configure(
+                fg_color=tk_widgets.c_nonactive_fg,
+                text_color=tk_widgets.c_nonactive_text
+            )
+        if tk_widgets.minilog_control != None:
+            tk_widgets.minilog_control.configure(
+                fg_color=tk_widgets.c_nonactive_fg,
+                text_color=tk_widgets.c_nonactive_text
+            )
+        if tk_widgets.setting_control != None:
+            tk_widgets.setting_control.configure(
+                fg_color=tk_widgets.c_nonactive_fg,
+                text_color=tk_widgets.c_nonactive_text
+            )
+        # active selected control
+        if page < 999:
+            # active selected tool control
+            tk_widgets.control_buttons[page].configure(
+                fg_color=tk_widgets.c_active_fg,
+                text_color=tk_widgets.c_active_text
+            )
+        elif page == 999:
+            # log control
+            tk_widgets.minilog_control.configure(
+                fg_color=tk_widgets.c_active_fg,
+                text_color=tk_widgets.c_active_text
+            )
+        else:
+            # setting control
+            tk_widgets.setting_control.configure(
+                fg_color=tk_widgets.c_active_fg,
+                text_color=tk_widgets.c_active_text
+            )
+
         # show page
         select_right_page(page)
     # create left controls buttons
@@ -1565,16 +1899,6 @@ def create_page_controls():
             tk_widgets.mainleft_frame,
             text='bin_helper',
             command=lambda: control_cmd(7)
-        ),
-        ctk.CTkButton(
-            tk_widgets.mainleft_frame,
-            text='Log',
-            command=lambda: control_cmd(8)
-        ),
-        ctk.CTkButton(
-            tk_widgets.mainleft_frame,
-            text='Setting',
-            command=lambda: control_cmd(9)
         )
     ]
     for id, control_button in enumerate(tk_widgets.control_buttons):
@@ -1594,73 +1918,83 @@ def create_page_controls():
         # init page frame
         tk_widgets.pages[i].page_frame = None
     # reference page
+    tk_widgets.CSLMAO = tk_widgets.pages[0]
     tk_widgets.LFI = tk_widgets.pages[1]
     tk_widgets.AMV = tk_widgets.pages[2]
     tk_widgets.HM = tk_widgets.pages[3]
     tk_widgets.VH = tk_widgets.pages[4]
     tk_widgets.NS = tk_widgets.pages[5]
     tk_widgets.UVEE = tk_widgets.pages[6]
-    tk_widgets.LOG = tk_widgets.pages[8]
-    tk_widgets.ST = tk_widgets.pages[9]
     # create right pages
     tk_widgets.create_right_page = [
-        None,
+        create_CSLMAO_page,
         create_LFI_page,
         create_AMV_page,
         create_HM_page,
         create_VH_page,
         create_NS_page,
         create_UVEE_page,
-        None,
-        create_LOG_page,
-        create_ST_page
+        None
     ]
-    # create LOG page first
-    tk_widgets.create_right_page[8]()
-    # select first page
-    tk_widgets.select_control(0)
+    # create LOG and ST control, page
+    tk_widgets.minilog_control = None
+    tk_widgets.setting_control = None
+    tk_widgets.LOG = Keeper()
+    tk_widgets.ST = Keeper()
+    create_LOG_page()
+    create_ST_page()
 
 
-def create_mini_log():
+def create_bottom_widgets():
     tk_widgets.mainbottom_frame.columnconfigure(0, weight=1)
+    tk_widgets.mainbottom_frame.columnconfigure(1, weight=0)
     tk_widgets.mainbottom_frame.rowconfigure(0, weight=1)
-    tk_widgets.mainbottom_frame.rowconfigure(1, weight=1)
     tk_widgets.bottom_widgets = Keeper()
-
     # create mini log
-    tk_widgets.bottom_widgets.minilog_label = ctk.CTkLabel(
+    tk_widgets.bottom_widgets.minilog_button = ctk.CTkButton(
         tk_widgets.mainbottom_frame,
         text='',
         anchor=tk.W,
-        justify=tk.CENTER
+        # justify=tk.CENTER,
+        command=lambda: tk_widgets.select_control(999)
     )
-    tk_widgets.bottom_widgets.minilog_label.grid(
-        row=0, column=0, padx=10, pady=0, sticky=tk.NSEW)
+    tk_widgets.bottom_widgets.minilog_button.grid(
+        row=0, column=0, padx=(10, 5), pady=0, sticky=tk.NSEW)
+    Log.tk_minilog = tk_widgets.bottom_widgets.minilog_button
+    tk_widgets.minilog_control = tk_widgets.bottom_widgets.minilog_button
 
-    tk_widgets.bottom_widgets.minilog_label.bind(
-        '<Button-1>',
-        lambda event: tk_widgets.select_control(8)
+    # create setting button
+    tk_widgets.bottom_widgets.setting_button = ctk.CTkButton(
+        tk_widgets.mainbottom_frame,
+        width=30,
+        text='ST',
+        command=lambda: tk_widgets.select_control(1000)
     )
-    Log.tk_minilog = tk_widgets.bottom_widgets.minilog_label
+    tk_widgets.bottom_widgets.setting_button.grid(
+        row=0, column=1, padx=(0, 5), pady=0, sticky=tk.NSEW)
+    tk_widgets.setting_control = tk_widgets.bottom_widgets.setting_button
 
 
 def start():
     # create UI
     create_main_app_and_frames()
     create_page_controls()
-    create_mini_log()
+    create_bottom_widgets()
+    # select first page
+    tk_widgets.select_control(0)
 
     # prepare and override settings
-    setting.prepare(Log.add)
+    setting.prepare(LOG)
     ctk.set_appearance_mode(setting.get('theme', 'system'))
     Log.limit = int(setting.get('Log.limit', '100'))
-    wad_tool.prepare(Log.add)
-    ext_tools.prepare(Log.add)
-    hash_manager.prepare(Log.add)
-    leaguefile_inspector.prepare(Log.add)
-    vo_helper.prepare(Log.add)
-    no_skin.prepare(Log.add)
-    uvee.prepare(Log.add)
+    hash_manager.prepare(LOG)
+    wad_tool.prepare(LOG)
+    ext_tools.prepare(LOG)
+    cslmao.prepare(LOG)
+    leaguefile_inspector.prepare(LOG)
+    vo_helper.prepare(LOG)
+    no_skin.prepare(LOG)
+    uvee.prepare(LOG)
 
     # loop the UI
     tk_widgets.main_tk.mainloop()

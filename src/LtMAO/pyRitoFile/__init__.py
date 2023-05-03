@@ -1,9 +1,9 @@
 from LtMAO.pyRitoFile.skl import SKL, SKLJoint, SKLEncoder
 from LtMAO.pyRitoFile.skn import SKN, SKNEncoder
 from LtMAO.pyRitoFile.so import SO, SOEncoder
-from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINEncoder, BINHelper
+from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINEncoder, BINHelper, name_to_hex as bin_hash
 from LtMAO.pyRitoFile.bnk import BNK
-from LtMAO.pyRitoFile.wad import WAD, WADChunk, WADCompressionType, WADEncoder
+from LtMAO.pyRitoFile.wad import WAD, WADChunk, WADCompressionType, WADEncoder, name_to_hex as wad_hash
 from LtMAO.pyRitoFile import hash
 from LtMAO.pyRitoFile import io
 from json import dump, dumps

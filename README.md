@@ -26,7 +26,7 @@ Edit MaskData's weights of animation bins.
     - Joint hashes <-> names from skl.
     - Submesh hashes <-> names from skn.
 ## vo_helper
-Make fantome work on all regions by cloning it.
+Make fantome work on all langs by cloning it.
 
 ## no_skin
 Create NO SKIN mod: Replace almost every League skins to default.
@@ -39,5 +39,5 @@ Extract UVs from skn/sco/scb as png files.
 - [LeagueToolKit](https://github.com/LeagueToolkit/LeagueToolkit)
 - [CDTB](https://github.com/CommunityDragon/CDTB)
 - [cslol-manager](https://github.com/LeagueToolkit/cslol-manager)
-
+- [ritobin](https://github.com/moonshadow565/ritobin)
 
