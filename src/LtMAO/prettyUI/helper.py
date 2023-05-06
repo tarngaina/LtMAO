@@ -1,4 +1,6 @@
 from datetime import datetime
+from customtkinter import CTkImage
+from PIL import Image, ImageDraw, ImageFont
 
 
 def now():
@@ -48,3 +50,23 @@ class Log:
                 # update UI minilog
                 if Log.tk_minilog != None:
                     Log.tk_minilog.configure(text=Log.messages[-1])
+
+
+class EmojiImage:
+    font_file = './resources/seguiemj.ttf'
+    cache = {}
+
+    @staticmethod
+    def create(emoji, size=24, weird=False):
+        if emoji in EmojiImage.cache:
+            return EmojiImage.cache[emoji]
+        # convert emoji to CTkImage
+        font = ImageFont.truetype(EmojiImage.font_file, size=int(size/1.5))
+        img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        # fix weird coordinate problem
+        draw.text((size if weird else size/2, size/2), emoji,
+                  embedded_color=True, font=font, anchor='mm', align='center')
+        img = CTkImage(img, size=(size, size))
+        EmojiImage.cache[emoji] = img
+        return img

@@ -2,5 +2,9 @@ python311.zip
 .
 Lib
 Lib\site-packages
+Lib\site-packages\win32
+Lib\site-packages\win32\lib
+Lib\site-packages\win32ctypes\pywin32
+Lib\site-packages\win32ctypes
 tcl
 tkinter

@@ -3,13 +3,15 @@ import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
 
-from LtMAO import setting, pyRitoFile, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools
-from LtMAO.prettyUI.helper import Keeper, Log
+from LtMAO import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools
+from LtMAO.prettyUI.helper import Keeper, Log, EmojiImage
 
 import os
 import os.path
 from threading import Thread
 from traceback import format_exception
+import datetime
+from PIL import Image
 
 LOG = Log.add
 # transparent color
@@ -89,6 +91,7 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.page_frame.rowconfigure(1, weight=699)
     # init stuffs
     tk_widgets.CSLMAO.mods = []
+    tk_widgets.CSLMAO.running_process = None
     # create action frame
     tk_widgets.CSLMAO.action_frame = ctk.CTkFrame(
         tk_widgets.CSLMAO.page_frame, fg_color=TRANSPARENT)
@@ -97,25 +100,128 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.action_frame.rowconfigure(0, weight=1)
     tk_widgets.CSLMAO.action_frame.columnconfigure(0, weight=1)
     tk_widgets.CSLMAO.action_frame.columnconfigure(1, weight=1)
-    tk_widgets.CSLMAO.action_frame.columnconfigure(2, weight=699)
+    tk_widgets.CSLMAO.action_frame.columnconfigure(2, weight=1)
+    tk_widgets.CSLMAO.action_frame.columnconfigure(3, weight=699)
+
+    def run_cmd():
+        if cslmao.preparing:
+            LOG('CSLMAO: Error: Loading mods, can not run yet.')
+            return
+        if tk_widgets.CSLMAO.running_process == None:
+            def run_thrd():
+                p = cslmao.make_overlay('all')
+                if p.returncode == 0:
+                    tk_widgets.CSLMAO.running_process = p2 = cslmao.run_overlay(
+                        'all')
+                    cslmao.block_and_stream_process_output(p2, 'CSLMAO: ')
+                    if p2.returncode not in (None, 0, 1):
+                        tk_widgets.CSLMAO.run_button.configure(
+                            text='Run',
+                            image=EmojiImage.create('▶️', weird=True)
+                        )
+                        for stuffs in tk_widgets.CSLMAO.mods:
+                            stuffs[1].configure(
+                                state=tk.NORMAL
+                            )
+                        LOG('CSLMAO: Error: Make overlay failed, back to idling.')
+                        tk_widgets.CSLMAO.running_process = None
+                else:
+                    tk_widgets.CSLMAO.run_button.configure(
+                        text='Run',
+                        image=EmojiImage.create('▶️', weird=True)
+                    )
+                    for stuffs in tk_widgets.CSLMAO.mods:
+                        stuffs[1].configure(
+                            state=tk.NORMAL
+                        )
+            tk_widgets.CSLMAO.run_button.configure(
+                text='Stop',
+                image=EmojiImage.create('⏹️', weird=True)
+            )
+            for stuffs in tk_widgets.CSLMAO.mods:
+                stuffs[1].configure(
+                    state=tk.DISABLED
+                )
+
+            Thread(target=run_thrd, daemon=True).start()
+        else:
+            tk_widgets.CSLMAO.running_process.kill()
+            tk_widgets.CSLMAO.run_button.configure(
+                text='Run',
+                image=EmojiImage.create('▶️', weird=True)
+            )
+            for stuffs in tk_widgets.CSLMAO.mods:
+                stuffs[1].configure(
+                    state=tk.NORMAL
+                )
+            LOG('CSLMAO: Status: Stopped running overlay, idling.')
+            tk_widgets.CSLMAO.running_process = None
+
+    # create run button
+    tk_widgets.CSLMAO.run_button = ctk.CTkButton(
+        tk_widgets.CSLMAO.action_frame,
+        text='Run',
+        image=EmojiImage.create('▶️', weird=True),
+        command=run_cmd
+    )
+    tk_widgets.CSLMAO.run_button.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def import_cmd():
+        if tk_widgets.CSLMAO.running_process != None:
+            return
+        fantome_paths = tkfd.askopenfilenames(
+            title='Import FANTOME',
+            parent=tk_widgets.main_tk,
+            filetypes=(('FANTOME/ZIP file', ('*.fantome', '*.zip')),)
+        )
+        for fantome_path in fantome_paths:
+            mod_path = '.'.join(os.path.basename(fantome_path).split('.')[:-1])
+            p = cslmao.import_fantome(fantome_path, mod_path)
+            if p.returncode == 0:
+                mod = cslmao.create_mod(mod_path, False)
+                info, image = cslmao.get_info(mod)
+                mg = add_mod(image=image, name=info['Name'], author=info['Author'],
+                             version=info['Version'], description=info['Description'], enable=mod.enable)
+                mg()  # grid it right away
+                cslmao.save_mods()
     # create import button
     tk_widgets.CSLMAO.import_button = ctk.CTkButton(
         tk_widgets.CSLMAO.action_frame,
-        text='Import'
+        text='Import',
+        image=EmojiImage.create('📄'),
+        command=import_cmd
     )
     tk_widgets.CSLMAO.import_button.grid(
-        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def new_cmd():
-        add_mod()
+        if tk_widgets.CSLMAO.running_process != None:
+            return
+        mod_path = datetime.datetime.now().strftime(
+            '%Y%m%d%H%M%S%f')
+        mod = cslmao.create_mod(mod_path, enable=False)
+        cslmao.create_mod_folder(mod)
+        cslmao.set_info(
+            mod,
+            info={
+                'Name': 'New Mod',
+                'Author': 'Author',
+                'Version': '1.0',
+                'Description': ''
+            },
+            image_path=None
+        )
+        add_mod(cslmao.CSLMAO.blank_image)()
     # create new button
     tk_widgets.CSLMAO.new_button = ctk.CTkButton(
         tk_widgets.CSLMAO.action_frame,
         text='New',
+        image=EmojiImage.create('🆕'),
         command=new_cmd
     )
     tk_widgets.CSLMAO.new_button.grid(
-        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
     # create modlist frame
     tk_widgets.CSLMAO.modlist_frame = ctk.CTkScrollableFrame(
         tk_widgets.CSLMAO.page_frame)
@@ -124,28 +230,306 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.modlist_frame.rowconfigure(0, weight=1)
     tk_widgets.CSLMAO.modlist_frame.columnconfigure(0, weight=1)
 
-    def add_mod():
+    # link tk add mod for cslmao
+    def add_mod(image=None, name='New Mod', author='Author', version='1.0', description='', enable=False):
+        if image == None:
+            image = cslmao.CSLMAO.blank_image
         id = len(tk_widgets.CSLMAO.mods)
         # create mod frame
         mod_frame = ctk.CTkFrame(
             tk_widgets.CSLMAO.modlist_frame
         )
-        mod_frame.grid(row=id, column=0, padx=2, pady=2, sticky=tk.NSEW)
+        mod_frame.rowconfigure(0, weight=1)
+        mod_frame.rowconfigure(1, weight=1)
+        mod_frame.columnconfigure(0, weight=1)
+        # create head frame
+        head_frame = ctk.CTkFrame(
+            mod_frame,
+        )
+        head_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.NSEW)
+        head_frame.rowconfigure(0, weight=1)
+        head_frame.columnconfigure(0, weight=0)
+        head_frame.columnconfigure(1, weight=1)
+        head_frame.columnconfigure(2, weight=10)
+        head_frame.columnconfigure(4, weight=1)
+
+        def enable_cmd(widget):
+            if tk_widgets.CSLMAO.running_process != None:
+                return
+            mod_id = next((id for id, stuffs in enumerate(
+                tk_widgets.CSLMAO.mods) if widget == stuffs[1]), None)
+            mod_enable = tk_widgets.CSLMAO.mods[mod_id][4]
+            cslmao.CSLMAO.MODS[mod_id].enable = mod_enable.get()
+            cslmao.save_mods()
+
         # create mod label
         mod_enable = ctk.CTkCheckBox(
-            mod_frame,
+            head_frame,
             text='',
-            width=15
+            width=15,
+            command=lambda: enable_cmd(mod_enable)
         )
         mod_enable.grid(row=id, column=0, sticky=tk.NSEW)
+        if enable:
+            mod_enable.select()
+        else:
+            mod_enable.deselect()
         # create mod image
         mod_image = ctk.CTkLabel(
-            mod_frame,
-            image=ctk.CTkImage(cslmao.CSLMAO.blank_image, size=(144, 81))
+            head_frame,
+            text='',
+            image=ctk.CTkImage(image, size=(144, 81)),
         )
         mod_image.grid(row=id, column=1, sticky=tk.NSEW)
+        # create mod info
+        mod_info = ctk.CTkLabel(
+            head_frame,
+            text=f'{name} by {author} V{version}\n{description}'
+        )
+        mod_info.grid(row=id, column=2, padx=5, sticky=tk.NSEW)
+        # create mod action frame
+        mod_action_frame = ctk.CTkFrame(
+            head_frame,
+            fg_color=TRANSPARENT
+        )
+        mod_action_frame.grid(row=id, column=4, sticky=tk.NSEW)
+        mod_action_frame.rowconfigure(0, weight=1)
+        mod_action_frame.rowconfigure(1, weight=0)
+        mod_action_frame.rowconfigure(2, weight=1)
+        mod_action_frame.columnconfigure(0, weight=0)
+        mod_action_frame.columnconfigure(1, weight=0)
+        mod_action_frame.columnconfigure(2, weight=0)
+        mod_action_frame.columnconfigure(3, weight=0)
 
-        tk_widgets.CSLMAO.mods.append((mod_frame, mod_enable))
+        def locate_cmd(widget):
+            mod_id = next((id for id, stuffs in enumerate(
+                tk_widgets.CSLMAO.mods) if widget == stuffs[5]), None)
+            os.startfile(os.path.join(
+                cslmao.CSLMAO.raw_dir,
+                cslmao.CSLMAO.MODS[mod_id].path
+            ))
+        # create locate button
+        locate_button = ctk.CTkButton(
+            mod_action_frame,
+            width=30,
+            text='',
+            image=EmojiImage.create('📂'),
+            command=lambda: locate_cmd(locate_button)
+        )
+        locate_button.grid(row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+        def edit_cmd(widget):
+            if tk_widgets.CSLMAO.running_process != None:
+                return
+            mod_id = next((id for id, stuffs in enumerate(
+                tk_widgets.CSLMAO.mods) if widget == stuffs[6]), None)
+            expand = tk_widgets.CSLMAO.mods[mod_id][3]
+            expand = not expand
+            tk_widgets.CSLMAO.mods[mod_id][3] = expand
+            edit_frame = tk_widgets.CSLMAO.mods[mod_id][2]
+            if expand:
+                edit_frame.grid(row=1, column=0, sticky=tk.NSEW)
+            else:
+                edit_frame.grid_forget()
+
+        edit_button = ctk.CTkButton(
+            mod_action_frame,
+            width=30,
+            text='',
+            image=EmojiImage.create('🖊️', weird=True),
+            command=lambda: edit_cmd(edit_button)
+        )
+        edit_button.grid(row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+        def export_cmd(widget):
+            if tk_widgets.CSLMAO.running_process != None:
+                return
+            mod_id = next((id for id, stuffs in enumerate(
+                tk_widgets.CSLMAO.mods) if widget == stuffs[7]), None)
+            mod = cslmao.CSLMAO.MODS[mod_id]
+            info, image = cslmao.get_info(mod)
+            fantome_path = tkfd.asksaveasfilename(
+                title='Export FANTOME',
+                parent=tk_widgets.main_tk,
+                initialfile=f'{info["Name"]} V{info["Version"]} by {info["Author"]}',
+                filetypes=(('FANTOME file', '*.fantome'),),
+                defaultextension='.fantome'
+            )
+            if fantome_path != '':
+                def export_thrd():
+                    p = cslmao.export_fantome(
+                        mod_path=os.path.join(
+                            cslmao.CSLMAO.raw_dir,
+                            cslmao.CSLMAO.MODS[mod_id].path
+                        ),
+                        fantome_path=fantome_path
+                    )
+                    if p.returncode == 0:
+                        LOG(f'CSLMAO: Exported {fantome_path}')
+                Thread(target=export_thrd, daemon=True).start()
+        # create export button
+        export_button = ctk.CTkButton(
+            mod_action_frame,
+            width=30,
+            text='',
+            image=EmojiImage.create('💾'),
+            command=lambda: export_cmd(export_button)
+        )
+        export_button.grid(row=1, column=2, padx=5, pady=5, sticky=tk.NSEW)
+
+        def remove_cmd(widget):
+            if tk_widgets.CSLMAO.running_process != None:
+                return
+            mod_id = next((id for id, stuffs in enumerate(
+                tk_widgets.CSLMAO.mods) if widget == stuffs[8]), None)
+            tk_widgets.CSLMAO.mods.pop(mod_id)[0].destroy()
+            cslmao.delete_mod(cslmao.CSLMAO.MODS.pop(mod_id))
+            cslmao.save_mods()
+
+        # create remove button
+        remove_button = ctk.CTkButton(
+            mod_action_frame,
+            width=30,
+            text='',
+            image=EmojiImage.create('❌'),
+            command=lambda: remove_cmd(remove_button)
+        )
+        remove_button.grid(row=1, column=3, padx=5, pady=5, sticky=tk.NSEW)
+        # create edit frame
+        edit_frame = ctk.CTkFrame(
+            mod_frame,
+        )
+        edit_frame.rowconfigure(0, weight=1)
+        edit_frame.columnconfigure(0, weight=699)
+        edit_frame.columnconfigure(1, weight=1)
+        edit_frame.columnconfigure(2, weight=1)
+        edit_left_frame = ctk.CTkFrame(
+            edit_frame
+        )
+        edit_left_frame.grid(row=0, column=0, sticky=tk.NSEW)
+        edit_left_frame.rowconfigure(0, weight=1)
+        edit_left_frame.rowconfigure(1, weight=1)
+        edit_left_frame.rowconfigure(2, weight=1)
+        edit_left_frame.rowconfigure(3, weight=1)
+        edit_left_frame.columnconfigure(0, weight=1)
+        # create name entry
+        name_entry = ctk.CTkEntry(
+            edit_left_frame,
+        )
+        name_entry.insert(0, name)
+        name_entry.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        # create author entry
+        author_entry = ctk.CTkEntry(
+            edit_left_frame
+        )
+        author_entry.insert(0, author)
+        author_entry.grid(row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        # create version entry
+        version_entry = ctk.CTkEntry(
+            edit_left_frame
+        )
+        version_entry.insert(0, version)
+        version_entry.grid(row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        # create description entry
+        description_entry = ctk.CTkEntry(
+            edit_left_frame
+        )
+        description_entry.insert(0, description)
+        description_entry.grid(row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        edit_right_frame = ctk.CTkFrame(
+            edit_frame
+        )
+        edit_right_frame.grid(row=0, column=1, sticky=tk.NSEW)
+
+        def edit_image_cmd(widget):
+            if tk_widgets.CSLMAO.running_process != None:
+                return
+            mod_id = next((id for id, stuffs in enumerate(
+                tk_widgets.CSLMAO.mods) if widget == stuffs[11]), None)
+            png_path = tkfd.askopenfilename(
+                title='Select PNG',
+                parent=tk_widgets.main_tk,
+                filetypes=(
+                    ('PNG files', '*.png'),
+                )
+            )
+            if png_path != '':
+                tk_widgets.CSLMAO.mods[mod_id][10] = png_path
+                edit_image.configure(
+                    image=ctk.CTkImage(Image.open(png_path), size=(256, 144))
+                )
+            else:
+                tk_widgets.CSLMAO.mods[mod_id][10] = None
+        # create edit image
+        edit_image = ctk.CTkLabel(
+            edit_right_frame,
+            text='',
+            image=ctk.CTkImage(image, size=(256, 144))
+        )
+        edit_image.bind('<Button-1>', lambda event: edit_image_cmd(edit_image))
+        edit_image.grid(row=0, column=0, sticky=tk.NSEW)
+        edit_action_frame = ctk.CTkFrame(
+            edit_frame
+        )
+        edit_action_frame.grid(row=0, column=2, sticky=tk.NSEW)
+        edit_action_frame.rowconfigure(0, weight=1)
+        edit_action_frame.rowconfigure(1, weight=0)
+        edit_action_frame.rowconfigure(2, weight=1)
+        edit_action_frame.columnconfigure(0, weight=1)
+        edit_action_frame.columnconfigure(1, weight=0)
+        edit_action_frame.columnconfigure(2, weight=1)
+
+        def save_cmd(widget):
+            if tk_widgets.CSLMAO.running_process != None:
+                return
+            mod_id = next((id for id, stuffs in enumerate(
+                tk_widgets.CSLMAO.mods) if widget == stuffs[9]), None)
+            info = {
+                'Name': name_entry.get(),
+                'Author': author_entry.get(),
+                'Version': version_entry.get(),
+                'Description': description_entry.get()
+            }
+            image = tk_widgets.CSLMAO.mods[mod_id][10]
+            cslmao.set_info(cslmao.CSLMAO.MODS[mod_id], info, image)
+            tk_widgets.CSLMAO.mods[mod_id][12].configure(
+                text=f'{info["Name"]} by {info["Author"]} V{info["Version"]}\n{info["Description"]}'
+            )
+            tk_widgets.CSLMAO.mods[mod_id][13].configure(
+                image = ctk.CTkImage(Image.open(image), size=(144, 81))
+            )
+
+
+        save_button = ctk.CTkButton(
+            edit_action_frame,
+            text='Save',
+            image=EmojiImage.create('💾'),
+            command=lambda: save_cmd(save_button)
+        )
+        save_button.grid(row=1, column=1, padx=20, sticky=tk.NSEW)
+        tk_widgets.CSLMAO.mods.append([
+            mod_frame,
+            mod_enable,
+            edit_frame,
+            False,  # expand edit frame
+            mod_enable,
+            locate_button,
+            edit_button,
+            export_button,
+            remove_button,
+            save_button,
+            None,  # edit image path
+            edit_image,
+            mod_info,
+            mod_image
+        ])
+        # return out as a grid method of this mod_frame
+        # so we can control when to grid it later
+        def mod_grid(id=id): return mod_frame.grid(
+            row=id, column=0, padx=2, pady=2, sticky=tk.NSEW)
+        return mod_grid
+
+    cslmao.tk_add_mod = add_mod
 
 
 def create_LFI_page():
@@ -233,8 +617,10 @@ def create_LFI_page():
         # create view button
         view_button = ctk.CTkButton(
             head_frame,
-            text='+',
             width=30,
+            text='',
+            image=EmojiImage.create('🔽'),
+            fg_color=TRANSPARENT,
             command=lambda: view_cmd(file_frame_id)
         )
         view_button.grid(row=0, column=0, padx=2,
@@ -315,8 +701,10 @@ def create_LFI_page():
         # create remove button
         remove_button = ctk.CTkButton(
             head_frame,
-            text='X',
             width=30,
+            text='',
+            image=EmojiImage.create('❌'),
+            fg_color=TRANSPARENT,
             command=lambda: remove_cmd(file_frame_id)
         )
         remove_button.grid(row=0, column=3, padx=2,
@@ -372,7 +760,7 @@ def create_LFI_page():
                             '*.wad.client'
                         )
                      ),
-                    ('All files', '*.*')
+                    ('All files', '*.*'),
                 )
             )
             if len(file_paths) > 0:
@@ -394,6 +782,7 @@ def create_LFI_page():
     tk_widgets.LFI.fileread_button = ctk.CTkButton(
         tk_widgets.LFI.input_frame,
         text='Read Files',
+        image=EmojiImage.create('📄'),
         anchor=tk.CENTER,
         command=fileread_cmd
     )
@@ -428,6 +817,7 @@ def create_LFI_page():
     tk_widgets.LFI.folderread_button = ctk.CTkButton(
         tk_widgets.LFI.input_frame,
         text='Read Folder',
+        image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
         command=folderread_cmd
     )
@@ -449,6 +839,7 @@ def create_LFI_page():
     tk_widgets.LFI.clear_button = ctk.CTkButton(
         tk_widgets.LFI.input_frame,
         text='Clear',
+        image=EmojiImage.create('❌'),
         anchor=tk.CENTER,
         command=clear_cmd
     )
@@ -513,7 +904,7 @@ def create_AMV_page():
             title='Select SKL file',
             filetypes=(
                 ('SKL files', '*.skl'),
-                ('All files', '*.*')
+                ('All files', '*.*'),
             )
         )
         tk_widgets.AMV.skl_entry.delete(0, tk.END)
@@ -521,6 +912,7 @@ def create_AMV_page():
     tk_widgets.AMV.sklbrowse_button = ctk.CTkButton(
         tk_widgets.AMV.input_frame,
         text='Browse SKL',
+        image=EmojiImage.create('📄'),
         anchor=tk.CENTER,
         command=sklbrowse_cmd
     )
@@ -540,7 +932,7 @@ def create_AMV_page():
             title='Select Animation BIN file',
             filetypes=(
                 ('BIN files', ['*.bin']),
-                ('All files', '*.*')
+                ('All files', '*.*'),
             )
         )
         tk_widgets.AMV.bin_entry.delete(0, tk.END)
@@ -549,6 +941,7 @@ def create_AMV_page():
     tk_widgets.AMV.binbrowse_button = ctk.CTkButton(
         tk_widgets.AMV.input_frame,
         text='Browse Animation BIN',
+        image=EmojiImage.create('📄'),
         anchor=tk.CENTER,
         command=binbrowse_cmd
     )
@@ -722,6 +1115,7 @@ def create_AMV_page():
     tk_widgets.AMV.load_button = ctk.CTkButton(
         tk_widgets.AMV.action_frame,
         text='Load',
+        image=EmojiImage.create('🗿'),
         command=load_cmd
     )
     tk_widgets.AMV.load_button.grid(
@@ -738,7 +1132,7 @@ def create_AMV_page():
             title='Select output Animation BIN path',
             filetypes=(
                 ('BIN files', '*.bin'),
-                ('All files', '*.*')
+                ('All files', '*.*'),
             ),
             defaultextension='.bin'
         )
@@ -774,6 +1168,7 @@ def create_AMV_page():
     tk_widgets.AMV.save_button = ctk.CTkButton(
         tk_widgets.AMV.action_frame,
         text='Save As',
+        image=EmojiImage.create('💾'),
         command=save_cmd
     )
     tk_widgets.AMV.save_button.grid(
@@ -796,6 +1191,7 @@ def create_AMV_page():
     tk_widgets.AMV.clear_button = ctk.CTkButton(
         tk_widgets.AMV.action_frame,
         text='Clear',
+        image=EmojiImage.create('❌'),
         command=clear_cmd
     )
     tk_widgets.AMV.clear_button.grid(
@@ -854,6 +1250,7 @@ def create_HM_page():
         folder_button = ctk.CTkButton(
             tk_widgets.HM.info_frame,
             text='Open',
+            image=EmojiImage.create('📂'),
             command=lambda index=i: folder_cmd(index)
         )
         folder_button.grid(row=i, column=1, padx=5,
@@ -885,7 +1282,7 @@ def create_HM_page():
                             '*.skl'
                         )
                      ),
-                    ('All files', '*.*')
+                    ('All files', '*.*'),
                 )
             )
             if len(file_paths) > 0:
@@ -902,6 +1299,7 @@ def create_HM_page():
     tk_widgets.HM.fileread_button = ctk.CTkButton(
         tk_widgets.HM.input_frame,
         text='Extract From Files',
+        image=EmojiImage.create('📄'),
         anchor=tk.CENTER,
         command=fileextract_cmd
     )
@@ -934,6 +1332,7 @@ def create_HM_page():
     tk_widgets.HM.folderread_button = ctk.CTkButton(
         tk_widgets.HM.input_frame,
         text='Extract From Folder',
+        image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
         command=folderextract_cmd
     )
@@ -966,6 +1365,7 @@ def create_HM_page():
     )
     tk_widgets.HM.addbin_frame.grid(
         row=0, column=1, padx=0, pady=0, sticky=tk.NSEW)
+
     def addbin_cmd(filename):
         rawlines = [
             rawline
@@ -1016,6 +1416,7 @@ def create_HM_page():
     )
     tk_widgets.HM.addhash_button.grid(
         row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
+
     def binraw_cmd():
         raw = tk_widgets.HM.binraw_text.get('1.0', 'end-1c')
         if raw != '':
@@ -1060,6 +1461,7 @@ def create_HM_page():
     )
     tk_widgets.HM.addwad_frame.grid(
         row=2, column=1, padx=0, pady=0, sticky=tk.NSEW)
+
     def addwad_cmd(filename):
         rawlines = [
             rawline
@@ -1094,6 +1496,7 @@ def create_HM_page():
     )
     tk_widgets.HM.addlcu_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
     def wadraw_cmd():
         raw = tk_widgets.HM.wadraw_text.get('1.0', 'end-1c')
         if raw != '':
@@ -1167,7 +1570,7 @@ def create_VH_page():
                         '*.zip',
                     )
                  ),
-                ('All files', '*.*')
+                ('All files', '*.*'),
             )
         )
         if fantome_path != '':
@@ -1193,6 +1596,7 @@ def create_VH_page():
     tk_widgets.VH.browse_button = ctk.CTkButton(
         tk_widgets.VH.input_frame,
         text='Browse FANTOME/ZIP',
+        image=EmojiImage.create('📄'),
         anchor=tk.CENTER,
         command=browse_cmd
     )
@@ -1254,6 +1658,7 @@ def create_VH_page():
     tk_widgets.VH.target_button = ctk.CTkButton(
         tk_widgets.VH.action_frame,
         text='Remake For Selected Lang',
+        image=EmojiImage.create('👌'),
         command=taget_cmd
     )
     tk_widgets.VH.target_button.grid(
@@ -1288,6 +1693,7 @@ def create_VH_page():
     tk_widgets.VH.make_button = ctk.CTkButton(
         tk_widgets.VH.action_frame,
         text='Remake For All Langs',
+        image=EmojiImage.create('👌'),
         command=make_cmd
     )
     tk_widgets.VH.make_button.grid(
@@ -1337,6 +1743,7 @@ def create_NS_page():
     tk_widgets.NS.browse_button = ctk.CTkButton(
         tk_widgets.NS.input_frame,
         text='Browse Champions folder',
+        image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
         command=browse_cmd
     )
@@ -1360,6 +1767,7 @@ def create_NS_page():
     tk_widgets.NS.save_skips_button = ctk.CTkButton(
         tk_widgets.NS.action_frame,
         text='Save SKIPS',
+        image=EmojiImage.create('💾'),
         command=save_skips_cmd
     )
     tk_widgets.NS.save_skips_button.grid(
@@ -1385,6 +1793,7 @@ def create_NS_page():
     tk_widgets.NS.start_button = ctk.CTkButton(
         tk_widgets.NS.action_frame,
         text='Start',
+        image=EmojiImage.create('🗿'),
         command=start_cmd
     )
     tk_widgets.NS.start_button.grid(
@@ -1478,8 +1887,10 @@ def create_UVEE_page():
         # create view button
         view_button = ctk.CTkButton(
             head_frame,
-            text='+',
             width=30,
+            text='',
+            image=EmojiImage.create('🔽'),
+            fg_color=TRANSPARENT,
             command=lambda: view_cmd(file_frame_id)
         )
         view_button.grid(row=0, column=0, padx=2,
@@ -1503,8 +1914,10 @@ def create_UVEE_page():
         # create remove button
         remove_button = ctk.CTkButton(
             head_frame,
-            text='X',
             width=30,
+            text='',
+            image=EmojiImage.create('❌'),
+            fg_color=TRANSPARENT,
             command=lambda: remove_cmd(file_frame_id)
         )
         remove_button.grid(row=0, column=3, padx=2,
@@ -1550,7 +1963,7 @@ def create_UVEE_page():
                         '*.scb',
                     )
                  ),
-                ('All files', '*.*')
+                ('All files', '*.*'),
             )
         )
         if len(file_paths) > 0:
@@ -1560,6 +1973,7 @@ def create_UVEE_page():
     tk_widgets.UVEE.fileread_button = ctk.CTkButton(
         tk_widgets.UVEE.input_frame,
         text='Extract UVs From Files',
+        image=EmojiImage.create('📄'),
         anchor=tk.CENTER,
         command=fileread_cmd
     )
@@ -1581,6 +1995,7 @@ def create_UVEE_page():
     tk_widgets.UVEE.folderread_button = ctk.CTkButton(
         tk_widgets.UVEE.input_frame,
         text='Extract UVs From Folder',
+        image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
         command=folderread_cmd
     )
@@ -1602,6 +2017,7 @@ def create_UVEE_page():
     tk_widgets.UVEE.clear_button = ctk.CTkButton(
         tk_widgets.UVEE.input_frame,
         text='Clear Loaded Images',
+        image=EmojiImage.create('❌'),
         anchor=tk.CENTER,
         command=clear_cmd
     )
@@ -1664,23 +2080,16 @@ def create_ST_page():
     tk_widgets.ST.scroll_frame.grid(
         row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
 
-    # general
-    tk_widgets.ST.general_label = ctk.CTkLabel(
-        tk_widgets.ST.scroll_frame,
-        text='General',
-        anchor=tk.W
-    )
-    tk_widgets.ST.general_label.grid(
-        row=0, column=0, padx=10, pady=10, sticky=tk.NSEW)
-
     # theme
     tk_widgets.ST.theme_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
         text='Theme:',
+        image=EmojiImage.create('🖌️', weird=True),
+        compound=tk.LEFT,
         anchor=tk.W
     )
     tk_widgets.ST.theme_label.grid(
-        row=1, column=0, padx=20, pady=5, sticky=tk.NSEW)
+        row=0, column=0, padx=20, pady=(20, 5), sticky=tk.NSEW)
 
     def theme_cmd(choice):
         ctk.set_appearance_mode(choice)
@@ -1697,12 +2106,40 @@ def create_ST_page():
     )
     tk_widgets.ST.theme_option.set(setting.get('theme', 'system'))
     tk_widgets.ST.theme_option.grid(
-        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=0, column=1, padx=5, pady=(20, 5), sticky=tk.NSEW)
+    # limit message
+    tk_widgets.ST.loglimit_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        text='Log Limit Messages:',
+        image=EmojiImage.create('🗒️', weird=True),
+        compound=tk.LEFT,
+        anchor=tk.W
+    )
+    tk_widgets.ST.loglimit_label.grid(
+        row=1, column=0, padx=20, pady=5, sticky=tk.NSEW)
 
+    def loglimit_cmd(choice):
+        Log.limit = int(choice)
+        setting.set('Log.limit', choice)
+        setting.save()
+    tk_widgets.ST.loglimit_option = ctk.CTkOptionMenu(
+        tk_widgets.ST.scroll_frame,
+        values=[
+            '100',
+            '1000',
+            '10000'
+        ],
+        command=loglimit_cmd
+    )
+    tk_widgets.ST.loglimit_option.set(setting.get('Log.limit', '100'))
+    tk_widgets.ST.loglimit_option.grid(
+        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
     # game folder
     tk_widgets.ST.gamedir_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
         text='Game Folder:',
+        image=EmojiImage.create('🎮'),
+        compound=tk.LEFT,
         anchor=tk.W
     )
     tk_widgets.ST.gamedir_label.grid(
@@ -1721,15 +2158,14 @@ def create_ST_page():
             setting.set('game_folder', dir_path)
             setting.save()
             tk_widgets.ST.gamedir_value_label.configure(text=dir_path)
-
     tk_widgets.ST.gamedir_button = ctk.CTkButton(
         tk_widgets.ST.scroll_frame,
         text='Browse',
+        image=EmojiImage.create('📁'),
         command=gamedir_cmd
     )
     tk_widgets.ST.gamedir_button.grid(
         row=2, column=1, padx=20, pady=5, sticky=tk.NSEW)
-
     tk_widgets.ST.gamedir_value_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
         text=setting.get(
@@ -1738,39 +2174,32 @@ def create_ST_page():
     )
     tk_widgets.ST.gamedir_value_label.grid(
         row=2, column=2, padx=20, pady=5, sticky=tk.NSEW)
-
-    # log
-    tk_widgets.ST.log_label = ctk.CTkLabel(
+    # windows desktop
+    tk_widgets.ST.desktop_button = ctk.CTkButton(
         tk_widgets.ST.scroll_frame,
-        text='Log',
+        text='Create Desktop Shortcut',
+        image=EmojiImage.create('🖥️', weird=True),
+        anchor=tk.W,
+        command=winLT.Desktop.create_shorcut
+    )
+    tk_widgets.ST.desktop_button.grid(
+        row=3, column=0, padx=20, pady=5, sticky=tk.NSEW)
+    # explorer context
+    tk_widgets.ST.contextadd_button = ctk.CTkButton(
+        tk_widgets.ST.scroll_frame,
+        text='Create Explorer Contexts',
+        image=EmojiImage.create('💬'),
         anchor=tk.W
     )
-    tk_widgets.ST.log_label.grid(
-        row=3, column=0, padx=10, pady=10, sticky=tk.NSEW)
-    # limit message
-    tk_widgets.ST.loglimit_label = ctk.CTkLabel(
-        tk_widgets.ST.scroll_frame,
-        text='Limit Messages:',
-        anchor=tk.W
-    )
-    tk_widgets.ST.loglimit_label.grid(
+    tk_widgets.ST.contextadd_button.grid(
         row=4, column=0, padx=20, pady=5, sticky=tk.NSEW)
-
-    def loglimit_cmd(choice):
-        Log.limit = int(choice)
-        setting.set('Log.limit', choice)
-        setting.save()
-    tk_widgets.ST.loglimit_option = ctk.CTkOptionMenu(
+    tk_widgets.ST.contextrmv_button = ctk.CTkButton(
         tk_widgets.ST.scroll_frame,
-        values=[
-            '100',
-            '1000',
-            '10000'
-        ],
-        command=loglimit_cmd
+        text='Remove Explorer Contexts',
+        image=EmojiImage.create('❌'),
+        anchor=tk.W
     )
-    tk_widgets.ST.loglimit_option.set(setting.get('Log.limit', '100'))
-    tk_widgets.ST.loglimit_option.grid(
+    tk_widgets.ST.contextrmv_button.grid(
         row=4, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
 
@@ -1955,7 +2384,7 @@ def create_bottom_widgets():
         tk_widgets.mainbottom_frame,
         text='',
         anchor=tk.W,
-        # justify=tk.CENTER,
+        image=EmojiImage.create('🗒️', weird=True),
         command=lambda: tk_widgets.select_control(999)
     )
     tk_widgets.bottom_widgets.minilog_button.grid(
@@ -1967,7 +2396,8 @@ def create_bottom_widgets():
     tk_widgets.bottom_widgets.setting_button = ctk.CTkButton(
         tk_widgets.mainbottom_frame,
         width=30,
-        text='ST',
+        text='',
+        image=EmojiImage.create('⚙️', weird=True),
         command=lambda: tk_widgets.select_control(1000)
     )
     tk_widgets.bottom_widgets.setting_button.grid(
@@ -1976,25 +2406,25 @@ def create_bottom_widgets():
 
 
 def start():
-    # create UI
     create_main_app_and_frames()
+    # load settings first
+    setting.prepare(LOG)
+    ctk.set_appearance_mode(setting.get('theme', 'system'))
+    Log.limit = int(setting.get('Log.limit', '100'))
+    # create UI
     create_page_controls()
     create_bottom_widgets()
     # select first page
     tk_widgets.select_control(0)
-
-    # prepare and override settings
-    setting.prepare(LOG)
-    ctk.set_appearance_mode(setting.get('theme', 'system'))
-    Log.limit = int(setting.get('Log.limit', '100'))
+    # prepare
+    cslmao.prepare(LOG)
+    winLT.prepare(LOG)
     hash_manager.prepare(LOG)
     wad_tool.prepare(LOG)
     ext_tools.prepare(LOG)
-    cslmao.prepare(LOG)
     leaguefile_inspector.prepare(LOG)
     vo_helper.prepare(LOG)
     no_skin.prepare(LOG)
     uvee.prepare(LOG)
-
     # loop the UI
     tk_widgets.main_tk.mainloop()

@@ -305,15 +305,10 @@ def combine_custom_hashes(*filenames):
 
 
 def prepare(_LOG):
-    # function need to call first
-    def prepare_cmd():
-        global LOG
-        LOG = _LOG
-        # ensure folder
-        os.makedirs(CDTB.local_dir, exist_ok=True)
-        os.makedirs(ExtractedHashes.local_dir, exist_ok=True)
-        os.makedirs(CustomHashes.local_dir, exist_ok=True)
-        # sync CDTB hashesh
-        CDTB.sync_all()
-
-    Thread(target=prepare_cmd, daemon=True).start()
+    global LOG
+    LOG = _LOG
+    # ensure folder
+    os.makedirs(CDTB.local_dir, exist_ok=True)
+    os.makedirs(ExtractedHashes.local_dir, exist_ok=True)
+    os.makedirs(CustomHashes.local_dir, exist_ok=True)
+    Thread(target=CDTB.sync_all, daemon=True).start()

@@ -1,8 +1,15 @@
 import os
 import os.path
 from subprocess import Popen, CREATE_NO_WINDOW, PIPE, STDOUT
+from threading import Thread
 
 LOG = print
+
+
+def block_and_stream_process_output(process, log_message_header=''):
+    for line in process.stdout:
+        LOG(log_message_header + line.decode()[:-1])
+    process.wait()
 
 
 class CSLOL:
@@ -19,9 +26,7 @@ class CSLOL:
             cmds, creationflags=CREATE_NO_WINDOW,
             stdout=PIPE, stderr=STDOUT
         )
-        for line in p.stdout:
-            LOG(line.decode()[:-1])
-        p.wait()
+        block_and_stream_process_output(p, 'CSLMAO: ')
         return p
 
     def export_fantome(src, dst, game=None, noTFT=True):
@@ -35,9 +40,7 @@ class CSLOL:
             cmds, creationflags=CREATE_NO_WINDOW,
             stdout=PIPE, stderr=STDOUT
         )
-        for line in p.stdout:
-            LOG(line.decode()[:-1])
-        p.wait()
+        block_and_stream_process_output(p, 'CSLMAO: ')
         return p
 
     def make_overlay(src, overlay, game=None, mods=None, noTFT=True, ignore_conflict=True):
@@ -55,9 +58,7 @@ class CSLOL:
             cmds, creationflags=CREATE_NO_WINDOW,
             stdout=PIPE, stderr=STDOUT
         )
-        for line in p.stdout:
-            LOG(line.decode()[:-1])
-        p.wait()
+        block_and_stream_process_output(p, 'CSLMAO: ')
         return p
 
     def run_overlay(overlay, config, game=None):
@@ -69,8 +70,6 @@ class CSLOL:
             cmds, creationflags=CREATE_NO_WINDOW,
             stdin=PIPE, stdout=PIPE, stderr=STDOUT
         )
-        for line in p.stdout:
-            LOG(line.decode()[:-1])
         return p
 
 
@@ -87,9 +86,7 @@ class RITOBIN:
             cmds, creationflags=CREATE_NO_WINDOW,
             stdout=PIPE, stderr=STDOUT
         )
-        for line in p.stdout:
-            LOG(line.decode()[:-1])
-        p.wait()
+        block_and_stream_process_output(p, 'RITOBIN: ')
         return p
 
 

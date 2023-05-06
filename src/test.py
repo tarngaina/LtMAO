@@ -15,8 +15,7 @@ def db(func):
 
 
 def test():
-    from LtMAO import wad_tool
-    wad_tool.pack('D:/test/test', 'D:/test/test.wad.client')
+    pass
 
 
 if __name__ == '__main__':
