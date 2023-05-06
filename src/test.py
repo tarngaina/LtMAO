@@ -1,9 +1,8 @@
-from cProfile import Profile
-from pstats import Stats
-
 
 # profile
 def db(func):
+    from cProfile import Profile
+    from pstats import Stats
     pr = Profile()
     pr.enable()
 
@@ -14,9 +13,7 @@ def db(func):
     stats.sort_stats('tottime').print_stats(20)
 
 
-def test():
-    pass
-
-
 if __name__ == '__main__':
-    db(test)
+    from LtMAO import winLT
+
+    winLT.Context.create_contexts()

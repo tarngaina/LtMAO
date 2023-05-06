@@ -44,9 +44,8 @@ def create_main_app_and_frames():
     tk_widgets.main_tk = ctk.CTk()
     tk_widgets.main_tk.geometry('1000x620')
     tk_widgets.main_tk.title('LtMAO')
-    icon_file = './resources/appicon.ico'
-    if os.path.exists(icon_file):
-        tk_widgets.main_tk.iconbitmap(icon_file)
+    if os.path.exists(winLT.icon_file):
+        tk_widgets.main_tk.iconbitmap(winLT.icon_file)
     # create main top-bottom frame
     tk_widgets.main_tk.rowconfigure(0, weight=100)
     tk_widgets.main_tk.rowconfigure(1, weight=1)
@@ -496,9 +495,8 @@ def create_CSLMAO_page():
                 text=f'{info["Name"]} by {info["Author"]} V{info["Version"]}\n{info["Description"]}'
             )
             tk_widgets.CSLMAO.mods[mod_id][13].configure(
-                image = ctk.CTkImage(Image.open(image), size=(144, 81))
+                image=ctk.CTkImage(Image.open(image), size=(144, 81))
             )
-
 
         save_button = ctk.CTkButton(
             edit_action_frame,

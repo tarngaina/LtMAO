@@ -111,7 +111,7 @@ class WADChunk:
         return {key: getattr(self, key) for key in self.__slots__ if key != 'data'}
 
     @staticmethod
-    def default(self, *, id=0, hash=0, offset=0, compressed_size=0, decompressed_size=0, compression_type=WADCompressionType.Raw, duplicated=False, subchunk_start=0, subchunk_count=0, checksum=0):
+    def default(*, id=0, hash='', offset=0, compressed_size=0, decompressed_size=0, compression_type=WADCompressionType.Raw, duplicated=False, subchunk_start=0, subchunk_count=0, checksum=0):
         chunk = WADChunk()
         chunk.id = id
         chunk.hash = hash
@@ -156,6 +156,7 @@ class WADChunk:
                         break
 
     def write_data(self, bs, chunk_id, chunk_hash, chunk_data):
+        self.hash = chunk_hash
         if self.extension in ('bnk', 'wpk'):
             self.data = chunk_data
             self.compression_type = WADCompressionType.Raw

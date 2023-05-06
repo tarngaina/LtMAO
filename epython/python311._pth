@@ -1,4 +1,5 @@
 python311.zip
+..\src
 .
 Lib
 Lib\site-packages

@@ -14,6 +14,7 @@ def check_hashed_name(basename):
 
 
 def unpack(wad_file, raw_dir):
+    LOG(f'Running: Unpack WAD: {wad_file}')
     # read wad
     hash_manager.read_wad_hashes()
     wad = pyRitoFile.read_wad(wad_file)
@@ -36,10 +37,11 @@ def unpack(wad_file, raw_dir):
             with open(file_path, 'wb') as fo:
                 fo.write(chunk.data)
             chunk.free_data()
-            LOG(f'Done: Unpacked: {chunk.hash}')
+            LOG(f'Done: Unpack: {chunk.hash}')
 
 
 def pack(raw_dir, wad_file):
+    LOG(f'Running: Pack WAD: {raw_dir}')
     # create wad first with only infos
     chunk_datas = []
     chunk_hashes = []
@@ -57,8 +59,9 @@ def pack(raw_dir, wad_file):
                 file_path, raw_dir).replace('\\', '/'))
     # write wad
     wad = pyRitoFile.WAD()
-    wad.chunks = [pyRitoFile.WADChunk.default() for id in range(chunk_hashes)]
-    wad.write(wad)
+    wad.chunks = [pyRitoFile.WADChunk.default()
+                  for id in range(len(chunk_hashes))]
+    wad.write(wad_file)
     # write wad chunk
     with wad.stream(wad_file, 'rb+') as bs:
         for id, chunk in enumerate(wad.chunks):
