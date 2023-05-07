@@ -53,7 +53,7 @@ class Log:
 
 
 class EmojiImage:
-    font_file = './resources/seguiemj.ttf'
+    font_file = './resources/emojifont.ttf'
     cache = {}
 
     @staticmethod

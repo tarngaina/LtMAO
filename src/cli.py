@@ -27,13 +27,10 @@ def ensure_curdir():
     os.chdir(os.path.dirname(os.path.dirname(sys.argv[0])))
 
 
-def main():
-    args = parse_arguments()
-    ensure_curdir()
-    if args.tool == 'wadpack':
+class CLI:
+    @staticmethod
+    def wadpack(src, dst):
         from LtMAO import wad_tool
-        src = args.source
-        dst = args.destination
         if dst == None:
             dst = src
             if dst.endswith('.wad'):
@@ -42,19 +39,48 @@ def main():
                 if not dst.endswith('.wad.client'):
                     dst += '.wad.client'
         wad_tool.pack(src, dst)
-    elif args.tool == 'wadunpack':
+
+    @staticmethod
+    def wadunpack(src, dst):
         from LtMAO import wad_tool
-        src = args.source
-        dst = args.destination
         if dst == None:
             dst = src.replace('.wad.client', '.wad')
         wad_tool.unpack(src, dst)
+
+    @staticmethod
+    def ritobin(src, dst):
+        from LtMAO import ext_tools, hash_manager
+        ext_tools.RITOBIN.run(
+            src, dst, dir_hashes=hash_manager.CustomHashes.local_dir)
+
+    @staticmethod
+    def lfi(src):
+        from LtMAO import leaguefile_inspector, hash_manager, pyRitoFile
+        hash_manager.read_all_hashes()
+        path, size, type, json = leaguefile_inspector.read_lfi(
+            src, hash_manager.HASHTABLES)
+        dst = src + '.json'
+        with open(dst, 'w+') as f:
+            f.write(json if json != None else '{}')
+        hash_manager.free_all_hashes()
+
+
+def main():
+    args = parse_arguments()
+    ensure_curdir()
+    if args.tool == 'wadpack':
+        CLI.wadpack(args.source, args.destination)
+    elif args.tool == 'wadunpack':
+        CLI.wadunpack(args.source, args.destination)
+    elif args.tool == 'ritobin':
+        CLI.ritobin(args.source, args.destination)
+    elif args.tool == 'lfi':
+        CLI.lfi(args.source)
 
 
 if __name__ == '__main__':
     try:
         main()
-        input()
         sys.exit(0)
     except Exception as e:
         import traceback

@@ -96,7 +96,7 @@ def read_ritobin(path):
     json = None
     try:
         p = ext_tools.RITOBIN.run(
-            path,
+            src=path,
             dir_hashes=hash_manager.CustomHashes.local_dir
         )
         if p.returncode != 0:

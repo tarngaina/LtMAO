@@ -58,7 +58,6 @@ class CSLOL:
             cmds, creationflags=CREATE_NO_WINDOW,
             stdout=PIPE, stderr=STDOUT
         )
-        block_and_stream_process_output(p, 'CSLMAO: ')
         return p
 
     def run_overlay(overlay, config, game=None):

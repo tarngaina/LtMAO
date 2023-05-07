@@ -11,9 +11,14 @@ LOG = print
 
 
 class MOD:
-    def __init__(self, path=None, enable=None):
+    __slots__ = (
+        'path', 'enable', 'profile'
+    )
+
+    def __init__(self, path=None, enable=False, profile='0'):
         self.path = path
         self.enable = enable
+        self.profile = profile
 
 
 class CSLMAO:
@@ -23,22 +28,17 @@ class CSLMAO:
     mod_file = f'{local_dir}/mods.json'
     MODS = []
 
-    profile_file = f'{local_dir}/profiles.json'
-    profile_dir_all = f'{local_dir}/profiles/profile_ALL'
-    profile_dirs = [f'./prefs/cslmao/profiles/profile{i}' for i in range(10)]
-    PROFILES = []
-
+    profile_dir = f'{local_dir}/profiles'
     config_file = f'{local_dir}/config.txt'
-
     blank_image = Image.new('RGB', (144, 81))
 
-    def create_mod(mod_path, enable):
-        existed_path = next(
-            (mod for mod in CSLMAO.MODS if mod.path == mod_path), None) != None
-        if existed_path:
+    def create_mod(mod_path, enable, profile):
+        existed_mod = next(
+            (mod for mod in CSLMAO.MODS if mod.path == mod_path), None)
+        if existed_mod != None:
             raise Exception(
-                f'Failed: CSLMAO: Create mod: A mod with path: {mod_path} already existed.')
-        m = MOD(mod_path, enable)
+                f'Failed: CSLMAO: Create mod: A mod with path: {mod_path} already existed in profile {existed_mod.profile}.')
+        m = MOD(mod_path, enable, profile)
         CSLMAO.MODS.append(m)
         return m
 
@@ -83,20 +83,13 @@ class CSLMAO:
         l = []
         with open(CSLMAO.mod_file, 'r') as f:
             l = json.load(f)
-        CSLMAO.MODS = [MOD(path, enable) for path, enable in l]
+        CSLMAO.MODS = [MOD(path, enable, profile)
+                       for path, enable, profile in l]
 
     def save_mods():
         with open(CSLMAO.mod_file, 'w+') as f:
-            json.dump([(mod.path, mod.enable)
+            json.dump([(mod.path, mod.enable, mod.profile)
                       for mod in CSLMAO.MODS], f, indent=4)
-
-    def load_profiles():
-        with open(CSLMAO.profile_file, 'r') as f:
-            CSLMAO.PROFILES = json.load(f)
-
-    def save_profiles():
-        with open(CSLMAO.profile_file, 'w+') as f:
-            json.dump(CSLMAO.PROFILES, f, indent=4)
 
     def import_fantome(fantome_path, mod_path):
         return CSLOL.import_fantome(
@@ -111,21 +104,24 @@ class CSLMAO:
             game=setting.get('game_folder', '')
         )
 
-    def make_overlay(profile_id):
-        paths = [mod.path for mod in CSLMAO.MODS if mod.enable] if profile_id == 'all' else [
-            path for path in CSLMAO.PROFILES[profile_id] if next((mod.enable for mod in CSLMAO.MODS if mod.path == path), False)]
-        overlay = CSLMAO.profile_dir_all if profile_id == 'all' else CSLMAO.profile_dirs[
-            profile_id]
+    def make_overlay(profile):
+        if profile == 'all':
+            paths = [mod.path for mod in CSLMAO.MODS if mod.enable]
+        else:
+            paths = [
+                mod.path for mod in CSLMAO.MODS if mod.enable and mod.profile == profile]
+        overlay = f'{CSLMAO.profile_dir}/{profile}'
+        os.makedirs(overlay, exist_ok=True)
         return CSLOL.make_overlay(
             src=os.path.abspath(CSLMAO.raw_dir),
             overlay=os.path.abspath(overlay),
             game=setting.get('game_folder', ''),
-            mods=paths
+            mods=paths,
+            noTFT=setting.get('Cslmao.extra_game_modes', 0) == 0
         )
 
-    def run_overlay(profile_id):
-        overlay = CSLMAO.profile_dir_all if profile_id == 'all' else CSLMAO.profile_dirs[
-            profile_id]
+    def run_overlay(profile):
+        overlay = f'{CSLMAO.profile_dir}/{profile}'
         return CSLOL.run_overlay(
             overlay=overlay,
             config=CSLMAO.config_file,
@@ -144,9 +140,8 @@ get_info = CSLMAO.get_info
 set_info = CSLMAO.set_info
 load_mods = CSLMAO.load_mods
 save_mods = CSLMAO.save_mods
-load_profiles = CSLMAO.load_profiles
-save_profiles = CSLMAO.save_profiles
 tk_add_mod = None
+tk_refresh_profile = None
 preparing = False
 
 
@@ -155,21 +150,14 @@ def prepare(_LOG):
     LOG = _LOG
     # ensure folders and files
     os.makedirs(CSLMAO.raw_dir, exist_ok=True)
-    for profile_id in range(10):
-        os.makedirs(CSLMAO.profile_dirs[profile_id], exist_ok=True)
-    os.makedirs(CSLMAO.profile_dir_all, exist_ok=True)
+    os.makedirs(CSLMAO.profile_dir, exist_ok=True)
     if not os.path.exists(CSLMAO.config_file):
         open(CSLMAO.config_file, 'w+').close()
     if not os.path.exists(CSLMAO.mod_file):
         with open(CSLMAO.mod_file, 'w+') as f:
             f.write('{}')
-    if not os.path.exists(CSLMAO.profile_file):
-        with open(CSLMAO.profile_file, 'w+') as f:
-            f.write('{}')
     CSLMAO.load_mods()
     CSLMAO.save_mods()
-    CSLMAO.load_profiles()
-    CSLMAO.save_profiles()
 
     def prepare_cmd():
         global preparing
@@ -179,10 +167,11 @@ def prepare(_LOG):
         for mod in CSLMAO.MODS:
             info, image = get_info(mod)
             mgs.append(tk_add_mod(image=image, name=info['Name'], author=info['Author'],
-                       version=info['Version'], description=info['Description'], enable=mod.enable))
+                       version=info['Version'], description=info['Description'], enable=mod.enable, profile=mod.profile))
         # grid all mod frame at one
         for mg in mgs:
             mg()
+        tk_refresh_profile(setting.get('Cslmao.profile', 'all'))
         preparing = False
         LOG(f'CSLMAO: Status: Finished loading mods.')
     Thread(target=prepare_cmd, daemon=True).start()

@@ -90,7 +90,8 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.page_frame.rowconfigure(1, weight=699)
     # init stuffs
     tk_widgets.CSLMAO.mods = []
-    tk_widgets.CSLMAO.running_process = None
+    tk_widgets.CSLMAO.make_overlay = None
+    tk_widgets.CSLMAO.run_overlay = None
     # create action frame
     tk_widgets.CSLMAO.action_frame = ctk.CTkFrame(
         tk_widgets.CSLMAO.page_frame, fg_color=TRANSPARENT)
@@ -101,18 +102,26 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.action_frame.columnconfigure(1, weight=1)
     tk_widgets.CSLMAO.action_frame.columnconfigure(2, weight=1)
     tk_widgets.CSLMAO.action_frame.columnconfigure(3, weight=699)
+    tk_widgets.CSLMAO.action_frame.columnconfigure(4, weight=1)
+    tk_widgets.CSLMAO.action_frame.columnconfigure(5, weight=1)
 
     def run_cmd():
         if cslmao.preparing:
             LOG('CSLMAO: Error: Loading mods, can not run yet.')
             return
-        if tk_widgets.CSLMAO.running_process == None:
+        if tk_widgets.CSLMAO.make_overlay == None and tk_widgets.CSLMAO.run_overlay == None:
             def run_thrd():
-                p = cslmao.make_overlay('all')
+                profile = setting.get('Cslmao.profile', 'all')
+                tk_widgets.CSLMAO.make_overlay = p = cslmao.make_overlay(
+                    profile)
+                cslmao.block_and_stream_process_output(
+                    p, 'CSLMAO: ')
                 if p.returncode == 0:
-                    tk_widgets.CSLMAO.running_process = p2 = cslmao.run_overlay(
-                        'all')
-                    cslmao.block_and_stream_process_output(p2, 'CSLMAO: ')
+                    tk_widgets.CSLMAO.make_overlay = None
+                    tk_widgets.CSLMAO.run_overlay = p2 = cslmao.run_overlay(
+                        profile)
+                    cslmao.block_and_stream_process_output(
+                        p2, 'CSLMAO: ')
                     if p2.returncode not in (None, 0, 1):
                         tk_widgets.CSLMAO.run_button.configure(
                             text='Run',
@@ -122,8 +131,8 @@ def create_CSLMAO_page():
                             stuffs[1].configure(
                                 state=tk.NORMAL
                             )
-                        LOG('CSLMAO: Error: Make overlay failed, back to idling.')
-                        tk_widgets.CSLMAO.running_process = None
+                        LOG('CSLMAO: Error: Run overlay failed, back to idling.')
+                        tk_widgets.CSLMAO.run_overlay = None
                 else:
                     tk_widgets.CSLMAO.run_button.configure(
                         text='Run',
@@ -133,6 +142,8 @@ def create_CSLMAO_page():
                         stuffs[1].configure(
                             state=tk.NORMAL
                         )
+                    LOG('CSLMAO: Error: Make overlay failed, back to idling.')
+                    tk_widgets.CSLMAO.make_overlay = None
             tk_widgets.CSLMAO.run_button.configure(
                 text='Stop',
                 image=EmojiImage.create('⏹️', weird=True)
@@ -141,10 +152,12 @@ def create_CSLMAO_page():
                 stuffs[1].configure(
                     state=tk.DISABLED
                 )
-
             Thread(target=run_thrd, daemon=True).start()
         else:
-            tk_widgets.CSLMAO.running_process.kill()
+            if tk_widgets.CSLMAO.make_overlay != None:
+                tk_widgets.CSLMAO.make_overlay.kill()
+            if tk_widgets.CSLMAO.run_overlay != None:
+                tk_widgets.CSLMAO.run_overlay.kill()
             tk_widgets.CSLMAO.run_button.configure(
                 text='Run',
                 image=EmojiImage.create('▶️', weird=True)
@@ -154,8 +167,11 @@ def create_CSLMAO_page():
                     state=tk.NORMAL
                 )
             LOG('CSLMAO: Status: Stopped running overlay, idling.')
-            tk_widgets.CSLMAO.running_process = None
-
+            tk_widgets.CSLMAO.make_overlay = None
+            tk_widgets.CSLMAO.run_overlay = None
+        tk_widgets.CSLMAO.run_button.configure(state='disabled')
+        tk_widgets.CSLMAO.run_button.after(
+            1000, lambda: tk_widgets.CSLMAO.run_button.configure(state='active'))
     # create run button
     tk_widgets.CSLMAO.run_button = ctk.CTkButton(
         tk_widgets.CSLMAO.action_frame,
@@ -167,7 +183,7 @@ def create_CSLMAO_page():
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
     def import_cmd():
-        if tk_widgets.CSLMAO.running_process != None:
+        if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
             return
         fantome_paths = tkfd.askopenfilenames(
             title='Import FANTOME',
@@ -178,7 +194,8 @@ def create_CSLMAO_page():
             mod_path = '.'.join(os.path.basename(fantome_path).split('.')[:-1])
             p = cslmao.import_fantome(fantome_path, mod_path)
             if p.returncode == 0:
-                mod = cslmao.create_mod(mod_path, False)
+                mod = cslmao.create_mod(
+                    mod_path, False, tk_widgets.CSLMAO.get_mod_profile())
                 info, image = cslmao.get_info(mod)
                 mg = add_mod(image=image, name=info['Name'], author=info['Author'],
                              version=info['Version'], description=info['Description'], enable=mod.enable)
@@ -195,11 +212,12 @@ def create_CSLMAO_page():
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def new_cmd():
-        if tk_widgets.CSLMAO.running_process != None:
+        if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
             return
         mod_path = datetime.datetime.now().strftime(
             '%Y%m%d%H%M%S%f')
-        mod = cslmao.create_mod(mod_path, enable=False)
+        mod = cslmao.create_mod(mod_path=mod_path, enable=False,
+                                profile=tk_widgets.CSLMAO.get_mod_profile())
         cslmao.create_mod_folder(mod)
         cslmao.set_info(
             mod,
@@ -221,6 +239,40 @@ def create_CSLMAO_page():
     )
     tk_widgets.CSLMAO.new_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    # create profile label
+    tk_widgets.CSLMAO.profile_label = ctk.CTkLabel(
+        tk_widgets.CSLMAO.action_frame,
+        text='Profile: '
+    )
+    tk_widgets.CSLMAO.profile_label.grid(
+        row=0, column=4, padx=5, pady=5, sticky=tk.NSEW)
+
+    def profile_cmd(choice):
+        tk_widgets.CSLMAO.refresh_profile(choice)
+        setting.set('Cslmao.profile', choice)
+        setting.save()
+    # create profile opt
+    tk_widgets.CSLMAO.profile_opt = ctk.CTkOptionMenu(
+        tk_widgets.CSLMAO.action_frame,
+        values=[
+            'all',
+            '0',
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+            '6',
+            '7',
+            '8',
+            '9'
+        ],
+        command=profile_cmd
+    )
+    tk_widgets.CSLMAO.profile_opt.set(setting.get('Cslmao.profile', 'all'))
+    tk_widgets.CSLMAO.profile_opt.grid(
+        row=0, column=5, padx=5, pady=5, sticky=tk.NSEW)
+
     # create modlist frame
     tk_widgets.CSLMAO.modlist_frame = ctk.CTkScrollableFrame(
         tk_widgets.CSLMAO.page_frame)
@@ -230,7 +282,7 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.modlist_frame.columnconfigure(0, weight=1)
 
     # link tk add mod for cslmao
-    def add_mod(image=None, name='New Mod', author='Author', version='1.0', description='', enable=False):
+    def add_mod(image=None, name='New Mod', author='Author', version='1.0', description='', enable=False, profile='0'):
         if image == None:
             image = cslmao.CSLMAO.blank_image
         id = len(tk_widgets.CSLMAO.mods)
@@ -253,7 +305,7 @@ def create_CSLMAO_page():
         head_frame.columnconfigure(4, weight=1)
 
         def enable_cmd(widget):
-            if tk_widgets.CSLMAO.running_process != None:
+            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
                 return
             mod_id = next((id for id, stuffs in enumerate(
                 tk_widgets.CSLMAO.mods) if widget == stuffs[1]), None)
@@ -318,7 +370,7 @@ def create_CSLMAO_page():
         locate_button.grid(row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
         def edit_cmd(widget):
-            if tk_widgets.CSLMAO.running_process != None:
+            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
                 return
             mod_id = next((id for id, stuffs in enumerate(
                 tk_widgets.CSLMAO.mods) if widget == stuffs[6]), None)
@@ -341,7 +393,7 @@ def create_CSLMAO_page():
         edit_button.grid(row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
         def export_cmd(widget):
-            if tk_widgets.CSLMAO.running_process != None:
+            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
                 return
             mod_id = next((id for id, stuffs in enumerate(
                 tk_widgets.CSLMAO.mods) if widget == stuffs[7]), None)
@@ -377,7 +429,7 @@ def create_CSLMAO_page():
         export_button.grid(row=1, column=2, padx=5, pady=5, sticky=tk.NSEW)
 
         def remove_cmd(widget):
-            if tk_widgets.CSLMAO.running_process != None:
+            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
                 return
             mod_id = next((id for id, stuffs in enumerate(
                 tk_widgets.CSLMAO.mods) if widget == stuffs[8]), None)
@@ -441,7 +493,7 @@ def create_CSLMAO_page():
         edit_right_frame.grid(row=0, column=1, sticky=tk.NSEW)
 
         def edit_image_cmd(widget):
-            if tk_widgets.CSLMAO.running_process != None:
+            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
                 return
             mod_id = next((id for id, stuffs in enumerate(
                 tk_widgets.CSLMAO.mods) if widget == stuffs[11]), None)
@@ -473,13 +525,64 @@ def create_CSLMAO_page():
         edit_action_frame.grid(row=0, column=2, sticky=tk.NSEW)
         edit_action_frame.rowconfigure(0, weight=1)
         edit_action_frame.rowconfigure(1, weight=0)
-        edit_action_frame.rowconfigure(2, weight=1)
+        edit_action_frame.rowconfigure(2, weight=0)
+        edit_action_frame.rowconfigure(3, weight=0)
+        edit_action_frame.rowconfigure(4, weight=1)
         edit_action_frame.columnconfigure(0, weight=1)
         edit_action_frame.columnconfigure(1, weight=0)
         edit_action_frame.columnconfigure(2, weight=1)
 
+        # create profile opt
+        edit_profile_opt = ctk.CTkOptionMenu(
+            edit_action_frame,
+            values=[
+                '0',
+                '1',
+                '2',
+                '3',
+                '4',
+                '5',
+                '6',
+                '7',
+                '8',
+                '9'
+            ],
+        )
+        edit_profile_opt.set(profile)
+        edit_profile_opt.grid(
+            row=1, column=1, padx=20, pady=5, sticky=tk.NSEW)
+
+        def reset_cmd(widget):
+            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
+                return
+            mod_id = next((id for id, stuffs in enumerate(
+                tk_widgets.CSLMAO.mods) if widget == stuffs[14]), None)
+            mod = cslmao.CSLMAO.MODS[mod_id]
+            info, image = cslmao.get_info(mod)
+            tk_widgets.CSLMAO.mods[mod_id][15].delete(0, tk.END)
+            tk_widgets.CSLMAO.mods[mod_id][16].delete(0, tk.END)
+            tk_widgets.CSLMAO.mods[mod_id][17].delete(0, tk.END)
+            tk_widgets.CSLMAO.mods[mod_id][18].delete(0, tk.END)
+            tk_widgets.CSLMAO.mods[mod_id][15].insert(0, info['Name'])
+            tk_widgets.CSLMAO.mods[mod_id][16].insert(0, info['Author'])
+            tk_widgets.CSLMAO.mods[mod_id][17].insert(0, info['Version'])
+            tk_widgets.CSLMAO.mods[mod_id][18].insert(0, info['Description'])
+            tk_widgets.CSLMAO.mods[mod_id][10] = None
+            tk_widgets.CSLMAO.mods[mod_id][11].configure(
+                image=ctk.CTkImage(image, size=(256, 144))
+            )
+            tk_widgets.CSLMAO.mods[mod_id][19].set(mod.profile)
+        # reset button
+        reset_button = ctk.CTkButton(
+            edit_action_frame,
+            text='Reset',
+            image=EmojiImage.create('🔃'),
+            command=lambda: reset_cmd(reset_button)
+        )
+        reset_button.grid(row=2, column=1, padx=20, pady=5, sticky=tk.NSEW)
+
         def save_cmd(widget):
-            if tk_widgets.CSLMAO.running_process != None:
+            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
                 return
             mod_id = next((id for id, stuffs in enumerate(
                 tk_widgets.CSLMAO.mods) if widget == stuffs[9]), None)
@@ -489,22 +592,28 @@ def create_CSLMAO_page():
                 'Version': version_entry.get(),
                 'Description': description_entry.get()
             }
+            mod = cslmao.CSLMAO.MODS[mod_id]
             image = tk_widgets.CSLMAO.mods[mod_id][10]
-            cslmao.set_info(cslmao.CSLMAO.MODS[mod_id], info, image)
+            cslmao.set_info(mod, info, image)
             tk_widgets.CSLMAO.mods[mod_id][12].configure(
                 text=f'{info["Name"]} by {info["Author"]} V{info["Version"]}\n{info["Description"]}'
             )
-            tk_widgets.CSLMAO.mods[mod_id][13].configure(
-                image=ctk.CTkImage(Image.open(image), size=(144, 81))
-            )
-
+            if image != None:
+                tk_widgets.CSLMAO.mods[mod_id][13].configure(
+                    image=ctk.CTkImage(Image.open(image), size=(144, 81))
+                )
+            mod.profile = tk_widgets.CSLMAO.mods[mod_id][19].get()
+            cslmao.CSLMAO.save_mods()
+            tk_widgets.CSLMAO.refresh_profile(
+                setting.get('Cslmao.profile', 'all'))
+        # create save button
         save_button = ctk.CTkButton(
             edit_action_frame,
             text='Save',
             image=EmojiImage.create('💾'),
             command=lambda: save_cmd(save_button)
         )
-        save_button.grid(row=1, column=1, padx=20, sticky=tk.NSEW)
+        save_button.grid(row=3, column=1, padx=20, pady=5, sticky=tk.NSEW)
         tk_widgets.CSLMAO.mods.append([
             mod_frame,
             mod_enable,
@@ -519,7 +628,13 @@ def create_CSLMAO_page():
             None,  # edit image path
             edit_image,
             mod_info,
-            mod_image
+            mod_image,
+            reset_button,
+            name_entry,
+            author_entry,
+            version_entry,
+            description_entry,
+            edit_profile_opt
         ])
         # return out as a grid method of this mod_frame
         # so we can control when to grid it later
@@ -527,7 +642,30 @@ def create_CSLMAO_page():
             row=id, column=0, padx=2, pady=2, sticky=tk.NSEW)
         return mod_grid
 
+    def refresh_profile(profile):
+        if profile == 'all':
+            for id in range(len(tk_widgets.CSLMAO.mods)):
+                tk_widgets.CSLMAO.mods[id][0].grid(
+                    row=id, column=0, padx=2, pady=2, sticky=tk.NSEW)
+        else:
+            for id in range(len(tk_widgets.CSLMAO.mods)):
+                if cslmao.CSLMAO.MODS[id].profile == profile:
+                    tk_widgets.CSLMAO.mods[id][0].grid(
+                        row=id, column=0, padx=2, pady=2, sticky=tk.NSEW)
+
+                else:
+                    tk_widgets.CSLMAO.mods[id][0].grid_forget()
+
+    def get_mod_profile():
+        profile = setting.get('Cslmao.profile', 'all')
+        if profile == 'all':
+            return '0'
+        else:
+            return profile
+
     cslmao.tk_add_mod = add_mod
+    tk_widgets.CSLMAO.refresh_profile = cslmao.tk_refresh_profile = refresh_profile
+    tk_widgets.CSLMAO.get_mod_profile = get_mod_profile
 
 
 def create_LFI_page():
@@ -2077,7 +2215,13 @@ def create_ST_page():
     )
     tk_widgets.ST.scroll_frame.grid(
         row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
-
+    # general label
+    tk_widgets.ST.general_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        text='General'
+    )
+    tk_widgets.ST.general_label.grid(
+        row=0, column=0, padx=10, pady=5, sticky=tk.NSEW)
     # theme
     tk_widgets.ST.theme_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
@@ -2087,7 +2231,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.theme_label.grid(
-        row=0, column=0, padx=20, pady=(20, 5), sticky=tk.NSEW)
+        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def theme_cmd(choice):
         ctk.set_appearance_mode(choice)
@@ -2104,7 +2248,7 @@ def create_ST_page():
     )
     tk_widgets.ST.theme_option.set(setting.get('theme', 'system'))
     tk_widgets.ST.theme_option.grid(
-        row=0, column=1, padx=5, pady=(20, 5), sticky=tk.NSEW)
+        row=1, column=2, padx=5, pady=5, sticky=tk.NSEW)
     # limit message
     tk_widgets.ST.loglimit_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
@@ -2114,7 +2258,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.loglimit_label.grid(
-        row=1, column=0, padx=20, pady=5, sticky=tk.NSEW)
+        row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def loglimit_cmd(choice):
         Log.limit = int(choice)
@@ -2131,7 +2275,43 @@ def create_ST_page():
     )
     tk_widgets.ST.loglimit_option.set(setting.get('Log.limit', '100'))
     tk_widgets.ST.loglimit_option.grid(
-        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=2, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    # shortcut desktop
+    tk_widgets.ST.desktop_button = ctk.CTkButton(
+        tk_widgets.ST.scroll_frame,
+        text='Create Desktop Shortcut',
+        image=EmojiImage.create('🖥️', weird=True),
+        anchor=tk.W,
+        command=winLT.Shortcut.create_desktop
+    )
+    tk_widgets.ST.desktop_button.grid(
+        row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    # explorer context
+    tk_widgets.ST.contextadd_button = ctk.CTkButton(
+        tk_widgets.ST.scroll_frame,
+        text='Create Explorer Contexts',
+        image=EmojiImage.create('💬'),
+        anchor=tk.W,
+        command=winLT.Context.create_contexts
+    )
+    tk_widgets.ST.contextadd_button.grid(
+        row=4, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.ST.contextrmv_button = ctk.CTkButton(
+        tk_widgets.ST.scroll_frame,
+        text='Remove Explorer Contexts',
+        image=EmojiImage.create('❌'),
+        anchor=tk.W,
+        command=winLT.Context.remove_contexts
+    )
+    tk_widgets.ST.contextrmv_button.grid(
+        row=4, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    # cslmao label
+    tk_widgets.ST.cslmao_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        text='CSLMAO'
+    )
+    tk_widgets.ST.cslmao_label.grid(
+        row=5, column=0, padx=10, pady=5, sticky=tk.NSEW)
     # game folder
     tk_widgets.ST.gamedir_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
@@ -2141,7 +2321,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.gamedir_label.grid(
-        row=2, column=0, padx=20, pady=5, sticky=tk.NSEW)
+        row=6, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def gamedir_cmd():
         dir_path = tkfd.askdirectory(
@@ -2163,7 +2343,7 @@ def create_ST_page():
         command=gamedir_cmd
     )
     tk_widgets.ST.gamedir_button.grid(
-        row=2, column=1, padx=20, pady=5, sticky=tk.NSEW)
+        row=6, column=2, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.ST.gamedir_value_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
         text=setting.get(
@@ -2171,34 +2351,33 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.gamedir_value_label.grid(
-        row=2, column=2, padx=20, pady=5, sticky=tk.NSEW)
-    # windows desktop
-    tk_widgets.ST.desktop_button = ctk.CTkButton(
+        row=6, column=3, padx=5, pady=5, sticky=tk.NSEW)
+    # extra game modes
+    tk_widgets.ST.egm_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
-        text='Create Desktop Shortcut',
-        image=EmojiImage.create('🖥️', weird=True),
-        anchor=tk.W,
-        command=winLT.Desktop.create_shorcut
-    )
-    tk_widgets.ST.desktop_button.grid(
-        row=3, column=0, padx=20, pady=5, sticky=tk.NSEW)
-    # explorer context
-    tk_widgets.ST.contextadd_button = ctk.CTkButton(
-        tk_widgets.ST.scroll_frame,
-        text='Create Explorer Contexts',
-        image=EmojiImage.create('💬'),
+        text='Extra Game Modes:',
+        image=EmojiImage.create('🕹️', weird=True),
+        compound=tk.LEFT,
         anchor=tk.W
     )
-    tk_widgets.ST.contextadd_button.grid(
-        row=4, column=0, padx=20, pady=5, sticky=tk.NSEW)
-    tk_widgets.ST.contextrmv_button = ctk.CTkButton(
+    tk_widgets.ST.egm_label.grid(
+        row=7, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    def egm_cmd():
+        setting.set('Cslmao.extra_game_modes',
+                    tk_widgets.ST.egm_checkbox.get())
+        setting.save()
+    tk_widgets.ST.egm_checkbox = ctk.CTkCheckBox(
         tk_widgets.ST.scroll_frame,
-        text='Remove Explorer Contexts',
-        image=EmojiImage.create('❌'),
-        anchor=tk.W
+        text='',
+        command=egm_cmd
     )
-    tk_widgets.ST.contextrmv_button.grid(
-        row=4, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    if setting.get('Cslmao.extra_game_modes', 0) == 1:
+        tk_widgets.ST.egm_checkbox.select()
+    else:
+        tk_widgets.ST.egm_checkbox.deselect()
+    tk_widgets.ST.egm_checkbox.grid(
+        row=7, column=2, padx=5, pady=5, sticky=tk.NSEW)
 
 
 def select_right_page(selected):
@@ -2324,7 +2503,7 @@ def create_page_controls():
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
-            text='bin_helper',
+            text='hapiBin',
             command=lambda: control_cmd(7)
         )
     ]
