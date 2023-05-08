@@ -1,6 +1,7 @@
 from LtMAO import pyRitoFile
 from LtMAO import hash_manager
 import os
+from json import dump
 
 LOG = print
 
@@ -20,6 +21,7 @@ def unpack(wad_file, raw_dir):
     wad = pyRitoFile.read_wad(wad_file)
     wad.un_hash(hash_manager.HASHTABLES)
     hash_manager.free_wad_hashes()
+    hashed_bins = {}
     with wad.stream(wad_file, 'rb') as bs:
         for chunk in wad.chunks:
             # output file path of this chunk
@@ -30,6 +32,13 @@ def unpack(wad_file, raw_dir):
                 if not file_path.endswith(ext):
                     file_path += ext
             file_path = file_path.replace('\\', '/')
+            # handle hashed bin
+            if os.path.dirname(file_path).endswith('data') and chunk.extension == 'bin':
+                hashed_bin = os.path.join(
+                    raw_dir, pyRitoFile.wad_hash(chunk.hash)+'.bin')
+                hashed_bins[os.path.basename(
+                    hashed_bin)] = 'data/'+os.path.basename(file_path)
+                file_path = hashed_bin
             # ensure folder of this file
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
             # write out chunk data to file
@@ -38,6 +47,9 @@ def unpack(wad_file, raw_dir):
                 fo.write(chunk.data)
             chunk.free_data()
             LOG(f'Done: Unpack: {chunk.hash}')
+    if len(hashed_bins) > 0:
+        with open(os.path.join(raw_dir, 'hashed_bins.json'), 'w+') as f:
+            dump(hashed_bins, f, indent=4)
 
 
 def pack(raw_dir, wad_file):

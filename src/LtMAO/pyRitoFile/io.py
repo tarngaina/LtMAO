@@ -170,4 +170,6 @@ class BinStream:
         self.stream.write(value.encode('ascii'))
 
     def write_a_padded(self, value, length):
+        if len(value) > length:
+            value = value[:length]
         self.stream.write(value.encode('ascii') + b'\x00'*(length-len(value)))

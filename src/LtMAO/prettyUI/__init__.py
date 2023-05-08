@@ -3,7 +3,7 @@ import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
 
-from LtMAO import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools
+from LtMAO import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum
 from LtMAO.prettyUI.helper import Keeper, Log, EmojiImage
 
 import os
@@ -2181,6 +2181,203 @@ def create_UVEE_page():
         row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
 
 
+def create_SHR_page():
+    # create page frame
+    tk_widgets.SHR.page_frame = ctk.CTkFrame(
+        tk_widgets.mainright_frame,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.SHR.page_frame.columnconfigure(0, weight=1)
+    tk_widgets.SHR.page_frame.rowconfigure(0, weight=1)
+    tk_widgets.SHR.page_frame.rowconfigure(1, weight=699)
+    tk_widgets.SHR.page_frame.rowconfigure(2, weight=1)
+    # init stuffs
+    tk_widgets.SHR.working_thread = None
+    # create input frame
+    tk_widgets.SHR.input_frame = ctk.CTkFrame(
+        tk_widgets.SHR.page_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.SHR.input_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.SHR.input_frame.rowconfigure(0, weight=1)
+    tk_widgets.SHR.input_frame.columnconfigure(0, weight=12)
+    tk_widgets.SHR.input_frame.columnconfigure(1, weight=1)
+    tk_widgets.SHR.input_frame.columnconfigure(2, weight=1)
+    # create input entry
+    tk_widgets.SHR.input_entry = ctk.CTkEntry(
+        tk_widgets.SHR.input_frame
+    )
+    tk_widgets.SHR.input_entry.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def browsefile_cmd():
+        anm_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select ANM file',
+            filetypes=(
+                ('ANM files', '*.anm'),
+                ('All files', '*.*'),
+            )
+        )
+        tk_widgets.SHR.input_entry.delete(0, tk.END)
+        tk_widgets.SHR.input_entry.insert(tk.END, anm_path)
+    # create browse file button
+    tk_widgets.SHR.browsefile_button = ctk.CTkButton(
+        tk_widgets.SHR.input_frame,
+        text='Browse ANM',
+        image=EmojiImage.create('📄'),
+        anchor=tk.CENTER,
+        command=browsefile_cmd
+    )
+    tk_widgets.SHR.browsefile_button.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    def browsefolder_cmd():
+        dir_path = tkfd.askdirectory(
+            parent=tk_widgets.main_tk,
+            title='Select Folder of ANMs',
+        )
+        tk_widgets.SHR.input_entry.delete(0, tk.END)
+        tk_widgets.SHR.input_entry.insert(tk.END, dir_path)
+    # create browse folder button
+    tk_widgets.SHR.browsefolder_button = ctk.CTkButton(
+        tk_widgets.SHR.input_frame,
+        text='Browse Folder of ANMs',
+        image=EmojiImage.create('📁'),
+        anchor=tk.CENTER,
+        command=browsefolder_cmd
+    )
+    tk_widgets.SHR.browsefolder_button.grid(
+        row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    # create mid frame
+    tk_widgets.SHR.mid_frame = ctk.CTkFrame(
+        tk_widgets.SHR.page_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.SHR.mid_frame.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.SHR.mid_frame.rowconfigure(0, weight=699)
+    tk_widgets.SHR.mid_frame.rowconfigure(1, weight=1)
+    tk_widgets.SHR.mid_frame.rowconfigure(2, weight=1)
+    tk_widgets.SHR.mid_frame.columnconfigure(0, weight=1)
+    tk_widgets.SHR.mid_frame.columnconfigure(1, weight=1)
+    # create old textbox
+    tk_widgets.SHR.old_text = ctk.CTkTextbox(
+        tk_widgets.SHR.mid_frame,
+        wrap=tk.NONE
+    )
+    tk_widgets.SHR.old_text.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def old_skl_cmd():
+        skl_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select SKL file',
+            filetypes=(
+                ('SKL files', '*.skl'),
+                ('All files', '*.*'),
+            )
+        )
+        if skl_path != '':
+            skl = pyRitoFile.read_skl(skl_path)
+            tk_widgets.SHR.old_text.insert(tk.END,
+                                           '\n'.join(joint.name for joint in skl.joints))
+    # create old skl button
+    tk_widgets.SHR.old_skl_button = ctk.CTkButton(
+        tk_widgets.SHR.mid_frame,
+        text='Load joints from SKL',
+        image=EmojiImage.create('📄'),
+        command=old_skl_cmd
+    )
+    tk_widgets.SHR.old_skl_button.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create new textbox
+    tk_widgets.SHR.new_text = ctk.CTkTextbox(
+        tk_widgets.SHR.mid_frame,
+        wrap=tk.NONE
+    )
+    tk_widgets.SHR.new_text.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    def new_skl_cmd():
+        skl_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select SKL file',
+            filetypes=(
+                ('SKL files', '*.skl'),
+                ('All files', '*.*'),
+            )
+        )
+        if skl_path != '':
+            skl = pyRitoFile.read_skl(skl_path)
+            tk_widgets.SHR.new_text.insert(tk.END,
+                                           '\n'.join(joint.name for joint in skl.joints))
+    # create new skl button
+    tk_widgets.SHR.new_skl_button = ctk.CTkButton(
+        tk_widgets.SHR.mid_frame,
+        text='Load joints from SKL',
+        image=EmojiImage.create('📄'),
+        command=new_skl_cmd
+    )
+    tk_widgets.SHR.new_skl_button.grid(
+        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    # create action frame
+    tk_widgets.SHR.action_frame = ctk.CTkFrame(
+        tk_widgets.SHR.page_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.SHR.action_frame.grid(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.SHR.action_frame.rowconfigure(0, weight=1)
+    tk_widgets.SHR.action_frame.columnconfigure(0, weight=1)
+    tk_widgets.SHR.action_frame.columnconfigure(1, weight=699)
+    tk_widgets.SHR.action_frame.columnconfigure(2, weight=1)
+
+    def rename_cmd():
+        if check_thread_safe(tk_widgets.SHR.working_thread):
+            def rename_thrd():
+                olds = tk_widgets.SHR.old_text.get('1.0', 'end-1c').split('\n')
+                news = tk_widgets.SHR.new_text.get('1.0', 'end-1c').split('\n')
+                length = min(len(olds), len(news))
+                path = tk_widgets.SHR.input_entry.get()
+                if length > 0 and path != '':
+                    shrum.rename(path,
+                                 olds[:length], news[:length], setting.get('Shrum.backup', 1))
+            tk_widgets.SHR.working_thread = Thread(
+                target=rename_thrd, daemon=True)
+            tk_widgets.SHR.working_thread.start()
+        else:
+            LOG(
+                'Failed: Shrum Rename ANM joints: A thread is already running, wait for it to finished.')
+
+    # create rename button
+    tk_widgets.SHR.rename_button = ctk.CTkButton(
+        tk_widgets.SHR.action_frame,
+        text='Rename Joints in ANMS',
+        image=EmojiImage.create('✅'),
+        command=rename_cmd
+    )
+    tk_widgets.SHR.rename_button.grid(
+        row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
+
+    def backup_cmd():
+        setting.set('Shrum.backup', tk_widgets.SHR.backup_switch.get())
+        setting.save()
+    # create use ritobin switch
+    tk_widgets.SHR.backup_switch = ctk.CTkSwitch(
+        tk_widgets.SHR.action_frame,
+        text='Create backup before rename (safe)',
+        command=backup_cmd
+    )
+    if setting.get('Shrum.backup', 1) == 1:
+        tk_widgets.SHR.backup_switch.select()
+    else:
+        tk_widgets.SHR.backup_switch.deselect()
+    tk_widgets.SHR.backup_switch.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+
 def create_LOG_page():
     tk_widgets.LOG.page_frame = ctk.CTkFrame(
         tk_widgets.mainright_frame,
@@ -2503,8 +2700,13 @@ def create_page_controls():
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
-            text='hapiBin',
+            text='shrum',
             command=lambda: control_cmd(7)
+        ),
+        ctk.CTkButton(
+            tk_widgets.mainleft_frame,
+            text='hapiBin',
+            command=lambda: control_cmd(8)
         )
     ]
     for id, control_button in enumerate(tk_widgets.control_buttons):
@@ -2531,6 +2733,7 @@ def create_page_controls():
     tk_widgets.VH = tk_widgets.pages[4]
     tk_widgets.NS = tk_widgets.pages[5]
     tk_widgets.UVEE = tk_widgets.pages[6]
+    tk_widgets.SHR = tk_widgets.pages[7]
     # create right pages
     tk_widgets.create_right_page = [
         create_CSLMAO_page,
@@ -2540,6 +2743,7 @@ def create_page_controls():
         create_VH_page,
         create_NS_page,
         create_UVEE_page,
+        create_SHR_page,
         None
     ]
     # create LOG and ST control, page
@@ -2603,5 +2807,6 @@ def start():
     vo_helper.prepare(LOG)
     no_skin.prepare(LOG)
     uvee.prepare(LOG)
+    shrum.prepare(LOG)
     # loop the UI
     tk_widgets.main_tk.mainloop()

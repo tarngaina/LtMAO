@@ -35,13 +35,7 @@ class SO:
         self.colors = []
 
     def __json__(self):
-        dic = {key: getattr(self, key)
-               for key in self.__slots__ if key not in ('indices', 'positions', 'uvs', 'colors')}
-        dic['indices[:15]'] = self.indices[:15] if self.indices != None else None
-        dic['uvs[:15]'] = self.uvs[:15] if self.uvs != None else None
-        dic['positions[:5]'] = self.positions[:5] if self.positions != None else None
-        dic['colors[:5]'] = self.colors[:5] if self.colors != None else None
-        return dic
+        return {key: getattr(self, key) for key in self.__slots__}
 
     def stream(self, path, mode, raw=None):
         if raw != None:

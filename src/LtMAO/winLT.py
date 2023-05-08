@@ -7,7 +7,7 @@ LOG = print
 icon_file = './resources/appicon.ico'
 pythonw_file = './epython/pythonw.exe'
 python_file = './epython/python.exe'
-main_file = './src/main.py'
+gui_file = './src/gui.py'
 cli_file = './src/cli.py'
 
 
@@ -49,7 +49,7 @@ class Context:
         # .wad (.client) contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.client\\shell',
-            sub_commands='LtMAO.WadToRaw'
+            sub_commands='LtMAO.WadToRaw;LtMAO.LFI'
         )
         # .bin contexts
         Context.create_submenu(
@@ -116,7 +116,7 @@ class Context:
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.LFI',
-                cmd_desc='Convert To JSON with LFI',
+                cmd_desc='Print out informations as JSON with LFI',
                 cmd_value=f'{os.path.abspath(python_file)} {os.path.abspath(cli_file)} -t=lfi -src="%V"'
             )
         LOG('Done: Create Explorer Contexts')
@@ -162,7 +162,7 @@ class Shortcut:
         shortcut.WorkingDirectory = os.path.abspath('.')
         shortcut.IconLocation = os.path.abspath(icon_file)
         shortcut.Description = 'Launch LtMAO.'
-        shortcut.Arguments = os.path.abspath(main_file)
+        shortcut.Arguments = os.path.abspath(gui_file)
         shortcut.save()
         LOG('Done: Create Desktop Shortcut')
 
@@ -177,7 +177,7 @@ class Shortcut:
             shortcut.WorkingDirectory = os.path.abspath('.')
             shortcut.IconLocation = os.path.abspath(icon_file)
             shortcut.Description = 'Launch LtMAO.'
-            shortcut.Arguments = os.path.abspath(main_file)
+            shortcut.Arguments = os.path.abspath(gui_file)
             shortcut.save()
             LOG('Done: Create Launch Shortcut')
 
