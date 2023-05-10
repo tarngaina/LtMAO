@@ -64,6 +64,11 @@ class CLI:
             f.write(json if json != None else '{}')
         hash_manager.free_all_hashes()
 
+    @staticmethod
+    def uvee(src):
+        from LtMAO import uvee
+        uvee.uvee_file(src)
+
 
 def main():
     args = parse_arguments()
@@ -76,6 +81,8 @@ def main():
         CLI.ritobin(args.source, args.destination)
     elif args.tool == 'lfi':
         CLI.lfi(args.source)
+    elif args.tool == 'uvee':
+        CLI.uvee(args.source)
 
 
 if __name__ == '__main__':

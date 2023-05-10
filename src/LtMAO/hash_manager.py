@@ -96,12 +96,13 @@ class ExtractedHashes:
     def local_file(filename): return f'{ExtractedHashes.local_dir}/{filename}'
 
     def extract(*file_paths):
-        def bin_hash(name):
-            return f'{pyRitoFile.hash.FNV1a(name):08x}'
+        bin_hash = pyRitoFile.bin_hash
+        wad_hash = pyRitoFile.wad_hash
 
         hashtables = {
             'hashes.binentries.txt': {},
-            'hashes.binhashes.txt': {}
+            'hashes.binhashes.txt': {},
+            'hashes.game.txt': {}
         }
         PRE_BIN_HASH = {
             'VfxSystemDefinitionData': bin_hash('VfxSystemDefinitionData'),
@@ -137,6 +138,43 @@ class ExtractedHashes:
                 LOG(f'Failed: Extract Hashes: {file_path}: {e}')
 
         def extract_bin(file_path, raw=None):
+            def extract_file_value(value, value_type):
+                if value_type == pyRitoFile.BINType.String:
+                    value = value.lower()
+                    if 'assets/' in value or 'data/' in value:
+                        hashtables['hashes.game.txt'][wad_hash(
+                            value)] = value
+                        if value.endswith('.dds'):
+                            temp = value.split('/')
+                            basename = temp[-1]
+                            dirname = '/'.join(temp[:-1])
+                            value2x = f'{dirname}/2x_{basename}'
+                            value4x = f'{dirname}/4x_{basename}'
+                            hashtables['hashes.game.txt'][wad_hash(
+                                value2x)] = value2x
+                            hashtables['hashes.game.txt'][wad_hash(
+                                value4x)] = value4x
+                elif value_type in (pyRitoFile.BINType.List, pyRitoFile.BINType.List2):
+                    for v in value.data:
+                        extract_file_value(v, value_type)
+                elif value_type in (pyRitoFile.BINType.Embed, pyRitoFile.BINType.Pointer):
+                    for f in value.data:
+                        extract_file_field(f)
+
+            def extract_file_field(field):
+                if field.type in (pyRitoFile.BINType.List, pyRitoFile.BINType.List2):
+                    for v in field.data:
+                        extract_file_value(v, field.value_type)
+                elif field.type in (pyRitoFile.BINType.Embed, pyRitoFile.BINType.Pointer):
+                    for f in field.data:
+                        extract_file_field(f)
+                elif field.type == pyRitoFile.BINType.Map:
+                    for key, value in field.data.items():
+                        extract_file_value(key, field.key_type)
+                        extract_file_value(value, field.value_type)
+                else:
+                    extract_file_value(field.data, field.type)
+
             try:
                 if raw == None:
                     bin = pyRitoFile.read_bin(file_path)
@@ -155,7 +193,14 @@ class ExtractedHashes:
                             'name']), None)
                         if name_field != None:
                             hashtables['hashes.binentries.txt'][entry.hash] = name_field.data
-                            LOG(f'Done: Extract Hashes: {file_path}')
+                # extract file hashes
+                for entry in bin.entries:
+                    for field in entry.data:
+                        extract_file_field(field)
+                for link in bin.links:
+                    extract_file_value(link, pyRitoFile.BINType.String)
+
+                LOG(f'Done: Extract Hashes: {file_path}')
             except Exception as e:
                 LOG(f'Failed: Extract Hashes: {file_path}: {e}')
 

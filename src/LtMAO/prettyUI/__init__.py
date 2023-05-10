@@ -190,6 +190,7 @@ def create_CSLMAO_page():
             parent=tk_widgets.main_tk,
             filetypes=(('FANTOME/ZIP file', ('*.fantome', '*.zip')),)
         )
+        mgs = []
         for fantome_path in fantome_paths:
             mod_path = '.'.join(os.path.basename(fantome_path).split('.')[:-1])
             p = cslmao.import_fantome(fantome_path, mod_path)
@@ -197,10 +198,14 @@ def create_CSLMAO_page():
                 mod = cslmao.create_mod(
                     mod_path, False, tk_widgets.CSLMAO.get_mod_profile())
                 info, image = cslmao.get_info(mod)
-                mg = add_mod(image=image, name=info['Name'], author=info['Author'],
-                             version=info['Version'], description=info['Description'], enable=mod.enable)
-                mg()  # grid it right away
-                cslmao.save_mods()
+                mgs.append(add_mod(image=image, name=info['Name'], author=info['Author'],
+                                   version=info['Version'], description=info['Description'], enable=mod.enable))
+            LOG(f'CSLMAO: Imported: {fantome_path}')
+        # grid after finish import
+        for mg in mgs:
+            mg()
+        cslmao.save_mods()  # save outside loop
+
     # create import button
     tk_widgets.CSLMAO.import_button = ctk.CTkButton(
         tk_widgets.CSLMAO.action_frame,

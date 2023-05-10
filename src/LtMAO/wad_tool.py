@@ -24,6 +24,8 @@ def unpack(wad_file, raw_dir):
     hashed_bins = {}
     with wad.stream(wad_file, 'rb') as bs:
         for chunk in wad.chunks:
+            # read chunk data first to get extension
+            chunk.read_data(bs)
             # output file path of this chunk
             file_path = os.path.join(raw_dir, chunk.hash)
             # add extension to file path if know
@@ -42,11 +44,11 @@ def unpack(wad_file, raw_dir):
             # ensure folder of this file
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
             # write out chunk data to file
-            chunk.read_data(bs)
             with open(file_path, 'wb') as fo:
                 fo.write(chunk.data)
             chunk.free_data()
             LOG(f'Done: Unpack: {chunk.hash}')
+    # write hashed bins json
     if len(hashed_bins) > 0:
         with open(os.path.join(raw_dir, 'hashed_bins.json'), 'w+') as f:
             dump(hashed_bins, f, indent=4)
@@ -58,7 +60,10 @@ def pack(raw_dir, wad_file):
     chunk_datas = []
     chunk_hashes = []
     for root, dirs, files in os.walk(raw_dir):
-        for id, file in enumerate(files):
+        for file in files:
+            # skip hashed bins json
+            if file == 'hashed_bins.json':
+                continue
             # prepare chunk datas
             file_path = os.path.join(root, file).replace('\\', '/')
             chunk_datas.append(file_path)

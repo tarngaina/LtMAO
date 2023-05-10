@@ -54,7 +54,9 @@ def guess_extension(path):
 
 def read_lfi(path, hashtables=None):
     json = None
-    ftype = guess_extension(path)
+    with open(path, 'rb') as f:
+        data = f.read(100)
+    ftype = pyRitoFile.guess_extension(data)
     try:
         if ftype == 'skl':
             obj = pyRitoFile.read_skl(path)
@@ -87,6 +89,8 @@ def read_lfi(path, hashtables=None):
                     chunk.free_data()
             LOG(f'Done: File Inspector: Read WAD: {path}')
             json = pyRitoFile.to_json(obj)
+        else:
+            LOG(f'Failed: File Inspector: Read: {path}: Unknown file type')
     except Exception as e:
         LOG(f'Failed: File Inspector: Read: {path}: {e}')
     return path, to_human(os.stat(path).st_size), ftype, json

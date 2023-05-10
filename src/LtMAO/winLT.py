@@ -69,17 +69,17 @@ class Context:
         # .skn contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.skn\\shell',
-            sub_commands='LtMAO.LFI'
+            sub_commands='LtMAO.LFI;LtMAO.UVEE'
         )
         # .sco contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.sco\\shell',
-            sub_commands='LtMAO.LFI'
+            sub_commands='LtMAO.LFI;LtMAO.UVEE'
         )
         # .scb contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.scb\\shell',
-            sub_commands='LtMAO.LFI'
+            sub_commands='LtMAO.LFI;LtMAO.UVEE'
         )
 
         # create commands
@@ -88,36 +88,43 @@ class Context:
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.RawToWad',
-                cmd_desc='Pack RAW to WAD',
+                cmd_desc='wad_tool: Pack to WAD',
                 cmd_value=f'{os.path.abspath(python_file)} {os.path.abspath(cli_file)} -t=wadpack -src="%V"'
             )
             # WadToRaw
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.WadToRaw',
-                cmd_desc='Unpack WAD to RAW',
+                cmd_desc='wad_tool: Unpack to Folder',
                 cmd_value=f'{os.path.abspath(python_file)} {os.path.abspath(cli_file)} -t=wadunpack -src="%V"'
             )
             # RitobinToPy
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.RitobinToPy',
-                cmd_desc='Convert BIN To PY with Ritobin',
+                cmd_desc='ritobin: Convert To PY',
                 cmd_value=f'{os.path.abspath(python_file)} {os.path.abspath(cli_file)} -t=ritobin -src="%V"'
             )
             # RitobinToBin
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.RitobinToBin',
-                cmd_desc='Convert PY To BIN with Ritobin',
+                cmd_desc='ritobin: Convert To BIN',
                 cmd_value=f'{os.path.abspath(python_file)} {os.path.abspath(cli_file)} -t=ritobin -src="%V"'
             )
             # LFI
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.LFI',
-                cmd_desc='Print out informations as JSON with LFI',
+                cmd_desc='leaguefile_inspector: Print infos as JSON',
                 cmd_value=f'{os.path.abspath(python_file)} {os.path.abspath(cli_file)} -t=lfi -src="%V"'
+            )
+            # UVEE
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.UVEE',
+                cmd_desc='uvee: Extract UVs out as PNGs',
+                cmd_value=f'{os.path.abspath(python_file)} {os.path.abspath(cli_file)} -t=uvee -src="%V"'
             )
         LOG('Done: Create Explorer Contexts')
 

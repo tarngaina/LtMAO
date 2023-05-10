@@ -14,6 +14,5 @@ def db(func):
 
 
 if __name__ == '__main__':
-    from LtMAO import winLT
-
-    winLT.Context.create_contexts()
+    from LtMAO import pyRitoFile
+    pyRitoFile.read_bin('D:/test3/test.bin')

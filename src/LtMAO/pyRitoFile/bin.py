@@ -95,7 +95,7 @@ class BINHelper:
         elif value_type == BINType.Pointer or value_type == BINType.Embed:
             field = BINField()
             field.hash_type = hash_to_hex(bs.read_u32()[0])
-            if field.hash_type != 0:
+            if field.hash_type != '00000000':
                 field.type = value_type
                 bs.pad(4)  # size
                 count, = bs.read_u16()
@@ -125,7 +125,7 @@ class BINHelper:
             ]
         elif field.type == BINType.Pointer or field.type == BINType.Embed:
             field.hash_type = hash_to_hex(bs.read_u32()[0])
-            if field.hash_type != 0:
+            if field.hash_type != '00000000':
                 bs.pad(4)  # size
                 count, = bs.read_u16()
                 field.data = [
