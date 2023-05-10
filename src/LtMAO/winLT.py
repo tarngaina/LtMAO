@@ -49,12 +49,12 @@ class Context:
         # .wad (.client) contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.client\\shell',
-            sub_commands='LtMAO.WadToRaw;LtMAO.LFI'
+            sub_commands='LtMAO.WadToRaw;LtMAO.LFI;LtMAO.hashextract'
         )
         # .bin contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.bin\\shell',
-            sub_commands='LtMAO.RitobinToPy;LtMAO.LFI'
+            sub_commands='LtMAO.RitobinToPy;LtMAO.LFI;LtMAO.hashextract'
         )
         # .py contexts
         Context.create_submenu(
@@ -64,12 +64,12 @@ class Context:
         # .skl contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.skl\\shell',
-            sub_commands='LtMAO.LFI'
+            sub_commands='LtMAO.LFI;LtMAO.hashextract'
         )
         # .skn contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.skn\\shell',
-            sub_commands='LtMAO.LFI;LtMAO.UVEE'
+            sub_commands='LtMAO.LFI;LtMAO.UVEE;LtMAO.hashextract'
         )
         # .sco contexts
         Context.create_submenu(
@@ -125,6 +125,13 @@ class Context:
                 cmd_name='LtMAO.UVEE',
                 cmd_desc='uvee: Extract UVs out as PNGs',
                 cmd_value=f'{os.path.abspath(python_file)} {os.path.abspath(cli_file)} -t=uvee -src="%V"'
+            )
+            # hashextract
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.hashextract',
+                cmd_desc='hash_manager: Extract hashes',
+                cmd_value=f'{os.path.abspath(python_file)} {os.path.abspath(cli_file)} -t=hashextract -src="%V"'
             )
         LOG('Done: Create Explorer Contexts')
 

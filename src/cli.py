@@ -69,6 +69,11 @@ class CLI:
         from LtMAO import uvee
         uvee.uvee_file(src)
 
+    @staticmethod
+    def hashextract(src):
+        from LtMAO import hash_manager
+        hash_manager.ExtractedHashes.extract(src)
+
 
 def main():
     args = parse_arguments()
@@ -83,6 +88,8 @@ def main():
         CLI.lfi(args.source)
     elif args.tool == 'uvee':
         CLI.uvee(args.source)
+    elif args.tool == 'hashextract':
+        CLI.hashextract(args.source)
 
 
 if __name__ == '__main__':
