@@ -14,8 +14,8 @@ def check_hashed_name(basename):
         return False
 
 
-def unpack(wad_file, raw_dir):
-    LOG(f'Running: Unpack WAD: {wad_file}')
+def unpack(wad_file, raw_dir, full_log=True):
+    LOG(f'wad_tool: Running: Unpack WAD: {wad_file}')
     # read wad
     hash_manager.read_wad_hashes()
     wad = pyRitoFile.read_wad(wad_file)
@@ -47,15 +47,16 @@ def unpack(wad_file, raw_dir):
             with open(file_path, 'wb') as fo:
                 fo.write(chunk.data)
             chunk.free_data()
-            LOG(f'Done: Unpack: {chunk.hash}')
+            if full_log:
+                LOG(f'wad_tool: Done: Unpack: {chunk.hash}')
     # write hashed bins json
     if len(hashed_bins) > 0:
         with open(os.path.join(raw_dir, 'hashed_bins.json'), 'w+') as f:
             dump(hashed_bins, f, indent=4)
 
 
-def pack(raw_dir, wad_file):
-    LOG(f'Running: Pack WAD: {raw_dir}')
+def pack(raw_dir, wad_file, full_log=True):
+    LOG(f'wad_tool: Running: Pack WAD: {raw_dir}')
     # create wad first with only infos
     chunk_datas = []
     chunk_hashes = []
@@ -86,7 +87,8 @@ def pack(raw_dir, wad_file):
                 chunk_data = f.read()
             chunk.write_data(bs, id, chunk_hashes[id], chunk_data)
             chunk.free_data()
-            LOG(f'Done: Packed: {chunk.hash}')
+            if full_log:
+                LOG(f'wad_tool: Done: Packk: {chunk.hash}')
 
 
 def prepare(_LOG):

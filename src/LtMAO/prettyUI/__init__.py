@@ -1409,6 +1409,7 @@ def create_HM_page():
 
     def reset_cmd():
         hash_manager.reset_custom_hashes(*hash_manager.ALL_HASHES)
+        LOG('hash_manager: Done: Reset Custom Hashes to CDTB Hashes.')
     # create reset button
     reset_button = ctk.CTkButton(
         tk_widgets.HM.info_frame,
@@ -2417,6 +2418,215 @@ def create_SHR_page():
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
 
+def create_WT_page():
+    # create page frame
+    tk_widgets.WT.page_frame = ctk.CTkFrame(
+        tk_widgets.mainright_frame,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.WT.page_frame.columnconfigure(0, weight=1)
+    tk_widgets.WT.page_frame.rowconfigure(0, weight=1)
+    tk_widgets.WT.page_frame.rowconfigure(1, weight=699)
+    # init stuffs
+    tk_widgets.WT.working_thread = None
+    # create action frame
+    tk_widgets.WT.action_frame = ctk.CTkFrame(
+        tk_widgets.WT.page_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.WT.action_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.WT.action_frame.rowconfigure(0, weight=1)
+    tk_widgets.WT.action_frame.columnconfigure(0, weight=1)
+    tk_widgets.WT.action_frame.columnconfigure(1, weight=1)
+    tk_widgets.WT.action_frame.columnconfigure(2, weight=699)
+
+    def wad2dir_cmd():
+        if check_thread_safe(tk_widgets.WT.working_thread):
+            file_paths = tkfd.askopenfilenames(
+                parent=tk_widgets.main_tk,
+                title='Select WADs To Unpack',
+                filetypes=(
+                    ('WAD files', '*.wad.client'),
+                    ('All files', '*.*'),
+                ),
+                initialdir=setting.get('default_folder', None)
+            )
+            if len(file_paths) > 0:
+                def working_thrd():
+                    for file_path in file_paths:
+                        src = file_path
+                        dst = src.replace('.wad.client', '.wad')
+                        wad_tool.unpack(src, dst, full_log=False)
+                        LOG(
+                            f'wad_tool: Done: Unpack {src}')
+                tk_widgets.WT.working_thread = Thread(
+                    target=working_thrd,
+                    daemon=True
+                )
+                tk_widgets.WT.working_thread.start()
+        else:
+            LOG(
+                'wad_tool: Failed: A thread is already running, wait for it to finished.')
+    # create wad to folder button
+    tk_widgets.WT.wad2dir_button = ctk.CTkButton(
+        tk_widgets.WT.action_frame,
+        text='WAD to Folder',
+        image=EmojiImage.create('📄'),
+        anchor=tk.CENTER,
+        command=wad2dir_cmd
+    )
+    tk_widgets.WT.wad2dir_button.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def dir2wad_cmd():
+        if check_thread_safe(tk_widgets.WT.working_thread):
+            dir_path = tkfd.askdirectory(
+                parent=tk_widgets.main_tk,
+                title='Select Folder To Pack',
+                initialdir=setting.get('default_folder', None)
+            )
+            if dir_path != '':
+                def working_thrd():
+                    src = dir_path
+                    dst = src
+                    if dst.endswith('.wad'):
+                        dst += '.client'
+                    else:
+                        if not dst.endswith('.wad.client'):
+                            dst += '.wad.client'
+                    wad_tool.pack(src, dst, full_log=False)
+                    LOG(
+                        f'wad_tool: Done: Pack {src}')
+                tk_widgets.WT.working_thread = Thread(
+                    target=working_thrd,
+                    daemon=True
+                )
+                tk_widgets.WT.working_thread.start()
+        else:
+            LOG(
+                'wad_tool: Failed: A thread is already running, wait for it to finished.')
+    # create folder to wad button
+    tk_widgets.WT.dir2wad_button = ctk.CTkButton(
+        tk_widgets.WT.action_frame,
+        text='Folder to WAD',
+        image=EmojiImage.create('📁'),
+        anchor=tk.CENTER,
+        command=dir2wad_cmd
+    )
+    tk_widgets.WT.dir2wad_button.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    # create action2 frame
+    tk_widgets.WT.action2_frame = ctk.CTkFrame(
+        tk_widgets.WT.page_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.WT.action2_frame.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.WT.action2_frame.rowconfigure(0, weight=1)
+    tk_widgets.WT.action2_frame.rowconfigure(1, weight=1)
+    tk_widgets.WT.action2_frame.rowconfigure(2, weight=1)
+    tk_widgets.WT.action2_frame.rowconfigure(3, weight=1)
+    tk_widgets.WT.action2_frame.rowconfigure(4, weight=699)
+    tk_widgets.WT.action2_frame.columnconfigure(0, weight=1)
+    # create bulk label
+    tk_widgets.WT.bulk_label = ctk.CTkLabel(
+        tk_widgets.WT.action2_frame,
+        text='Bulk unpack WADs to same Folder'
+    )
+    tk_widgets.WT.bulk_label.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create action3 frame
+    tk_widgets.WT.action3_frame = ctk.CTkFrame(
+        tk_widgets.WT.action2_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.WT.action3_frame.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.WT.action3_frame.rowconfigure(0, weight=1)
+    tk_widgets.WT.action3_frame.columnconfigure(0, weight=1)
+    tk_widgets.WT.action3_frame.columnconfigure(1, weight=1)
+    tk_widgets.WT.action3_frame.columnconfigure(2, weight=699)
+
+    def addfile_cmd():
+        file_paths = tkfd.askopenfilenames(
+            parent=tk_widgets.main_tk,
+            title='Select WADs',
+            filetypes=(
+                ('WAD files', '*.wad.client'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        if len(file_paths) > 0:
+            tk_widgets.WT.file_text.configure(state=tk.NORMAL)
+            tk_widgets.WT.file_text.insert(tk.END, '\n'.join(file_paths))
+            tk_widgets.WT.file_text.configure(state=tk.DISABLED)
+
+    # create add file button
+    tk_widgets.WT.addfile_button = ctk.CTkButton(
+        tk_widgets.WT.action3_frame,
+        text='Add File',
+        command=addfile_cmd
+    )
+    tk_widgets.WT.addfile_button.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def clear_cmd():
+        tk_widgets.WT.file_text.configure(state=tk.NORMAL)
+        tk_widgets.WT.file_text.delete('1.0', tk.END)
+        tk_widgets.WT.file_text.configure(state=tk.DISABLED)
+    # create clear button
+    tk_widgets.WT.clear_button = ctk.CTkButton(
+        tk_widgets.WT.action3_frame,
+        text='Clear',
+        command=clear_cmd
+    )
+    tk_widgets.WT.clear_button.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    # create file text
+    tk_widgets.WT.file_text = ctk.CTkTextbox(
+        tk_widgets.WT.action2_frame,
+        wrap=tk.NONE,
+        state=tk.DISABLED
+    )
+    tk_widgets.WT.file_text.grid(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def bulk_cmd():
+        if check_thread_safe(tk_widgets.WT.working_thread):
+            dir_path = tkfd.askdirectory(
+                parent=tk_widgets.main_tk,
+                title='Select Output Folder',
+                initialdir=setting.get('default_folder', None)
+            )
+            if dir_path != '':
+                def working_thrd():
+                    file_paths = tk_widgets.WT.file_text.get(
+                        '1.0', 'end-1c').split('\n')
+                    for file_path in file_paths:
+                        wad_tool.unpack(file_path, dir_path, full_log=False)
+                        LOG(f'wad_tool: Done: Unpack {file_path}')
+                tk_widgets.WT.working_thread = Thread(
+                    target=working_thrd, daemon=True)
+                tk_widgets.WT.working_thread.start()
+        else:
+            LOG(
+                'wad_tool: Failed: A thread is already running, wait for it to finished.')
+    # create bulk button
+    tk_widgets.WT.bulk_button = ctk.CTkButton(
+        tk_widgets.WT.action2_frame,
+        text='Bulk Unpack',
+        command=bulk_cmd
+    )
+    tk_widgets.WT.bulk_button.grid(
+        row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+
+def create_PT_page():
+    pass
+
+
 def create_LOG_page():
     tk_widgets.LOG.page_frame = ctk.CTkFrame(
         tk_widgets.mainright_frame,
@@ -2697,15 +2907,6 @@ def create_page_controls():
     tk_widgets.mainright_frame.columnconfigure(0, weight=1)
     tk_widgets.mainright_frame.rowconfigure(0, weight=1)
     tk_widgets.mainleft_frame.columnconfigure(0, weight=1)
-    tk_widgets.mainleft_frame.rowconfigure(0, weight=1)
-    tk_widgets.mainleft_frame.rowconfigure(1, weight=1)
-    tk_widgets.mainleft_frame.rowconfigure(2, weight=1)
-    tk_widgets.mainleft_frame.rowconfigure(3, weight=1)
-    tk_widgets.mainleft_frame.rowconfigure(4, weight=1)
-    tk_widgets.mainleft_frame.rowconfigure(5, weight=1)
-    tk_widgets.mainleft_frame.rowconfigure(6, weight=1)
-    tk_widgets.mainleft_frame.rowconfigure(7, weight=1)
-    tk_widgets.mainleft_frame.rowconfigure(8, weight=699)
 
     def control_cmd(page):
         # non active all controls
@@ -2793,11 +2994,24 @@ def create_page_controls():
             tk_widgets.mainleft_frame,
             text='hapiBin',
             command=lambda: control_cmd(8)
+        ),
+        ctk.CTkButton(
+            tk_widgets.mainleft_frame,
+            text='wad_tool',
+            command=lambda: control_cmd(9)
+        ),
+        ctk.CTkButton(
+            tk_widgets.mainleft_frame,
+            text='pyntex',
+            command=lambda: control_cmd(10)
         )
     ]
     for id, control_button in enumerate(tk_widgets.control_buttons):
         control_button.grid(
             row=id, column=0, padx=5, pady=5, sticky=tk.N+tk.EW)
+        tk_widgets.mainleft_frame.rowconfigure(id, weight=1)
+    tk_widgets.mainleft_frame.rowconfigure(
+        len(tk_widgets.control_buttons), weight=699)
     # get color for controls
     temp_button = ctk.CTkButton(None)
     tk_widgets.c_active_fg = temp_button.cget('fg_color')
@@ -2820,6 +3034,8 @@ def create_page_controls():
     tk_widgets.NS = tk_widgets.pages[5]
     tk_widgets.UVEE = tk_widgets.pages[6]
     tk_widgets.SHR = tk_widgets.pages[7]
+    tk_widgets.WT = tk_widgets.pages[9]
+    tk_widgets.PT = tk_widgets.pages[10]
     # create right pages
     tk_widgets.create_right_page = [
         create_CSLMAO_page,
@@ -2830,7 +3046,9 @@ def create_page_controls():
         create_NS_page,
         create_UVEE_page,
         create_SHR_page,
-        None
+        None,
+        create_WT_page,
+        create_PT_page
     ]
     # create LOG and ST control, page
     tk_widgets.minilog_control = None

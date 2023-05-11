@@ -144,13 +144,6 @@ class Context:
                 raise e
 
     @staticmethod
-    def remove_command(root, cmd_name):
-        try:
-            winreg.DeleteKeyEx(root, cmd_name)
-        except Exception as e:
-            raise e
-
-    @staticmethod
     def remove_contexts():
         # folder contexts
         Context.remove_submenu('Directory\\shell')
@@ -168,43 +161,41 @@ class Context:
         Context.remove_submenu('SystemFileAssociations\\.sco\\shell')
         # .scb contexts
         Context.remove_submenu('SystemFileAssociations\\.scb\\shell')
-        # remove commands
-        with winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE, 'Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell') as key:
-            # RawToWad
-            Context.remove_command(
-                root=key,
-                cmd_name='LtMAO.RawToWad'
-            )
-            # WadToRaw
-            Context.remove_command(
-                root=key,
-                cmd_name='LtMAO.WadToRaw'
-            )
-            # RitobinToPy
-            Context.remove_command(
-                root=key,
-                cmd_name='LtMAO.RitobinToPy'
-            )
-            # RitobinToBin
-            Context.remove_command(
-                root=key,
-                cmd_name='LtMAO.RitobinToBin'
-            )
-            # LFI
-            Context.remove_command(
-                root=key,
-                cmd_name='LtMAO.LFI'
-            )
-            # UVEE
-            Context.remove_command(
-                root=key,
-                cmd_name='LtMAO.UVEE'
-            )
-            # hashextract
-            Context.remove_command(
-                root=key,
-                cmd_name='LtMAO.hashextract'
-            )
+        # RawToWad
+        Context.remove_command(
+            root=key,
+            cmd_name='LtMAO.RawToWad'
+        )
+        # WadToRaw
+        Context.remove_command(
+            root=key,
+            cmd_name='LtMAO.WadToRaw'
+        )
+        # RitobinToPy
+        Context.remove_command(
+            root=key,
+            cmd_name='LtMAO.RitobinToPy'
+        )
+        # RitobinToBin
+        Context.remove_command(
+            root=key,
+            cmd_name='LtMAO.RitobinToBin'
+        )
+        # LFI
+        Context.remove_command(
+            root=key,
+            cmd_name='LtMAO.LFI'
+        )
+        # UVEE
+        Context.remove_command(
+            root=key,
+            cmd_name='LtMAO.UVEE'
+        )
+        # hashextract
+        Context.remove_command(
+            root=key,
+            cmd_name='LtMAO.hashextract'
+        )
         LOG('winLT: Done: Remove Explorer Contexts')
 
 

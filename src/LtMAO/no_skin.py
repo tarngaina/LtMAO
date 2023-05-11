@@ -95,7 +95,7 @@ def parse(champions_dir, output_dir):
                             if character in SKIPS:
                                 if SKIPS[character] == 'all' or skinx in SKIPS[character]:
                                     continue
-                            LOG(f'Done: Parse: {character} {skinx}')
+                            # LOG(f'Done: Parse: {character} {skinx}')
                             # read chunk
                             chunk.read_data(bs)
                             bin = pyRitoFile.read_bin('', raw=chunk.data)
