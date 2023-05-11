@@ -1369,7 +1369,8 @@ def create_HM_page():
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.HM.info_frame.columnconfigure(0, weight=1)
     tk_widgets.HM.info_frame.columnconfigure(1, weight=0)
-    tk_widgets.HM.info_frame.columnconfigure(2, weight=699)
+    tk_widgets.HM.info_frame.columnconfigure(2, weight=0)
+    tk_widgets.HM.info_frame.columnconfigure(3, weight=699)
     tk_widgets.HM.info_frame.rowconfigure(0, weight=1)
     # create folder labels and folder buttons
     folder_label_text = [
@@ -1388,6 +1389,7 @@ def create_HM_page():
         else:
             os.startfile(os.path.abspath(
                 hash_manager.CustomHashes.local_dir))
+    # create folder buttons
     for i in range(3):
         folder_label = ctk.CTkLabel(
             tk_widgets.HM.info_frame,
@@ -1404,6 +1406,17 @@ def create_HM_page():
         )
         folder_button.grid(row=i, column=1, padx=5,
                            pady=5, sticky=tk.NSEW)
+
+    def reset_cmd():
+        hash_manager.reset_custom_hashes(*hash_manager.ALL_HASHES)
+    # create reset button
+    reset_button = ctk.CTkButton(
+        tk_widgets.HM.info_frame,
+        text='Reset to CDTB hashes',
+        image=EmojiImage.create('❌'),
+        command=reset_cmd
+    )
+    reset_button.grid(row=2, column=2, padx=5, pady=5, sticky=tk.NSEW)
 
     # create input frame
     tk_widgets.HM.input_frame = ctk.CTkFrame(

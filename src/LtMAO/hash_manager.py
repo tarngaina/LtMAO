@@ -349,6 +349,17 @@ def combine_custom_hashes(*filenames):
         LOG(f'Done: Update: {ch_file}')
 
 
+def reset_custom_hashes(*filenames):
+    for filename in filenames:
+        cdtb_file = CDTB.local_file(filename)
+        ch_file = CustomHashes.local_file(filename)
+        # copy file from cdtb
+        with open(cdtb_file, 'rb') as f:
+            data = f.read()
+        with open(ch_file, 'wb+') as f:
+            f.write(data)
+
+
 def prepare(_LOG):
     global LOG
     LOG = _LOG

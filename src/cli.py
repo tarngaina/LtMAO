@@ -72,7 +72,16 @@ class CLI:
     @staticmethod
     def hashextract(src):
         from LtMAO import hash_manager
-        hash_manager.ExtractedHashes.extract(src)
+        import os
+        import os.path
+        if os.path.isdir(src):
+            file_paths = []
+            for root, dirs, files in os.walk(src):
+                for file in files:
+                    file_paths.append(os.path.join(root, file))
+            hash_manager.ExtractedHashes.extract(*file_paths)
+        else:
+            hash_manager.ExtractedHashes.extract(src)
 
 
 def main():

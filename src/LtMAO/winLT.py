@@ -44,7 +44,7 @@ class Context:
         # folder contexts
         Context.create_submenu(
             shell='Directory\\shell',
-            sub_commands='LtMAO.RawToWad'
+            sub_commands='LtMAO.RawToWad;LtMAO.hashextract'
         )
         # .wad (.client) contexts
         Context.create_submenu(
@@ -89,21 +89,21 @@ class Context:
                 root=key,
                 cmd_name='LtMAO.RawToWad',
                 cmd_desc='wad_tool: Pack to WAD',
-                cmd_value=f'"{os.path.abspath(python_file)} {os.path.abspath(cli_file)}" -t="wadpack" -src="%V"'
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wadpack" -src="%V"'
             )
             # WadToRaw
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.WadToRaw',
                 cmd_desc='wad_tool: Unpack to Folder',
-                cmd_value=f'"{os.path.abspath(python_file)} {os.path.abspath(cli_file)}" -t="wadunpack" -src="%V"'
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wadunpack" -src="%V"'
             )
             # RitobinToPy
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.RitobinToPy',
                 cmd_desc='ritobin: Convert To PY',
-                cmd_value=f'"{os.path.abspath(python_file)} {os.path.abspath(cli_file)}" -t="ritobin" -src="%V"'
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin" -src="%V"'
             )
             # RitobinToBin
             Context.create_command(
@@ -117,21 +117,21 @@ class Context:
                 root=key,
                 cmd_name='LtMAO.LFI',
                 cmd_desc='leaguefile_inspector: Print infos as JSON',
-                cmd_value=f'"{os.path.abspath(python_file)} {os.path.abspath(cli_file)}" -t="lfi" -src="%V"'
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="lfi" -src="%V"'
             )
             # UVEE
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.UVEE',
                 cmd_desc='uvee: Extract UVs out as PNGs',
-                cmd_value=f'"{os.path.abspath(python_file)} {os.path.abspath(cli_file)}" -t="uvee" -src="%V"'
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="uvee" -src="%V"'
             )
             # hashextract
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.hashextract',
                 cmd_desc='hash_manager: Extract hashes',
-                cmd_value=f'"{os.path.abspath(python_file)} {os.path.abspath(cli_file)}" -t="hashextract" -src="%V"'
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="hashextract" -src="%V"'
             )
         LOG('winLT: Done: Create Explorer Contexts')
 
