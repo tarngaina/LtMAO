@@ -8,44 +8,52 @@ import gzip
 import pyzstd
 from xxhash import xxh64, xxh3_64
 
+signature_to_extension = {
+    b'OggS': 'ogg',
+    bytes.fromhex('00010000'): 'ttf',
+    bytes.fromhex('1a45dfa3'): 'webm',
+    b'true': 'ttf',
+    b'OTTO\0': 'otf',
+    b'"use strict";': 'min.js',
+    b'<template ': 'template.html',
+    b'<!-- Elements -->': 'template.html',
+    b'DDS ': 'dds',
+    b'<svg': 'svg',
+    b'PROP': 'bin',
+    b'PTCH': 'bin',
+    b'BKHD': 'bnk',
+    b'r3d2Mesh': 'scb',
+    b'r3d2anmd': 'anm',
+    b'r3d2canm': 'anm',
+    b'r3d2sklt': 'skl',
+    b'r3d2': 'wpk',
+    bytes.fromhex('33221100'): 'skn',
+    b'PreLoadBuildingBlocks = {': 'preload',
+    b'\x1bLuaQ\x00\x01\x04\x04': 'luabin',
+    b'\x1bLuaQ\x00\x01\x04\x08': 'luabin64',
+    bytes.fromhex('023d0028'): 'troybin',
+    b'[ObjectBegin]': 'sco',
+    b'OEGM': 'mapgeo',
+    b'TEX\0': 'tex',
+    b'RW': 'wad'
+}
+
 
 def guess_extension(data):
-    signature_to_extension = {
-        b'OggS': 'ogg',
-        bytes.fromhex('00010000'): 'ttf',
-        bytes.fromhex('1a45dfa3'): 'webm',
-        b'true': 'ttf',
-        b'OTTO\0': 'otf',
-        b'"use strict";': 'min.js',
-        b'<template ': 'template.html',
-        b'<!-- Elements -->': 'template.html',
-        b'DDS ': 'dds',
-        b'<svg': 'svg',
-        b'PROP': 'bin',
-        b'PTCH': 'bin',
-        b'BKHD': 'bnk',
-        b'r3d2Mesh': 'scb',
-        b'r3d2anmd': 'anm',
-        b'r3d2canm': 'anm',
-        b'r3d2sklt': 'skl',
-        b'r3d2': 'wpk',
-        bytes.fromhex('33221100'): 'skn',
-        b'PreLoadBuildingBlocks = {': 'preload',
-        b'\x1bLuaQ\x00\x01\x04\x04': 'luabin',
-        b'\x1bLuaQ\x00\x01\x04\x08': 'luabin64',
-        bytes.fromhex('023d0028'): 'troybin',
-        b'[ObjectBegin]': 'sco',
-        b'OEGM': 'mapgeo',
-        b'TEX\0': 'tex',
-        b'DDS ': 'dds',
-        b'RW': 'wad'
-    }
     if data[4:8] == bytes.fromhex('c34ffd22'):
         return 'skl'
     else:
         for signature, extension in signature_to_extension.items():
             if data.startswith(signature):
                 return extension
+
+
+def parse_extension(path):
+    if path.endswith('.wad.client'):
+        return 'wad'
+    for _, extension in signature_to_extension.items():
+        if path.endswith(extension):
+            return extension
 
 
 def hash_to_hex(hash):
@@ -275,6 +283,6 @@ class WAD:
             return
         for chunk in self.chunks:
             chunk.hash = hex_to_name(hashtables, 'hashes.game.txt', chunk.hash)
-            if '.' in chunk.hash:
-                chunk.extension = '.'.join(chunk.hash.split('.')[1:])
+            if '.' in chunk.hash and chunk.extension == None:
+                chunk.extension = parse_extension(chunk.hash)
         self.chunks = sorted(self.chunks, key=lambda chunk: chunk.hash)

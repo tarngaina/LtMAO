@@ -188,7 +188,8 @@ def create_CSLMAO_page():
         fantome_paths = tkfd.askopenfilenames(
             title='Import FANTOME',
             parent=tk_widgets.main_tk,
-            filetypes=(('FANTOME/ZIP file', ('*.fantome', '*.zip')),)
+            filetypes=(('FANTOME/ZIP file', ('*.fantome', '*.zip')),),
+            initialdir=setting.get('default_folder', None)
         )
         mgs = []
         for fantome_path in fantome_paths:
@@ -409,7 +410,8 @@ def create_CSLMAO_page():
                 parent=tk_widgets.main_tk,
                 initialfile=f'{info["Name"]} V{info["Version"]} by {info["Author"]}',
                 filetypes=(('FANTOME file', '*.fantome'),),
-                defaultextension='.fantome'
+                defaultextension='.fantome',
+                initialdir=setting.get('default_folder', None)
             )
             if fantome_path != '':
                 def export_thrd():
@@ -507,7 +509,8 @@ def create_CSLMAO_page():
                 parent=tk_widgets.main_tk,
                 filetypes=(
                     ('PNG files', '*.png'),
-                )
+                ),
+                initialdir=setting.get('default_folder', None)
             )
             if png_path != '':
                 tk_widgets.CSLMAO.mods[mod_id][10] = png_path
@@ -902,7 +905,8 @@ def create_LFI_page():
                         )
                      ),
                     ('All files', '*.*'),
-                )
+                ),
+                initialdir=setting.get('default_folder', None)
             )
             if len(file_paths) > 0:
                 def fileread_thrd():
@@ -934,7 +938,8 @@ def create_LFI_page():
         if check_thread_safe(tk_widgets.LFI.reading_thread):
             dir_path = tkfd.askdirectory(
                 parent=tk_widgets.main_tk,
-                title='Select Folder To Read'
+                title='Select Folder To Read',
+                initialdir=setting.get('default_folder', None)
             )
             if dir_path != '':
                 def folderread_thrd():
@@ -1046,7 +1051,8 @@ def create_AMV_page():
             filetypes=(
                 ('SKL files', '*.skl'),
                 ('All files', '*.*'),
-            )
+            ),
+            initialdir=setting.get('default_folder', None)
         )
         tk_widgets.AMV.skl_entry.delete(0, tk.END)
         tk_widgets.AMV.skl_entry.insert(tk.END, skl_path)
@@ -1074,7 +1080,8 @@ def create_AMV_page():
             filetypes=(
                 ('BIN files', ['*.bin']),
                 ('All files', '*.*'),
-            )
+            ),
+            initialdir=setting.get('default_folder', None)
         )
         tk_widgets.AMV.bin_entry.delete(0, tk.END)
         tk_widgets.AMV.bin_entry.insert(tk.END, bin_path)
@@ -1275,7 +1282,8 @@ def create_AMV_page():
                 ('BIN files', '*.bin'),
                 ('All files', '*.*'),
             ),
-            defaultextension='.bin'
+            defaultextension='.bin',
+            initialdir=setting.get('default_folder', None)
         )
         if bin_path == '':
             return
@@ -1424,7 +1432,8 @@ def create_HM_page():
                         )
                      ),
                     ('All files', '*.*'),
-                )
+                ),
+                initialdir=setting.get('default_folder', None)
             )
             if len(file_paths) > 0:
                 tk_widgets.HM.extracting_thread = Thread(
@@ -1452,6 +1461,7 @@ def create_HM_page():
             dir_path = tkfd.askdirectory(
                 parent=tk_widgets.main_tk,
                 title='Select Folder To Extract',
+                initialdir=setting.get('default_folder', None)
             )
             if dir_path != '':
                 file_paths = []
@@ -1712,7 +1722,8 @@ def create_VH_page():
                     )
                  ),
                 ('All files', '*.*'),
-            )
+            ),
+            initialdir=setting.get('default_folder', None)
         )
         if fantome_path != '':
             # update info text
@@ -1777,7 +1788,8 @@ def create_VH_page():
             return
         dir_path = tkfd.askdirectory(
             parent=tk_widgets.main_tk,
-            title='Select Output Folder'
+            title='Select Output Folder',
+            initialdir=setting.get('default_folder', None)
         )
         if dir_path == '':
             return
@@ -1812,7 +1824,8 @@ def create_VH_page():
             return
         dir_path = tkfd.askdirectory(
             parent=tk_widgets.main_tk,
-            title='Select Output Folder'
+            title='Select Output Folder',
+            initialdir=setting.get('default_folder', None)
         )
         if dir_path == '':
             return
@@ -1877,6 +1890,7 @@ def create_NS_page():
         skl_path = tkfd.askdirectory(
             parent=tk_widgets.main_tk,
             title='Select Folder: League of Legends/Game/DATA/FINAL/Champions',
+            initialdir=setting.get('default_folder', None)
         )
         tk_widgets.NS.cfolder_entry.delete(0, tk.END)
         tk_widgets.NS.cfolder_entry.insert(tk.END, skl_path)
@@ -1918,7 +1932,8 @@ def create_NS_page():
         if check_thread_safe(tk_widgets.NS.working_thread):
             dir_path = tkfd.askdirectory(
                 parent=tk_widgets.main_tk,
-                title='Select Output Folder'
+                title='Select Output Folder',
+                initialdir=setting.get('default_folder', None)
             )
             if dir_path != '':
                 tk_widgets.NS.working_thread = Thread(
@@ -2105,7 +2120,8 @@ def create_UVEE_page():
                     )
                  ),
                 ('All files', '*.*'),
-            )
+            ),
+            initialdir=setting.get('default_folder', None)
         )
         if len(file_paths) > 0:
             for file_path in file_paths:
@@ -2124,7 +2140,8 @@ def create_UVEE_page():
     def folderread_cmd():
         dir_path = tkfd.askdirectory(
             parent=tk_widgets.main_tk,
-            title='Select Folder To Extract'
+            title='Select Folder To Extract',
+            initialdir=setting.get('default_folder', None)
         )
         if dir_path != '':
             for root, dirs, files in os.walk(dir_path):
@@ -2223,7 +2240,8 @@ def create_SHR_page():
             filetypes=(
                 ('ANM files', '*.anm'),
                 ('All files', '*.*'),
-            )
+            ),
+            initialdir=setting.get('default_folder', None)
         )
         tk_widgets.SHR.input_entry.delete(0, tk.END)
         tk_widgets.SHR.input_entry.insert(tk.END, anm_path)
@@ -2242,6 +2260,7 @@ def create_SHR_page():
         dir_path = tkfd.askdirectory(
             parent=tk_widgets.main_tk,
             title='Select Folder of ANMs',
+            initialdir=setting.get('default_folder', None)
         )
         tk_widgets.SHR.input_entry.delete(0, tk.END)
         tk_widgets.SHR.input_entry.insert(tk.END, dir_path)
@@ -2282,7 +2301,8 @@ def create_SHR_page():
             filetypes=(
                 ('SKL files', '*.skl'),
                 ('All files', '*.*'),
-            )
+            ),
+            initialdir=setting.get('default_folder', None)
         )
         if skl_path != '':
             skl = pyRitoFile.read_skl(skl_path)
@@ -2312,7 +2332,8 @@ def create_SHR_page():
             filetypes=(
                 ('SKL files', '*.skl'),
                 ('All files', '*.*'),
-            )
+            ),
+            initialdir=setting.get('default_folder', None)
         )
         if skl_path != '':
             skl = pyRitoFile.read_skl(skl_path)
@@ -2507,13 +2528,59 @@ def create_ST_page():
     )
     tk_widgets.ST.contextrmv_button.grid(
         row=4, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    # default folder
+    tk_widgets.ST.defaultdir_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        text='Default Folder:',
+        image=EmojiImage.create('🌳'),
+        compound=tk.LEFT,
+        anchor=tk.W
+    )
+    tk_widgets.ST.defaultdir_label.grid(
+        row=6, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    def defaultdir_cmd():
+        dir_path = tkfd.askdirectory(
+            parent=tk_widgets.main_tk,
+            title='Select Default Folder',
+            initialdir=setting.get('default_folder', None)
+        )
+        if dir_path == '':
+            dir_path = None
+            tk_widgets.ST.defaultdir_value_label.configure(
+                text='Default folder for all ask-file/ask-folder dialogs.'
+            )
+        else:
+            tk_widgets.ST.defaultdir_value_label.configure(text=dir_path)
+        setting.set('default_folder', dir_path)
+        setting.save()
+
+    tk_widgets.ST.defaultdir_button = ctk.CTkButton(
+        tk_widgets.ST.scroll_frame,
+        text='Browse',
+        image=EmojiImage.create('📁'),
+        command=defaultdir_cmd
+    )
+    tk_widgets.ST.defaultdir_button.grid(
+        row=6, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.ST.defaultdir_value_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        anchor=tk.W
+    )
+    defaultdir = setting.get('default_dir', None)
+    if defaultdir == None:
+        tk_widgets.ST.defaultdir_value_label.configure(
+            text='Default folder for all ask-file/ask-folder dialog'
+        )
+    tk_widgets.ST.defaultdir_value_label.grid(
+        row=6, column=3, padx=5, pady=5, sticky=tk.NSEW)
     # cslmao label
     tk_widgets.ST.cslmao_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
         text='CSLMAO'
     )
     tk_widgets.ST.cslmao_label.grid(
-        row=5, column=0, padx=10, pady=5, sticky=tk.NSEW)
+        row=7, column=0, padx=10, pady=5, sticky=tk.NSEW)
     # game folder
     tk_widgets.ST.gamedir_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
@@ -2523,12 +2590,13 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.gamedir_label.grid(
-        row=6, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=8, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def gamedir_cmd():
         dir_path = tkfd.askdirectory(
             parent=tk_widgets.main_tk,
-            title='Select League of Legends/Game Folder'
+            title='Select League of Legends/Game Folder',
+            initialdir=setting.get('default_folder', None)
         )
         if dir_path != '':
             dir_path = dir_path.replace('\\', '/')
@@ -2545,7 +2613,7 @@ def create_ST_page():
         command=gamedir_cmd
     )
     tk_widgets.ST.gamedir_button.grid(
-        row=6, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=8, column=2, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.ST.gamedir_value_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
         text=setting.get(
@@ -2553,7 +2621,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.gamedir_value_label.grid(
-        row=6, column=3, padx=5, pady=5, sticky=tk.NSEW)
+        row=8, column=3, padx=5, pady=5, sticky=tk.NSEW)
     # extra game modes
     tk_widgets.ST.egm_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
@@ -2563,7 +2631,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.egm_label.grid(
-        row=7, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=9, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def egm_cmd():
         setting.set('Cslmao.extra_game_modes',
@@ -2579,7 +2647,7 @@ def create_ST_page():
     else:
         tk_widgets.ST.egm_checkbox.deselect()
     tk_widgets.ST.egm_checkbox.grid(
-        row=7, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=9, column=2, padx=5, pady=5, sticky=tk.NSEW)
 
 
 def select_right_page(selected):
