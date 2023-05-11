@@ -161,41 +161,6 @@ class Context:
         Context.remove_submenu('SystemFileAssociations\\.sco\\shell')
         # .scb contexts
         Context.remove_submenu('SystemFileAssociations\\.scb\\shell')
-        # RawToWad
-        Context.remove_command(
-            root=key,
-            cmd_name='LtMAO.RawToWad'
-        )
-        # WadToRaw
-        Context.remove_command(
-            root=key,
-            cmd_name='LtMAO.WadToRaw'
-        )
-        # RitobinToPy
-        Context.remove_command(
-            root=key,
-            cmd_name='LtMAO.RitobinToPy'
-        )
-        # RitobinToBin
-        Context.remove_command(
-            root=key,
-            cmd_name='LtMAO.RitobinToBin'
-        )
-        # LFI
-        Context.remove_command(
-            root=key,
-            cmd_name='LtMAO.LFI'
-        )
-        # UVEE
-        Context.remove_command(
-            root=key,
-            cmd_name='LtMAO.UVEE'
-        )
-        # hashextract
-        Context.remove_command(
-            root=key,
-            cmd_name='LtMAO.hashextract'
-        )
         LOG('winLT: Done: Remove Explorer Contexts')
 
 

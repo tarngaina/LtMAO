@@ -14,7 +14,7 @@ def check_hashed_name(basename):
         return False
 
 
-def unpack(wad_file, raw_dir, full_log=True):
+def unpack(wad_file, raw_dir):
     LOG(f'wad_tool: Running: Unpack WAD: {wad_file}')
     # read wad
     hash_manager.read_wad_hashes()
@@ -47,15 +47,14 @@ def unpack(wad_file, raw_dir, full_log=True):
             with open(file_path, 'wb') as fo:
                 fo.write(chunk.data)
             chunk.free_data()
-            if full_log:
-                LOG(f'wad_tool: Done: Unpack: {chunk.hash}')
+            LOG(f'wad_tool: Done: Unpack: {chunk.hash}')
     # write hashed bins json
     if len(hashed_bins) > 0:
         with open(os.path.join(raw_dir, 'hashed_bins.json'), 'w+') as f:
             dump(hashed_bins, f, indent=4)
 
 
-def pack(raw_dir, wad_file, full_log=True):
+def pack(raw_dir, wad_file):
     LOG(f'wad_tool: Running: Pack WAD: {raw_dir}')
     # create wad first with only infos
     chunk_datas = []
@@ -87,8 +86,7 @@ def pack(raw_dir, wad_file, full_log=True):
                 chunk_data = f.read()
             chunk.write_data(bs, id, chunk_hashes[id], chunk_data)
             chunk.free_data()
-            if full_log:
-                LOG(f'wad_tool: Done: Packk: {chunk.hash}')
+            LOG(f'wad_tool: Done: Packk: {chunk.hash}')
 
 
 def prepare(_LOG):

@@ -1450,9 +1450,13 @@ def create_HM_page():
                 initialdir=setting.get('default_folder', None)
             )
             if len(file_paths) > 0:
+                def working_thrd():
+                    Log.tk_cooldown = 3000
+                    hash_manager.ExtractedHashes.extract(*file_paths)
+                    Log.tk_cooldown = 0
+                    LOG('hash_manager: Done: Extract hashes.')
                 tk_widgets.HM.extracting_thread = Thread(
-                    target=hash_manager.ExtractedHashes.extract,
-                    args=file_paths,
+                    target=working_thrd,
                     daemon=True
                 )
                 tk_widgets.HM.extracting_thread.start()
@@ -1484,9 +1488,13 @@ def create_HM_page():
                         file_paths.append(os.path.join(
                             root, file).replace('\\', '/'))
                 if len(file_paths) > 0:
+                    def working_thrd():
+                        Log.tk_cooldown = 3000
+                        hash_manager.ExtractedHashes.extract(*file_paths)
+                        Log.tk_cooldown = 0
+                        LOG('hash_manager: Done: Extract hashes.')
                     tk_widgets.HM.extracting_thread = Thread(
-                        target=hash_manager.ExtractedHashes.extract,
-                        args=file_paths,
+                        target=working_thrd,
                         daemon=True
                     )
                     tk_widgets.HM.extracting_thread.start()
@@ -1950,9 +1958,13 @@ def create_NS_page():
                 initialdir=setting.get('default_folder', None)
             )
             if dir_path != '':
+                def working_thrd():
+                    Log.tk_cooldown = 5000
+                    no_skin.parse(tk_widgets.NS.cfolder_entry.get(), dir_path)
+                    Log.tk_cooldown = 0
+                    LOG(f'no_skin: Done: Created {dir_path}')
                 tk_widgets.NS.working_thread = Thread(
-                    target=no_skin.parse,
-                    args=(tk_widgets.NS.cfolder_entry.get(), dir_path,),
+                    target=working_thrd,
                     daemon=True
                 )
                 tk_widgets.NS.working_thread.start()
@@ -2457,7 +2469,9 @@ def create_WT_page():
                     for file_path in file_paths:
                         src = file_path
                         dst = src.replace('.wad.client', '.wad')
-                        wad_tool.unpack(src, dst, full_log=False)
+                        Log.tk_cooldown = 3000
+                        wad_tool.unpack(src, dst)
+                        Log.tk_cooldown = 0
                         LOG(
                             f'wad_tool: Done: Unpack {src}')
                 tk_widgets.WT.working_thread = Thread(
@@ -2495,7 +2509,9 @@ def create_WT_page():
                     else:
                         if not dst.endswith('.wad.client'):
                             dst += '.wad.client'
-                    wad_tool.pack(src, dst, full_log=False)
+                    Log.tk_cooldown = 3000
+                    wad_tool.pack(src, dst)
+                    Log.tk_cooldown = 0
                     LOG(
                         f'wad_tool: Done: Pack {src}')
                 tk_widgets.WT.working_thread = Thread(
@@ -2525,9 +2541,8 @@ def create_WT_page():
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.WT.action2_frame.rowconfigure(0, weight=1)
     tk_widgets.WT.action2_frame.rowconfigure(1, weight=1)
-    tk_widgets.WT.action2_frame.rowconfigure(2, weight=1)
+    tk_widgets.WT.action2_frame.rowconfigure(2, weight=699)
     tk_widgets.WT.action2_frame.rowconfigure(3, weight=1)
-    tk_widgets.WT.action2_frame.rowconfigure(4, weight=699)
     tk_widgets.WT.action2_frame.columnconfigure(0, weight=1)
     # create bulk label
     tk_widgets.WT.bulk_label = ctk.CTkLabel(
@@ -2566,7 +2581,8 @@ def create_WT_page():
     # create add file button
     tk_widgets.WT.addfile_button = ctk.CTkButton(
         tk_widgets.WT.action3_frame,
-        text='Add File',
+        text='Add Files',
+        image=EmojiImage.create('📄'),
         command=addfile_cmd
     )
     tk_widgets.WT.addfile_button.grid(
@@ -2580,6 +2596,7 @@ def create_WT_page():
     tk_widgets.WT.clear_button = ctk.CTkButton(
         tk_widgets.WT.action3_frame,
         text='Clear',
+        image=EmojiImage.create('❌'),
         command=clear_cmd
     )
     tk_widgets.WT.clear_button.grid(
@@ -2601,15 +2618,18 @@ def create_WT_page():
                 initialdir=setting.get('default_folder', None)
             )
             if dir_path != '':
-                def working_thrd():
-                    file_paths = tk_widgets.WT.file_text.get(
-                        '1.0', 'end-1c').split('\n')
-                    for file_path in file_paths:
-                        wad_tool.unpack(file_path, dir_path, full_log=False)
-                        LOG(f'wad_tool: Done: Unpack {file_path}')
-                tk_widgets.WT.working_thread = Thread(
-                    target=working_thrd, daemon=True)
-                tk_widgets.WT.working_thread.start()
+                file_paths = tk_widgets.WT.file_text.get(
+                    '1.0', 'end-1c').split('\n')
+                if len(file_paths) > 0:
+                    def working_thrd():
+                        Log.tk_cooldown = 3000
+                        for file_path in file_paths:
+                            wad_tool.unpack(file_path, dir_path)
+                        Log.tk_cooldown = 0
+                        LOG(f'wad_tool: Done: Unpack to {dir_path}')
+                    tk_widgets.WT.working_thread = Thread(
+                        target=working_thrd, daemon=True)
+                    tk_widgets.WT.working_thread.start()
         else:
             LOG(
                 'wad_tool: Failed: A thread is already running, wait for it to finished.')
@@ -2617,6 +2637,7 @@ def create_WT_page():
     tk_widgets.WT.bulk_button = ctk.CTkButton(
         tk_widgets.WT.action2_frame,
         text='Bulk Unpack',
+        image=EmojiImage.create('⏏️', weird=True),
         command=bulk_cmd
     )
     tk_widgets.WT.bulk_button.grid(

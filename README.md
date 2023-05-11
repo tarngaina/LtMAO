@@ -6,6 +6,7 @@ LtMAO is a toolpack to help League modding.
 1. Download: [LtMAO-master.zip](https://github.com/tarngaina/LtMAO/archive/refs/heads/master.zip)
 2. Extract: `LtMAO-master.zip`
 3. Run `LtMAO/start.bat`
+4. Another `LtMAO.lnk` (launch shortcut) will be created in the same folder of `start.bat`. Next time, you can use `LtMAO.lnk` to launch `LtMAO` instead of `start.bat`.
 
 # Documentation
 ## File Explorer Context menu
@@ -65,6 +66,13 @@ Rename joints in ANM using old names & new names input.
 Can load SKL as inputs.
 
 ![](https://i.imgur.com/eOAOkbX.png)
+
+## wad_tool
+Simple tool to unpack, pack WAD files.
+Can bulk unpack multiple WADs into same output.
+
+![](https://i.imgur.com/bMV57O7.png)
+
 
 # Extra:
 - [LeagueToolKit](https://github.com/LeagueToolkit/LeagueToolkit)
