@@ -83,6 +83,11 @@ class CLI:
         else:
             hash_manager.ExtractedHashes.extract(src)
 
+    @staticmethod
+    def pyntex(src):
+        from LtMAO import pyntex
+        pyntex.parse(src)
+
 
 def main():
     args = parse_arguments()
@@ -99,6 +104,8 @@ def main():
         CLI.uvee(args.source)
     elif args.tool == 'hashextract':
         CLI.hashextract(args.source)
+    elif args.tool == 'pyntex':
+        CLI.pyntex(args.source)
 
 
 if __name__ == '__main__':

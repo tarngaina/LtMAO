@@ -66,16 +66,26 @@ def parse(champions_dir, output_dir):
                 champions_dir, file).replace('\\', '/'))
     if len(wad_files) == 0:
         raise Exception(
-            'Failed: Create NO SKIN mod: Invalid Champions folder?')
-    LOG(f'Running: Create NO SKIN mod')
+            'no_skin: Failed: Create NO SKIN mod: Invalid Champions folder?')
+    LOG(f'no_skin: Running: Create NO SKIN mod')
     swapped_chunks = []  # list of (chunk_hash, chunk_data)
     # read hashes
     hash_manager.read_wad_hashes()
+    # rebuild smaller hash for faster comparsion
+    LOG(f'no_skin: Running: Rebuilding hashes')
+    hashtables = {}
+    hashtables['hashes.game.txt'] = {}
+    for key, value in hash_manager.HASHTABLES['hashes.game.txt'].items():
+        if '.bin' in value and 'data/characters/' in value and '/skins/' in value and 'root.bin' not in value:
+            hashtables['hashes.game.txt'][key] = value
+    hash_manager.free_wad_hashes()
+    # start parsing each wad
     for wad_file in wad_files:
         # read wad
-        LOG(f'Running: Parse: {wad_file}')
+        LOG(f'no_skin: Running: Parse: {wad_file}')
         wad = pyRitoFile.read_wad(wad_file)
-        wad.un_hash(hash_manager.HASHTABLES)
+        # only unhash skinx.bin with rebuild hashtables
+        wad.un_hash(hashtables)
         # init data
         base_bin = {}  # base bin at character
         skin_bins = {}  # skin bins at character
@@ -83,35 +93,33 @@ def parse(champions_dir, output_dir):
         with wad.stream(wad_file, 'rb') as bs:
             # parse chunks in this wad -> out base_bin and skin_bins
             for chunk in wad.chunks:
-                # filter skins bin
+                # filter skins bin (only unhash skinx.bin)
                 if chunk.extension == 'bin':
-                    if 'data/characters/' in chunk.hash and '/skins/' in chunk.hash:
-                        if 'root.bin' not in chunk.hash:
-                            # chunk.hash = 'data/character/<character>/skins/skinx.bin'
-                            temp = chunk.hash.split('/')
-                            character = temp[2]
-                            skinx = temp[4]
-                            # skip?
-                            if character in SKIPS:
-                                if SKIPS[character] == 'all' or skinx in SKIPS[character]:
-                                    continue
-                            LOG(f'Done: Parse: {character} {skinx}')
-                            # read chunk
-                            chunk.read_data(bs)
-                            bin = pyRitoFile.read_bin('', raw=chunk.data)
-                            chunk.free_data()
-                            if 'skin0.bin' in chunk.hash:
-                                # found base bin
-                                base_bin[character] = bin
-                            else:
-                                # found skin bin
-                                if character not in skin_bins:
-                                    skin_bins[character] = []
-                                skin_bins[character].append(bin)
-                                # found chunk hash of skin bin
-                                if character not in chunk_hashes:
-                                    chunk_hashes[character] = []
-                                chunk_hashes[character].append(chunk.hash)
+                    # chunk.hash = 'data/character/<character>/skins/skinx.bin'
+                    temp = chunk.hash.split('/')
+                    character = temp[2]
+                    skinx = temp[4]
+                    # skip?
+                    if character in SKIPS:
+                        if SKIPS[character] == 'all' or skinx in SKIPS[character]:
+                            continue
+                    LOG(f'no_skin: Done: Parse: {character} {skinx}')
+                    # read chunk
+                    chunk.read_data(bs)
+                    bin = pyRitoFile.read_bin('', raw=chunk.data)
+                    chunk.free_data()
+                    if 'skin0.bin' in chunk.hash:
+                        # found base bin
+                        base_bin[character] = bin
+                    else:
+                        # found skin bin
+                        if character not in skin_bins:
+                            skin_bins[character] = []
+                        skin_bins[character].append(bin)
+                        # found chunk hash of skin bin
+                        if character not in chunk_hashes:
+                            chunk_hashes[character] = []
+                        chunk_hashes[character].append(chunk.hash)
         # swap skins -> save by chunk
         for character in base_bin:
             # there is character that only has skin0.bin, skip them
@@ -153,8 +161,7 @@ def parse(champions_dir, output_dir):
                 # create WAD chunk
                 swapped_chunks.append(
                     (chunk_hashes[character][id], base_bin[character].write('', raw=True)))
-            LOG(f'Done: Swap: {character}')
-    hash_manager.free_wad_hashes()
+            LOG(f'no_skin: Done: Swap: {character}')
     # build new wad from swapped_chunks
     os.makedirs(cache_dir, exist_ok=True)
     wad_file = f'{cache_dir}/Annie.wad.client'
@@ -180,7 +187,7 @@ def parse(champions_dir, output_dir):
         z.write(info_file, 'META/info.json')
         z.write(wad_file, 'WAD/Annie.wad.client')
     delete_cache()
-    LOG(f'Done: Create Fantome: {fantome_file}')
+    LOG(f'no_skin: Done: Create Fantome: {fantome_file}')
 
 
 def prepare(_LOG):

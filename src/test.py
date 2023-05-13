@@ -14,5 +14,5 @@ def db(func):
 
 
 if __name__ == '__main__':
-    from LtMAO import pyRitoFile
-    pyRitoFile.read_bin('D:/test3/test.bin')
+    from LtMAO import pyntex
+    pyntex.parse('D:/test3/Lulu.wad.client')

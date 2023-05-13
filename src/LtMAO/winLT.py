@@ -44,12 +44,12 @@ class Context:
         # folder contexts
         Context.create_submenu(
             shell='Directory\\shell',
-            sub_commands='LtMAO.RawToWad;LtMAO.hashextract'
+            sub_commands='LtMAO.RawToWad;LtMAO.hashextract;LtMAO.PT;'
         )
         # .wad (.client) contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.client\\shell',
-            sub_commands='LtMAO.WadToRaw;LtMAO.hashextract;LtMAO.LFI;'
+            sub_commands='LtMAO.WadToRaw;LtMAO.hashextract;LtMAO.PT;LtMAO.LFI;'
         )
         # .bin contexts
         Context.create_submenu(
@@ -132,6 +132,13 @@ class Context:
                 cmd_name='LtMAO.hashextract',
                 cmd_desc='hash_manager: Extract hashes',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="hashextract" -src="%V"'
+            )
+            # PT
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.PT',
+                cmd_desc='pyntex: Check mentioned, missing files of BINs',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="pyntex" -src="%V"'
             )
         LOG('winLT: Done: Create Explorer Contexts')
 
