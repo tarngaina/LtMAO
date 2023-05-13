@@ -29,7 +29,7 @@ def scan_fantome(path):
                 wads.append(name)
     if info == None:
         raise Exception(
-            f'Failed: VO Helper: Scan FANTOME: {path}: This file does not contains META/info.json.'
+            f'vo_helper: Failed: Scan FANTOME: {path}: This file does not contains META/info.json.'
         )
     return info, image, wads
 
@@ -61,7 +61,7 @@ def make_fantome(fantome_name, output_dir, info, image, wads, langs):
             with wad.stream('', 'rb', raw=wad_data) as bs:
                 for chunk in wad.chunks:
                     chunk.read_data(bs)
-            LOG(f'Done: VO Helper: Prepare VO WAD: {wad_name}')
+            LOG(f'vo_helper: Done: Prepare VO WAD: {wad_name}')
         parsed.append([wad_name, wad, is_vo])
     # replace lang and write using parsed
     for lang in langs:
@@ -94,7 +94,7 @@ def make_fantome(fantome_name, output_dir, info, image, wads, langs):
         # write fantome out
         path = output_dir + f'/({lang}) ' + fantome_name
         write_fantome(path, info, image, wads)
-        LOG(f'Done: VO Helper: Remake Fantomes: {path}')
+        LOG(f'vo_helper: Done: Remake Fantomes: {path}')
     hash_manager.CustomHashes.free_wad_hashes()
 
 

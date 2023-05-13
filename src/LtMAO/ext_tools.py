@@ -26,7 +26,6 @@ class CSLOL:
             cmds, creationflags=CREATE_NO_WINDOW,
             stdout=PIPE, stderr=STDOUT
         )
-        block_and_stream_process_output(p, 'CSLMAO: ')
         return p
 
     def export_fantome(src, dst, game=None, noTFT=True):
@@ -40,7 +39,6 @@ class CSLOL:
             cmds, creationflags=CREATE_NO_WINDOW,
             stdout=PIPE, stderr=STDOUT
         )
-        block_and_stream_process_output(p, 'CSLMAO: ')
         return p
 
     def make_overlay(src, overlay, game=None, mods=None, noTFT=True, ignore_conflict=True):

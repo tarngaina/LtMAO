@@ -3,7 +3,7 @@ import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
 
-from LtMAO import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum
+from LtMAO import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex
 from LtMAO.prettyUI.helper import Keeper, Log, EmojiImage
 
 import os
@@ -107,7 +107,7 @@ def create_CSLMAO_page():
 
     def run_cmd():
         if cslmao.preparing:
-            LOG('CSLMAO: Error: Loading mods, can not run yet.')
+            LOG('cslmao: Error: Loading mods, can not run yet.')
             return
         if tk_widgets.CSLMAO.make_overlay == None and tk_widgets.CSLMAO.run_overlay == None:
             def run_thrd():
@@ -131,7 +131,7 @@ def create_CSLMAO_page():
                             stuffs[1].configure(
                                 state=tk.NORMAL
                             )
-                        LOG('CSLMAO: Error: Run overlay failed, back to idling.')
+                        LOG('cslmao: Error: Run overlay failed, click this message to see full error log.')
                         tk_widgets.CSLMAO.run_overlay = None
                 else:
                     tk_widgets.CSLMAO.run_button.configure(
@@ -142,7 +142,7 @@ def create_CSLMAO_page():
                         stuffs[1].configure(
                             state=tk.NORMAL
                         )
-                    LOG('CSLMAO: Error: Make overlay failed, back to idling.')
+                    LOG('cslmao: Error: Make overlay failed, click this message to see full error log.')
                     tk_widgets.CSLMAO.make_overlay = None
             tk_widgets.CSLMAO.run_button.configure(
                 text='Stop',
@@ -166,7 +166,7 @@ def create_CSLMAO_page():
                 stuffs[1].configure(
                     state=tk.NORMAL
                 )
-            LOG('CSLMAO: Status: Stopped running overlay, idling.')
+            LOG('cslmao: Status: Stopped running overlay, idling.')
             tk_widgets.CSLMAO.make_overlay = None
             tk_widgets.CSLMAO.run_overlay = None
         tk_widgets.CSLMAO.run_button.configure(state='disabled')
@@ -201,7 +201,7 @@ def create_CSLMAO_page():
                 info, image = cslmao.get_info(mod)
                 mgs.append(add_mod(image=image, name=info['Name'], author=info['Author'],
                                    version=info['Version'], description=info['Description'], enable=mod.enable))
-            LOG(f'CSLMAO: Imported: {fantome_path}')
+            LOG(f'cslmao: Imported: {fantome_path}')
         # grid after finish import
         for mg in mgs:
             mg()
@@ -423,7 +423,7 @@ def create_CSLMAO_page():
                         fantome_path=fantome_path
                     )
                     if p.returncode == 0:
-                        LOG(f'CSLMAO: Exported {fantome_path}')
+                        LOG(f'cslmao: Exported: {fantome_path}')
                 Thread(target=export_thrd, daemon=True).start()
         # create export button
         export_button = ctk.CTkButton(
@@ -922,7 +922,7 @@ def create_LFI_page():
                 tk_widgets.LFI.reading_thread.start()
         else:
             LOG(
-                'Failed: File Inspector: A thread is already running, wait for it to finished.')
+                'leaguefile_inspector: Failed: A thread is already running, wait for it to finished.')
     # create file read button
     tk_widgets.LFI.fileread_button = ctk.CTkButton(
         tk_widgets.LFI.input_frame,
@@ -958,7 +958,7 @@ def create_LFI_page():
                 tk_widgets.LFI.reading_thread.start()
         else:
             LOG(
-                'Failed: File Inspector: A thread is already running, wait for it to finished.')
+                'leaguefile_inspector: Failed: A thread is already running, wait for it to finished.')
     # create folder read button
     tk_widgets.LFI.folderread_button = ctk.CTkButton(
         tk_widgets.LFI.input_frame,
@@ -980,7 +980,7 @@ def create_LFI_page():
                 file_frame.grid_forget()
                 file_frame.destroy()
         tk_widgets.LFI.loaded_files.clear()
-        LOG(f'Done: Cleared all loaded files.')
+        LOG(f'leaguefile_inspector: Done: Cleared all loaded files.')
     # create clear button
     tk_widgets.LFI.clear_button = ctk.CTkButton(
         tk_widgets.LFI.input_frame,
@@ -1108,7 +1108,7 @@ def create_AMV_page():
 
     # create load button
     def load_cmd():
-        LOG('Running: Load weight table')
+        LOG('animask_viewer: Running: Load weight table')
 
         joint_names = []
         mask_names = []
@@ -1116,17 +1116,15 @@ def create_AMV_page():
         # read skl
         skl_path = tk_widgets.AMV.skl_entry.get()
         if skl_path != '':
-            LOG(f'Running: Read {skl_path}')
             skl_file = pyRitoFile.read_skl(skl_path)
-            LOG(f'Done: Read {skl_path}')
+            LOG(f'animask_viewer: Done: Read {skl_path}')
             joint_names = [joint.name for joint in skl_file.joints]
         # read bin
         bin_path = tk_widgets.AMV.bin_entry.get()
         if bin_path != '':
-            LOG(f'Running: Read {bin_path}')
             bin_file = pyRitoFile.read_bin(bin_path)
             tk_widgets.AMV.bin_loaded = bin_file
-            LOG(f'Done: Read {bin_path}')
+            LOG(f'animask_viewer: Done: Read {bin_path}')
             mask_data = animask_viewer.get_weights(bin_file)
             mask_names, weights = list(
                 mask_data.keys()), list(mask_data.values())
@@ -1136,7 +1134,7 @@ def create_AMV_page():
         tk_widgets.AMV.table_column = len(mask_names)
         if tk_widgets.AMV.table_row == 0:
             raise Exception(
-                'Failed: Load weight table: No joints found.')
+                'animask_viewer: Failed: Load weight table: No joints found.')
 
         # create table frame
         if not tk_widgets.AMV.table_loaded:
@@ -1259,7 +1257,7 @@ def create_AMV_page():
             row=0, column=0, sticky=tk.NSEW)
         # mark as table loaded
         tk_widgets.AMV.table_loaded = True
-        LOG('Done: Load weight table')
+        LOG('animask_viewer: Done: Load weight table')
     tk_widgets.AMV.load_button = ctk.CTkButton(
         tk_widgets.AMV.action_frame,
         text='Load',
@@ -1325,7 +1323,6 @@ def create_AMV_page():
 
     # create clear button
     def clear_cmd():
-        LOG('Running: Clear weight table')
         if not tk_widgets.AMV.table_loaded:
             return
         # destroy tk widgets
@@ -1336,7 +1333,7 @@ def create_AMV_page():
         tk_widgets.AMV.htable_frame.grid_forget()
         tk_widgets.AMV.bin_loaded = None
         tk_widgets.AMV.table_loaded = False
-        LOG('Done: Clear weight table')
+        LOG('animask_viewer: Done: Clear weight table')
     tk_widgets.AMV.clear_button = ctk.CTkButton(
         tk_widgets.AMV.action_frame,
         text='Clear',
@@ -1462,7 +1459,7 @@ def create_HM_page():
                 tk_widgets.HM.extracting_thread.start()
         else:
             LOG(
-                'Failed: Extract Hashes: A thread is already running, wait for it to finished.')
+                'hash_manager: Failed: A thread is already running, wait for it to finished.')
     # create file read button
     tk_widgets.HM.fileread_button = ctk.CTkButton(
         tk_widgets.HM.input_frame,
@@ -1500,7 +1497,7 @@ def create_HM_page():
                     tk_widgets.HM.extracting_thread.start()
         else:
             LOG(
-                'Failed: Extract Hashes: A thread is already running, wait for it to finished.')
+                'hash_manager: Failed: A thread is already running, wait for it to finished.')
     # create folder read button
     tk_widgets.HM.folderread_button = ctk.CTkButton(
         tk_widgets.HM.input_frame,
@@ -1806,7 +1803,7 @@ def create_VH_page():
     def taget_cmd():
         if not check_thread_safe(tk_widgets.VH.making_thread):
             LOG(
-                'Failed: Remake Fantomes: A thread is already running, wait for it to finished.')
+                'vo_helper: Failed: Remake Fantomes: A thread is already running, wait for it to finished.')
             return
         dir_path = tkfd.askdirectory(
             parent=tk_widgets.main_tk,
@@ -1821,7 +1818,7 @@ def create_VH_page():
             return
 
         def make_thrd():
-            LOG(f'Running: VO Hepler: Remake FANTOME {fantome_path}')
+            LOG(f'vo_helper: Running: Remake FANTOME {fantome_path}')
             info, image, wads = vo_helper.read_fantome(fantome_path)
             vo_helper.make_fantome(
                 fantome_name, dir_path, info, image, wads, [tk_widgets.VH.target_option.get()])
@@ -1842,7 +1839,7 @@ def create_VH_page():
     def make_cmd():
         if not check_thread_safe(tk_widgets.VH.making_thread):
             LOG(
-                'Failed: Remake Fantomes: A thread is already running, wait for it to finished.')
+                'vo_helper: Failed: Remake Fantomes: A thread is already running, wait for it to finished.')
             return
         dir_path = tkfd.askdirectory(
             parent=tk_widgets.main_tk,
@@ -1857,7 +1854,7 @@ def create_VH_page():
             return
 
         def make_thrd():
-            LOG(f'Running: VO Hepler: Remake FANTOME {fantome_path}')
+            LOG(f'vo_helper: Running: Remake FANTOME {fantome_path}')
             info, image, wads = vo_helper.read_fantome(fantome_path)
             vo_helper.make_fantome(
                 fantome_name, dir_path, info, image, wads, vo_helper.LANGS)
@@ -1939,7 +1936,7 @@ def create_NS_page():
         no_skin.set_skips(
             tk_widgets.NS.skips_textbox.get('1.0', tk.END))
         no_skin.save_skips()
-        LOG('Done: Save SKIPS.json')
+        LOG('no_skin: Done: Save SKIPS.json')
     # create save SKIPS button
     tk_widgets.NS.save_skips_button = ctk.CTkButton(
         tk_widgets.NS.action_frame,
@@ -1970,7 +1967,7 @@ def create_NS_page():
                 tk_widgets.NS.working_thread.start()
         else:
             LOG(
-                'Failed: Create NO SKIN mod: A thread is already running, wait for it to finished.')
+                'no_skin: Failed: A thread is already running, wait for it to finished.')
     # create start button
     tk_widgets.NS.start_button = ctk.CTkButton(
         tk_widgets.NS.action_frame,
@@ -2196,7 +2193,7 @@ def create_UVEE_page():
                 file_frame.grid_forget()
                 file_frame.destroy()
         tk_widgets.UVEE.loaded_files.clear()
-        LOG(f'Done: Cleared all loaded images.')
+        LOG(f'yvee: Done: Cleared all loaded images.')
     # create clear button
     tk_widgets.UVEE.clear_button = ctk.CTkButton(
         tk_widgets.UVEE.input_frame,
@@ -2401,7 +2398,7 @@ def create_SHR_page():
             tk_widgets.SHR.working_thread.start()
         else:
             LOG(
-                'Failed: Shrum Rename ANM joints: A thread is already running, wait for it to finished.')
+                'shrum: Failed: Rename: A thread is already running, wait for it to finished.')
 
     # create rename button
     tk_widgets.SHR.rename_button = ctk.CTkButton(
@@ -2645,7 +2642,90 @@ def create_WT_page():
 
 
 def create_PT_page():
-    pass
+    # create page frame
+    tk_widgets.PT.page_frame = ctk.CTkFrame(
+        tk_widgets.mainright_frame,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.PT.page_frame.columnconfigure(0, weight=1)
+    tk_widgets.PT.page_frame.rowconfigure(0, weight=1)
+    tk_widgets.PT.page_frame.rowconfigure(1, weight=699)
+    # init stuffs
+    tk_widgets.PT.working_thread = None
+    # create action frame
+    tk_widgets.PT.action_frame = ctk.CTkFrame(
+        tk_widgets.PT.page_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.PT.action_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.PT.action_frame.rowconfigure(0, weight=1)
+    tk_widgets.PT.action_frame.columnconfigure(0, weight=1)
+    tk_widgets.PT.action_frame.columnconfigure(1, weight=1)
+    tk_widgets.PT.action_frame.columnconfigure(2, weight=699)
+
+    def parsewad_cmd():
+        if check_thread_safe(tk_widgets.PT.working_thread):
+            file_paths = tkfd.askopenfilenames(
+                parent=tk_widgets.main_tk,
+                title='Select WADs',
+                filetypes=(
+                    ('WAD files', '*.wad.client'),
+                    ('All files', '*.*'),
+                ),
+                initialdir=setting.get('default_folder', None)
+            )
+            if len(file_paths) > 0:
+                def working_thrd():
+                    for file_path in file_paths:
+                        pyntex.parse(file_path)
+                tk_widgets.PT.working_thread = Thread(
+                    target=working_thrd,
+                    daemon=True
+                )
+                tk_widgets.PT.working_thread.start()
+        else:
+            LOG(
+                'pyntex: Failed: A thread is already running, wait for it to finished.')
+    # create parse wad button
+    tk_widgets.PT.parsewad_button = ctk.CTkButton(
+        tk_widgets.PT.action_frame,
+        text='Parse WAD',
+        image=EmojiImage.create('📄'),
+        anchor=tk.CENTER,
+        command=parsewad_cmd
+    )
+    tk_widgets.PT.parsewad_button.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def parsedir_cmd():
+        if check_thread_safe(tk_widgets.PT.working_thread):
+            dir_path = tkfd.askdirectory(
+                parent=tk_widgets.main_tk,
+                title='Select Folder',
+                initialdir=setting.get('default_folder', None)
+            )
+            if dir_path != '':
+                def working_thrd():
+                    pyntex.parse(dir_path)
+                tk_widgets.PT.working_thread = Thread(
+                    target=working_thrd,
+                    daemon=True
+                )
+                tk_widgets.PT.working_thread.start()
+        else:
+            LOG(
+                'pyntex: Failed: A thread is already running, wait for it to finished.')
+    # create parse folder button
+    tk_widgets.PT.parsedir_button = ctk.CTkButton(
+        tk_widgets.PT.action_frame,
+        text='Parse Folder',
+        image=EmojiImage.create('📁'),
+        anchor=tk.CENTER,
+        command=parsedir_cmd
+    )
+    tk_widgets.PT.parsedir_button.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
 
 def create_LOG_page():
@@ -2846,7 +2926,7 @@ def create_ST_page():
             dir_path = dir_path.replace('\\', '/')
             if not os.path.exists(os.path.join(dir_path, 'League of Legends.exe')):
                 raise Exception(
-                    f'Failed: Select League of Legends/Game: No "League of Legends.exe" found in {dir_path}')
+                    f'cslmao: Failed: Select League of Legends/Game: No "League of Legends.exe" found in {dir_path}')
             setting.set('game_folder', dir_path)
             setting.save()
             tk_widgets.ST.gamedir_value_label.configure(text=dir_path)
@@ -3133,5 +3213,6 @@ def start():
     no_skin.prepare(LOG)
     uvee.prepare(LOG)
     shrum.prepare(LOG)
+    pyntex.prepare(LOG)
     # loop the UI
     tk_widgets.main_tk.mainloop()

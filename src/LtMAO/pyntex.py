@@ -151,3 +151,8 @@ def parse(path):
     else:
         if path.endswith('.wad.client'):
             parse_wad(path)
+
+
+def prepare(_LOG):
+    global LOG
+    LOG = _LOG

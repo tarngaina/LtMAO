@@ -20,13 +20,21 @@ def rename(path, olds, news, backup=True):
                 backup_dir = os.path.join(os.path.dirname(
                     path), 'shrum_backup_' + os.path.basename(path))
                 copy(path, backup_dir)
-            rename_anm(path, olds, news)
+            try:
+                rename_anm(path, olds, news)
+                LOG('shrum: Done: Rename: {path}')
+            except Exception as e:
+                LOG('shrum: Failed: Rename: {path}: {e}')
 
 
 def rename_anm_dir(path, olds, news):
     for file in os.listdir(path):
         if file.endswith('.anm'):
-            rename_anm(os.path.join(path, file), olds, news)
+            try:
+                rename_anm(os.path.join(path, file), olds, news)
+                LOG('shrum: Done: Rename: {path}')
+            except Exception as e:
+                LOG('shrum: Failed: Rename: {path}: {e}')
 
 
 def rename_anm(path, olds, news):
@@ -44,7 +52,7 @@ def rename_anm(path, olds, news):
             joint_hashes_offset, = bs.read_i32()
             if joint_hashes_offset <= 0:
                 raise Exception(
-                    f'Failed: Shrum Rename ANM joints: File does not contain joint hashes.'
+                    f'File does not contain joint hashes.'
                 )
             bs.seek(joint_hashes_offset + 12)
             for i in range(joint_count):
@@ -64,11 +72,11 @@ def rename_anm(path, olds, news):
                 frames_offset, = bs.read_i32()
                 if joint_hashes_offset <= 0:
                     raise Exception(
-                        f'Failed: Shrum Rename ANM joints: File does not contain joint hashes.'
+                        f'File does not contain joint hashes.'
                     )
                 if frames_offset <= 0:
                     raise Exception(
-                        f'Failed: Shrum Rename ANM joints: File does not contain frames data.'
+                        f'File does not contain frames data.'
                     )
                 joint_count = (
                     frames_offset - joint_hashes_offset) // 4
@@ -89,7 +97,7 @@ def rename_anm(path, olds, news):
                 frames_offset, = bs.read_i32()
                 if frames_offset <= 0:
                     raise Exception(
-                        f'Failed: Shrum Rename ANM joints: File does not contain frames data.'
+                        f'File does not contain frames data.'
                     )
                 bs.seek(frames_offset + 12)
                 for i in range(frame_count * track_count):
@@ -118,8 +126,7 @@ def rename_anm(path, olds, news):
                     bs.pad(4+frame_count*28)
         else:
             raise Exception(
-                f'FFailed: Shrum Rename ANM joints: Wrong signature file: {magic}')
-    LOG(f'Done: Shrum Rename ANM joints: Replace {count} instances: {path}')
+                f'Wrong signature file: {magic}')
 
 
 def prepare(_LOG):

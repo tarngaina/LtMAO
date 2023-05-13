@@ -37,7 +37,7 @@ class CSLMAO:
             (mod for mod in CSLMAO.MODS if mod.path == mod_path), None)
         if existed_mod != None:
             raise Exception(
-                f'Failed: CSLMAO: Create mod: A mod with path: {mod_path} already existed in profile {existed_mod.profile}.')
+                f'cslmao: Failed: Create mod: A mod with path: {mod_path} already existed in profile {existed_mod.profile}.')
         m = MOD(mod_path, enable, profile)
         CSLMAO.MODS.append(m)
         return m
@@ -92,17 +92,21 @@ class CSLMAO:
                       for mod in CSLMAO.MODS], f, indent=4)
 
     def import_fantome(fantome_path, mod_path):
-        return CSLOL.import_fantome(
+        p = CSLOL.import_fantome(
             src=fantome_path,
             dst=os.path.abspath(os.path.join(CSLMAO.raw_dir, mod_path)),
             game=setting.get('game_folder', ''))
+        block_and_stream_process_output(p, 'cslmao: ')
+        return p
 
     def export_fantome(mod_path, fantome_path):
-        return CSLOL.export_fantome(
+        p = CSLOL.export_fantome(
             src=mod_path,
             dst=fantome_path,
             game=setting.get('game_folder', '')
         )
+        block_and_stream_process_output(p, 'cslmao: ')
+        return p
 
     def make_overlay(profile):
         if profile == 'all':
@@ -162,7 +166,7 @@ def prepare(_LOG):
     def prepare_cmd():
         global preparing
         preparing = True
-        LOG(f'CSLMAO: Status: Loading mods.')
+        LOG(f'cslmao: Status: Loading mods.')
         mgs = []
         for mod in CSLMAO.MODS:
             info, image = get_info(mod)
@@ -173,5 +177,5 @@ def prepare(_LOG):
             mg()
         tk_refresh_profile(setting.get('Cslmao.profile', 'all'))
         preparing = False
-        LOG(f'CSLMAO: Status: Finished loading mods.')
+        LOG(f'cslmao: Status: Finished loading mods.')
     Thread(target=prepare_cmd, daemon=True).start()

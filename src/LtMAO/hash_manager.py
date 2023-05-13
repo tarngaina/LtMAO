@@ -72,10 +72,10 @@ class CDTB:
                     for chunk in get.iter_content(chunk_size):
                         bytes_downloaded += len(chunk)
                         LOG(
-                            f'Downloading: {github_file}: {to_human(bytes_downloaded)}')
+                            f'hash_manager: Downloading: {github_file}: {to_human(bytes_downloaded)}')
                         f.write(chunk)
                 combine_custom_hashes(filename)
-            LOG(f'Done: Sync hash: {local_file}')
+            LOG(f'hash_manager: Done: Sync hash: {local_file}')
 
     @staticmethod
     def sync_all():
@@ -120,9 +120,9 @@ class ExtractedHashes:
                     skn = pyRitoFile.read_skn('', raw)
                 for submesh in skn.submeshes:
                     hashtables['hashes.binhashes.txt'][submesh.bin_hash] = submesh.name
-                LOG(f'Done: Extract Hashes: {file_path}')
+                LOG(f'hash_manager: Done: Extract Hashes: {file_path}')
             except Exception as e:
-                LOG(f'Failed: Extract Hashes: {file_path}: {e}')
+                LOG(f'hash_manager: Failed: Extract Hashes: {file_path}: {e}')
 
         def extract_skl(file_path, raw=None):
             try:
@@ -133,9 +133,9 @@ class ExtractedHashes:
                     skl = pyRitoFile.read_skl('', raw)
                 for joint in skl.joints:
                     hashtables['hashes.binhashes.txt'][joint.bin_hash] = joint.name
-                LOG(f'Done: Extract Hashes: {file_path}')
+                LOG(f'hash_manager: Done: Extract Hashes: {file_path}')
             except Exception as e:
-                LOG(f'Failed: Extract Hashes: {file_path}: {e}')
+                LOG(f'hash_manager: Failed: Extract Hashes: {file_path}: {e}')
 
         def extract_bin(file_path, raw=None):
             def extract_file_value(value, value_type):
@@ -200,9 +200,9 @@ class ExtractedHashes:
                 for link in bin.links:
                     extract_file_value(link, pyRitoFile.BINType.String)
 
-                LOG(f'Done: Extract Hashes: {file_path}')
+                LOG(f'hash_manager: Done: Extract Hashes: {file_path}')
             except Exception as e:
-                LOG(f'Failed: Extract Hashes: {file_path}: {e}')
+                LOG(f'hash_manager: Failed: Extract Hashes: {file_path}: {e}')
 
         def extract_wad(file_path):
             try:
@@ -220,9 +220,9 @@ class ExtractedHashes:
                             extract_bin(
                                 f'{chunk.hash}.{chunk.extension}', chunk.data)
                     chunk.free_data()
-                LOG(f'Done: Extract Hashes: {file_path}')
+                LOG(f'hash_manager: Done: Extract Hashes: {file_path}')
             except Exception as e:
-                LOG(f'Failed: Extract Hashes: {file_path}: {e}')
+                LOG(f'hash_manager: Failed: Extract Hashes: {file_path}: {e}')
 
         # extract hashes base on file types
         for file_path in file_paths:
@@ -251,7 +251,7 @@ class ExtractedHashes:
                         hashtable.items(), key=lambda item: item[1]
                     )
                 )
-            LOG(f'Done: Extract: {local_file}')
+            LOG(f'hash_manager: Done: Extract: {local_file}')
             combine_custom_hashes(filename)
 
 
@@ -346,7 +346,7 @@ def combine_custom_hashes(*filenames):
                     hashtable.items(), key=lambda item: item[1]
                 )
             )
-        LOG(f'Done: Update: {ch_file}')
+        LOG(f'hash_manager: Done: Update: {ch_file}')
 
 
 def reset_custom_hashes(*filenames):
