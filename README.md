@@ -42,12 +42,13 @@ Edit MaskData's weights inside animation bins.
 Important: Wait for finish syncing/updating/loading all hashes before process with any LtMAO functions.
 1. CDTB Hashes: Auto sync [CommunityDragon](https://github.com/CommunityDragon/CDTB/tree/master/cdragontoolbox) hashes. Can also be manually downloaded at mentioned link. 
 2. Extracted Hashes: Extract personally by user.
+    
     Hashes that can be extracted:
-        - VfxSystemDefinitionData <-> particlePath from bin.
-        - StaticMaterialDef <-> name from bin.
-        - Joint hashes <-> names from skl.
-        - Submesh hashes <-> names from skn.
-        - All file path that starts with `assets/` or `data/`.
+    - VfxSystemDefinitionData <-> particlePath from bin.
+    - StaticMaterialDef <-> name from bin.
+    - Joint hashes <-> names from skl.
+    - Submesh hashes <-> names from skn.
+    - All file path that starts with `assets/` or `data/`.
 3. Custom Hashes:
     - Custom Hashes = CDTB Hashes + Extracted Hashes + User Manually Added Hashes
     - Custom Hashes is hashes that used with all LtMAO related functions: leaguefile_inspector, ritobin, wad_tool,...
