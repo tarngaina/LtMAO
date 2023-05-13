@@ -22,6 +22,7 @@ Can be added in setting tab.
 
 ## cslmao
 Just [cslol-manager](https://github.com/LeagueToolkit/cslol-manager), but different UI.
+
 Need to set Game folder inside setting tab first to work.
 
 ![](https://i.imgur.com/EwbPaQW.png)
@@ -37,7 +38,7 @@ Edit MaskData's weights inside animation bins.
 ![](https://i.imgur.com/a0x8dQE.png)
 
 ## hash_manager
-![](https://i.imgur.com/IeXNfKF.png)
+![](https://i.imgur.com/yki9fTP.png)
 
 Important: Wait for finish syncing/updating/loading all hashes before process with any LtMAO functions.
 1. CDTB Hashes: Auto sync [CommunityDragon](https://github.com/CommunityDragon/CDTB/tree/master/cdragontoolbox) hashes. Can also be manually downloaded at mentioned link. 
@@ -48,11 +49,12 @@ Important: Wait for finish syncing/updating/loading all hashes before process wi
     - StaticMaterialDef <-> name from bin.
     - Joint hashes <-> names from skl.
     - Submesh hashes <-> names from skn.
-    - All file path that starts with `assets/` or `data/`.
+    - File path that starts with `assets/` or `data/` inside bin.
 3. Custom Hashes:
     - Custom Hashes = CDTB Hashes + Extracted Hashes + User Manually Added Hashes
     - Custom Hashes is hashes that used with all LtMAO related functions: leaguefile_inspector, ritobin, wad_tool,...
-    
+
+Also has generate wad, bin hash function. Those generated hashes can be added to Custom Hashes with `->` buttons.
 ## vo_helper
 Make fantome work on all langs by cloning it.
 
@@ -60,6 +62,7 @@ Make fantome work on all langs by cloning it.
 
 ## no_skin
 Create NO SKIN mod: Replace **almost** every League skins to default.
+
 `SKIPS.json`: Some skins cause League to crash when they get changed to base. This file tell the program to not change them back to base.
 
 ![](https://i.imgur.com/wONCNnj.png)
@@ -75,13 +78,16 @@ Extract UVs from skn/sco/scb as png files.
 
 ## shrum
 Rename joints in ANM using old names & new names input.
+
 Can load SKL as inputs.
 
 ![](https://i.imgur.com/eOAOkbX.png)
 
 ## wad_tool
 Simple tool to unpack, pack WAD files.
-Can bulk unpack multiple WADs into same output. Example: Bulk unpacking all voiced wad then throw into vo_helper is a fast way to create a champion langue voice mod.
+
+Can bulk unpack multiple WADs into same output. 
+Example: Bulk unpacking all voiced wad then throw into vo_helper is a fast way to create a champion langue voice mod.
 
 ![](https://i.imgur.com/bMV57O7.png)
 
