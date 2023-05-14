@@ -51,6 +51,17 @@ class BINHelper:
         return BINType(bin_type)
 
     @staticmethod
+    def find_item(*, items=[], compare_func=None, return_func=None):
+        if compare_func != None and len(items) > 0:
+            for item in items:
+                if compare_func(item):
+                    if return_func != None:
+                        return return_func(item)
+                    else:
+                        return item
+        return None
+
+    @staticmethod
     def read_value(bs, value_type):
         value = None
         if value_type == BINType.Empty:

@@ -110,7 +110,7 @@ class Context:
                 root=key,
                 cmd_name='LtMAO.RitobinToBin',
                 cmd_desc='ritobin: Convert To BIN',
-                cmd_value=f'"{os.path.abspath(python_file)} {os.path.abspath(cli_file)}" -t="ritobin" -src="%V"'
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin" -src="%V"'
             )
             # LFI
             Context.create_command(

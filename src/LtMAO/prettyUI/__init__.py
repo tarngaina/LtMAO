@@ -2435,6 +2435,8 @@ def create_HP_page():
     tk_widgets.HP.page_frame.columnconfigure(0, weight=1)
     tk_widgets.HP.page_frame.rowconfigure(0, weight=1)
     tk_widgets.HP.page_frame.rowconfigure(1, weight=699)
+    # init stuffs
+    tk_widgets.HP.working_thread = None
     # create input frame
     tk_widgets.HP.input_frame = ctk.CTkFrame(
         tk_widgets.HP.page_frame,
