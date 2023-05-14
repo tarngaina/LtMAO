@@ -84,7 +84,8 @@ def pack(raw_dir, wad_file):
         for id, chunk in enumerate(wad.chunks):
             with open(chunk_datas[id], 'rb') as f:
                 chunk_data = f.read()
-            chunk.write_data(bs, id, chunk_hashes[id], chunk_data)
+            chunk.write_data(bs, id, chunk_hashes[id], chunk_data, previous_chunks=(
+                             wad.chunks[i] for i in range(id)))
             chunk.free_data()
             LOG(f'wad_tool: Done: Packk: {chunk.hash}')
 

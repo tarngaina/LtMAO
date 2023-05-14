@@ -9,21 +9,23 @@
 
 # Documentation
 ## Shortcut & How to Run as Admin
-1. Launch shortcut: When running the app for first time, a `LtMAO.lnk` (shortcut file) will be created in same folder as `start.bat`. You can run `LtMAO` as Admin through `LtMAO.lnk`.
+1. Launch shortcut: When running the app for first time, a `LtMAO.lnk` (shortcut file) will be created in same folder as `start.bat`.
 
 ![](https://i.imgur.com/YRsKEVm.png)
 
-2. Desktop shortcut: Can be created inside setting tab.
+2. Desktop shortcut: Can be created in setting tab.
+
+ You can run `LtMAO` as Admin through shortcut.
 
 ## File Explorer Context menu
-Can be added in setting tab.
+Can be added/removed in setting tab.
 
 ![](https://i.imgur.com/LVJ2Cfw.png)
 
 ## cslmao
 Just [cslol-manager](https://github.com/LeagueToolkit/cslol-manager), but different UI.
 
-Need to set Game folder inside setting tab first to work.
+**Important**: Need to set Game folder in setting tab first to work.
 
 ![](https://i.imgur.com/EwbPaQW.png)
 
@@ -33,37 +35,42 @@ View League files infomations.
 ![](https://i.imgur.com/2w9yyKH.png)
 
 ## animask_viewer
-Edit MaskData's weights inside animation bins.
+Edit MaskData's weights inside animation BINs.
 
 ![](https://i.imgur.com/a0x8dQE.png)
 
 ## hash_manager
 ![](https://i.imgur.com/yki9fTP.png)
 
-Important: Wait for finish syncing/updating/loading all hashes before process with any LtMAO functions.
+**Important:** Please wait for all syncing/updating/loading hashes finished before process with any `LtMAO` functions.
 1. CDTB Hashes: Auto sync [CommunityDragon](https://github.com/CommunityDragon/CDTB/tree/master/cdragontoolbox) hashes. Can also be manually downloaded at mentioned link. 
 2. Extracted Hashes: Extract personally by user.
     
     Hashes that can be extracted:
-    - VfxSystemDefinitionData <-> particlePath from bin.
-    - StaticMaterialDef <-> name from bin.
-    - Joint hashes <-> names from skl.
-    - Submesh hashes <-> names from skn.
-    - File path that starts with `assets/` or `data/` inside bin.
+    - binentries:
+        - VfxSystemDefinitionData -> particlePath in BIN.
+        - StaticMaterialDef -> name in BIN.
+    - binhashes: 
+        - Joint hashes -> joint names in SKL.
+        - Submesh hashes -> submesh names in SKN.
+    - game:
+        - File path that starts with `assets/` or `data/` in BIN. If file type is `.dds`, extract 2x, 4x dds too.
 3. Custom Hashes:
-    - Custom Hashes = CDTB Hashes + Extracted Hashes + User Manually Added Hashes
     - Custom Hashes is hashes that used with all LtMAO related functions: leaguefile_inspector, ritobin, wad_tool,...
+    - Custom Hashes = CDTB Hashes + Extracted Hashes + User Manually Added Hashes
 
-Also has generate wad, bin hash function. Those generated hashes can be added to Custom Hashes with `->` buttons.
+Also has generate wad & bin hash function. Those generated hashes can be added to Custom Hashes with `->` buttons.
 ## vo_helper
 Make fantome work on all langs by cloning it.
+
+**Important**: The audio inside fantome must also come with events file to make it work on other langs.
 
 ![](https://i.imgur.com/YEafCGc.png)
 
 ## no_skin
 Create NO SKIN mod: Replace **almost** every League skins to default.
 
-`SKIPS.json`: Some skins cause League to crash when they get changed to base. This file tell the program to not change them back to base.
+`SKIPS.json`: Some skins cause League to crash when they get changed to base. This file tell the program to not change those skins to base.
 
 ![](https://i.imgur.com/wONCNnj.png)
 
@@ -83,19 +90,33 @@ Can load SKL as inputs.
 
 ![](https://i.imgur.com/eOAOkbX.png)
 
+## hapiBin
+An app with multiple functions related to updating BIN file:
+- Copy linked list.
+- Copy vfx colors.
+
+
+![](https://i.imgur.com/drwAGZI.png)
+
 ## wad_tool
 Simple tool to unpack, pack WAD files.
 
 Can bulk unpack multiple WADs into same output. 
-Example: Bulk unpacking all voiced wad then throw into vo_helper is a fast way to create a champion langue voice mod.
+**Example:** Bulk unpacking all voiced wad then throw into `vo_helper` is a fast way to create a champion voicepack for specific language mod.
 
 ![](https://i.imgur.com/bMV57O7.png)
 
+
+## pyntex
+A similar app like `bintex` from [Hacksaw](https://github.com/TheMartynasXS/Hacksaw).
+Print out mentioned & missing files in all BINs inside a WAD or a Folder.
+
+![](https://i.imgur.com/Tj5GPV6.png)
 
 # Extra:
 - [LeagueToolKit](https://github.com/LeagueToolkit/LeagueToolkit)
 - [CDTB](https://github.com/CommunityDragon/CDTB)
 - [cslol-manager](https://github.com/LeagueToolkit/cslol-manager)
 - [ritobin](https://github.com/moonshadow565/ritobin)
+- [Hacksaw](https://github.com/TheMartynasXS/Hacksaw)
 - [Uvee](https://github.com/LeagueToolkit/Uvee)
-

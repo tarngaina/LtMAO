@@ -166,7 +166,7 @@ class WADChunk:
         if self.extension == None:
             self.extension = guess_extension(self.data)
 
-    def write_data(self, bs, chunk_id, chunk_hash, chunk_data):
+    def write_data(self, bs, chunk_id, chunk_hash, chunk_data, *, previous_chunks=None):
         self.hash = chunk_hash
         if self.extension in ('bnk', 'wpk'):
             self.data = chunk_data
@@ -177,10 +177,27 @@ class WADChunk:
         self.compressed_size = len(self.data)
         self.decompressed_size = len(chunk_data)
         self.checksum = xxh3_64(self.data).intdigest()
-        # go to end file, save data offset and write chunk data
-        bs.seek(0, 2)
-        self.offset = bs.tell()
-        bs.write(self.data)
+        # check duplicated data
+        if previous_chunks:
+            duped_id, duped_chunk = next(((id, chunk) for id, chunk in enumerate(previous_chunks) if chunk.checksum == self.checksum and chunk.compressed_size ==
+                                          self.compressed_size and chunk.decompressed_size == self.decompressed_size), (None, None))
+            if duped_chunk != None:
+                # if there is a duped chunk in previous
+                if not duped_chunk.duplicated:
+                    # if the chunk was not a duped chunk
+                    # rewrite the duplicated value for the previous chunk
+                    duped_chunk.duplicated = True
+                    bs.seek(272 + duped_id * 32 + 21)
+                    bs.write_b(duped_chunk.duplicated)
+                # set this chunk as duplicated and copy the offset from duped chunk
+                self.duplicated = True
+                self.offset = duped_chunk.offset
+        if not self.duplicated:
+            # if its duplicated dont need to write data
+            # go to end file, save data offset and write chunk data
+            bs.seek(0, 2)
+            self.offset = bs.tell()
+            bs.write(self.data)
         # go to this chunk offset and write stuffs
         # hack: the first chunk start at 272 (because we write version 3.3)
         self.id = chunk_id
@@ -193,7 +210,7 @@ class WADChunk:
             self.decompressed_size
         )
         bs.write_u8(self.compression_type.value)
-        bs.write_b(False)
+        bs.write_b(self.duplicated)
         bs.write_u16(0)
         bs.write_u64(self.checksum)
 

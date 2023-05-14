@@ -26,7 +26,8 @@ def parse_bin(bin, *, existing_files=[]):
             if value_type == pyRitoFile.BINType.String:
                 value = value.lower()
                 if 'assets/' in value or 'data/' in value:
-                    mentioned_files.append(value)
+                    if value not in mentioned_files:
+                        mentioned_files.append(value)
             elif value_type in (pyRitoFile.BINType.List, pyRitoFile.BINType.List2):
                 for v in value.data:
                     parse_value(v, value_type)
@@ -52,9 +53,8 @@ def parse_bin(bin, *, existing_files=[]):
             parse_field(field)
 
         if len(existing_files) > 0:
-            for file in mentioned_files:
-                if file not in existing_files:
-                    missing_files.append(file)
+            missing_files = [
+                file for file in mentioned_files if file not in existing_files]
 
         dic = {}
         dic['hash'] = entry.hash
@@ -97,7 +97,7 @@ def parse_dir(path):
                 LOG(f'pyntex: Failed: Parse {full_file}: {e}')
     hash_manager.free_bin_hashes()
     # write json out
-    json_file = path + '.json'
+    json_file = path + '.pyntex.json'
     with open(json_file, 'w+') as f:
         json.dump(res, f, indent=4)
     LOG(f'pyntex: Done: Write {json_file}')
@@ -115,7 +115,7 @@ def parse_wad(path):
     for chunk in wad.chunks:
         if chunk.extension == 'bin':
             if os.path.dirname(chunk.hash) == 'data':
-                chunk.hash = pyRitoFile.wad_hash(chunk.hash)
+                chunk.hash = pyRitoFile.wad_hash(chunk.hash) + '.bin'
     # list all chunk hashes
     chunk_hashes = []
     for chunk in wad.chunks:
@@ -139,7 +139,7 @@ def parse_wad(path):
             chunk.free_data()
     hash_manager.free_bin_hashes()
     # write json out
-    json_file = path + '.json'
+    json_file = path + '.pyntex.json'
     with open(json_file, 'w+') as f:
         json.dump(res, f, indent=4)
     LOG(f'pyntex: Done: Write {json_file}')

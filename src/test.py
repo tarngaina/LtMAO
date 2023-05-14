@@ -14,5 +14,5 @@ def db(func):
 
 
 if __name__ == '__main__':
-    from LtMAO import pyntex
-    pyntex.parse('D:/test3/Lulu.wad.client')
+    from LtMAO import hapiBin
+    hapiBin.copy_vfx_colors('D:/test3/new.bin', 'D:/test3/old.bin')
