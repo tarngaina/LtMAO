@@ -23,91 +23,261 @@ def copy_vfx_colors(src, dst):
         'color': bin_hash('color'),
         'birthColor': bin_hash('birthColor'),
         'reflectionDefinition': bin_hash('reflectionDefinition'),
-        'lingerColor': bin_hash('lingerColor')
+        'lingerColor': bin_hash('lingerColor'),
+        'StaticMaterialDef': bin_hash('StaticMaterialDef'),
+        'paramValues': bin_hash('paramValues'),
+        'name': bin_hash('name'),
+        'dynamicMaterial': bin_hash('dynamicMaterial'),
+        'parameters': bin_hash('parameters'),
+        'driver': bin_hash('driver'),
+        'mElements': bin_hash('mElements'),
+        'mValue': bin_hash('mValue'),
+        'colors': bin_hash('colors'),
+        'mColorOn': bin_hash('mColorOn'),
+        'mColorOff': bin_hash('mColorOff')
     }
     src_bin = read_bin(src)
     dst_bin = read_bin(dst)
 
-    for dst_vfxdef in dst_bin.entries:
-        # matching VfxSystemDefinitionData entry
-        if dst_vfxdef.type != PRE_BIN_HASH['VfxSystemDefinitionData']:
-            continue
-        src_vfxdef = BINHelper.find_item(
-            items=src_bin.entries,
-            compare_func=lambda entry: entry.hash == dst_vfxdef.hash and entry.type == PRE_BIN_HASH[
-                'VfxSystemDefinitionData']
-        )
-        if src_vfxdef == None:
-            continue
-        entry_name = BINHelper.find_item(
-            items=dst_vfxdef.data,
-            compare_func=lambda field: field.hash == PRE_BIN_HASH['particlePath'],
-            return_func=lambda field: field.data
-        )
-        # finding complexEmitterDefinitionData block
-        dst_complex = BINHelper.find_item(
-            items=dst_vfxdef.data,
-            compare_func=lambda field: field.hash == PRE_BIN_HASH[
-                'complexEmitterDefinitionData']
-        )
-        src_complex = BINHelper.find_item(
-            items=src_vfxdef.data,
-            compare_func=lambda field: field.hash == PRE_BIN_HASH[
-                'complexEmitterDefinitionData']
-        )
-
-        # finding SimpleEmitterDefinitionData block
-        dst_simple = BINHelper.find_item(
-            items=dst_vfxdef.data,
-            compare_func=lambda field: field.hash == PRE_BIN_HASH[
-                'simpleEmitterDefinitionData']
-        )
-        src_simple = BINHelper.find_item(
-            items=src_vfxdef.data,
-            compare_func=lambda field: field.hash == PRE_BIN_HASH[
-                'simpleEmitterDefinitionData']
-        )
-        for dst_emitters, src_emitters in [(dst_complex, src_complex), (dst_simple, src_simple)]:
-            if dst_emitters == None or src_emitters == None:
-                continue
-            for dst_emitter in dst_emitters.data:
-                # matching emitter
-                emitter_name = BINHelper.find_item(
-                    items=dst_emitter.data,
-                    compare_func=lambda field: field.hash == PRE_BIN_HASH['emitterName'],
+    for dst_entry in dst_bin.entries:
+        # VfxSystemDefinitionData entry
+        if dst_entry.type == PRE_BIN_HASH['VfxSystemDefinitionData']:
+            # matching VfxSystemDefinitionData
+            dst_VfxSystemDefinitionData = dst_entry
+            src_VfxSystemDefinitionData = BINHelper.find_item(
+                items=src_bin.entries,
+                compare_func=lambda entry: entry.hash == dst_VfxSystemDefinitionData.hash and entry.type == PRE_BIN_HASH[
+                    'VfxSystemDefinitionData']
+            )
+            if src_VfxSystemDefinitionData != None:
+                # finding particlePath
+                dst_particlePath = BINHelper.find_item(
+                    items=dst_VfxSystemDefinitionData.data,
+                    compare_func=lambda field: field.hash == PRE_BIN_HASH['particlePath'],
                     return_func=lambda field: field.data
                 )
-                if emitter_name == None:
-                    continue
-                src_emitter = BINHelper.find_item(
-                    items=src_emitters.data,
-                    compare_func=lambda emitter: BINHelper.find_item(
-                        items=emitter.data,
-                        compare_func=lambda field: field.hash == PRE_BIN_HASH[
-                            'emitterName'] and field.data == emitter_name
-                    ) != None
+                if dst_particlePath == None:
+                    dst_particlePath == dst_VfxSystemDefinitionData.hash
+                # finding complexEmitterDefinitionData block
+                dst_complexEmitterDefinitionData = BINHelper.find_item(
+                    items=dst_VfxSystemDefinitionData.data,
+                    compare_func=lambda field: field.hash == PRE_BIN_HASH[
+                        'complexEmitterDefinitionData']
                 )
-                if src_emitter == None:
-                    continue
-                # start copy colors from src_emitter to dst_emitter:
-                field_need_to_copy = [
-                    'color',
-                    'birthColor',
-                    'reflectionDefinition',
-                    'lingerColor'
-                ]
-                for dst_field in dst_emitter.data:
-                    for field_hash in field_need_to_copy:
-                        if dst_field.hash == PRE_BIN_HASH[field_hash]:
-                            src_field = BINHelper.find_item(
-                                items=src_emitter.data,
-                                compare_func=lambda field: field.hash == PRE_BIN_HASH[field_hash]
+                src_complexEmitterDefinitionData = BINHelper.find_item(
+                    items=dst_VfxSystemDefinitionData.data,
+                    compare_func=lambda field: field.hash == PRE_BIN_HASH[
+                        'complexEmitterDefinitionData']
+                )
+                # finding simpleEmitterDefinitionData block
+                dst_simpleEmitterDefinitionData = BINHelper.find_item(
+                    items=dst_VfxSystemDefinitionData.data,
+                    compare_func=lambda field: field.hash == PRE_BIN_HASH[
+                        'simpleEmitterDefinitionData']
+                )
+                src_simpleEmitterDefinitionData = BINHelper.find_item(
+                    items=dst_VfxSystemDefinitionData.data,
+                    compare_func=lambda field: field.hash == PRE_BIN_HASH[
+                        'simpleEmitterDefinitionData']
+                )
+                for dst_emitters, src_emitters in [
+                    (dst_complexEmitterDefinitionData,
+                     src_complexEmitterDefinitionData),
+                    (dst_simpleEmitterDefinitionData,
+                     src_simpleEmitterDefinitionData)
+                ]:
+                    if dst_emitters == None or src_emitters == None:
+                        continue
+                    for dst_VfxEmitterDefinitionData in dst_emitters.data:
+                        # find dst emitterName
+                        dst_emitterName = BINHelper.find_item(
+                            items=dst_VfxEmitterDefinitionData.data,
+                            compare_func=lambda field: field.hash == PRE_BIN_HASH['emitterName'],
+                            return_func=lambda field: field.data
+                        )
+                        if dst_emitterName != None:
+                            # matching VfxEmitterDefinitionData with emitterName
+                            src_VfxEmitterDefinitionData = BINHelper.find_item(
+                                items=src_emitters.data,
+                                compare_func=lambda emitter: BINHelper.find_item(
+                                    items=emitter.data,
+                                    compare_func=lambda field: field.hash == PRE_BIN_HASH[
+                                        'emitterName'] and field.data == dst_emitterName
+                                ) != None
                             )
-                            if src_field == None:
-                                continue
-                            dst_field.data = src_field.data
-                            LOG(
-                                f'hapiBin: Done: Copy {entry_name}.{emitter_name}.{field_hash}')
+                            if src_VfxEmitterDefinitionData != None:
+                                # copy colors from src_VfxEmitterDefinitionData to dst_VfxEmitterDefinitionData:
+                                for dst_field in dst_VfxEmitterDefinitionData.data:
+                                    for field_name in (
+                                        'color',
+                                        'birthColor',
+                                        'reflectionDefinition',
+                                        'lingerColor'
+                                    ):
+                                        if dst_field.hash == PRE_BIN_HASH[field_name]:
+                                            src_field = BINHelper.find_item(
+                                                items=src_VfxEmitterDefinitionData.data,
+                                                compare_func=lambda field: field.hash == PRE_BIN_HASH[
+                                                    field_name]
+                                            )
+                                            if src_field != None:
+                                                dst_field.data = src_field.data
+                                                LOG(
+                                                    f'hapiBin: Done: Copy {dst_particlePath}.{dst_emitterName}.{field_name}')
+        elif dst_entry.type == PRE_BIN_HASH['StaticMaterialDef']:
+            # matching StaticMaterialDef
+            dst_StaticMaterialDef = dst_entry
+            src_StaticMaterialDef = BINHelper.find_item(
+                items=src_bin.entries,
+                compare_func=lambda entry: entry.hash == dst_StaticMaterialDef.hash and entry.type == PRE_BIN_HASH[
+                    'StaticMaterialDef']
+            )
+            if src_StaticMaterialDef != None:
+                # finding name
+                dst_name = BINHelper.find_item(
+                    items=dst_StaticMaterialDef.data,
+                    compare_func=lambda field: field.hash == PRE_BIN_HASH['name'],
+                    return_func=lambda field: field.data
+                )
+                if dst_name == None:
+                    dst_name == dst_StaticMaterialDef.hash
+                # finding paramValues
+                dst_paramValues = BINHelper.find_item(
+                    items=dst_StaticMaterialDef.data,
+                    compare_func=lambda field: field.hash == PRE_BIN_HASH['paramValues']
+                )
+                src_paramValues = BINHelper.find_item(
+                    items=src_StaticMaterialDef.data,
+                    compare_func=lambda field: field.hash == PRE_BIN_HASH['paramValues']
+                )
+                if dst_paramValues != None and src_paramValues != None:
+                    # matching StaticMaterialShaderParamDef.Fresnel_Color
+                    dst_StaticMaterialShaderParamDef_Fresnel_Color = BINHelper.find_item(
+                        items=dst_paramValues.data,
+                        compare_func=lambda param: BINHelper.find_item(
+                            items=param.data,
+                            compare_func=lambda field: field.hash == PRE_BIN_HASH[
+                                'name'] and field.data == 'Fresnel_Color'
+                        ) != None
+                    )
+                    src_StaticMaterialShaderParamDef_Fresnel_Color = BINHelper.find_item(
+                        items=src_paramValues.data,
+                        compare_func=lambda param: BINHelper.find_item(
+                            items=param.data,
+                            compare_func=lambda field: field.hash == PRE_BIN_HASH[
+                                'name'] and field.data == 'Fresnel_Color'
+                        ) != None
+                    )
+                    # copy StaticMaterialShaderParamDef.Fresnel_Color
+                    if dst_StaticMaterialShaderParamDef_Fresnel_Color != None and src_StaticMaterialShaderParamDef_Fresnel_Color != None:
+                        dst_StaticMaterialShaderParamDef_Fresnel_Color.data = src_StaticMaterialShaderParamDef_Fresnel_Color.data
+                        LOG(
+                            f'hapiBin: Done: Copy {dst_name}.StaticMaterialShaderParamDef.Fresnel_Color')
+                # finding dynamicMaterial
+                dst_dynamicMaterial = BINHelper.find_item(
+                    items=dst_StaticMaterialDef.data,
+                    compare_func=lambda field: field.hash == PRE_BIN_HASH['dynamicMaterial']
+                )
+                src_dynamicMaterial = BINHelper.find_item(
+                    items=src_StaticMaterialDef.data,
+                    compare_func=lambda field: field.hash == PRE_BIN_HASH['dynamicMaterial']
+                )
+                if dst_dynamicMaterial != None and src_dynamicMaterial != None:
+                    dst_parameters = BINHelper.find_item(
+                        items=dst_dynamicMaterial.data,
+                        compare_func=lambda field: field.hash == PRE_BIN_HASH['parameters']
+                    )
+                    if dst_parameters == None:
+                        continue
+                    src_parameters = BINHelper.find_item(
+                        items=src_dynamicMaterial.data,
+                        compare_func=lambda field: field.hash == PRE_BIN_HASH['parameters']
+                    )
+                    if src_parameters == None:
+                        continue
+                    # matching DynamicMaterialParameterDef.Fresnel_Color
+                    dst_DynamicMaterialParameterDef_Fresnel_Color = BINHelper.find_item(
+                        items=dst_parameters.data,
+                        compare_func=lambda param: BINHelper.find_item(
+                            items=param.data,
+                            compare_func=lambda field: field.hash == PRE_BIN_HASH[
+                                'name'] and field.data == 'Fresnel_Color'
+                        ) != None
+                    )
+                    if dst_DynamicMaterialParameterDef_Fresnel_Color == None:
+                        continue
+                    src_DynamicMaterialParameterDef_Fresnel_Color = BINHelper.find_item(
+                        items=src_parameters.data,
+                        compare_func=lambda param: BINHelper.find_item(
+                            items=param.data,
+                            compare_func=lambda field: field.hash == PRE_BIN_HASH[
+                                'name'] and field.data == 'Fresnel_Color'
+                        ) != None
+                    )
+                    if src_DynamicMaterialParameterDef_Fresnel_Color == None:
+                        continue
+                    # matching driver
+                    dst_driver = BINHelper.find_item(
+                        items=dst_DynamicMaterialParameterDef_Fresnel_Color.data,
+                        compare_func=lambda field: field.hash == PRE_BIN_HASH['driver']
+                    )
+                    if dst_driver == None:
+                        return
+                    src_driver = BINHelper.find_item(
+                        items=src_DynamicMaterialParameterDef_Fresnel_Color.data,
+                        compare_func=lambda field: field.hash == PRE_BIN_HASH['driver']
+                    )
+                    if src_driver == None:
+                        return
+                    # matching mElements
+                    dst_mElements = BINHelper.find_item(
+                        items=dst_driver.data,
+                        compare_func=lambda field: field.hash == PRE_BIN_HASH['mElements']
+                    )
+                    if dst_mElements == None:
+                        return
+                    src_mElements = BINHelper.find_item(
+                        items=src_driver.data,
+                        compare_func=lambda field: field.hash == PRE_BIN_HASH['mElements']
+                    )
+                    if src_mElements == None:
+                        return
+                    # matching SwitchMaterialDriverElement by order
+                    src_mElements_length = len(src_mElements.data)
+                    for id, dst_SwitchMaterialDriverElement in enumerate(dst_mElements.data):
+                        if id >= src_mElements_length:
+                            continue
+                        src_SwitchMaterialDriverElement = src_mElements.data[id]
+                        # matching mValue
+                        dst_mValue = BINHelper.find_item(
+                            items=dst_SwitchMaterialDriverElement.data,
+                            compare_func=lambda field: field.hash == PRE_BIN_HASH['mValue']
+                        )
+                        if dst_mValue == None:
+                            return
+                        src_mValue = BINHelper.find_item(
+                            items=src_SwitchMaterialDriverElement.data,
+                            compare_func=lambda field: field.hash == PRE_BIN_HASH['mValue']
+                        )
+                        if src_mValue == None:
+                            return
+                        # copy colors from src_mValue to dst_mValue
+                        for dst_field in dst_mValue.data:
+                            for field_name in (
+                                'colors',
+                                'mColorOn',
+                                'mColorOff',
+                            ):
+                                if dst_field.hash == PRE_BIN_HASH[field_name]:
+                                    src_field = BINHelper.find_item(
+                                        items=src_mValue.data,
+                                        compare_func=lambda field: field.hash == PRE_BIN_HASH[
+                                            field_name]
+                                    )
+                                    if src_field != None:
+                                        dst_field.data = src_field.data
+                                        LOG(
+                                            f'hapiBin: Done: Copy {dst_name}.DynamicMaterialParameterDef.Fresnel_Color.{id}.{field_name}')
 
     write_bin(dst, dst_bin)
     LOG(f'hapiBin: Done: Copy vfx colors from {src} to {dst}.')

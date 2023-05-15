@@ -313,8 +313,9 @@ def create_CSLMAO_page():
         def enable_cmd(widget):
             if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
                 return
-            mod_id = next((id for id, stuffs in enumerate(
-                tk_widgets.CSLMAO.mods) if widget == stuffs[1]), None)
+            for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
+                if widget == stuffs[1]:
+                    break
             mod_enable = tk_widgets.CSLMAO.mods[mod_id][4]
             cslmao.CSLMAO.MODS[mod_id].enable = mod_enable.get()
             cslmao.save_mods()
@@ -359,8 +360,9 @@ def create_CSLMAO_page():
         mod_action_frame.columnconfigure(3, weight=0)
 
         def locate_cmd(widget):
-            mod_id = next((id for id, stuffs in enumerate(
-                tk_widgets.CSLMAO.mods) if widget == stuffs[5]), None)
+            for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
+                if widget == stuffs[5]:
+                    break
             os.startfile(os.path.join(
                 cslmao.CSLMAO.raw_dir,
                 cslmao.CSLMAO.MODS[mod_id].path
@@ -378,8 +380,9 @@ def create_CSLMAO_page():
         def edit_cmd(widget):
             if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
                 return
-            mod_id = next((id for id, stuffs in enumerate(
-                tk_widgets.CSLMAO.mods) if widget == stuffs[6]), None)
+            for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
+                if widget == stuffs[6]:
+                    break
             expand = tk_widgets.CSLMAO.mods[mod_id][3]
             expand = not expand
             tk_widgets.CSLMAO.mods[mod_id][3] = expand
@@ -401,8 +404,9 @@ def create_CSLMAO_page():
         def export_cmd(widget):
             if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
                 return
-            mod_id = next((id for id, stuffs in enumerate(
-                tk_widgets.CSLMAO.mods) if widget == stuffs[7]), None)
+            for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
+                if widget == stuffs[7]:
+                    break
             mod = cslmao.CSLMAO.MODS[mod_id]
             info, image = cslmao.get_info(mod)
             fantome_path = tkfd.asksaveasfilename(
@@ -438,8 +442,9 @@ def create_CSLMAO_page():
         def remove_cmd(widget):
             if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
                 return
-            mod_id = next((id for id, stuffs in enumerate(
-                tk_widgets.CSLMAO.mods) if widget == stuffs[8]), None)
+            for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
+                if widget == stuffs[8]:
+                    break
             tk_widgets.CSLMAO.mods.pop(mod_id)[0].destroy()
             cslmao.delete_mod(cslmao.CSLMAO.MODS.pop(mod_id))
             cslmao.save_mods()
@@ -502,8 +507,9 @@ def create_CSLMAO_page():
         def edit_image_cmd(widget):
             if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
                 return
-            mod_id = next((id for id, stuffs in enumerate(
-                tk_widgets.CSLMAO.mods) if widget == stuffs[11]), None)
+            for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
+                if widget == stuffs[11]:
+                    break
             png_path = tkfd.askopenfilename(
                 title='Select PNG',
                 parent=tk_widgets.main_tk,
@@ -563,8 +569,9 @@ def create_CSLMAO_page():
         def reset_cmd(widget):
             if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
                 return
-            mod_id = next((id for id, stuffs in enumerate(
-                tk_widgets.CSLMAO.mods) if widget == stuffs[14]), None)
+            for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
+                if widget == stuffs[14]:
+                    break
             mod = cslmao.CSLMAO.MODS[mod_id]
             info, image = cslmao.get_info(mod)
             tk_widgets.CSLMAO.mods[mod_id][15].delete(0, tk.END)
@@ -592,8 +599,9 @@ def create_CSLMAO_page():
         def save_cmd(widget):
             if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
                 return
-            mod_id = next((id for id, stuffs in enumerate(
-                tk_widgets.CSLMAO.mods) if widget == stuffs[9]), None)
+            for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
+                if widget == stuffs[9]:
+                    break
             info = {
                 'Name': name_entry.get(),
                 'Author': author_entry.get(),
@@ -2548,7 +2556,7 @@ def create_HP_page():
         },
         {
             'name': 'Copy VFX colors from BIN2 to BIN1',
-            'desc': 'Copy color, birthColor, reflectionDefinition, lingerColor of all VfxSystemDefinitionData.VfxEmitterDefinitionData fields.',
+            'desc': 'Copy color, birthColor, reflectionDefinition, lingerColor of VfxEmitterDefinitionData.\nCopy colors, mColorOn, mColorOff of StaticMaterialShaderParamDef/DynamicMaterialParameterDef.',
             'func': lambda: hp_func(1),
             'icon': EmojiImage.create('🎨')
         }
@@ -2572,7 +2580,9 @@ def create_HP_page():
         func_button.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NS+tk.W)
         func_label = ctk.CTkLabel(
             func_frame,
-            text=func['desc']
+            text=func['desc'],
+            anchor=tk.W,
+            justify=tk.LEFT
         )
         func_label.grid(row=1, column=0, padx=5, pady=5, sticky=tk.NS+tk.W)
     tk_widgets.HP.action_frame.rowconfigure(len(hp_funcs), weight=699)

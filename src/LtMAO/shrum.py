@@ -58,8 +58,11 @@ def rename_anm(path, olds, news):
             for i in range(joint_count):
                 offset = bs.tell()
                 joint_hash, = bs.read_u32()
-                joint_id = next((id for id, old_hash in enumerate(
-                    olds_hashes) if old_hash == joint_hash), None)
+                joint_id = None
+                for id, old_hash in enumerate(olds_hashes):
+                    if old_hash == joint_hash:
+                        joint_id = id
+                        break
                 if joint_id != None:
                     bs.seek(offset)
                     bs.write_u32(news_hashes[joint_id])
@@ -84,8 +87,11 @@ def rename_anm(path, olds, news):
                 for i in range(joint_count):
                     offset = bs.tell()
                     joint_hash, = bs.read_u32()
-                    joint_id = next((id for id, old_hash in enumerate(
-                        olds_hashes) if old_hash == joint_hash), None)
+                    joint_id = None
+                    for id, old_hash in enumerate(olds_hashes):
+                        if old_hash == joint_hash:
+                            joint_id = id
+                            break
                     if joint_id != None:
                         bs.seek(offset)
                         bs.write_u32(news_hashes[joint_id])
@@ -103,8 +109,11 @@ def rename_anm(path, olds, news):
                 for i in range(frame_count * track_count):
                     offset = bs.tell()
                     joint_hash, = bs.read_u32()
-                    joint_id = next((id for id, old_hash in enumerate(
-                        olds_hashes) if old_hash == joint_hash), None)
+                    joint_id = None
+                    for id, old_hash in enumerate(olds_hashes):
+                        if old_hash == joint_hash:
+                            joint_id = id
+                            break
                     if joint_id != None:
                         bs.seek(offset)
                         bs.write_u32(news_hashes[joint_id])
@@ -117,8 +126,11 @@ def rename_anm(path, olds, news):
                 for i in range(track_count):
                     offset = bs.tell()
                     joint_name, = bs.read_a_padded(32)
-                    joint_id = next((id for id, old in enumerate(
-                        olds) if old == joint_name), None)
+                    joint_id = None
+                    for id, old in enumerate(olds):
+                        if old == joint_name:
+                            joint_id = id
+                            break
                     if joint_id != None:
                         bs.seek(offset)
                         bs.write_a_padded(news[joint_id], 32)

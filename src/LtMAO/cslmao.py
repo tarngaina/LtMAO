@@ -33,11 +33,10 @@ class CSLMAO:
     blank_image = Image.new('RGB', (144, 81))
 
     def create_mod(mod_path, enable, profile):
-        existed_mod = next(
-            (mod for mod in CSLMAO.MODS if mod.path == mod_path), None)
-        if existed_mod != None:
-            raise Exception(
-                f'cslmao: Failed: Create mod: A mod with path: {mod_path} already existed in profile {existed_mod.profile}.')
+        for mod in CSLMAO.MODS:
+            if mod.path == mod_path:
+                raise Exception(
+                    f'cslmao: Failed: Create mod: A mod with path: {mod_path} already existed in profile {mod.profile}.')
         m = MOD(mod_path, enable, profile)
         CSLMAO.MODS.append(m)
         return m

@@ -183,16 +183,20 @@ class ExtractedHashes:
                 for entry in bin.entries:
                     # extract VfxSystemDefinitionData <-> particlePath
                     if entry.type == PRE_BIN_HASH['VfxSystemDefinitionData']:
-                        particle_path_field = next((field for field in entry.data if field.hash == PRE_BIN_HASH[
-                            'particlePath']), None)
-                        if particle_path_field != None:
-                            hashtables['hashes.binentries.txt'][entry.hash] = particle_path_field.data
+                        particlePath = pyRitoFile.BINHelper.find_item(
+                            items=entry.data,
+                            compare_func=lambda field: field.hash == PRE_BIN_HASH['particlePath']
+                        )
+                        if particlePath != None:
+                            hashtables['hashes.binentries.txt'][entry.hash] = particlePath.data
                     # extract StaticMaterialDef <-> name
                     elif entry.type == PRE_BIN_HASH['StaticMaterialDef']:
-                        name_field = next((field for field in entry.data if field.hash == PRE_BIN_HASH[
-                            'name']), None)
-                        if name_field != None:
-                            hashtables['hashes.binentries.txt'][entry.hash] = name_field.data
+                        name = pyRitoFile.BINHelper.find_item(
+                            items=entry.data,
+                            compare_func=lambda field: field.hash == PRE_BIN_HASH['name']
+                        )
+                        if name != None:
+                            hashtables['hashes.binentries.txt'][entry.hash] = name.data
                 # extract file hashes
                 for entry in bin.entries:
                     for field in entry.data:

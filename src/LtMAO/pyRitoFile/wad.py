@@ -179,8 +179,12 @@ class WADChunk:
         self.checksum = xxh3_64(self.data).intdigest()
         # check duplicated data
         if previous_chunks:
-            duped_id, duped_chunk = next(((id, chunk) for id, chunk in enumerate(previous_chunks) if chunk.checksum == self.checksum and chunk.compressed_size ==
-                                          self.compressed_size and chunk.decompressed_size == self.decompressed_size), (None, None))
+            duped_id, duped_chunk = None, None
+            for id, chunk in enumerate(previous_chunks):
+                if chunk.checksum == self.checksum and chunk.compressed_size == self.compressed_size and chunk.decompressed_size == self.decompressed_size:
+                    duped_id = id
+                    duped_chunk = chunk
+                    break
             if duped_chunk != None:
                 # if there is a duped chunk in previous
                 if not duped_chunk.duplicated:
