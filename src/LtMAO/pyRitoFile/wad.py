@@ -244,12 +244,12 @@ class WAD:
             self.signature, = bs.read_a(2)
             if self.signature != 'RW':
                 raise Exception(
-                    f'Failed: Read WAD {path}: Wrong file signature: {self.signature}')
+                    f'pyRitoFile: Failed: Read WAD {path}: Wrong file signature: {self.signature}')
             major, minor = bs.read_u8(2)
             self.version = float(f'{major}.{minor}')
             if major > 3:
                 raise Exception(
-                    f'Failed: Read WAD {path}: Unsupported file version: {self.version}')
+                    f'pyRitoFile: Failed: Read WAD {path}: Unsupported file version: {self.version}')
             wad_checksum = 0
             if major == 2:
                 ecdsa_len = bs.read_u8()

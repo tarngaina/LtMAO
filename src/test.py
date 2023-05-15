@@ -14,5 +14,8 @@ def db(func):
 
 
 if __name__ == '__main__':
-    from LtMAO import hapiBin
-    hapiBin.copy_vfx_colors('D:/test3/new.bin', 'D:/test3/old.bin')
+    from LtMAO import pyRitoFile
+    pyRitoFile.read_anm('D:/test3/v3.anm')
+    pyRitoFile.read_anm('D:/test3/v4.anm')
+    pyRitoFile.read_anm('D:/test3/v5.anm')
+    pyRitoFile.read_anm('D:/test3/canm.anm')

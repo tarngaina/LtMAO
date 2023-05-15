@@ -69,7 +69,7 @@ class SO:
             self.signature = lines[0]
             if self.signature != '[ObjectBegin]':
                 raise Exception(
-                    f'Failed: Read SCO {path}: Wrong file signature: {self.signature}')
+                    f'pyRitoFile: Failed: Read SCO {path}: Wrong file signature: {self.signature}')
 
             index = 1  # skip magic
             len1234 = len(lines)
@@ -129,13 +129,13 @@ class SO:
             self.signature, = bs.read_a(8)
             if self.signature != 'r3d2Mesh':
                 raise Exception(
-                    f'Failed: Read SCB {path}: Wrong file signature: {self.signature}')
+                    f'pyRitoFile: Failed: Read SCB {path}: Wrong file signature: {self.signature}')
 
             major, minor = bs.read_u16(2)
             self.version = float(f'{major}.{minor}')
             if major not in (3, 2) and minor != 1:
                 raise Exception(
-                    f'Failed: Read SCB {path}: Unsupported file version: {major}.{minor}')
+                    f'pyRitoFile: Failed: Read SCB {path}: Unsupported file version: {major}.{minor}')
 
             self.name, = bs.read_a_padded(128)
             vertex_count, face_count, self.flags = bs.read_u32(3)

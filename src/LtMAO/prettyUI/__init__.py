@@ -909,6 +909,7 @@ def create_LFI_page():
                             '*.anm',
                             '*.mapgeo',
                             '*.bnk',
+                            '*.wpk',
                             '*.wad.client'
                         )
                      ),

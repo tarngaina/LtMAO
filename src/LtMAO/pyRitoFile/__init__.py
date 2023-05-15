@@ -1,6 +1,7 @@
 from LtMAO.pyRitoFile.skl import SKL, SKLJoint, SKLEncoder
 from LtMAO.pyRitoFile.skn import SKN, SKNEncoder
 from LtMAO.pyRitoFile.so import SO, SOEncoder
+from LtMAO.pyRitoFile.anm import ANM, ANMPose, ANMTrack, ANMErrorMetric, ANMEncoder
 from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINEncoder, BINHelper, name_to_hex as bin_hash
 from LtMAO.pyRitoFile.bnk import BNK
 from LtMAO.pyRitoFile.wad import WAD, WADChunk, WADCompressionType, WADEncoder, name_to_hex as wad_hash, guess_extension
@@ -17,6 +18,8 @@ def write_json(path, obj):
             dump(obj, f, indent=4, cls=SKNEncoder)
         elif isinstance(obj, SO):
             dump(obj, f, indent=4, cls=SKNEncoder)
+        elif isinstance(obj, ANM):
+            dump(obj, f, indent=4, cls=ANMEncoder)
         elif isinstance(obj, BIN):
             dump(obj, f, indent=4, cls=BINEncoder)
         elif isinstance(obj, WAD):
@@ -30,6 +33,8 @@ def to_json(obj):
         return dumps(obj, indent=4, cls=SKNEncoder)
     elif isinstance(obj, SO):
         return dumps(obj, indent=4, cls=SOEncoder)
+    elif isinstance(obj, ANM):
+        return dumps(obj, indent=4, cls=ANMEncoder)
     elif isinstance(obj, BIN):
         return dumps(obj, indent=4, cls=BINEncoder)
     elif isinstance(obj, WAD):
@@ -74,6 +79,16 @@ def read_scb(path, raw=None):
 
 def write_scb(path, so):
     so.write_scb(path)
+
+
+def read_anm(path, raw=None):
+    anm = ANM()
+    anm.read(path, raw)
+    return anm
+
+
+def write_anm(path, anm):
+    anm.write(path)
 
 
 def read_bin(path, raw=None):

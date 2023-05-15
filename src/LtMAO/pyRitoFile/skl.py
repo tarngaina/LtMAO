@@ -83,7 +83,7 @@ class SKL:
                     3)
                 if self.version != 0:
                     raise Exception(
-                        f'Failed: Read SKL {path}: Unsupported file version: {self.version}')
+                        f'pyRitoFile: Failed: Read SKL {path}: Unsupported file version: {self.version}')
                 self.signature = hex(self.signature)
                 # unknown
                 self.flags, = bs.read_u16()
@@ -136,12 +136,12 @@ class SKL:
                 self.signature, = bs.read_a(8)
                 if self.signature != 'r3d2sklt':
                     raise Exception(
-                        f'Failed: Read SKL {path}: Wrong file signature: {self.signature}')
+                        f'pyRitoFile: Failed: Read SKL {path}: Wrong file signature: {self.signature}')
 
                 self.version, = bs.read_u32()
                 if self.version not in (1, 2):
                     raise Exception(
-                        f'Failed: Read SKL {path}: Unsupported file version: {self.version}')
+                        f'pyRitoFile: Failed: Read SKL {path}: Unsupported file version: {self.version}')
 
                 # skeleton id
                 skeleton_id, = bs.read_u32()

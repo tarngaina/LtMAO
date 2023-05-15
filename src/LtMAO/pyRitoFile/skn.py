@@ -88,14 +88,14 @@ class SKN:
             self.signature, = bs.read_u32()
             if self.signature != 0x00112233:
                 raise Exception(
-                    f'Failed: Read SKN {path}: Wrong signature file: {hex(self.signature)}')
+                    f'pyRitoFile: Failed: Read SKN {path}: Wrong signature file: {hex(self.signature)}')
             self.signature = hex(self.signature)
 
             major, minor = bs.read_u16(2)
             self.version = float(f'{major}.{minor}')
             if major not in (0, 2, 4) and minor != 1:
                 raise Exception(
-                    f'Failed: Read SKN {path}: Unsupported file version: {major}.{minor}')
+                    f'pyRitoFile: Failed: Read SKN {path}: Unsupported file version: {major}.{minor}')
 
             if major == 0:
                 # version 0 doesn't have submesh data

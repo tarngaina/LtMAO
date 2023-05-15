@@ -61,28 +61,33 @@ def read_lfi(path, hashtables=None):
         if ftype == 'skl':
             obj = pyRitoFile.read_skl(path)
             LOG(
-                f'leaguefile_inspector: Done: File Inspector: Read SKL: {path}')
+                f'leaguefile_inspector: Done: Read SKL: {path}')
             json = pyRitoFile.to_json(obj)
         elif ftype == 'skn':
             obj = pyRitoFile.read_skn(path)
             LOG(
-                f'leaguefile_inspector: Done: File Inspector: Read SKN: {path}')
+                f'leaguefile_inspector: Done: Read SKN: {path}')
             json = pyRitoFile.to_json(obj)
         elif ftype == 'sco':
             obj = pyRitoFile.read_sco(path)
             LOG(
-                f'leaguefile_inspector: Done: File Inspector: Read SCO: {path}')
+                f'leaguefile_inspector: Done: Read SCO: {path}')
             json = pyRitoFile.to_json(obj)
         elif ftype == 'scb':
             obj = pyRitoFile.read_scb(path)
             LOG(
-                f'leaguefile_inspector: Done: File Inspector: Read SCB: {path}')
+                f'leaguefile_inspector: Done: Read SCB: {path}')
+            json = pyRitoFile.to_json(obj)
+        elif ftype == 'anm':
+            obj = pyRitoFile.read_anm(path)
+            LOG(
+                f'leaguefile_inspector: Done: Read ANM: {path}')
             json = pyRitoFile.to_json(obj)
         elif ftype == 'bin':
             obj = pyRitoFile.read_bin(path)
             obj.un_hash(hashtables)
             LOG(
-                f'leaguefile_inspector: Done: File Inspector: Read BIN: {path}')
+                f'leaguefile_inspector: Done: Read BIN: {path}')
             json = pyRitoFile.to_json(obj)
         elif ftype == 'wad':
             obj = pyRitoFile.read_wad(path)
@@ -93,13 +98,13 @@ def read_lfi(path, hashtables=None):
                     chunk.read_data(bs)
                     chunk.free_data()
             LOG(
-                f'leaguefile_inspector: Done: File Inspector: Read WAD: {path}')
+                f'leaguefile_inspector: Done: Read WAD: {path}')
             json = pyRitoFile.to_json(obj)
         else:
             LOG(
-                f'leaguefile_inspector: Failed: File Inspector: Read: {path}: Unknown file type')
+                f'leaguefile_inspector: Failed: Read: {path}: Unknown file type')
     except Exception as e:
-        LOG(f'leaguefile_inspector: Failed: File Inspector: Read: {path}: {e}')
+        LOG(f'leaguefile_inspector: Failed: Read: {path}: {e}')
     return path, to_human(os.stat(path).st_size), ftype, json
 
 
@@ -112,15 +117,15 @@ def read_ritobin(path):
         )
         if p.returncode != 0:
             raise Exception(
-                'leaguefile_inspector: Failed to read with ritobin.')
+                'leaguefile_inspector: Failed: Read ritobin')
         py_file = '.'.join(path.split('.bin')[:-1]) + '.py'
         with open(py_file, 'r') as f:
             json = f.read()
         os.remove(py_file)
-        LOG(f'leaguefile_inspector: Done: File Inspector: Read BIN: {path}')
+        LOG(f'leaguefile_inspector: Done: Read ritobin: {path}')
     except Exception as e:
         LOG(
-            f'leaguefile_inspector: Failed: File Inspector: Read Ritobin: {path}: {e}')
+            f'leaguefile_inspector: Failed: Read ritobin: {path}: {e}')
     return path, to_human(os.stat(path).st_size), 'bin', json
 
 
