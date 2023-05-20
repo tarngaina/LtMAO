@@ -14,8 +14,7 @@ def db(func):
 
 
 if __name__ == '__main__':
-    from LtMAO import pyRitoFile
-    pyRitoFile.read_anm('D:/test3/v3.anm')
-    pyRitoFile.read_anm('D:/test3/v4.anm')
-    pyRitoFile.read_anm('D:/test3/v5.anm')
-    pyRitoFile.read_anm('D:/test3/canm.anm')
+    from PIL import Image
+    with Image.open('D:/test3/test.dds') as img:
+        print(img.width)
+        print(img.height)

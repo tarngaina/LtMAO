@@ -89,6 +89,11 @@ def read_lfi(path, hashtables=None):
             LOG(
                 f'leaguefile_inspector: Done: Read BIN: {path}')
             json = pyRitoFile.to_json(obj)
+        elif ftype == 'tex':
+            obj = pyRitoFile.read_tex(path)
+            LOG(
+                f'leaguefile_inspector: Done: Read TEX: {path}')
+            json = pyRitoFile.to_json(obj)
         elif ftype == 'wad':
             obj = pyRitoFile.read_wad(path)
             obj.un_hash(hashtables)

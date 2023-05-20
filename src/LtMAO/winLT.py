@@ -81,7 +81,21 @@ class Context:
             shell='SystemFileAssociations\\.scb\\shell',
             sub_commands='LtMAO.UVEE;LtMAO.LFI;'
         )
-
+        # .tex contexts
+        Context.create_submenu(
+            shell='SystemFileAssociations\\.tex\\shell',
+            sub_commands='LtMAO.tex2dds;LtMAO.LFI;'
+        )
+        # .dds contexts
+        Context.create_submenu(
+            shell='SystemFileAssociations\\.dds\\shell',
+            sub_commands='LtMAO.dds2tex;LtMAO.dds2png;LtMAO.dds2x4x'
+        )
+        # .png contexts
+        Context.create_submenu(
+            shell='SystemFileAssociations\\.png\\shell',
+            sub_commands='LtMAO.png2dds;'
+        )
         # create commands
         with winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE, 'Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell') as key:
             # RawToWad
@@ -140,6 +154,41 @@ class Context:
                 cmd_desc='pyntex: Check mentioned, missing files of BINs',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="pyntex" -src="%V"'
             )
+            # tex2dds
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.tex2dds',
+                cmd_desc='Ritoddstex: Convert To DDS',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="tex2dds" -src="%V"'
+            )
+            # dds2tex
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.dds2tex',
+                cmd_desc='Ritoddstex: Convert To TEX',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2tex" -src="%V"'
+            )
+            # dds2png
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.dds2png',
+                cmd_desc='ImageMagick: Convert To PNG',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2png" -src="%V"'
+            )
+            # png2dds
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.png2dds',
+                cmd_desc='ImageMagick: Convert To DDS (No Mipmap)',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="png2dds" -src="%V"'
+            )
+            # dds2x4x
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.dds2x4x',
+                cmd_desc='ImageMagick: Make 2x_, 4x_ DDS',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2x4x" -src="%V"'
+            )
         LOG('winLT: Done: Create Explorer Contexts')
 
     @staticmethod
@@ -168,6 +217,12 @@ class Context:
         Context.remove_submenu('SystemFileAssociations\\.sco\\shell')
         # .scb contexts
         Context.remove_submenu('SystemFileAssociations\\.scb\\shell')
+        # .tex contexts
+        Context.remove_submenu('SystemFileAssociations\\.tex\\shell')
+        # .dds contexts
+        Context.remove_submenu('SystemFileAssociations\\.dds\\shell')
+        # .png contexts
+        Context.remove_submenu('SystemFileAssociations\\.png\\shell')
         LOG('winLT: Done: Remove Explorer Contexts')
 
 

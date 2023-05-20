@@ -88,6 +88,64 @@ class CLI:
         from LtMAO import pyntex
         pyntex.parse(src)
 
+    @staticmethod
+    def tex2dds(src):
+        from LtMAO import Ritoddstex
+        Ritoddstex.tex2dds(src)
+
+    @staticmethod
+    def dds2tex(src):
+        from LtMAO import Ritoddstex
+        Ritoddstex.dds2tex(src)
+
+    @staticmethod
+    def png2dds(src, dst):
+        from LtMAO import ext_tools
+        if dst == None:
+            dst = src.replace('.png', '.dds')
+        ext_tools.ImageMagick.to_dds(
+            src=src,
+            dds=dst,
+            format='dxt5',
+            mipmap=False
+        )
+
+    @staticmethod
+    def dds2png(src, dst):
+        from LtMAO import ext_tools
+        if dst == None:
+            dst = src.replace('.dds', '.png')
+        ext_tools.ImageMagick.to_png(
+            src=src,
+            png=dst,
+        )
+
+    @staticmethod
+    def dds2x4x(src):
+        import os
+        import os.path
+        from PIL import Image
+        from LtMAO import ext_tools
+        with Image.open(src) as img:
+            basename = os.path.basename(src)
+            dirname = os.path.dirname(src)
+            width_2x = img.width // 2
+            height_2x = img.height // 2
+            file_2x = os.path.join(dirname, '2x_'+basename).replace('\\', '/')
+            width_4x = img.width // 4
+            height_4x = img.height // 4
+            file_4x = os.path.join(dirname, '4x_'+basename).replace('\\', '/')
+        print(f'dds2x4x: Running: Create: {file_2x}')
+        ext_tools.ImageMagick.resize_dds(
+            src=src,
+            dst=file_2x, width=width_2x, height=height_2x
+        )
+        print(f'dds2x4x: Running: Create: {file_4x}')
+        ext_tools.ImageMagick.resize_dds(
+            src=src,
+            dst=file_4x, width=width_4x, height=height_4x
+        )
+
 
 def main():
     args = parse_arguments()
@@ -104,8 +162,16 @@ def main():
         CLI.uvee(args.source)
     elif args.tool == 'hashextract':
         CLI.hashextract(args.source)
-    elif args.tool == 'pyntex':
-        CLI.pyntex(args.source)
+    elif args.tool == 'dds2tex':
+        CLI.dds2tex(args.source)
+    elif args.tool == 'tex2dds':
+        CLI.tex2dds(args.source)
+    elif args.tool == 'dds2png':
+        CLI.dds2png(args.source, args.destination)
+    elif args.tool == 'png2dds':
+        CLI.png2dds(args.source, args.destination)
+    elif args.tool == 'dds2x4x':
+        CLI.dds2x4x(args.source)
 
 
 if __name__ == '__main__':

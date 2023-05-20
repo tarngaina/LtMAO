@@ -102,13 +102,13 @@ An app with multiple functions related to updating BIN file:
 Simple tool to unpack, pack WAD files.
 
 Can bulk unpack multiple WADs into same output. 
-**Example:** Bulk unpacking all voiced wad then throw into `vo_helper` is a fast way to create a champion voicepack for specific language mod.
+**Example:** Bulk unpacking all voiced wad then throw into [vo_helper](https://github.com/tarngaina/LtMAO#vo_helper) is a fast way to create a champion voicepack for specific language mod.
 
 ![](https://i.imgur.com/bMV57O7.png)
 
 
 ## pyntex
-A similar app like `bintex` from [Hacksaw](https://github.com/TheMartynasXS/Hacksaw).
+[Hacksaw/bintex](https://github.com/TheMartynasXS/Hacksaw) but rewritten.
 Print out mentioned & missing files in all BINs inside a WAD or a Folder.
 
 ![](https://i.imgur.com/Tj5GPV6.png)
@@ -120,3 +120,4 @@ Print out mentioned & missing files in all BINs inside a WAD or a Folder.
 - [ritobin](https://github.com/moonshadow565/ritobin)
 - [Hacksaw](https://github.com/TheMartynasXS/Hacksaw)
 - [Uvee](https://github.com/LeagueToolkit/Uvee)
+- [Ritoddstex](https://github.com/Morilli/Ritoddstex)

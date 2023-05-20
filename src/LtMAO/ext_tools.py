@@ -83,7 +83,58 @@ class RITOBIN:
             cmds, creationflags=CREATE_NO_WINDOW,
             stdout=PIPE, stderr=STDOUT
         )
-        block_and_stream_process_output(p, 'RITOBIN: ')
+        block_and_stream_process_output(p, 'ritobin: ')
+        return p
+
+
+class ImageMagick:
+    local_file = './resources/ext_tools/magick.exe'
+
+    def to_png(src, png):
+        cmds = [
+            os.path.abspath(ImageMagick.local_file),
+            src,
+            png
+        ]
+        p = Popen(
+            cmds, creationflags=CREATE_NO_WINDOW,
+            stdout=PIPE, stderr=STDOUT
+        )
+        block_and_stream_process_output(p, 'ImageMagick: ')
+        return p
+
+    def to_dds(src, dds, format='dxt5', mipmap=False):
+        if format not in ('dxt1', 'dxt5'):
+            format = 'dxt5'
+        cmds = [
+            os.path.abspath(ImageMagick.local_file),
+            src,
+            '-define',
+            f'dds:compression={format}',
+            '-define',
+            f'dds:mipmaps={8 if mipmap else 0}',
+            dds
+        ]
+        p = Popen(
+            cmds, creationflags=CREATE_NO_WINDOW,
+            stdout=PIPE, stderr=STDOUT
+        )
+        block_and_stream_process_output(p, 'ImageMagick: ')
+        return p
+
+    def resize_dds(src, dst, width, height):
+        cmds = [
+            os.path.abspath(ImageMagick.local_file),
+            src,
+            '-resize',
+            f'{width}x{height}',
+            dst
+        ]
+        p = Popen(
+            cmds, creationflags=CREATE_NO_WINDOW,
+            stdout=PIPE, stderr=STDOUT
+        )
+        block_and_stream_process_output(p, 'ImageMagick: ')
         return p
 
 

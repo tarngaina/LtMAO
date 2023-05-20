@@ -907,6 +907,7 @@ def create_LFI_page():
                             '*.sco',
                             '*.scb',
                             '*.anm',
+                            '*.tex',
                             '*.mapgeo',
                             '*.bnk',
                             '*.wpk',

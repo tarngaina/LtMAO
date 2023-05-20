@@ -4,6 +4,7 @@ from LtMAO.pyRitoFile.so import SO, SOEncoder
 from LtMAO.pyRitoFile.anm import ANM, ANMPose, ANMTrack, ANMErrorMetric, ANMEncoder
 from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINEncoder, BINHelper, name_to_hex as bin_hash
 from LtMAO.pyRitoFile.bnk import BNK
+from LtMAO.pyRitoFile.tex import TEX, TEXFormat, TEXEncoder
 from LtMAO.pyRitoFile.wad import WAD, WADChunk, WADCompressionType, WADEncoder, name_to_hex as wad_hash, guess_extension
 from LtMAO.pyRitoFile import hash
 from LtMAO.pyRitoFile import io
@@ -22,6 +23,8 @@ def write_json(path, obj):
             dump(obj, f, indent=4, cls=ANMEncoder)
         elif isinstance(obj, BIN):
             dump(obj, f, indent=4, cls=BINEncoder)
+        elif isinstance(obj, TEX):
+            dump(obj, f, indent=4, cls=TEXEncoder)
         elif isinstance(obj, WAD):
             dump(obj, f, indent=4, cls=WADEncoder)
 
@@ -37,6 +40,8 @@ def to_json(obj):
         return dumps(obj, indent=4, cls=ANMEncoder)
     elif isinstance(obj, BIN):
         return dumps(obj, indent=4, cls=BINEncoder)
+    elif isinstance(obj, TEX):
+        return dumps(obj, indent=4, cls=TEXEncoder)
     elif isinstance(obj, WAD):
         return dumps(obj, indent=4, cls=WADEncoder)
 
@@ -67,28 +72,16 @@ def read_sco(path, raw=None):
     return so
 
 
-def write_sco(path, so):
-    so.write_sco(path)
-
-
 def read_scb(path, raw=None):
     so = SO()
     so.read_scb(path, raw)
     return so
 
 
-def write_scb(path, so):
-    so.write_scb(path)
-
-
 def read_anm(path, raw=None):
     anm = ANM()
     anm.read(path, raw)
     return anm
-
-
-def write_anm(path, anm):
-    anm.write(path)
 
 
 def read_bin(path, raw=None):
@@ -99,6 +92,12 @@ def read_bin(path, raw=None):
 
 def write_bin(path, bin):
     bin.write(path)
+
+
+def read_tex(path, raw=None):
+    tex = TEX()
+    tex.read(path, raw)
+    return tex
 
 
 def read_wad(path, raw=None):
