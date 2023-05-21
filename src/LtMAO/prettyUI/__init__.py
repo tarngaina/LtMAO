@@ -1132,7 +1132,10 @@ def create_AMV_page():
         # read bin
         bin_path = tk_widgets.AMV.bin_entry.get()
         if bin_path != '':
+            hash_manager.read_bin_hashes()
             bin_file = pyRitoFile.read_bin(bin_path)
+            bin_file.un_hash(hash_manager.HASHTABLES)
+            hash_manager.free_bin_hashes()
             tk_widgets.AMV.bin_loaded = bin_file
             LOG(f'animask_viewer: Done: Read {bin_path}')
             mask_data = animask_viewer.get_weights(bin_file)
@@ -1322,6 +1325,7 @@ def create_AMV_page():
         bin_file = tk_widgets.AMV.bin_loaded
         animask_viewer.set_weights(bin_file, mask_data)
         pyRitoFile.write_bin(bin_path, bin_file)
+        LOG(f'animask_viewer: Done: Write: {bin_path}')
     tk_widgets.AMV.save_button = ctk.CTkButton(
         tk_widgets.AMV.action_frame,
         text='Save As',

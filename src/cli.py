@@ -162,6 +162,8 @@ def main():
         CLI.uvee(args.source)
     elif args.tool == 'hashextract':
         CLI.hashextract(args.source)
+    elif args.tool == 'pyntex':
+        CLI.pyntex(args.source)
     elif args.tool == 'dds2tex':
         CLI.dds2tex(args.source)
     elif args.tool == 'tex2dds':
