@@ -9,14 +9,6 @@ def bin_hash(name):
     return f'{FNV1a(name):08x}'
 
 
-class SKLEncoder(JSONEncoder):
-    def default(self, obj):
-        if hasattr(obj, '__json__'):
-            return obj.__json__()
-        else:
-            return JSONEncoder.default(self, obj)
-
-
 class SKLJoint:
     __slots__ = (
         'id', 'name', 'bin_hash', 'parent', 'hash', 'radius', 'flags',

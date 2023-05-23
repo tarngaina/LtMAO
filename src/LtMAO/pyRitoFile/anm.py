@@ -36,14 +36,6 @@ def decompress_vec3(min, max, bytes):
     )
 
 
-class ANMEncoder(JSONEncoder):
-    def default(self, obj):
-        if hasattr(obj, '__json__'):
-            return obj.__json__()
-        else:
-            return JSONEncoder.default(self, obj)
-
-
 class ANMErrorMetric:
     __slots__ = (
         'margin', 'discontinuity_threshold'

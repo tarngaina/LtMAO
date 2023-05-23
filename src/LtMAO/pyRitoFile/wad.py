@@ -83,14 +83,6 @@ def name_or_hex_to_hash(value):
         return name_to_hash(value)
 
 
-class WADEncoder(JSONEncoder):
-    def default(self, obj):
-        if hasattr(obj, '__json__'):
-            return obj.__json__()
-        else:
-            return JSONEncoder.default(self, obj)
-
-
 class WADCompressionType(Enum):
     Raw = 0
     Gzip = 1

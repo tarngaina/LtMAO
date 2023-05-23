@@ -4,14 +4,6 @@ from enum import Enum
 from json import JSONEncoder
 
 
-class TEXEncoder(JSONEncoder):
-    def default(self, obj):
-        if hasattr(obj, '__json__'):
-            return obj.__json__()
-        else:
-            return JSONEncoder.default(self, obj)
-
-
 class TEXFormat(Enum):
     ETC1 = 1
     ETC2 = 2
@@ -43,12 +35,7 @@ class TEX:
         self.data = []
 
     def __json__(self):
-        dic = {key: getattr(self, key)
-               for key in self.__slots__}
-        for i in range(len(dic['data'])):
-            if not isinstance(dic['data'][i], str):
-                dic['data'][i] = str(dic['data'][i])
-        return dic
+        return {key: getattr(self, key) for key in self.__slots__}
 
     def stream(self, path, mode, raw=None):
         if raw != None:

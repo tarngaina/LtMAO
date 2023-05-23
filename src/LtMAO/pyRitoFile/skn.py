@@ -8,14 +8,6 @@ def bin_hash(name):
     return f'{FNV1a(name):08x}'
 
 
-class SKNEncoder(JSONEncoder):
-    def default(self, obj):
-        if hasattr(obj, '__json__'):
-            return obj.__json__()
-        else:
-            return JSONEncoder.default(self, obj)
-
-
 class SKNVertex:
     __slots__ = (
         'position', 'influences', 'weights', 'normal', 'uv',

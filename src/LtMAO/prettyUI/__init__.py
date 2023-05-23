@@ -2913,6 +2913,7 @@ def create_LOG_page():
     )
     tk_widgets.LOG.log_textbox.grid(row=0, column=0, sticky=tk.NSEW)
     Log.tk_log = tk_widgets.LOG.log_textbox
+    
 
 
 def create_ST_page():

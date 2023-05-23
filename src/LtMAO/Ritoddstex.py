@@ -112,16 +112,32 @@ def tex2dds(tex_path, dds_path=None):
     # read tex
     tex = pyRitoFile.read_tex(tex_path)
     # prepare dds header
-    dds_pixel_format = {
-        'dwSize': 32,
-        'dwFlags': 0,
-        'dwFourCC': 0,
-        'dwRGBBitCount': 0,
-        'dwRBitMask': 0,
-        'dwGBitMask': 0,
-        'dwBBitMask': 0,
-        'dwABitMask': 0,
+    dds_header = {
+        'dwSize': 124,
+        'dwFlags': 0x00001007,
+        'dwHeight': tex.height,
+        'dwWidth': tex.width,
+        'dwPitchOrLinearSize': 0,
+        'dwDepth': 0,
+        'dwMipMapCount': 0,
+        'dwReserved1': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        'ddspf': {
+            'dwSize': 32,
+            'dwFlags': 0,
+            'dwFourCC': 0,
+            'dwRGBBitCount': 0,
+            'dwRBitMask': 0,
+            'dwGBitMask': 0,
+            'dwBBitMask': 0,
+            'dwABitMask': 0,
+        },
+        'dwCaps': 0x00001000,
+        'dwCaps2': 0,
+        'dwCaps3': 0,
+        'dwCaps4': 0,
+        'dwReserved2': 0,
     }
+    dds_pixel_format = dds_header['ddspf']
     if tex.format in (pyRitoFile.TEXFormat.DXT1, pyRitoFile.TEXFormat.DXT1_):
         dds_pixel_format['dwFourCC'] = int(
             'DXT1'.encode('ascii')[::-1].hex(), 16)
@@ -140,22 +156,6 @@ def tex2dds(tex_path, dds_path=None):
     else:
         raise Exception(
             f'Ritoddstex: Failed: tex2dds: Unsupported TEX format: {tex.format}')
-    dds_header = {
-        'dwSize': 124,
-        'dwFlags': 0x00001007,
-        'dwHeight': tex.height,
-        'dwWidth': tex.width,
-        'dwPitchOrLinearSize': 0,
-        'dwDepth': 0,
-        'dwMipMapCount': 0,
-        'dwReserved1': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        'ddspf': dds_pixel_format,
-        'dwCaps': 0x00001000,
-        'dwCaps2': 0,
-        'dwCaps3': 0,
-        'dwCaps4': 0,
-        'dwReserved2': 0,
-    }
     if tex.mipmaps:
         dds_header['dwFlags'] |= 0x00020000
         dds_header['dwCaps'] |= 0x00400008
@@ -165,29 +165,29 @@ def tex2dds(tex_path, dds_path=None):
         # signature
         bs.write_u32(0x20534444)
         # header
-        bs.write_u32(dds_header['dwSize'])
-        bs.write_u32(dds_header['dwFlags'])
-        bs.write_u32(dds_header['dwHeight'])
-        bs.write_u32(dds_header['dwWidth'])
-        bs.write_u32(dds_header['dwPitchOrLinearSize'])
-        bs.write_u32(dds_header['dwDepth'])
-        bs.write_u32(dds_header['dwMipMapCount'])
-        bs.write_u32(*dds_header['dwReserved1'])
-        # pixel format
-        bs.write_u32(dds_pixel_format['dwSize'])
-        bs.write_u32(dds_pixel_format['dwFlags'])
-        bs.write_u32(dds_pixel_format['dwFourCC'])
-        bs.write_u32(dds_pixel_format['dwRGBBitCount'])
-        bs.write_u32(dds_pixel_format['dwRBitMask'])
-        bs.write_u32(dds_pixel_format['dwGBitMask'])
-        bs.write_u32(dds_pixel_format['dwBBitMask'])
-        bs.write_u32(dds_pixel_format['dwABitMask'])
-        # continue header
-        bs.write_u32(dds_header['dwCaps'])
-        bs.write_u32(dds_header['dwCaps2'])
-        bs.write_u32(dds_header['dwCaps3'])
-        bs.write_u32(dds_header['dwCaps4'])
-        bs.write_u32(dds_header['dwReserved2'])
+        bs.write_u32(
+            dds_header['dwSize'],
+            dds_header['dwFlags'],
+            dds_header['dwHeight'],
+            dds_header['dwWidth'],
+            dds_header['dwPitchOrLinearSize'],
+            dds_header['dwDepth'],
+            dds_header['dwMipMapCount'],
+            *dds_header['dwReserved1'],
+            dds_pixel_format['dwSize'],
+            dds_pixel_format['dwFlags'],
+            dds_pixel_format['dwFourCC'],
+            dds_pixel_format['dwRGBBitCount'],
+            dds_pixel_format['dwRBitMask'],
+            dds_pixel_format['dwGBitMask'],
+            dds_pixel_format['dwBBitMask'],
+            dds_pixel_format['dwABitMask'],
+            dds_header['dwCaps'],
+            dds_header['dwCaps2'],
+            dds_header['dwCaps3'],
+            dds_header['dwCaps4'],
+            dds_header['dwReserved2']
+        )
         if tex.mipmaps:
             # mipmap in tex file is reversed to dds file
             for block_data in reversed(tex.data):

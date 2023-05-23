@@ -1,49 +1,63 @@
-from LtMAO.pyRitoFile.skl import SKL, SKLJoint, SKLEncoder
-from LtMAO.pyRitoFile.skn import SKN, SKNEncoder
-from LtMAO.pyRitoFile.so import SO, SOEncoder
-from LtMAO.pyRitoFile.anm import ANM, ANMPose, ANMTrack, ANMErrorMetric, ANMEncoder
-from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINEncoder, BINHelper, name_to_hex as bin_hash
+from LtMAO.pyRitoFile.skl import SKL, SKLJoint
+from LtMAO.pyRitoFile.skn import SKN
+from LtMAO.pyRitoFile.so import SO
+from LtMAO.pyRitoFile.anm import ANM, ANMPose, ANMTrack, ANMErrorMetric
+from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINHelper, name_to_hex as bin_hash
 from LtMAO.pyRitoFile.bnk import BNK
-from LtMAO.pyRitoFile.tex import TEX, TEXFormat, TEXEncoder
-from LtMAO.pyRitoFile.wad import WAD, WADChunk, WADCompressionType, WADEncoder, name_to_hex as wad_hash, guess_extension
+from LtMAO.pyRitoFile.tex import TEX, TEXFormat
+from LtMAO.pyRitoFile.wad import WAD, WADChunk, WADCompressionType, name_to_hex as wad_hash, guess_extension
 from LtMAO.pyRitoFile import hash
 from LtMAO.pyRitoFile import io
-from json import dump, dumps
+from json import dump, dumps, JSONEncoder
+
+
+class PRFEncoder(JSONEncoder):
+    def default(self, obj):
+        if hasattr(obj, '__json__'):
+            return obj.__json__()
+        elif isinstance(obj, bytes):
+            return str(obj.hex(' ').upper())
+        else:
+            return JSONEncoder.default(self, obj)
 
 
 def write_json(path, obj):
     with open(path, 'w+') as f:
         if isinstance(obj, SKL):
-            dump(obj, f, indent=4, cls=SKLEncoder)
+            dump(obj, f, indent=4, cls=PRFEncoder)
         elif isinstance(obj, SKN):
-            dump(obj, f, indent=4, cls=SKNEncoder)
+            dump(obj, f, indent=4, cls=PRFEncoder)
         elif isinstance(obj, SO):
-            dump(obj, f, indent=4, cls=SKNEncoder)
+            dump(obj, f, indent=4, cls=PRFEncoder)
         elif isinstance(obj, ANM):
-            dump(obj, f, indent=4, cls=ANMEncoder)
+            dump(obj, f, indent=4, cls=PRFEncoder)
         elif isinstance(obj, BIN):
-            dump(obj, f, indent=4, cls=BINEncoder)
+            dump(obj, f, indent=4, cls=PRFEncoder)
+        elif isinstance(obj, BNK):
+            dump(obj, f, indent=4, cls=PRFEncoder)
         elif isinstance(obj, TEX):
-            dump(obj, f, indent=4, cls=TEXEncoder)
+            dump(obj, f, indent=4, cls=PRFEncoder)
         elif isinstance(obj, WAD):
-            dump(obj, f, indent=4, cls=WADEncoder)
+            dump(obj, f, indent=4, cls=PRFEncoder)
 
 
 def to_json(obj):
     if isinstance(obj, SKL):
-        return dumps(obj, indent=4, cls=SKLEncoder)
+        return dumps(obj, indent=4, cls=PRFEncoder)
     elif isinstance(obj, SKN):
-        return dumps(obj, indent=4, cls=SKNEncoder)
+        return dumps(obj, indent=4, cls=PRFEncoder)
     elif isinstance(obj, SO):
-        return dumps(obj, indent=4, cls=SOEncoder)
+        return dumps(obj, indent=4, cls=PRFEncoder)
     elif isinstance(obj, ANM):
-        return dumps(obj, indent=4, cls=ANMEncoder)
+        return dumps(obj, indent=4, cls=PRFEncoder)
     elif isinstance(obj, BIN):
-        return dumps(obj, indent=4, cls=BINEncoder)
+        return dumps(obj, indent=4, cls=PRFEncoder)
+    elif isinstance(obj, BNK):
+        return dumps(obj, indent=4, cls=PRFEncoder)
     elif isinstance(obj, TEX):
-        return dumps(obj, indent=4, cls=TEXEncoder)
+        return dumps(obj, indent=4, cls=PRFEncoder)
     elif isinstance(obj, WAD):
-        return dumps(obj, indent=4, cls=WADEncoder)
+        return dumps(obj, indent=4, cls=PRFEncoder)
 
 
 def read_skl(path, raw=None):
@@ -92,6 +106,12 @@ def read_bin(path, raw=None):
 
 def write_bin(path, bin):
     bin.write(path)
+
+
+def read_bnk(path, raw=None):
+    bnk = BNK()
+    bnk.read(path, raw)
+    return bnk
 
 
 def read_tex(path, raw=None):

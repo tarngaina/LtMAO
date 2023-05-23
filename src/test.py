@@ -14,7 +14,6 @@ def db(func):
 
 
 if __name__ == '__main__':
-    from PIL import Image
-    with Image.open('D:/test3/test.dds') as img:
-        print(img.width)
-        print(img.height)
+    from LtMAO import pyRitoFile
+    b = pyRitoFile.read_bnk('D:/test3/events.bnk')
+    pyRitoFile.write_json('D:/test3/events.json', b)
