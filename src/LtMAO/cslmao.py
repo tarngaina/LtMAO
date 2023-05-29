@@ -168,9 +168,14 @@ def prepare(_LOG):
         LOG(f'cslmao: Status: Loading mods.')
         mgs = []
         for mod in CSLMAO.MODS:
-            info, image = get_info(mod)
-            mgs.append(tk_add_mod(image=image, name=info['Name'], author=info['Author'],
-                       version=info['Version'], description=info['Description'], enable=mod.enable, profile=mod.profile))
+            try:
+                info, image = get_info(mod)
+                mgs.append(tk_add_mod(image=image, name=info['Name'], author=info['Author'],
+                                      version=info['Version'], description=info['Description'], enable=mod.enable, profile=mod.profile))
+            except Exception as e:
+                LOG(f'clsmao: Failed: Load {mod.path}: {e}')
+                CSLMAO.MODS.remove(mod)
+
         # grid all mod frame at one
         for mg in mgs:
             mg()

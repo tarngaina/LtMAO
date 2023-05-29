@@ -3,6 +3,30 @@ from LtMAO.pyRitoFile import bin_hash, read_bin, write_bin, BINHelper
 
 LOG = print
 
+PRE_BIN_HASH = {
+    'VfxSystemDefinitionData': bin_hash('VfxSystemDefinitionData'),
+    'particlePath': bin_hash('particlePath'),
+    'complexEmitterDefinitionData': bin_hash('complexEmitterDefinitionData'),
+    'simpleEmitterDefinitionData': bin_hash('simpleEmitterDefinitionData'),
+    'VfxEmitterDefinitionData': bin_hash('VfxEmitterDefinitionData'),
+    'emitterName': bin_hash('emitterName'),
+    'color': bin_hash('color'),
+    'birthColor': bin_hash('birthColor'),
+    'reflectionDefinition': bin_hash('reflectionDefinition'),
+    'lingerColor': bin_hash('lingerColor'),
+    'StaticMaterialDef': bin_hash('StaticMaterialDef'),
+    'paramValues': bin_hash('paramValues'),
+    'name': bin_hash('name'),
+    'dynamicMaterial': bin_hash('dynamicMaterial'),
+    'parameters': bin_hash('parameters'),
+    'driver': bin_hash('driver'),
+    'mElements': bin_hash('mElements'),
+    'mValue': bin_hash('mValue'),
+    'colors': bin_hash('colors'),
+    'mColorOn': bin_hash('mColorOn'),
+    'mColorOff': bin_hash('mColorOff')
+}
+
 
 def copy_linked_list(src, dst):
     src_bin = read_bin(src)
@@ -13,29 +37,6 @@ def copy_linked_list(src, dst):
 
 
 def copy_vfx_colors(src, dst):
-    PRE_BIN_HASH = {
-        'VfxSystemDefinitionData': bin_hash('VfxSystemDefinitionData'),
-        'particlePath': bin_hash('particlePath'),
-        'complexEmitterDefinitionData': bin_hash('complexEmitterDefinitionData'),
-        'simpleEmitterDefinitionData': bin_hash('simpleEmitterDefinitionData'),
-        'VfxEmitterDefinitionData': bin_hash('VfxEmitterDefinitionData'),
-        'emitterName': bin_hash('emitterName'),
-        'color': bin_hash('color'),
-        'birthColor': bin_hash('birthColor'),
-        'reflectionDefinition': bin_hash('reflectionDefinition'),
-        'lingerColor': bin_hash('lingerColor'),
-        'StaticMaterialDef': bin_hash('StaticMaterialDef'),
-        'paramValues': bin_hash('paramValues'),
-        'name': bin_hash('name'),
-        'dynamicMaterial': bin_hash('dynamicMaterial'),
-        'parameters': bin_hash('parameters'),
-        'driver': bin_hash('driver'),
-        'mElements': bin_hash('mElements'),
-        'mValue': bin_hash('mValue'),
-        'colors': bin_hash('colors'),
-        'mColorOn': bin_hash('mColorOn'),
-        'mColorOff': bin_hash('mColorOff')
-    }
     src_bin = read_bin(src)
     dst_bin = read_bin(dst)
 
@@ -65,7 +66,7 @@ def copy_vfx_colors(src, dst):
                         'complexEmitterDefinitionData']
                 )
                 src_complexEmitterDefinitionData = BINHelper.find_item(
-                    items=dst_VfxSystemDefinitionData.data,
+                    items=src_VfxSystemDefinitionData.data,
                     compare_func=lambda field: field.hash == PRE_BIN_HASH[
                         'complexEmitterDefinitionData']
                 )
@@ -76,7 +77,7 @@ def copy_vfx_colors(src, dst):
                         'simpleEmitterDefinitionData']
                 )
                 src_simpleEmitterDefinitionData = BINHelper.find_item(
-                    items=dst_VfxSystemDefinitionData.data,
+                    items=src_VfxSystemDefinitionData.data,
                     compare_func=lambda field: field.hash == PRE_BIN_HASH[
                         'simpleEmitterDefinitionData']
                 )
@@ -278,7 +279,6 @@ def copy_vfx_colors(src, dst):
                                         dst_field.data = src_field.data
                                         LOG(
                                             f'hapiBin: Done: Copy {dst_name}.DynamicMaterialParameterDef.Fresnel_Color.{id}.{field_name}')
-
     write_bin(dst, dst_bin)
     LOG(f'hapiBin: Done: Copy vfx colors from {src} to {dst}.')
 

@@ -3,7 +3,7 @@ from LtMAO.pyRitoFile.skn import SKN
 from LtMAO.pyRitoFile.so import SO
 from LtMAO.pyRitoFile.anm import ANM, ANMPose, ANMTrack, ANMErrorMetric
 from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINHelper, name_to_hex as bin_hash
-from LtMAO.pyRitoFile.bnk import BNK
+from LtMAO.pyRitoFile.bnk import BNK, BNKSection, BNKSectionData, BNKObject, BNKObjectData, BNKObjectType, BNKWem
 from LtMAO.pyRitoFile.tex import TEX, TEXFormat
 from LtMAO.pyRitoFile.wad import WAD, WADChunk, WADCompressionType, name_to_hex as wad_hash, guess_extension
 from LtMAO.pyRitoFile import hash

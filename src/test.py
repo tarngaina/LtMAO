@@ -14,6 +14,9 @@ def db(func):
 
 
 if __name__ == '__main__':
-    from LtMAO import pyRitoFile
-    b = pyRitoFile.read_bnk('D:/test3/events.bnk')
-    pyRitoFile.write_json('D:/test3/events.json', b)
+
+    from LtMAO import pyRitoFile, bnk_tool
+    # bnk = pyRitoFile.read_bnk('D:/test3/events.bnk')
+    # pyRitoFile.write_json('D:/test3/events.json', bnk)
+    bnk_tool.extract('D:/test3/audio.bnk', 'D:/test3/events.bnk',
+                     'D:/test3/skin0.bin', 'D:/test3/test_extracting')

@@ -3,7 +3,7 @@ import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
 
-from LtMAO import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin
+from LtMAO import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin, bnk_tool
 from LtMAO.prettyUI.helper import Keeper, Log, EmojiImage
 
 import os
@@ -2913,7 +2913,6 @@ def create_LOG_page():
     )
     tk_widgets.LOG.log_textbox.grid(row=0, column=0, sticky=tk.NSEW)
     Log.tk_log = tk_widgets.LOG.log_textbox
-    
 
 
 def create_ST_page():
@@ -3384,5 +3383,6 @@ def start():
     shrum.prepare(LOG)
     hapiBin.prepare(LOG)
     pyntex.prepare(LOG)
+    bnk_tool.prepare(LOG)
     # loop the UI
     tk_widgets.main_tk.mainloop()

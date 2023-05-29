@@ -10,6 +10,13 @@ def Elf(s):
     return h
 
 
+def FNV1(s):
+    h = 0x811c9dc5
+    for b in s.encode('ascii').lower():
+        h = ((h * 0x01000193) % 0x100000000) ^ b
+    return h
+
+
 def FNV1a(s):
     h = 0x811c9dc5
     for b in s.encode('ascii').lower():
