@@ -1,7 +1,6 @@
 from io import BytesIO
 from LtMAO.pyRitoFile.io import BinStream
 from enum import Enum
-from json import JSONEncoder
 
 
 class TEXFormat(Enum):

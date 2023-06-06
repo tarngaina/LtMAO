@@ -19,4 +19,4 @@ if __name__ == '__main__':
     # bnk = pyRitoFile.read_bnk('D:/test3/events.bnk')
     # pyRitoFile.write_json('D:/test3/events.json', bnk)
     bnk_tool.extract('D:/test3/audio.bnk', 'D:/test3/events.bnk',
-                     'D:/test3/skin0.bin', 'D:/test3/test_extracting')
+                     'D:/test3/test_extracting')  # , 'D:/test3/skin0.bin')

@@ -1,7 +1,6 @@
 from io import BytesIO
 from LtMAO.pyRitoFile.io import BinStream
 from enum import Enum
-from json import JSONEncoder
 
 
 class BNKObjectType(Enum):
@@ -29,15 +28,6 @@ class BNKObjectType(Enum):
         return self.name
 
 
-class BNKSoundStruct:
-    # hirc object
-    def __init__(self):
-        pass
-
-    def __json__(self):
-        return vars(self)
-
-
 class BNKObjectData:
     def __init__(self):
         pass
@@ -48,22 +38,33 @@ class BNKObjectData:
 
 class BNKObject:
     # hirc
+    __slots__ = (
+        'id', 'type', 'size', 'data'
+    )
+
     def __init__(self):
-        pass
+        self.id = None
+        self.type = None
+        self.size = None
+        self.data = None
 
     def __json__(self):
-        return vars(self)
+        return {key: getattr(self, key) for key in self.__slots__}
 
 
 class BNKWem:
     # didx
+    __slots__ = (
+        'id', 'offset', 'size'
+    )
+
     def __init__(self):
         self.id = None
         self.offset = None
         self.size = None
 
     def __json__(self):
-        return vars(self)
+        return {key: getattr(self, key) for key in self.__slots__}
 
 
 class BNKSectionData:
@@ -75,22 +76,27 @@ class BNKSectionData:
 
 
 class BNKSection:
+    __slots__ = (
+        'signature', 'size', 'data'
+    )
+
     def __init__(self):
         self.signature = None
         self.size = None
         self.data = None
 
     def __json__(self):
-        return vars(self)
+        return {key: getattr(self, key) for key in self.__slots__}
 
 
 class BNK:
+    __slots__ = ('sections')
+
     def __init__(self):
         self.sections = []
 
     def __json__(self):
-        # {key: getattr(self, key) for key in self.__slots__}
-        return vars(self)
+        return {key: getattr(self, key) for key in self.__slots__}
 
     def stream(self, path, mode, raw=None):
         if raw != None:
@@ -111,7 +117,7 @@ class BNK:
                     # bank header: data is depend of version
                     bkhd = section.data
                     bkhd.version, bkhd.id = bs.read_u32(2)
-                    bkhd.unknown = bs.read(section.size - 8)
+                    bkhd.unk = bs.read(section.size - 8)
                 elif section.signature == 'DIDX':
                     # data index: contains list of wems(id, offset, size)
                     didx = section.data
@@ -181,15 +187,18 @@ class BNK:
                                     container.effect_unk = bs.read(2)
                             container.switch_container_id, = bs.read_u32()
                             container.unk3 = bs.read(1)
-                            param_count, = bs.read_u8()
-                            if param_count > 0:
-                                container.param_types = [
-                                    bs.read_u8()[0] for i in range(param_count)]
-                                container.param_values = [
-                                    bs.read(4) for i in range(param_count)]
-                            prob_count, = bs.read_u8()
-                            container.probs = [bs.read(9)
-                                               for i in range(prob_count)]
+                            prop_count, = bs.read_u8()
+                            if prop_count > 0:
+                                container.prop_ids = [
+                                    bs.read_u8()[0] for i in range(prop_count)]
+                                container.prop_values = [
+                                    bs.read(4) for i in range(prop_count)]
+                            ranged_prob_count, = bs.read_u8()
+                            if ranged_prob_count > 0:
+                                container.ranged_prob_ids = [bs.read(1)
+                                                             for i in range(ranged_prob_count)]
+                                container.ranged_prob_ranges = [(bs.read(4), bs.read(4))
+                                                                for i in range(ranged_prob_count)]
                             positioning, = bs.read_u8()
                             container.has_pos = (positioning & 1) == 1
                             container.has_3d,  container.has_automation = False, False

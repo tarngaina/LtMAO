@@ -1,7 +1,6 @@
 from io import BytesIO
 from LtMAO.pyRitoFile.io import BinStream
 from LtMAO.pyRitoFile.hash import FNV1a
-from json import JSONEncoder
 
 
 def bin_hash(name):

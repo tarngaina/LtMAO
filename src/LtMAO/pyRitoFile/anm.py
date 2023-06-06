@@ -3,7 +3,6 @@ from io import BytesIO
 from LtMAO.pyRitoFile.io import BinStream
 from LtMAO.pyRitoFile.structs import Quaternion, Vector
 from LtMAO.pyRitoFile.hash import Elf
-from json import JSONEncoder
 
 
 def decompress_quat(bytes):

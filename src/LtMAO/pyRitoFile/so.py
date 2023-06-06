@@ -1,7 +1,6 @@
 from io import BytesIO, StringIO
 from LtMAO.pyRitoFile.io import BinStream
 from LtMAO.pyRitoFile.structs import Vector
-from json import JSONEncoder
 
 
 class SO:

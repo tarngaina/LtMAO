@@ -1,9 +1,6 @@
 from io import BytesIO
 from LtMAO.pyRitoFile.io import BinStream
-from json import JSONEncoder
 from enum import Enum
-import os
-import os.path
 import gzip
 import pyzstd
 from xxhash import xxh64, xxh3_64

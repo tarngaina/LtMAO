@@ -2,7 +2,6 @@ from io import BytesIO
 from LtMAO.pyRitoFile.io import BinStream
 from LtMAO.pyRitoFile.hash import FNV1a
 from enum import Enum
-from json import JSONEncoder
 
 
 def hash_to_hex(hash):

@@ -138,6 +138,38 @@ class ImageMagick:
         return p
 
 
+class WW2OGG:
+    local_file = './resources/ext_tools/ww2ogg.exe'
+    pcb_file = './resources/ext_tools/packed_codebooks.bin'
+
+    def run(src):
+        cmds = [
+            os.path.abspath(WW2OGG.local_file),
+            src,
+            '--pcb',
+            os.path.abspath(WW2OGG.pcb_file)
+        ]
+        p = Popen(
+            cmds, creationflags=CREATE_NO_WINDOW,
+            stdout=PIPE, stderr=STDOUT
+        )
+        block_and_stream_process_output(p, 'ww2ogg: ')
+        return p
+
+
+class REVORB:
+    local_file = './resources/ext_tools/ReVorb.exe'
+
+    def run(src):
+        cmds = [os.path.abspath(REVORB.local_file), src]
+        p = Popen(
+            cmds, creationflags=CREATE_NO_WINDOW,
+            stdout=PIPE, stderr=STDOUT
+        )
+        block_and_stream_process_output(p, 'ReVorb: ')
+        return p
+
+
 def prepare(_LOG):
     global LOG
     LOG = _LOG

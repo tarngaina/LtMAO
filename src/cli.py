@@ -146,6 +146,12 @@ class CLI:
             dst=file_4x, width=width_4x, height=height_4x
         )
 
+    def wem2ogg(src):
+        from LtMAO import ext_tools
+        dst = src.replace('.wem', '.ogg')
+        if ext_tools.WW2OGG.run(src).returncode == 0:
+            ext_tools.REVORB.run(dst)
+
 
 def main():
     args = parse_arguments()
@@ -174,6 +180,8 @@ def main():
         CLI.png2dds(args.source, args.destination)
     elif args.tool == 'dds2x4x':
         CLI.dds2x4x(args.source)
+    elif args.tool == 'wem2ogg':
+        CLI.wem2ogg(args.source)
 
 
 if __name__ == '__main__':

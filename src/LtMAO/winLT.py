@@ -96,6 +96,12 @@ class Context:
             shell='SystemFileAssociations\\.png\\shell',
             sub_commands='LtMAO.png2dds;'
         )
+        # .wem contexts
+        Context.create_submenu(
+            shell='SystemFileAssociations\\.wem\\shell',
+            sub_commands='LtMAO.wem2ogg;'
+        )
+
         # create commands
         with winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE, 'Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell') as key:
             # RawToWad
@@ -188,6 +194,13 @@ class Context:
                 cmd_name='LtMAO.dds2x4x',
                 cmd_desc='ImageMagick: Make 2x_, 4x_ DDS',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2x4x" -src="%V"'
+            )
+            # wem2ogg
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.wem2ogg',
+                cmd_desc='ww2ogg & ReVorb: Convert To Ogg',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wem2ogg" -src="%V"'
             )
         LOG('winLT: Done: Create Explorer Contexts')
 
