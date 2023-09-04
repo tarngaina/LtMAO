@@ -199,7 +199,7 @@ class Context:
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.wem2ogg',
-                cmd_desc='ww2ogg & ReVorb: Convert To Ogg',
+                cmd_desc='ww2ogg, ReVorb: Convert To Ogg',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wem2ogg" -src="%V"'
             )
         LOG('winLT: Done: Create Explorer Contexts')
