@@ -223,7 +223,7 @@ class ExtractedHashes:
                         elif chunk.extension == 'bin':
                             extract_bin(
                                 f'{chunk.hash}.{chunk.extension}', chunk.data)
-                    chunk.free_data()
+                        chunk.free_data()
                 LOG(f'hash_manager: Done: Extract Hashes: {file_path}')
             except Exception as e:
                 LOG(f'hash_manager: Failed: Extract Hashes: {file_path}: {e}')

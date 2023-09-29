@@ -14,13 +14,11 @@ def check_hashed_name(basename):
         return False
 
 
-def unpack(wad_file, raw_dir):
+def unpack(wad_file, raw_dir, hashtables):
     LOG(f'wad_tool: Running: Unpack WAD: {wad_file}')
     # read wad
-    hash_manager.read_wad_hashes()
     wad = pyRitoFile.read_wad(wad_file)
-    wad.un_hash(hash_manager.HASHTABLES)
-    hash_manager.free_wad_hashes()
+    wad.un_hash(hashtables)
     hashed_bins = {}
     with wad.stream(wad_file, 'rb') as bs:
         for chunk in wad.chunks:
@@ -87,7 +85,7 @@ def pack(raw_dir, wad_file):
             chunk.write_data(bs, id, chunk_hashes[id], chunk_data, previous_chunks=(
                              wad.chunks[i] for i in range(id)))
             chunk.free_data()
-            LOG(f'wad_tool: Done: Packk: {chunk.hash}')
+            LOG(f'wad_tool: Done: Pack: {chunk.hash}')
 
 
 def prepare(_LOG):

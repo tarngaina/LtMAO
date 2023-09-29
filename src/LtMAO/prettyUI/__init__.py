@@ -2630,14 +2630,16 @@ def create_WT_page():
             )
             if len(file_paths) > 0:
                 def working_thrd():
+                    hash_manager.read_wad_hashes()
                     for file_path in file_paths:
                         src = file_path
                         dst = src.replace('.wad.client', '.wad')
                         Log.tk_cooldown = 3000
-                        wad_tool.unpack(src, dst)
-                        Log.tk_cooldown = 0
+                        wad_tool.unpack(src, dst, hash_manager.HASHTABLES)
+                        Log.tk_cooldown = 0             
                         LOG(
                             f'wad_tool: Done: Unpack {src}')
+                    hash_manager.free_wad_hashes()
                 tk_widgets.WT.working_thread = Thread(
                     target=working_thrd,
                     daemon=True
@@ -2786,10 +2788,13 @@ def create_WT_page():
                     '1.0', 'end-1c').split('\n')
                 if len(file_paths) > 0:
                     def working_thrd():
+                        hash_manager.read_wad_hashes()
                         Log.tk_cooldown = 3000
                         for file_path in file_paths:
-                            wad_tool.unpack(file_path, dir_path)
+                            wad_tool.unpack(file_path, dir_path,
+                                            hash_manager.HASHTABLES)
                         Log.tk_cooldown = 0
+                        hash_manager.free_wad_hashes()
                         LOG(f'wad_tool: Done: Unpack to {dir_path}')
                     tk_widgets.WT.working_thread = Thread(
                         target=working_thrd, daemon=True)

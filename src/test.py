@@ -15,8 +15,18 @@ def db(func):
 
 if __name__ == '__main__':
 
-    from LtMAO import pyRitoFile, bnk_tool
-    # bnk = pyRitoFile.read_bnk('D:/test3/events.bnk')
-    # pyRitoFile.write_json('D:/test3/events.json', bnk)
-    bnk_tool.extract('D:/test3/audio.bnk', 'D:/test3/events.bnk',
-                     'D:/test3/test_extracting')  # , 'D:/test3/skin0.bin')
+    from LtMAO import wad_tool
+    with open('D:/test3/skin0.bin', 'rb') as f:
+        bin_data = f.read()
+        wad_bytes = wad_tool.pack_v2(
+            [
+                bin_data,
+                bin_data
+            ],
+            [
+                f'data/characters/briar/skins/skin0.bin',
+                f'data/characters/briar/animations/skin1.bin'
+            ]
+        )
+        with open('D:/test3/wadout.wad.client', 'wb+') as f:
+            f.write(wad_bytes)

@@ -42,10 +42,12 @@ class CLI:
 
     @staticmethod
     def wadunpack(src, dst):
-        from LtMAO import wad_tool
+        from LtMAO import wad_tool, hash_manager
         if dst == None:
             dst = src.replace('.wad.client', '.wad')
-        wad_tool.unpack(src, dst)
+        hash_manager.read_wad_hashes()
+        wad_tool.unpack(src, dst, hash_manager.HASHTABLES)
+        hash_manager.free_wad_hashes()
 
     @staticmethod
     def ritobin(src, dst):
