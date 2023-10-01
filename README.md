@@ -7,6 +7,10 @@
 2. Extract: `LtMAO-master.zip`
 3. Run `LtMAO/start.bat`
 
+# Updates
+If you see [new commit here](https://github.com/tarngaina/LtMAO/commits/master), that means there is new update. You can check the commit description to see what changed.
+To update new version: re-download the app and extract it to same location.
+
 # Documentation
 ## Shortcut & How to Run as Admin
 1. Launch shortcut: When running the app for first time, a `LtMAO.lnk` (shortcut file) will be created in same folder as `start.bat`.
