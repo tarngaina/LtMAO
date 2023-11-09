@@ -1511,7 +1511,7 @@ def create_HM_page():
             )
             if len(file_paths) > 0:
                 def working_thrd():
-                    Log.tk_cooldown = 3000
+                    Log.tk_cooldown = 5000
                     hash_manager.ExtractedHashes.extract(*file_paths)
                     Log.tk_cooldown = 0
                     LOG('hash_manager: Done: Extract hashes.')
@@ -1549,7 +1549,7 @@ def create_HM_page():
                             root, file).replace('\\', '/'))
                 if len(file_paths) > 0:
                     def working_thrd():
-                        Log.tk_cooldown = 3000
+                        Log.tk_cooldown = 5000
                         hash_manager.ExtractedHashes.extract(*file_paths)
                         Log.tk_cooldown = 0
                         LOG('hash_manager: Done: Extract hashes.')
@@ -2680,14 +2680,14 @@ def create_WT_page():
             if len(file_paths) > 0:
                 def working_thrd():
                     hash_manager.read_wad_hashes()
+                    Log.tk_cooldown = 5000
                     for file_path in file_paths:
                         src = file_path
                         dst = src.replace('.wad.client', '.wad')
-                        Log.tk_cooldown = 3000
                         wad_tool.unpack(src, dst, hash_manager.HASHTABLES)
-                        Log.tk_cooldown = 0
                         LOG(
                             f'wad_tool: Done: Unpack {src}')
+                    Log.tk_cooldown = 0
                     hash_manager.free_wad_hashes()
                 tk_widgets.WT.working_thread = Thread(
                     target=working_thrd,
@@ -2724,7 +2724,7 @@ def create_WT_page():
                     else:
                         if not dst.endswith('.wad.client'):
                             dst += '.wad.client'
-                    Log.tk_cooldown = 3000
+                    Log.tk_cooldown = 5000
                     wad_tool.pack(src, dst)
                     Log.tk_cooldown = 0
                     LOG(
@@ -2776,7 +2776,8 @@ def create_WT_page():
     tk_widgets.WT.action3_frame.rowconfigure(0, weight=1)
     tk_widgets.WT.action3_frame.columnconfigure(0, weight=1)
     tk_widgets.WT.action3_frame.columnconfigure(1, weight=1)
-    tk_widgets.WT.action3_frame.columnconfigure(2, weight=699)
+    tk_widgets.WT.action3_frame.columnconfigure(2, weight=1)
+    tk_widgets.WT.action3_frame.columnconfigure(3, weight=699)
 
     def addfile_cmd():
         file_paths = tkfd.askopenfilenames(
@@ -2790,18 +2791,46 @@ def create_WT_page():
         )
         if len(file_paths) > 0:
             tk_widgets.WT.file_text.configure(state=tk.NORMAL)
-            tk_widgets.WT.file_text.insert(tk.END, '\n'.join(file_paths))
+            tk_widgets.WT.file_text.insert(
+                tk.END, '\n'.join(file_paths) + '\n')
             tk_widgets.WT.file_text.configure(state=tk.DISABLED)
 
     # create add file button
     tk_widgets.WT.addfile_button = ctk.CTkButton(
         tk_widgets.WT.action3_frame,
-        text='Add Files',
+        text='Add WADs',
         image=EmojiImage.create('📄'),
         command=addfile_cmd
     )
     tk_widgets.WT.addfile_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def addfolder_cmd():
+        dirname = tkfd.askdirectory(
+            parent=tk_widgets.main_tk,
+            title='Select Folder contains WADs',
+            initialdir=setting.get('default_folder', None)
+        )
+        wad_files = []
+        for root, dirs, files in os.walk(dirname):
+            for file in files:
+                if file.endswith('.wad.client'):
+                    wad_files.append(os.path.join(
+                        root, file).replace('\\', '/'))
+        if len(wad_files) > 0:
+            tk_widgets.WT.file_text.configure(state=tk.NORMAL)
+            tk_widgets.WT.file_text.insert(tk.END, '\n'.join(wad_files) + '\n')
+            tk_widgets.WT.file_text.configure(state=tk.DISABLED)
+
+    # create add folder button
+    tk_widgets.WT.addfolder_button = ctk.CTkButton(
+        tk_widgets.WT.action3_frame,
+        text='Add all WADs in folder',
+        image=EmojiImage.create('📁'),
+        command=addfolder_cmd
+    )
+    tk_widgets.WT.addfolder_button.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def clear_cmd():
         tk_widgets.WT.file_text.configure(state=tk.NORMAL)
@@ -2815,7 +2844,7 @@ def create_WT_page():
         command=clear_cmd
     )
     tk_widgets.WT.clear_button.grid(
-        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
     # create file text
     tk_widgets.WT.file_text = ctk.CTkTextbox(
         tk_widgets.WT.action2_frame,
@@ -2835,10 +2864,11 @@ def create_WT_page():
             if dir_path != '':
                 file_paths = tk_widgets.WT.file_text.get(
                     '1.0', 'end-1c').split('\n')
+                file_paths.remove('')
                 if len(file_paths) > 0:
                     def working_thrd():
                         hash_manager.read_wad_hashes()
-                        Log.tk_cooldown = 3000
+                        Log.tk_cooldown = 5000
                         for file_path in file_paths:
                             wad_tool.unpack(file_path, dir_path,
                                             hash_manager.HASHTABLES)
