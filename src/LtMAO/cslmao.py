@@ -1,6 +1,7 @@
 import os
 import os.path
 import json
+import datetime
 from LtMAO.ext_tools import CSLOL, block_and_stream_process_output
 from LtMAO import setting
 from PIL import Image
@@ -12,13 +13,20 @@ LOG = print
 
 class MOD:
     __slots__ = (
-        'path', 'enable', 'profile'
+        'id', 'path', 'enable', 'profile'
     )
 
-    def __init__(self, path=None, enable=False, profile='0'):
+    def __init__(self, id=None, path=None, enable=False, profile='0'):
+        self.id = id
         self.path = path
         self.enable = enable
         self.profile = profile
+
+    def generate_id():
+        return datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
+
+    def get_path(self):
+        return self.path + f' {self.id}'
 
 
 class CSLMAO:
@@ -32,17 +40,18 @@ class CSLMAO:
     config_file = f'{local_dir}/config.txt'
     blank_image = Image.new('RGB', (144, 81))
 
-    def create_mod(mod_path, enable, profile):
+    def create_mod(path, enable, profile):
+        m = MOD(MOD.generate_id(), path, enable, profile)
+        check_path = m.get_path()
         for mod in CSLMAO.MODS:
-            if mod.path == mod_path:
+            if mod.get_path() == check_path:
                 raise Exception(
-                    f'cslmao: Failed: Create mod: A mod with path: {mod_path} already existed in profile {mod.profile}.')
-        m = MOD(mod_path, enable, profile)
+                    f'cslmao: Failed: Create mod: A mod with path: {check_path} already existed in profile {mod.profile}.')
         CSLMAO.MODS.append(m)
         return m
 
     def create_mod_folder(mod):
-        mod_folder = os.path.join(CSLMAO.raw_dir, mod.path)
+        mod_folder = os.path.join(CSLMAO.raw_dir, mod.get_path())
         meta_folder = os.path.join(mod_folder, 'META')
         wad_folder = os.path.join(mod_folder, 'WAD')
         os.makedirs(mod_folder, exist_ok=True)
@@ -50,28 +59,36 @@ class CSLMAO:
         os.makedirs(wad_folder, exist_ok=True)
 
     def delete_mod(mod):
-        rmtree(os.path.join(CSLMAO.raw_dir, mod.path))
+        rmtree(os.path.join(CSLMAO.raw_dir, mod.get_path()))
 
     def get_info(mod):
-        info_file = os.path.join(CSLMAO.raw_dir, mod.path, 'META', 'info.json')
+        info_file = os.path.join(
+            CSLMAO.raw_dir, mod.get_path(), 'META', 'info.json')
         with open(info_file, 'r') as f:
             info = json.load(f)
         image = None
         image_file = os.path.join(
-            CSLMAO.raw_dir, mod.path, 'META', 'image.png')
+            CSLMAO.raw_dir, mod.get_path(), 'META', 'image.png')
         if os.path.exists(image_file):
             image = Image.open(os.path.abspath(image_file))
         return info, image
 
     def set_info(mod, info=None, image_path=None):
+        old_path = mod.get_path()
+        mod.path = f'{info["Name"]} V{info["Version"]} by {info["Author"]}'
+        mod.id = MOD.generate_id()
+        os.rename(
+            os.path.abspath(os.path.join(CSLMAO.raw_dir, old_path)),
+            os.path.abspath(os.path.join(CSLMAO.raw_dir, mod.get_path()))
+        )
         if info != None:
             info_file = os.path.join(
-                CSLMAO.raw_dir, mod.path, 'META', 'info.json')
+                CSLMAO.raw_dir, mod.get_path(), 'META', 'info.json')
             with open(info_file, 'w+') as f:
                 json.dump(info, f, indent=4)
         if image_path != None:
             image_file = os.path.join(
-                CSLMAO.raw_dir, mod.path, 'META', 'image.png')
+                CSLMAO.raw_dir, mod.get_path(), 'META', 'image.png')
             copy(image_path, image_file)
 
     def add_mod_to_profile(path, profile_id):
@@ -79,15 +96,48 @@ class CSLMAO:
             CSLMAO.PROFILES[profile_id].append(path)
 
     def load_mods():
-        l = []
-        with open(CSLMAO.mod_file, 'r') as f:
-            l = json.load(f)
-        CSLMAO.MODS = [MOD(path, enable, profile)
-                       for path, enable, profile in l]
+        # load through mod file
+        try:
+            l = []
+            with open(CSLMAO.mod_file, 'r') as f:
+                l = json.load(f)
+            CSLMAO.MODS = [MOD(id, path, enable, profile)
+                           for id, path, enable, profile in l]
+        except Exception as e:
+            LOG(f'cslmao: Failed to load: {CSLMAO.mod_file}: {e}')
+            CSLMAO.MODS = []
+            with open(CSLMAO.mod_file, 'w+') as f:
+                json.dump({}, f, indent=4)
+            LOG(f'cslmao: Done: Reset {CSLMAO.mod_file}')
+        # load outside mod file
+        for dirname in os.listdir(CSLMAO.raw_dir):
+            info_file = os.path.join(
+                CSLMAO.raw_dir, dirname, 'META', 'info.json')
+            if not os.path.exists(info_file):
+                continue
+            existed_mod = False
+            for mod in CSLMAO.MODS:
+                if dirname == mod.get_path():
+                    existed_mod = True
+                    break
+            if existed_mod:
+                continue
+
+            with open(info_file, 'r') as f:
+                info = json.load(f)
+            mod_path = f'{info["Name"]} V{info["Version"]} by {info["Author"]}'
+            mod = MOD(id=MOD.generate_id(), path=mod_path,
+                      enable=False, profile='0')
+            CSLMAO.MODS.append(mod)
+            os.rename(
+                os.path.abspath(os.path.join(CSLMAO.raw_dir, dirname)),
+                os.path.abspath(os.path.join(CSLMAO.raw_dir, mod.get_path()))
+            )
+            CSLMAO.save_mods()
 
     def save_mods():
         with open(CSLMAO.mod_file, 'w+') as f:
-            json.dump([(mod.path, mod.enable, mod.profile)
+            json.dump([(mod.id, mod.path, mod.enable, mod.profile)
                       for mod in CSLMAO.MODS], f, indent=4)
 
     def import_fantome(fantome_path, mod_path):
@@ -109,10 +159,10 @@ class CSLMAO:
 
     def make_overlay(profile):
         if profile == 'all':
-            paths = [mod.path for mod in CSLMAO.MODS if mod.enable]
+            paths = [mod.get_path() for mod in CSLMAO.MODS if mod.enable]
         else:
             paths = [
-                mod.path for mod in CSLMAO.MODS if mod.enable and mod.profile == profile]
+                mod.get_path() for mod in CSLMAO.MODS if mod.enable and mod.profile == profile]
         overlay = f'{CSLMAO.profile_dir}/{profile}'
         os.makedirs(overlay, exist_ok=True)
         return CSLOL.make_overlay(
@@ -173,7 +223,7 @@ def prepare(_LOG):
                 mgs.append(tk_add_mod(image=image, name=info['Name'], author=info['Author'],
                                       version=info['Version'], description=info['Description'], enable=mod.enable, profile=mod.profile))
             except Exception as e:
-                LOG(f'clsmao: Failed: Load {mod.path}: {e}')
+                LOG(f'cslmao: Failed: Load {mod.get_path()}: {e}')
                 CSLMAO.MODS.remove(mod)
 
         # grid all mod frame at one

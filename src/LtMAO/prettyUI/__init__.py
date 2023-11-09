@@ -10,7 +10,6 @@ import os
 import os.path
 from threading import Thread
 from traceback import format_exception
-import datetime
 from PIL import Image
 
 LOG = Log.add
@@ -92,6 +91,7 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.mods = []
     tk_widgets.CSLMAO.make_overlay = None
     tk_widgets.CSLMAO.run_overlay = None
+    tk_widgets.CSLMAO.toggle_all = True
     # create action frame
     tk_widgets.CSLMAO.action_frame = ctk.CTkFrame(
         tk_widgets.CSLMAO.page_frame, fg_color=TRANSPARENT)
@@ -101,9 +101,10 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.action_frame.columnconfigure(0, weight=1)
     tk_widgets.CSLMAO.action_frame.columnconfigure(1, weight=1)
     tk_widgets.CSLMAO.action_frame.columnconfigure(2, weight=1)
-    tk_widgets.CSLMAO.action_frame.columnconfigure(3, weight=699)
-    tk_widgets.CSLMAO.action_frame.columnconfigure(4, weight=1)
+    tk_widgets.CSLMAO.action_frame.columnconfigure(3, weight=1)
+    tk_widgets.CSLMAO.action_frame.columnconfigure(4, weight=699)
     tk_widgets.CSLMAO.action_frame.columnconfigure(5, weight=1)
+    tk_widgets.CSLMAO.action_frame.columnconfigure(6, weight=1)
 
     def run_cmd():
         if cslmao.preparing:
@@ -194,14 +195,26 @@ def create_CSLMAO_page():
         mgs = []
         for fantome_path in fantome_paths:
             mod_path = '.'.join(os.path.basename(fantome_path).split('.')[:-1])
-            p = cslmao.import_fantome(fantome_path, mod_path)
+            mod_profile = tk_widgets.CSLMAO.get_mod_profile()
+            if mod_profile == 'all':
+                mod_profile = '0'
+            mod = cslmao.create_mod(
+                path=mod_path, enable=False, profile=mod_profile)
+            p = cslmao.import_fantome(fantome_path, mod.get_path())
             if p.returncode == 0:
-                mod = cslmao.create_mod(
-                    mod_path, False, tk_widgets.CSLMAO.get_mod_profile())
+                LOG(f'cslmao: Imported: {fantome_path}')
                 info, image = cslmao.get_info(mod)
-                mgs.append(add_mod(image=image, name=info['Name'], author=info['Author'],
-                                   version=info['Version'], description=info['Description'], enable=mod.enable))
-            LOG(f'cslmao: Imported: {fantome_path}')
+                mgs.append(
+                    add_mod(
+                        image=image,
+                        name=info['Name'],
+                        author=info['Author'],
+                        version=info['Version'],
+                        description=info['Description'],
+                        enable=mod.enable,
+                        profile=mod.profile
+                    )
+                )
         # grid after finish import
         for mg in mgs:
             mg()
@@ -220,22 +233,34 @@ def create_CSLMAO_page():
     def new_cmd():
         if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
             return
-        mod_path = datetime.datetime.now().strftime(
-            '%Y%m%d%H%M%S%f')
-        mod = cslmao.create_mod(mod_path=mod_path, enable=False,
-                                profile=tk_widgets.CSLMAO.get_mod_profile())
+        mod_path = 'New Mod V1.0 by Author'
+        mod_info = {
+            'Name': 'New Mod',
+            'Author': 'Author',
+            'Version': '1.0',
+            'Description': ''
+        }
+        mod_profile = tk_widgets.CSLMAO.get_mod_profile()
+        if mod_profile == 'all':
+            mod_profile = '0'
+        mod = cslmao.create_mod(path=mod_path, enable=False,
+                                profile=mod_profile)
         cslmao.create_mod_folder(mod)
         cslmao.set_info(
             mod,
-            info={
-                'Name': 'New Mod',
-                'Author': 'Author',
-                'Version': '1.0',
-                'Description': ''
-            },
+            info=mod_info,
             image_path=None
         )
-        add_mod(cslmao.CSLMAO.blank_image)()
+        add_mod(
+            image=cslmao.CSLMAO.blank_image,
+            name=mod_info['Name'],
+            author=mod_info['Author'],
+            version=mod_info['Version'],
+            description=mod_info['Description'],
+            enable=mod.enable,
+            profile=mod.profile
+        )()
+        cslmao.save_mods()
     # create new button
     tk_widgets.CSLMAO.new_button = ctk.CTkButton(
         tk_widgets.CSLMAO.action_frame,
@@ -245,13 +270,41 @@ def create_CSLMAO_page():
     )
     tk_widgets.CSLMAO.new_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
+
+    def toggle_cmd():
+        need_save = False
+        mod_profile = tk_widgets.CSLMAO.get_mod_profile()
+        for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
+            mod = cslmao.CSLMAO.MODS[mod_id]
+            if mod_profile == 'all' or mod.profile == mod_profile:
+                mod_enable = tk_widgets.CSLMAO.mods[mod_id][4]
+                if tk_widgets.CSLMAO.toggle_all:
+                    mod_enable.select()
+                else:
+                    mod_enable.deselect()
+                mod.enable = tk_widgets.CSLMAO.toggle_all
+                need_save = True
+        if need_save:
+            cslmao.save_mods()
+            tk_widgets.CSLMAO.toggle_all = not tk_widgets.CSLMAO.toggle_all
+
+    # create toggle button
+    tk_widgets.CSLMAO.toggle_button = ctk.CTkButton(
+        tk_widgets.CSLMAO.action_frame,
+        text='Enable/Disable All',
+        image=EmojiImage.create('✅'),
+        command=toggle_cmd
+    )
+    tk_widgets.CSLMAO.toggle_button.grid(
+        row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
+
     # create profile label
     tk_widgets.CSLMAO.profile_label = ctk.CTkLabel(
         tk_widgets.CSLMAO.action_frame,
         text='Profile: '
     )
     tk_widgets.CSLMAO.profile_label.grid(
-        row=0, column=4, padx=5, pady=5, sticky=tk.NSEW)
+        row=0, column=5, padx=5, pady=5, sticky=tk.NSEW)
 
     def profile_cmd(choice):
         tk_widgets.CSLMAO.refresh_profile(choice)
@@ -277,7 +330,7 @@ def create_CSLMAO_page():
     )
     tk_widgets.CSLMAO.profile_opt.set(setting.get('Cslmao.profile', 'all'))
     tk_widgets.CSLMAO.profile_opt.grid(
-        row=0, column=5, padx=5, pady=5, sticky=tk.NSEW)
+        row=0, column=6, padx=5, pady=5, sticky=tk.NSEW)
 
     # create modlist frame
     tk_widgets.CSLMAO.modlist_frame = ctk.CTkScrollableFrame(
@@ -288,7 +341,7 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.modlist_frame.columnconfigure(0, weight=1)
 
     # link tk add mod for cslmao
-    def add_mod(image=None, name='New Mod', author='Author', version='1.0', description='', enable=False, profile='0'):
+    def add_mod(image, name, author, version, description, enable, profile):
         if image == None:
             image = cslmao.CSLMAO.blank_image
         id = len(tk_widgets.CSLMAO.mods)
@@ -342,7 +395,7 @@ def create_CSLMAO_page():
         # create mod info
         mod_info = ctk.CTkLabel(
             head_frame,
-            text=f'{name} by {author} V{version}\n{description}'
+            text=f'[Profile {profile}] {name} by {author} V{version}\n{description}'
         )
         mod_info.grid(row=id, column=2, padx=5, sticky=tk.NSEW)
         # create mod action frame
@@ -365,7 +418,7 @@ def create_CSLMAO_page():
                     break
             os.startfile(os.path.join(
                 cslmao.CSLMAO.raw_dir,
-                cslmao.CSLMAO.MODS[mod_id].path
+                cslmao.CSLMAO.MODS[mod_id].get_path()
             ))
         # create locate button
         locate_button = ctk.CTkButton(
@@ -422,7 +475,7 @@ def create_CSLMAO_page():
                     p = cslmao.export_fantome(
                         mod_path=os.path.join(
                             cslmao.CSLMAO.raw_dir,
-                            cslmao.CSLMAO.MODS[mod_id].path
+                            cslmao.CSLMAO.MODS[mod_id].get_path()
                         ),
                         fantome_path=fantome_path
                     )
@@ -611,14 +664,14 @@ def create_CSLMAO_page():
             mod = cslmao.CSLMAO.MODS[mod_id]
             image = tk_widgets.CSLMAO.mods[mod_id][10]
             cslmao.set_info(mod, info, image)
-            tk_widgets.CSLMAO.mods[mod_id][12].configure(
-                text=f'{info["Name"]} by {info["Author"]} V{info["Version"]}\n{info["Description"]}'
-            )
             if image != None:
                 tk_widgets.CSLMAO.mods[mod_id][13].configure(
                     image=ctk.CTkImage(Image.open(image), size=(144, 81))
                 )
             mod.profile = tk_widgets.CSLMAO.mods[mod_id][19].get()
+            tk_widgets.CSLMAO.mods[mod_id][12].configure(
+                text=f'[Profile {mod.profile}] {info["Name"]} by {info["Author"]} V{info["Version"]}\n{info["Description"]}'
+            )
             cslmao.CSLMAO.save_mods()
             tk_widgets.CSLMAO.refresh_profile(
                 setting.get('Cslmao.profile', 'all'))
@@ -673,11 +726,7 @@ def create_CSLMAO_page():
                     tk_widgets.CSLMAO.mods[id][0].grid_forget()
 
     def get_mod_profile():
-        profile = setting.get('Cslmao.profile', 'all')
-        if profile == 'all':
-            return '0'
-        else:
-            return profile
+        return setting.get('Cslmao.profile', 'all')
 
     cslmao.tk_add_mod = add_mod
     tk_widgets.CSLMAO.refresh_profile = cslmao.tk_refresh_profile = refresh_profile
@@ -2636,7 +2685,7 @@ def create_WT_page():
                         dst = src.replace('.wad.client', '.wad')
                         Log.tk_cooldown = 3000
                         wad_tool.unpack(src, dst, hash_manager.HASHTABLES)
-                        Log.tk_cooldown = 0             
+                        Log.tk_cooldown = 0
                         LOG(
                             f'wad_tool: Done: Unpack {src}')
                     hash_manager.free_wad_hashes()
