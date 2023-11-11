@@ -75,7 +75,7 @@ class CSLMAO:
 
     def set_info(mod, info=None, image_path=None):
         old_path = mod.get_path()
-        mod.path = f'{info["Name"]} V{info["Version"]} by {info["Author"]}'
+        mod.path = f'{info["Name"]}'
         mod.id = MOD.generate_id()
         os.rename(
             os.path.abspath(os.path.join(CSLMAO.raw_dir, old_path)),
@@ -125,7 +125,7 @@ class CSLMAO:
 
             with open(info_file, 'r') as f:
                 info = json.load(f)
-            mod_path = f'{info["Name"]} V{info["Version"]} by {info["Author"]}'
+            mod_path = f'{info["Name"]}'
             mod = MOD(id=MOD.generate_id(), path=mod_path,
                       enable=False, profile='0')
             CSLMAO.MODS.append(mod)

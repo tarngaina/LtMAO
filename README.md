@@ -117,6 +117,12 @@ Print out mentioned & missing files in all BINs inside a WAD or a Folder.
 
 ![](https://i.imgur.com/Tj5GPV6.png)
 
+
+## sborf
+Fix skin based on rito files: moonwalk animations, layering animations,...
+
+![](https://i.imgur.com/nOthA0c.png)
+
 # Extra:
 - [LeagueToolKit](https://github.com/LeagueToolkit/LeagueToolkit)
 - [CDTB](https://github.com/CommunityDragon/CDTB)

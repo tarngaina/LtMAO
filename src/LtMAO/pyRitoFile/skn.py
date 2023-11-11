@@ -146,26 +146,23 @@ class SKN:
                         if self.vertex_type == 2:
                             vertex.tangent, = bs.read_vec4()
 
-    """def write(self, path):
-        with open(path, 'wb') as f:
-            bs = BinaryStream(f)
-
-            bs.write_uint32(0x00112233)  # magic
-            bs.write_uint16(1, 1)  # major, minor
-
-            bs.write_uint32(len(self.submeshes))
+    def write(self, path, raw=None):
+        with self.stream(path, 'wb', raw) as bs:
+            # magic, version
+            bs.write_u32(0x00112233)
+            bs.write_u16(1, 1)
+            # submesh
+            bs.write_u32(len(self.submeshes))
             for submesh in self.submeshes:
-                bs.write_padded_ascii(64, submesh.name)
-                bs.write_uint32(
+                bs.write_a_padded(submesh.name, 64)
+                bs.write_u32(
                     submesh.vertex_start, submesh.vertex_count, submesh.index_start, submesh.index_count)
-
-            bs.write_uint32(len(self.indices), len(self.vertices))
-
-            bs.write_uint16(*self.indices)
-
+            # indices vertices
+            bs.write_u32(len(self.indices), len(self.vertices))
+            bs.write_u16(*self.indices)
             for vertex in self.vertices:
                 bs.write_vec3(vertex.position)
-                bs.write_bytes(vertex.influences)
-                bs.write_float(*vertex.weights)
+                bs.write_u8(*vertex.influences)
+                bs.write_f32(*vertex.weights)
                 bs.write_vec3(vertex.normal)
-                bs.write_vec2(vertex.uv)"""
+                bs.write_vec2(vertex.uv)

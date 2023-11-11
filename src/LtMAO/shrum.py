@@ -17,9 +17,9 @@ def rename(path, olds, news, backup=True):
     else:
         if path.endswith('.anm'):
             if backup:
-                backup_dir = os.path.join(os.path.dirname(
+                backup_file = os.path.join(os.path.dirname(
                     path), 'shrum_backup_' + os.path.basename(path))
-                copy(path, backup_dir)
+                copy(path, backup_file)
             try:
                 rename_anm(path, olds, news)
                 LOG('shrum: Done: Rename: {path}')

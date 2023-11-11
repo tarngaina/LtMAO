@@ -7,20 +7,34 @@ class Keeper:
     def __init__(self):
         pass
 
-# profile
+
+def check_thread_safe(thread):
+    if thread == None:
+        return True
+    else:
+        if not thread.is_alive():
+            return True
+    return False
 
 
-def db(func):
-    from cProfile import Profile
-    from pstats import Stats
-    pr = Profile()
-    pr.enable()
+class EmojiImage:
+    font_file = './resources/emojifont.ttf'
+    cache = {}
 
-    func()
-
-    pr.disable()
-    stats = Stats(pr)
-    stats.sort_stats('tottime').print_stats(20)
+    @staticmethod
+    def create(emoji, size=24, weird=False):
+        if emoji in EmojiImage.cache:
+            return EmojiImage.cache[emoji]
+        # convert emoji to CTkImage
+        font = ImageFont.truetype(EmojiImage.font_file, size=int(size/1.5))
+        img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        # fix weird coordinate problem
+        draw.text((size if weird else size/2, size/2), emoji,
+                  embedded_color=True, font=font, anchor='mm', align='center')
+        img = CTkImage(img, size=(size, size))
+        EmojiImage.cache[emoji] = img
+        return img
 
 
 class Log:
@@ -53,6 +67,8 @@ class Log:
         messages = text.split('\n')
         if len(messages) == 0:
             return
+        if messages[-1] == '':
+            messages = messages[:-1]
         # add message to Log.messages
         timed_messages = [
             f'[{str(datetime.now()).split(" ")[1][:-3]}] {msg}' for msg in messages]
@@ -96,23 +112,3 @@ class Log:
                 Log.tk_minilog.configure(text=Log.cd_messages[-1])
                 Log.cd_messages.clear()
                 Log.tk_minilog.after(Log.tk_cooldown, Log.free_tk)
-
-
-class EmojiImage:
-    font_file = './resources/emojifont.ttf'
-    cache = {}
-
-    @staticmethod
-    def create(emoji, size=24, weird=False):
-        if emoji in EmojiImage.cache:
-            return EmojiImage.cache[emoji]
-        # convert emoji to CTkImage
-        font = ImageFont.truetype(EmojiImage.font_file, size=int(size/1.5))
-        img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(img)
-        # fix weird coordinate problem
-        draw.text((size if weird else size/2, size/2), emoji,
-                  embedded_color=True, font=font, anchor='mm', align='center')
-        img = CTkImage(img, size=(size, size))
-        EmojiImage.cache[emoji] = img
-        return img

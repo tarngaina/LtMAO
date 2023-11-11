@@ -3,8 +3,8 @@ import customtkinter as ctk
 import tkinter as tk
 import tkinter.filedialog as tkfd
 
-from LtMAO import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin, bnk_tool
-from LtMAO.prettyUI.helper import Keeper, Log, EmojiImage
+from LtMAO import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin, bnk_tool, sborf
+from LtMAO.prettyUI.helper import Keeper, Log, EmojiImage, check_thread_safe
 
 import os
 import os.path
@@ -19,23 +19,13 @@ TRANSPARENT = 'transparent'
 tk_widgets = Keeper()
 
 
-def rce(self, *args):
-    # redirect tkinter error print
-    err = format_exception(*args)
-    LOG(err)
-    print(''.join(err))
-
-
-ctk.CTk.report_callback_exception = rce
-
-
-def check_thread_safe(thread):
-    if thread == None:
-        return True
-    else:
-        if not thread.is_alive():
-            return True
-    return False
+def set_rce():
+    def rce(self, *args):
+        # redirect tkinter error print
+        err = format_exception(*args)
+        LOG(err)
+        print(''.join(err))
+    ctk.CTk.report_callback_exception = rce
 
 
 def create_main_app_and_frames():
@@ -233,7 +223,7 @@ def create_CSLMAO_page():
     def new_cmd():
         if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
             return
-        mod_path = 'New Mod V1.0 by Author'
+        mod_path = 'New Mod'
         mod_info = {
             'Name': 'New Mod',
             'Author': 'Author',
@@ -1210,7 +1200,6 @@ def create_AMV_page():
                 0, weight=1)
             tk_widgets.AMV.htable_frame.columnconfigure(
                 0, weight=1)
-
             # create vertical scroll table frame
             tk_widgets.AMV.vtable_frame = ctk.CTkScrollableFrame(
                 tk_widgets.AMV.htable_frame,
@@ -1267,6 +1256,23 @@ def create_AMV_page():
                 if not01_count > 0:
                     return False
             return True
+
+        def focus_cmd(event):
+            top_y = event.widget.master.winfo_y()
+            bot_y = top_y+event.widget.master.winfo_height()
+            top_yview, bot_yview = tk_widgets.AMV.vtable_frame._parent_canvas.yview()
+            height = tk_widgets.AMV.vtable_frame.winfo_height()
+            top_yview, bot_yview = int(
+                top_yview * height), int(bot_yview*height)
+            if bot_y > bot_yview:
+                d = bot_y-bot_yview
+                tk_widgets.AMV.vtable_frame._parent_canvas.yview_scroll(
+                    d, "units")
+            elif top_y < top_yview:
+                d = top_y-top_yview
+                tk_widgets.AMV.vtable_frame._parent_canvas.yview_scroll(
+                    d, "units")
+
         for j in range(tk_widgets.AMV.table_column+1):
             for i in range(tk_widgets.AMV.table_row+1):
                 windex = i*(tk_widgets.AMV.table_column+1)+j
@@ -1301,6 +1307,8 @@ def create_AMV_page():
                             '%P'
                         )
                     )
+                    tk_widgets.AMV.table_widgets[windex].bind(
+                        '<FocusIn>', focus_cmd)
                     # safe weight value if joints number > masks number
                     weight_value = '0'
                     try:
@@ -2476,7 +2484,7 @@ def create_SHR_page():
     def backup_cmd():
         setting.set('Shrum.backup', tk_widgets.SHR.backup_switch.get())
         setting.save()
-    # create use ritobin switch
+    # create backup switch
     tk_widgets.SHR.backup_switch = ctk.CTkSwitch(
         tk_widgets.SHR.action_frame,
         text='Create backup before rename (safe)',
@@ -3225,6 +3233,227 @@ def create_ST_page():
         row=9, column=2, padx=5, pady=5, sticky=tk.NSEW)
 
 
+def create_SBORF_page():
+    tk_widgets.SBORF.page_frame = ctk.CTkFrame(
+        tk_widgets.mainright_frame,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.SBORF.page_frame.columnconfigure(0, weight=1)
+    tk_widgets.SBORF.page_frame.rowconfigure(0, weight=1)
+    tk_widgets.SBORF.page_frame.rowconfigure(1, weight=1)
+    tk_widgets.SBORF.page_frame.rowconfigure(2, weight=999)
+
+    # create action frame
+    tk_widgets.SBORF.action_frame = ctk.CTkFrame(
+        tk_widgets.SBORF.page_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.SBORF.action_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.SBORF.action_frame.columnconfigure(0, weight=999)
+    tk_widgets.SBORF.action_frame.columnconfigure(1, weight=1)
+    tk_widgets.SBORF.action_frame.rowconfigure(0, weight=1)
+
+    def backup_cmd():
+        setting.set('Sborf.backup', tk_widgets.SBORF.backup_switch.get())
+        setting.save()
+    # create backup switch
+    tk_widgets.SBORF.backup_switch = ctk.CTkSwitch(
+        tk_widgets.SBORF.action_frame,
+        text='Create backup before fix (safe)',
+        command=backup_cmd
+    )
+    if setting.get('Sborf.backup', 1) == 1:
+        tk_widgets.SBORF.backup_switch.select()
+    else:
+        tk_widgets.SBORF.backup_switch.deselect()
+    tk_widgets.SBORF.backup_switch.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create skin frame
+    tk_widgets.SBORF.skin_frame = ctk.CTkFrame(
+        tk_widgets.SBORF.page_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.SBORF.skin_frame.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.SBORF.skin_frame.rowconfigure(0, weight=1)
+    tk_widgets.SBORF.skin_frame.rowconfigure(1, weight=1)
+    tk_widgets.SBORF.skin_frame.rowconfigure(2, weight=1)
+    tk_widgets.SBORF.skin_frame.rowconfigure(3, weight=1)
+    tk_widgets.SBORF.skin_frame.rowconfigure(4, weight=999)
+    tk_widgets.SBORF.skin_frame.columnconfigure(0, weight=20)
+    tk_widgets.SBORF.skin_frame.columnconfigure(1, weight=1)
+    tk_widgets.SBORF.skin_frame.columnconfigure(2, weight=20)
+    tk_widgets.SBORF.skin_frame.columnconfigure(3, weight=1)
+
+    # create your skin label
+    tk_widgets.SBORF.yourskin_label = ctk.CTkLabel(
+        tk_widgets.SBORF.skin_frame,
+        text='Your skin',
+        anchor=tk.CENTER,
+        justify=tk.CENTER
+    )
+    tk_widgets.SBORF.yourskin_label.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create riot skin label
+    tk_widgets.SBORF.riotskin_label = ctk.CTkLabel(
+        tk_widgets.SBORF.skin_frame,
+        text='Rito skin',
+        anchor=tk.CENTER,
+        justify=tk.CENTER
+    )
+    tk_widgets.SBORF.riotskin_label.grid(
+        row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create skl entry
+    tk_widgets.SBORF.skl_entry = ctk.CTkEntry(
+        tk_widgets.SBORF.skin_frame,
+    )
+    tk_widgets.SBORF.skl_entry.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def sklbrowse_cmd():
+        skl_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select your SKL file',
+            filetypes=(
+                ('SKL files', '*.skl'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.SBORF.skl_entry.delete(0, tk.END)
+        tk_widgets.SBORF.skl_entry.insert(tk.END, skl_path)
+    # create skl browse button
+    tk_widgets.SBORF.sklbrowse_button = ctk.CTkButton(
+        tk_widgets.SBORF.skin_frame,
+        text='Browse SKL',
+        image=EmojiImage.create('📄'),
+        anchor=tk.CENTER,
+        command=sklbrowse_cmd
+    )
+    tk_widgets.SBORF.sklbrowse_button.grid(
+        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create riot skl entry
+    tk_widgets.SBORF.riotskl_entry = ctk.CTkEntry(
+        tk_widgets.SBORF.skin_frame,
+    )
+    tk_widgets.SBORF.riotskl_entry.grid(
+        row=1, column=2, padx=5, pady=5, sticky=tk.NSEW)
+
+    def riotsklbrowse_cmd():
+        skl_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select riot SKL file',
+            filetypes=(
+                ('SKL files', '*.skl'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.SBORF.riotskl_entry.delete(0, tk.END)
+        tk_widgets.SBORF.riotskl_entry.insert(tk.END, skl_path)
+    # create riot skl browse button
+    tk_widgets.SBORF.riotsklbrowse_button = ctk.CTkButton(
+        tk_widgets.SBORF.skin_frame,
+        text='Browse Riot SKL',
+        image=EmojiImage.create('📄'),
+        anchor=tk.CENTER,
+        command=riotsklbrowse_cmd
+    )
+    tk_widgets.SBORF.riotsklbrowse_button.grid(
+        row=1, column=3, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create skn entry
+    tk_widgets.SBORF.skn_entry = ctk.CTkEntry(
+        tk_widgets.SBORF.skin_frame,
+    )
+    tk_widgets.SBORF.skn_entry.grid(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def sknbrowse_cmd():
+        skn_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select your SKN file',
+            filetypes=(
+                ('SKN files', '*.skn'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.SBORF.skn_entry.delete(0, tk.END)
+        tk_widgets.SBORF.skn_entry.insert(tk.END, skn_path)
+    # create skn browse button
+    tk_widgets.SBORF.sknbrowse_button = ctk.CTkButton(
+        tk_widgets.SBORF.skin_frame,
+        text='Browse SKN',
+        image=EmojiImage.create('📄'),
+        anchor=tk.CENTER,
+        command=sknbrowse_cmd
+    )
+    tk_widgets.SBORF.sknbrowse_button.grid(
+        row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create riot skn entry
+    tk_widgets.SBORF.riotskn_entry = ctk.CTkEntry(
+        tk_widgets.SBORF.skin_frame,
+        placeholder_text='(Leave empty if dont need)'
+    )
+    tk_widgets.SBORF.riotskn_entry.grid(
+        row=2, column=2, padx=5, pady=5, sticky=tk.NSEW)
+
+    def riotsknbrowse_cmd():
+        skn_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select riot SKN file',
+            filetypes=(
+                ('SKN files', '*.skn'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.SBORF.riotskn_entry.delete(0, tk.END)
+        tk_widgets.SBORF.riotskn_entry.insert(tk.END, skn_path)
+    # create riot skn browse button
+    tk_widgets.SBORF.riotsknbrowse_button = ctk.CTkButton(
+        tk_widgets.SBORF.skin_frame,
+        text='Browse Riot SKN',
+        image=EmojiImage.create('📄'),
+        anchor=tk.CENTER,
+        command=riotsknbrowse_cmd
+    )
+    tk_widgets.SBORF.riotsknbrowse_button.grid(
+        row=2, column=3, padx=5, pady=5, sticky=tk.NSEW)
+
+    def skinfix_cmd():
+        skl_path = tk_widgets.SBORF.skl_entry.get()
+        if skl_path == '':
+            raise Exception('sborf: Failed: Read SKL: Empty SKL path.')
+        skn_path = tk_widgets.SBORF.skn_entry.get()
+        if skn_path == '':
+            raise Exception('sborf: Failed: Read SKN: Empty SKN path.')
+        riotskl_path = tk_widgets.SBORF.riotskl_entry.get()
+        if riotskl_path == '':
+            raise Exception(
+                'sborf: Failed: Read Riot SKL: Empty Riot SKL path.')
+        riotskn_path = tk_widgets.SBORF.riotskn_entry.get()
+        sborf.skin_fix(skl_path, skn_path, riotskl_path, riotskn_path,
+                       backup=setting.get('Sborf.backup', 1))
+    # create skin fix button
+    tk_widgets.SBORF.skinfix_button = ctk.CTkButton(
+        tk_widgets.SBORF.skin_frame,
+        text='Fix your skin',
+        image=EmojiImage.create('🐊'),
+        anchor=tk.CENTER,
+        command=skinfix_cmd
+    )
+    tk_widgets.SBORF.skinfix_button.grid(
+        row=3, column=0, padx=5, pady=5, sticky=tk.NS)
+
+
 def select_right_page(selected):
     # hide all page
     for page in tk_widgets.pages:
@@ -3356,6 +3585,11 @@ def create_page_controls():
             tk_widgets.mainleft_frame,
             text='pyntex',
             command=lambda: control_cmd(10)
+        ),
+        ctk.CTkButton(
+            tk_widgets.mainleft_frame,
+            text='sborf',
+            command=lambda: control_cmd(11)
         )
     ]
     for id, control_button in enumerate(tk_widgets.control_buttons):
@@ -3389,6 +3623,7 @@ def create_page_controls():
     tk_widgets.HP = tk_widgets.pages[8]
     tk_widgets.WT = tk_widgets.pages[9]
     tk_widgets.PT = tk_widgets.pages[10]
+    tk_widgets.SBORF = tk_widgets.pages[11]
     # create right pages
     tk_widgets.create_right_page = [
         create_CSLMAO_page,
@@ -3401,7 +3636,8 @@ def create_page_controls():
         create_SHR_page,
         create_HP_page,
         create_WT_page,
-        create_PT_page
+        create_PT_page,
+        create_SBORF_page
     ]
     # create LOG and ST control, page
     tk_widgets.minilog_control = None
@@ -3444,6 +3680,7 @@ def create_bottom_widgets():
 
 
 def start():
+    set_rce()
     create_main_app_and_frames()
     # load settings first
     setting.prepare(LOG)
@@ -3468,5 +3705,6 @@ def start():
     hapiBin.prepare(LOG)
     pyntex.prepare(LOG)
     bnk_tool.prepare(LOG)
+    sborf.prepare(LOG)
     # loop the UI
     tk_widgets.main_tk.mainloop()
