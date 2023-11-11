@@ -108,7 +108,7 @@ Simple tool to unpack, pack WAD files.
 Can bulk unpack multiple WADs into same output. 
 **Example:** Bulk unpacking all voiced wad then throw into [vo_helper](https://github.com/tarngaina/LtMAO#vo_helper) is a fast way to create a champion voicepack for specific language mod.
 
-![](https://i.imgur.com/bMV57O7.png)
+![](https://i.imgur.com/rx6NijO.png)
 
 
 ## pyntex

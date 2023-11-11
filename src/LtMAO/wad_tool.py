@@ -14,7 +14,7 @@ def check_hashed_name(basename):
         return False
 
 
-def unpack(wad_file, raw_dir, hashtables):
+def unpack(wad_file, raw_dir, hashtables, filter=None):
     LOG(f'wad_tool: Running: Unpack WAD: {wad_file}')
     # read wad
     wad = pyRitoFile.read_wad(wad_file)
@@ -22,6 +22,8 @@ def unpack(wad_file, raw_dir, hashtables):
     hashed_bins = {}
     with wad.stream(wad_file, 'rb') as bs:
         for chunk in wad.chunks:
+            if filter != None and chunk.hash not in filter:
+                continue
             # read chunk data first to get extension
             chunk.read_data(bs)
             # output file path of this chunk

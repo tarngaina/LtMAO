@@ -873,7 +873,7 @@ def create_LFI_page():
             # highlight pattern
             end_pos = f'{found_pos} + {len(pattern)}c'
             file_text.tag_config(
-                "search", background="grey")
+                'search', background=tk_widgets.c_active_fg[0])
             file_text.tag_add('search', found_pos, end_pos)
             # set view
             file_text.see(found_pos)
@@ -1267,11 +1267,11 @@ def create_AMV_page():
             if bot_y > bot_yview:
                 d = bot_y-bot_yview
                 tk_widgets.AMV.vtable_frame._parent_canvas.yview_scroll(
-                    d, "units")
+                    d, 'units')
             elif top_y < top_yview:
                 d = top_y-top_yview
                 tk_widgets.AMV.vtable_frame._parent_canvas.yview_scroll(
-                    d, "units")
+                    d, 'units')
 
         for j in range(tk_widgets.AMV.table_column+1):
             for i in range(tk_widgets.AMV.table_row+1):
@@ -2662,6 +2662,9 @@ def create_WT_page():
     tk_widgets.WT.page_frame.rowconfigure(1, weight=699)
     # init stuffs
     tk_widgets.WT.working_thread = None
+    tk_widgets.WT.loaded_wads = []
+    tk_widgets.WT.loaded_wad_paths = []
+    tk_widgets.WT.loaded_chunk_hashes = []
     # create action frame
     tk_widgets.WT.action_frame = ctk.CTkFrame(
         tk_widgets.WT.page_frame,
@@ -2785,7 +2788,40 @@ def create_WT_page():
     tk_widgets.WT.action3_frame.columnconfigure(0, weight=1)
     tk_widgets.WT.action3_frame.columnconfigure(1, weight=1)
     tk_widgets.WT.action3_frame.columnconfigure(2, weight=1)
-    tk_widgets.WT.action3_frame.columnconfigure(3, weight=699)
+    tk_widgets.WT.action3_frame.columnconfigure(3, weight=10)
+    tk_widgets.WT.action3_frame.columnconfigure(4, weight=10)
+
+    def add_cmd(wad_paths):
+        def add_thrd():
+            LOG('wad_tool: Running: Load WADs.')
+            hash_manager.read_wad_hashes()
+            for wad_path in wad_paths:
+                try:
+                    wad = pyRitoFile.read_wad(wad_path)
+                    wad.un_hash(hash_manager.HASHTABLES)
+                    tk_widgets.WT.loaded_wads.append(wad)
+                    tk_widgets.WT.loaded_wad_paths.append(wad_path)
+                    tk_widgets.WT.loaded_chunk_hashes.extend(
+                        chunk.hash for chunk in wad.chunks)
+                except:
+                    pass
+            hash_manager.free_wad_hashes()
+            LOG('wad_tool: Done: Load WADs.')
+            tk_widgets.WT.wad_text.configure(state=tk.NORMAL)
+            tk_widgets.WT.wad_text.insert(
+                tk.END, '\n'.join(tk_widgets.WT.loaded_wad_paths) + '\n')
+            tk_widgets.WT.wad_text.configure(state=tk.DISABLED)
+            tk_widgets.WT.chunk_text.configure(state=tk.NORMAL)
+            tk_widgets.WT.chunk_text.insert(
+                tk.END, '\n'.join(tk_widgets.WT.loaded_chunk_hashes) + '\n')
+            tk_widgets.WT.chunk_text.configure(state=tk.DISABLED)
+
+        if check_thread_safe(tk_widgets.WT.working_thread):
+            tk_widgets.WT.working_thread = Thread(target=add_thrd, daemon=True)
+            tk_widgets.WT.working_thread.start()
+        else:
+            LOG(
+                'wad_tool: Failed: A thread is already running, wait for it to finished.')
 
     def addfile_cmd():
         file_paths = tkfd.askopenfilenames(
@@ -2798,10 +2834,7 @@ def create_WT_page():
             initialdir=setting.get('default_folder', None)
         )
         if len(file_paths) > 0:
-            tk_widgets.WT.file_text.configure(state=tk.NORMAL)
-            tk_widgets.WT.file_text.insert(
-                tk.END, '\n'.join(file_paths) + '\n')
-            tk_widgets.WT.file_text.configure(state=tk.DISABLED)
+            add_cmd(file_paths)
 
     # create add file button
     tk_widgets.WT.addfile_button = ctk.CTkButton(
@@ -2819,21 +2852,19 @@ def create_WT_page():
             title='Select Folder contains WADs',
             initialdir=setting.get('default_folder', None)
         )
-        wad_files = []
+        file_paths = []
         for root, dirs, files in os.walk(dirname):
             for file in files:
                 if file.endswith('.wad.client'):
-                    wad_files.append(os.path.join(
+                    file_paths.append(os.path.join(
                         root, file).replace('\\', '/'))
-        if len(wad_files) > 0:
-            tk_widgets.WT.file_text.configure(state=tk.NORMAL)
-            tk_widgets.WT.file_text.insert(tk.END, '\n'.join(wad_files) + '\n')
-            tk_widgets.WT.file_text.configure(state=tk.DISABLED)
+        if len(file_paths) > 0:
+            add_cmd(file_paths)
 
     # create add folder button
     tk_widgets.WT.addfolder_button = ctk.CTkButton(
         tk_widgets.WT.action3_frame,
-        text='Add all WADs in folder',
+        text='Scan WADs in folder',
         image=EmojiImage.create('📁'),
         command=addfolder_cmd
     )
@@ -2841,9 +2872,16 @@ def create_WT_page():
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def clear_cmd():
-        tk_widgets.WT.file_text.configure(state=tk.NORMAL)
-        tk_widgets.WT.file_text.delete('1.0', tk.END)
-        tk_widgets.WT.file_text.configure(state=tk.DISABLED)
+        tk_widgets.WT.loaded_wads = []
+        tk_widgets.WT.loaded_wad_paths = []
+        tk_widgets.WT.loaded_chunk_hashes = []
+        tk_widgets.WT.wad_text.configure(state=tk.NORMAL)
+        tk_widgets.WT.wad_text.delete('1.0', tk.END)
+        tk_widgets.WT.wad_text.configure(state=tk.DISABLED)
+        tk_widgets.WT.chunk_text.configure(state=tk.NORMAL)
+        tk_widgets.WT.chunk_text.delete('1.0', tk.END)
+        tk_widgets.WT.chunk_text.configure(state=tk.DISABLED)
+
     # create clear button
     tk_widgets.WT.clear_button = ctk.CTkButton(
         tk_widgets.WT.action3_frame,
@@ -2853,14 +2891,108 @@ def create_WT_page():
     )
     tk_widgets.WT.clear_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
-    # create file text
-    tk_widgets.WT.file_text = ctk.CTkTextbox(
-        tk_widgets.WT.action2_frame,
+
+    # filter command for both include and exclude entry
+    def filter_cmd(event):
+        # get keywords
+        include_keywords = tk_widgets.WT.include_entry.get().split()
+        exclude_keywords = tk_widgets.WT.exclude_entry.get().split()
+        if len(include_keywords) == 0:
+            # reset include
+            tk_widgets.WT.chunk_text.tag_remove('include', '1.0', tk.END)
+            tk_widgets.WT.chunk_text.configure(state=tk.NORMAL)
+            tk_widgets.WT.chunk_text.delete('1.0', tk.END)
+            tk_widgets.WT.chunk_text.insert(
+                tk.END, '\n'.join(tk_widgets.WT.loaded_chunk_hashes) + '\n')
+            tk_widgets.WT.chunk_text.configure(state=tk.DISABLED)
+            return
+        # filter inside core first
+        temp_chunk_hashes = []
+        for chunk_hash in tk_widgets.WT.loaded_chunk_hashes:
+            allow = False
+            for keyword in include_keywords:
+                if keyword in chunk_hash:
+                    allow = True
+                    break
+            for keyword in exclude_keywords:
+                if keyword in chunk_hash:
+                    allow = False
+                    break
+            if allow:
+                temp_chunk_hashes.append(chunk_hash)
+
+        # reset tk text with filtered core
+        if len(temp_chunk_hashes) != len(tk_widgets.WT.loaded_chunk_hashes):
+            tk_widgets.WT.chunk_text.configure(state=tk.NORMAL)
+            tk_widgets.WT.chunk_text.delete('1.0', tk.END)
+            tk_widgets.WT.chunk_text.insert(
+                tk.END, '\n'.join(temp_chunk_hashes) + '\n')
+            tk_widgets.WT.chunk_text.configure(state=tk.DISABLED)
+
+        # hightlight tk text
+        tk_widgets.WT.chunk_text.tag_remove('include', '1.0', tk.END)
+        tk_widgets.WT.chunk_text.tag_config(
+            'include', background=tk_widgets.c_active_fg[0])
+        for keyword in include_keywords:
+            start_index = '1.0'
+            keyword_length = len(keyword)
+            while True:
+                start_index = tk_widgets.WT.chunk_text.search(
+                    keyword,
+                    start_index,
+                    nocase=True,
+                    stopindex=tk.END
+                )
+                if start_index == '':
+                    break
+                end_index = f'{start_index} + {keyword_length}c'
+                tk_widgets.WT.chunk_text.tag_add(
+                    'include', start_index, end_index)
+                start_index = end_index
+
+    # create include entry
+    tk_widgets.WT.include_entry = ctk.CTkEntry(
+        tk_widgets.WT.action3_frame,
+        placeholder_text='Include keywords'
+    )
+    tk_widgets.WT.include_entry.grid(
+        row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.WT.include_entry.bind('<Return>', filter_cmd)
+
+    # create exclude entry
+    tk_widgets.WT.exclude_entry = ctk.CTkEntry(
+        tk_widgets.WT.action3_frame,
+        placeholder_text='Exclude keywords (after include)'
+    )
+    tk_widgets.WT.exclude_entry.grid(
+        row=0, column=4, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.WT.exclude_entry.bind('<Return>', filter_cmd)
+
+    # create label frame
+    tk_widgets.WT.label_frame = ctk.CTkFrame(
+        tk_widgets.WT.action2_frame
+    )
+    tk_widgets.WT.label_frame.grid(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.WT.label_frame.rowconfigure(0, weight=1)
+    tk_widgets.WT.label_frame.columnconfigure(0, weight=3)
+    tk_widgets.WT.label_frame.columnconfigure(1, weight=7)
+    # create wad text
+    tk_widgets.WT.wad_text = ctk.CTkTextbox(
+        tk_widgets.WT.label_frame,
         wrap=tk.NONE,
         state=tk.DISABLED
     )
-    tk_widgets.WT.file_text.grid(
-        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.WT.wad_text.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create chunk text
+    tk_widgets.WT.chunk_text = ctk.CTkTextbox(
+        tk_widgets.WT.label_frame,
+        wrap=tk.NONE,
+        state=tk.DISABLED
+    )
+    tk_widgets.WT.chunk_text.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def bulk_cmd():
         if check_thread_safe(tk_widgets.WT.working_thread):
@@ -2870,16 +3002,20 @@ def create_WT_page():
                 initialdir=setting.get('default_folder', None)
             )
             if dir_path != '':
-                file_paths = tk_widgets.WT.file_text.get(
+                wad_paths = tk_widgets.WT.wad_text.get(
                     '1.0', 'end-1c').split('\n')
-                file_paths.remove('')
-                if len(file_paths) > 0:
+                chunk_hashes = tk_widgets.WT.chunk_text.get(
+                    '1.0', 'end-1c').split('\n')
+                if len(chunk_hashes) == 0:
+                    chunk_hashes = None
+                wad_paths.remove('')
+                if len(wad_paths) > 0:
                     def working_thrd():
                         hash_manager.read_wad_hashes()
                         Log.tk_cooldown = 5000
-                        for file_path in file_paths:
-                            wad_tool.unpack(file_path, dir_path,
-                                            hash_manager.HASHTABLES)
+                        for wad_path in wad_paths:
+                            wad_tool.unpack(wad_path, dir_path,
+                                            hash_manager.HASHTABLES, filter=chunk_hashes)
                         Log.tk_cooldown = 0
                         hash_manager.free_wad_hashes()
                         LOG(f'wad_tool: Done: Unpack to {dir_path}')
