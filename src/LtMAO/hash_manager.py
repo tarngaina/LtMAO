@@ -43,11 +43,13 @@ class CDTB:
     # for syncing CDTB hashes
     local_dir = './prefs/hashes/cdtb_hashes'
 
-    def local_file(
-        filename): return f'{CDTB.local_dir}/{filename}'
+    def local_file(filename):
+        return f'{CDTB.local_dir}/{filename}'
 
-    def github_file(
-        filename): return f'https://raw.githubusercontent.com/CommunityDragon/CDTB/master/cdragontoolbox/{filename}'
+    def remote_file(filename):
+        # return f'https://raw.githubusercontent.com/CommunityDragon/CDTB/master/cdragontoolbox/{filename}'
+        return f'https://raw.communitydragon.org/binviewer/hashes/{filename}'
+
     etag_path = f'{local_dir}/etag.json'
     ETAG = {}
 
@@ -55,24 +57,24 @@ class CDTB:
     def sync_hashes(*filenames):
         for filename in filenames:
             local_file = CDTB.local_file(filename)
-            github_file = CDTB.github_file(filename)
+            remote_file = CDTB.remote_file(filename)
             # GET request
-            get = requests.get(github_file, stream=True)
+            get = requests.get(remote_file, stream=True)
             get.raise_for_status()
             # get etag and compare, new etag = sync
             etag_local = CDTB.ETAG.get(filename, None)
-            etag_github = get.headers['Etag']
-            if etag_local == None or etag_local != etag_github or not os.path.exists(local_file):
+            etag_remote = get.headers['ETag']
+            if etag_local == None or etag_local != etag_remote or not os.path.exists(local_file):
                 # set etag
-                CDTB.ETAG[filename] = etag_github
+                CDTB.ETAG[filename] = etag_remote
                 # download file
                 bytes_downloaded = 0
-                chunk_size = 1024**2
+                chunk_size = 1024**2*5
                 with open(local_file, 'wb') as f:
                     for chunk in get.iter_content(chunk_size):
                         bytes_downloaded += len(chunk)
                         LOG(
-                            f'hash_manager: Downloading: {github_file}: {to_human(bytes_downloaded)}')
+                            f'hash_manager: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
                         f.write(chunk)
                 combine_custom_hashes(filename)
             LOG(f'hash_manager: Done: Sync hash: {local_file}')
