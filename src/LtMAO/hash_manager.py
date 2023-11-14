@@ -70,14 +70,21 @@ class CDTB:
                 # download file
                 bytes_downloaded = 0
                 chunk_size = 1024**2*5
+                bytes_downloaded_log = 0
+                bytes_downloaded_log_limit = 1024**2
                 with open(local_file, 'wb') as f:
                     for chunk in get.iter_content(chunk_size):
-                        bytes_downloaded += len(chunk)
-                        LOG(
-                            f'hash_manager: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
+                        chunk_length = len(chunk)
+                        bytes_downloaded += chunk_length
                         f.write(chunk)
+                        bytes_downloaded_log += chunk_length
+                        if bytes_downloaded_log > bytes_downloaded_log_limit:
+                            LOG(
+                                f'hash_manager: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
+                            bytes_downloaded_log = 0
                 combine_custom_hashes(filename)
             LOG(f'hash_manager: Done: Sync hash: {local_file}')
+        LOG(f'hash_manager: Done: Sync all hashes.')
 
     @staticmethod
     def sync_all():

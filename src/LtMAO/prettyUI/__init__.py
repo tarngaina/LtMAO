@@ -873,7 +873,7 @@ def create_LFI_page():
             # highlight pattern
             end_pos = f'{found_pos} + {len(pattern)}c'
             file_text.tag_config(
-                'search', background=tk_widgets.c_active_fg[0])
+                'search', foreground=tk_widgets.c_active_fg[0])
             file_text.tag_add('search', found_pos, end_pos)
             # set view
             file_text.see(found_pos)
@@ -1291,7 +1291,7 @@ def create_AMV_page():
                     tk_widgets.AMV.table_widgets[windex] = ctk.CTkLabel(
                         tk_widgets.AMV.vtable_frame,
                         width=160,
-                        text=joint_names[i-1],
+                        text=f'[{i-1}] {joint_names[i-1]}',
                         anchor=tk.W
                     )
                 # create weight entries
@@ -2909,10 +2909,10 @@ def create_WT_page():
         # filter inside core first
         temp_chunk_hashes = []
         for chunk_hash in tk_widgets.WT.loaded_chunk_hashes:
-            allow = False
+            allow = True
             for keyword in include_keywords:
-                if keyword in chunk_hash:
-                    allow = True
+                if keyword not in chunk_hash:
+                    allow = False
                     break
             for keyword in exclude_keywords:
                 if keyword in chunk_hash:
@@ -2932,7 +2932,7 @@ def create_WT_page():
         # hightlight tk text
         tk_widgets.WT.chunk_text.tag_remove('include', '1.0', tk.END)
         tk_widgets.WT.chunk_text.tag_config(
-            'include', background=tk_widgets.c_active_fg[0])
+            'include', foreground=tk_widgets.c_active_fg[0])
         for keyword in include_keywords:
             start_index = '1.0'
             keyword_length = len(keyword)
@@ -3413,19 +3413,30 @@ def create_SBORF_page():
     )
     tk_widgets.SBORF.skin_frame.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
-    tk_widgets.SBORF.skin_frame.rowconfigure(0, weight=1)
-    tk_widgets.SBORF.skin_frame.rowconfigure(1, weight=1)
-    tk_widgets.SBORF.skin_frame.rowconfigure(2, weight=1)
-    tk_widgets.SBORF.skin_frame.rowconfigure(3, weight=1)
-    tk_widgets.SBORF.skin_frame.rowconfigure(4, weight=999)
-    tk_widgets.SBORF.skin_frame.columnconfigure(0, weight=20)
-    tk_widgets.SBORF.skin_frame.columnconfigure(1, weight=1)
-    tk_widgets.SBORF.skin_frame.columnconfigure(2, weight=20)
-    tk_widgets.SBORF.skin_frame.columnconfigure(3, weight=1)
+    tk_widgets.SBORF.skin_frame.rowconfigure(0, weight=5)
+    tk_widgets.SBORF.skin_frame.rowconfigure(1, weight=5)
+    tk_widgets.SBORF.skin_frame.columnconfigure(0, weight=1)
+
+    # create browse frame
+    tk_widgets.SBORF.browse_frame = ctk.CTkFrame(
+        tk_widgets.SBORF.skin_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.SBORF.browse_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.SBORF.browse_frame.rowconfigure(0, weight=1)
+    tk_widgets.SBORF.browse_frame.rowconfigure(1, weight=1)
+    tk_widgets.SBORF.browse_frame.rowconfigure(2, weight=1)
+    tk_widgets.SBORF.browse_frame.rowconfigure(3, weight=1)
+    tk_widgets.SBORF.browse_frame.rowconfigure(4, weight=999)
+    tk_widgets.SBORF.browse_frame.columnconfigure(0, weight=20)
+    tk_widgets.SBORF.browse_frame.columnconfigure(1, weight=1)
+    tk_widgets.SBORF.browse_frame.columnconfigure(2, weight=20)
+    tk_widgets.SBORF.browse_frame.columnconfigure(3, weight=1)
 
     # create your skin label
     tk_widgets.SBORF.yourskin_label = ctk.CTkLabel(
-        tk_widgets.SBORF.skin_frame,
+        tk_widgets.SBORF.browse_frame,
         text='Your skin',
         anchor=tk.CENTER,
         justify=tk.CENTER
@@ -3435,7 +3446,7 @@ def create_SBORF_page():
 
     # create riot skin label
     tk_widgets.SBORF.riotskin_label = ctk.CTkLabel(
-        tk_widgets.SBORF.skin_frame,
+        tk_widgets.SBORF.browse_frame,
         text='Rito skin',
         anchor=tk.CENTER,
         justify=tk.CENTER
@@ -3445,7 +3456,8 @@ def create_SBORF_page():
 
     # create skl entry
     tk_widgets.SBORF.skl_entry = ctk.CTkEntry(
-        tk_widgets.SBORF.skin_frame,
+        tk_widgets.SBORF.browse_frame,
+        placeholder_text='(Require)'
     )
     tk_widgets.SBORF.skl_entry.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3462,9 +3474,15 @@ def create_SBORF_page():
         )
         tk_widgets.SBORF.skl_entry.delete(0, tk.END)
         tk_widgets.SBORF.skl_entry.insert(tk.END, skl_path)
+        skn_path = os.path.join(
+            os.path.dirname(skl_path), os.path.basename(skl_path).replace('.skl', '') + '.skn').replace('\\', '/')
+        if os.path.exists(skn_path) and tk_widgets.SBORF.skn_entry.get() == '':
+            tk_widgets.SBORF.skn_entry.delete(0, tk.END)
+            tk_widgets.SBORF.skn_entry.insert(tk.END, skn_path)
+
     # create skl browse button
     tk_widgets.SBORF.sklbrowse_button = ctk.CTkButton(
-        tk_widgets.SBORF.skin_frame,
+        tk_widgets.SBORF.browse_frame,
         text='Browse SKL',
         image=EmojiImage.create('📄'),
         anchor=tk.CENTER,
@@ -3475,7 +3493,8 @@ def create_SBORF_page():
 
     # create riot skl entry
     tk_widgets.SBORF.riotskl_entry = ctk.CTkEntry(
-        tk_widgets.SBORF.skin_frame,
+        tk_widgets.SBORF.browse_frame,
+        placeholder_text='(Require)'
     )
     tk_widgets.SBORF.riotskl_entry.grid(
         row=1, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -3494,7 +3513,7 @@ def create_SBORF_page():
         tk_widgets.SBORF.riotskl_entry.insert(tk.END, skl_path)
     # create riot skl browse button
     tk_widgets.SBORF.riotsklbrowse_button = ctk.CTkButton(
-        tk_widgets.SBORF.skin_frame,
+        tk_widgets.SBORF.browse_frame,
         text='Browse Riot SKL',
         image=EmojiImage.create('📄'),
         anchor=tk.CENTER,
@@ -3505,7 +3524,8 @@ def create_SBORF_page():
 
     # create skn entry
     tk_widgets.SBORF.skn_entry = ctk.CTkEntry(
-        tk_widgets.SBORF.skin_frame,
+        tk_widgets.SBORF.browse_frame,
+        placeholder_text='(Require if fix skin)'
     )
     tk_widgets.SBORF.skn_entry.grid(
         row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3522,9 +3542,14 @@ def create_SBORF_page():
         )
         tk_widgets.SBORF.skn_entry.delete(0, tk.END)
         tk_widgets.SBORF.skn_entry.insert(tk.END, skn_path)
+        skl_path = os.path.join(
+            os.path.dirname(skn_path), os.path.basename(skn_path).replace('.skn', '') + '.skl').replace('\\', '/')
+        if os.path.exists(skl_path) and tk_widgets.SBORF.skl_entry.get() == '':
+            tk_widgets.SBORF.skl_entry.delete(0, tk.END)
+            tk_widgets.SBORF.skl_entry.insert(tk.END, skl_path)
     # create skn browse button
     tk_widgets.SBORF.sknbrowse_button = ctk.CTkButton(
-        tk_widgets.SBORF.skin_frame,
+        tk_widgets.SBORF.browse_frame,
         text='Browse SKN',
         image=EmojiImage.create('📄'),
         anchor=tk.CENTER,
@@ -3535,7 +3560,7 @@ def create_SBORF_page():
 
     # create riot skn entry
     tk_widgets.SBORF.riotskn_entry = ctk.CTkEntry(
-        tk_widgets.SBORF.skin_frame,
+        tk_widgets.SBORF.browse_frame,
         placeholder_text='(Leave empty if dont need)'
     )
     tk_widgets.SBORF.riotskn_entry.grid(
@@ -3555,7 +3580,7 @@ def create_SBORF_page():
         tk_widgets.SBORF.riotskn_entry.insert(tk.END, skn_path)
     # create riot skn browse button
     tk_widgets.SBORF.riotsknbrowse_button = ctk.CTkButton(
-        tk_widgets.SBORF.skin_frame,
+        tk_widgets.SBORF.browse_frame,
         text='Browse Riot SKN',
         image=EmojiImage.create('📄'),
         anchor=tk.CENTER,
@@ -3564,30 +3589,172 @@ def create_SBORF_page():
     tk_widgets.SBORF.riotsknbrowse_button.grid(
         row=2, column=3, padx=5, pady=5, sticky=tk.NSEW)
 
-    def skinfix_cmd():
+    # create bin entry
+    tk_widgets.SBORF.bin_entry = ctk.CTkEntry(
+        tk_widgets.SBORF.browse_frame,
+        placeholder_text='(Require if adapt MaskData)'
+    )
+    tk_widgets.SBORF.bin_entry.grid(
+        row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def binbrowse_cmd():
+        bin_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select your Animation BIN file',
+            filetypes=(
+                ('BIN files', '*.bin'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.SBORF.bin_entry.delete(0, tk.END)
+        tk_widgets.SBORF.bin_entry.insert(tk.END, bin_path)
+    # create bin browse button
+    tk_widgets.SBORF.binbrowse_button = ctk.CTkButton(
+        tk_widgets.SBORF.browse_frame,
+        text='Browse Animation BIN',
+        image=EmojiImage.create('📄'),
+        anchor=tk.CENTER,
+        command=binbrowse_cmd
+    )
+    tk_widgets.SBORF.binbrowse_button.grid(
+        row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create riot bin entry
+    tk_widgets.SBORF.riotbin_entry = ctk.CTkEntry(
+        tk_widgets.SBORF.browse_frame,
+        placeholder_text='(Require if adapt MaskData)'
+    )
+    tk_widgets.SBORF.riotbin_entry.grid(
+        row=3, column=2, padx=5, pady=5, sticky=tk.NSEW)
+
+    def riotbinbrowse_cmd():
+        bin_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select Riot Animtion BIN file',
+            filetypes=(
+                ('BIN files', '*.bin'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.SBORF.riotbin_entry.delete(0, tk.END)
+        tk_widgets.SBORF.riotbin_entry.insert(tk.END, bin_path)
+    # create riot bin browse button
+    tk_widgets.SBORF.riotbinbrowse_button = ctk.CTkButton(
+        tk_widgets.SBORF.browse_frame,
+        text='Browse Riot Animtion BIN',
+        image=EmojiImage.create('📄'),
+        anchor=tk.CENTER,
+        command=riotbinbrowse_cmd
+    )
+    tk_widgets.SBORF.riotbinbrowse_button.grid(
+        row=3, column=3, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create skin frame
+    tk_widgets.SBORF.fix_frame = ctk.CTkFrame(
+        tk_widgets.SBORF.skin_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.SBORF.fix_frame.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.SBORF.fix_frame.columnconfigure(0, weight=1)
+    tk_widgets.SBORF.fix_frame.columnconfigure(1, weight=999)
+    tk_widgets.SBORF.fix_frame.rowconfigure(0, weight=1)
+    tk_widgets.SBORF.fix_frame.rowconfigure(1, weight=1)
+    tk_widgets.SBORF.fix_frame.rowconfigure(2, weight=1)
+    tk_widgets.SBORF.fix_frame.rowconfigure(4, weight=1)
+    tk_widgets.SBORF.fix_frame.rowconfigure(5, weight=1)
+    tk_widgets.SBORF.fix_frame.rowconfigure(6, weight=1)
+    tk_widgets.SBORF.fix_frame.rowconfigure(7, weight=999)
+
+    def skinfix_cmd(dont_add_joint_back=False):
         skl_path = tk_widgets.SBORF.skl_entry.get()
         if skl_path == '':
-            raise Exception('sborf: Failed: Read SKL: Empty SKL path.')
+            raise Exception('sborf: Failed: Read SKL: Empty path.')
         skn_path = tk_widgets.SBORF.skn_entry.get()
         if skn_path == '':
-            raise Exception('sborf: Failed: Read SKN: Empty SKN path.')
+            raise Exception('sborf: Failed: Read SKN: Empty path.')
         riotskl_path = tk_widgets.SBORF.riotskl_entry.get()
         if riotskl_path == '':
             raise Exception(
-                'sborf: Failed: Read Riot SKL: Empty Riot SKL path.')
+                'sborf: Failed: Read Riot SKL: Empty Riot path.')
         riotskn_path = tk_widgets.SBORF.riotskn_entry.get()
         sborf.skin_fix(skl_path, skn_path, riotskl_path, riotskn_path,
-                       backup=setting.get('Sborf.backup', 1))
-    # create skin fix button
-    tk_widgets.SBORF.skinfix_button = ctk.CTkButton(
-        tk_widgets.SBORF.skin_frame,
+                       backup=setting.get('Sborf.backup', 1), dont_add_joint_back=dont_add_joint_back)
+
+    def adaptmaskdata_cmd():
+        skl_path = tk_widgets.SBORF.skl_entry.get()
+        if skl_path == '':
+            raise Exception('sborf: Failed: Read SKL: Empty path.')
+        bin_path = tk_widgets.SBORF.bin_entry.get()
+        if bin_path == '':
+            raise Exception('sborf: Failed: Read Animation BIN: Empty path.')
+        riotskl_path = tk_widgets.SBORF.riotskl_entry.get()
+        if riotskl_path == '':
+            raise Exception(
+                'sborf: Failed: Read Riot SKL: Empty path.')
+        riotbin_path = tk_widgets.SBORF.riotbin_entry.get()
+        if riotbin_path == '':
+            raise Exception(
+                'sborf: Failed: Read Riot Animation BIN: Empty path.')
+        sborf.maskdata_adapt(skl_path, riotskl_path, bin_path, riotbin_path,
+                             backup=setting.get('Sborf.backup', 1))
+
+    # create fixskin button
+    tk_widgets.SBORF.fixskin_button = ctk.CTkButton(
+        tk_widgets.SBORF.fix_frame,
         text='Fix your skin',
         image=EmojiImage.create('🐊'),
         anchor=tk.CENTER,
         command=skinfix_cmd
     )
-    tk_widgets.SBORF.skinfix_button.grid(
-        row=3, column=0, padx=5, pady=5, sticky=tk.NS)
+    tk_widgets.SBORF.fixskin_button.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.SBORF.fixskin_label = ctk.CTkLabel(
+        tk_widgets.SBORF.fix_frame,
+        text='Sort your SKL joints base on riot SKL, fill removed riot joints back and move new custom joints to the end of list.\nSort SKN vertex influences base on the new order.\nIf selected riot SKN, sort SKN materials base on riot SKN.\nThrow exception if total joints = your SKL joints + removed joints > 256.',
+        anchor=tk.NW,
+        justify=tk.LEFT
+    )
+    tk_widgets.SBORF.fixskin_label.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create fixskin2 button
+    tk_widgets.SBORF.fixskin2_button = ctk.CTkButton(
+        tk_widgets.SBORF.fix_frame,
+        text='Fix your skin but do not add removed riot joint back',
+        image=EmojiImage.create('🐸'),
+        anchor=tk.CENTER,
+        command=lambda: skinfix_cmd(dont_add_joint_back=True)
+    )
+    tk_widgets.SBORF.fixskin2_button.grid(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.SBORF.fixskin2_label = ctk.CTkLabel(
+        tk_widgets.SBORF.fix_frame,
+        text='Sort your custom SKL joints order similar to riot SKL and your new joints also moved to the end of list.\nYou need to use custom animation BIN MaskData tho.',
+        anchor=tk.NW,
+        justify=tk.LEFT
+    )
+    tk_widgets.SBORF.fixskin2_label.grid(
+        row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create adaptmaskdata button
+    tk_widgets.SBORF.adaptmaskdata_button = ctk.CTkButton(
+        tk_widgets.SBORF.fix_frame,
+        text='Adapt animation BIN MaskData',
+        image=EmojiImage.create('🦀'),
+        anchor=tk.CENTER,
+        command=adaptmaskdata_cmd
+    )
+    tk_widgets.SBORF.adaptmaskdata_button.grid(
+        row=4, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.SBORF.adaptmaskdata_label = ctk.CTkLabel(
+        tk_widgets.SBORF.fix_frame,
+        text='Copy MaskData weight values from riot animation BIN to your custom animation BIN base on your SKL+riot SKL.\nNew custom joints will have weight set to 0.0.',
+        anchor=tk.NW,
+        justify=tk.LEFT
+    )
+    tk_widgets.SBORF.adaptmaskdata_label.grid(
+        row=5, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
 
 def select_right_page(selected):
