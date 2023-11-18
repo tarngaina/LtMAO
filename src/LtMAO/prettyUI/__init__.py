@@ -1,7 +1,9 @@
 
 import customtkinter as ctk
+import tkinterdnd2 as tkdnd
 import tkinter as tk
 import tkinter.filedialog as tkfd
+import pywinstyles
 
 from LtMAO import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin, bnk_tool, sborf
 from LtMAO.prettyUI.helper import Keeper, Log, EmojiImage, check_thread_safe
@@ -27,10 +29,36 @@ def set_rce():
         print(''.join(err))
     ctk.CTk.report_callback_exception = rce
 
+def dnd_return_handle(data):
+    if '{' not in data:
+        return data.split(' ')
+    return [path.rstrip('}').rstrip(' ').lstrip(' ') for path in data.replace('} {', '}{').split('{')]
+
+def set_theme(theme):
+    if theme == 'system': # junk part
+        theme = 'blue'
+        setting.set('theme', 'blue')
+        setting.save()
+    if theme not in ('blue', 'dark-blue', 'green'):
+        theme = f'./resources/themes/{theme}.json'
+    ctk.set_default_color_theme(theme)
+
+def set_style(style):
+    if tk_widgets.main_tk == None:
+        print('No main tk app?')
+        return
+    if style == 'system':
+        return
+    pywinstyles.apply_style(tk_widgets.main_tk, style)
+
 
 def create_main_app_and_frames():
+    class CTkDnD(ctk.CTk, tkdnd.TkinterDnD.DnDWrapper):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.TkdndVersion = tkdnd.TkinterDnD._require(self)
     # create main app
-    tk_widgets.main_tk = ctk.CTk()
+    tk_widgets.main_tk = CTkDnD()
     tk_widgets.main_tk.geometry('1000x620')
     tk_widgets.main_tk.title('LtMAO')
     if os.path.exists(winLT.icon_file):
@@ -77,6 +105,21 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.page_frame.columnconfigure(0, weight=1)
     tk_widgets.CSLMAO.page_frame.rowconfigure(0, weight=1)
     tk_widgets.CSLMAO.page_frame.rowconfigure(1, weight=699)
+    # handle drop in cslmao
+    def page_drop_cmd(event):
+        if block_on_overlay():
+            return
+        fantome_paths = []
+        paths = dnd_return_handle(event.data)
+        for path in paths:
+            if os.path.isfile(path):
+                if path.endswith('.fantome') or path.endswith('.zip'):
+                    fantome_paths.append(path)
+        import_mod(fantome_paths)
+    tk_widgets.CSLMAO.page_frame.drop_target_register(
+        tkdnd.DND_FILES)
+    tk_widgets.CSLMAO.page_frame.dnd_bind(
+        '<<Drop>>', page_drop_cmd)
     # init stuffs
     tk_widgets.CSLMAO.mods = []
     tk_widgets.CSLMAO.make_overlay = None
@@ -95,6 +138,12 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.action_frame.columnconfigure(4, weight=699)
     tk_widgets.CSLMAO.action_frame.columnconfigure(5, weight=1)
     tk_widgets.CSLMAO.action_frame.columnconfigure(6, weight=1)
+
+    # check if running overlay func
+    def block_on_overlay():
+        if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
+            return True
+        return False
 
     def run_cmd():
         if cslmao.preparing:
@@ -167,25 +216,18 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.run_button = ctk.CTkButton(
         tk_widgets.CSLMAO.action_frame,
         text='Run',
-        image=EmojiImage.create('▶️', weird=True),
+        image=EmojiImage.create('🚀'),
         command=run_cmd
     )
     tk_widgets.CSLMAO.run_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
-    def import_cmd():
-        if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
-            return
-        fantome_paths = tkfd.askopenfilenames(
-            title='Import FANTOME',
-            parent=tk_widgets.main_tk,
-            filetypes=(('FANTOME/ZIP file', ('*.fantome', '*.zip')),),
-            initialdir=setting.get('default_folder', None)
-        )
+    # import func
+    def import_mod(fantome_paths):
         mgs = []
         for fantome_path in fantome_paths:
             mod_path = '.'.join(os.path.basename(fantome_path).split('.')[:-1])
-            mod_profile = tk_widgets.CSLMAO.get_mod_profile()
+            mod_profile = get_mod_profile()
             if mod_profile == 'all':
                 mod_profile = '0'
             mod = cslmao.create_mod(
@@ -210,18 +252,28 @@ def create_CSLMAO_page():
             mg()
         cslmao.save_mods()  # save outside loop
 
+    def import_cmd():
+        if block_on_overlay():
+            return
+        fantome_paths = tkfd.askopenfilenames(
+            title='Import FANTOME',
+            parent=tk_widgets.main_tk,
+            filetypes=(('FANTOME/ZIP file', ('*.fantome', '*.zip')),),
+            initialdir=setting.get('default_folder', None)
+        )
+        import_mod(fantome_paths)
     # create import button
     tk_widgets.CSLMAO.import_button = ctk.CTkButton(
         tk_widgets.CSLMAO.action_frame,
         text='Import',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('📥'),
         command=import_cmd
     )
     tk_widgets.CSLMAO.import_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def new_cmd():
-        if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
+        if block_on_overlay():
             return
         mod_path = 'New Mod'
         mod_info = {
@@ -230,7 +282,7 @@ def create_CSLMAO_page():
             'Version': '1.0',
             'Description': ''
         }
-        mod_profile = tk_widgets.CSLMAO.get_mod_profile()
+        mod_profile = get_mod_profile()
         if mod_profile == 'all':
             mod_profile = '0'
         mod = cslmao.create_mod(path=mod_path, enable=False,
@@ -255,7 +307,7 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.new_button = ctk.CTkButton(
         tk_widgets.CSLMAO.action_frame,
         text='New',
-        image=EmojiImage.create('🆕'),
+        image=EmojiImage.create('💥'),
         command=new_cmd
     )
     tk_widgets.CSLMAO.new_button.grid(
@@ -263,7 +315,7 @@ def create_CSLMAO_page():
 
     def toggle_cmd():
         need_save = False
-        mod_profile = tk_widgets.CSLMAO.get_mod_profile()
+        mod_profile = get_mod_profile()
         for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
             mod = cslmao.CSLMAO.MODS[mod_id]
             if mod_profile == 'all' or mod.profile == mod_profile:
@@ -277,7 +329,6 @@ def create_CSLMAO_page():
         if need_save:
             cslmao.save_mods()
             tk_widgets.CSLMAO.toggle_all = not tk_widgets.CSLMAO.toggle_all
-
     # create toggle button
     tk_widgets.CSLMAO.toggle_button = ctk.CTkButton(
         tk_widgets.CSLMAO.action_frame,
@@ -297,7 +348,7 @@ def create_CSLMAO_page():
         row=0, column=5, padx=5, pady=5, sticky=tk.NSEW)
 
     def profile_cmd(choice):
-        tk_widgets.CSLMAO.refresh_profile(choice)
+        refresh_profile(choice)
         setting.set('Cslmao.profile', choice)
         setting.save()
     # create profile opt
@@ -321,7 +372,24 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.profile_opt.set(setting.get('Cslmao.profile', 'all'))
     tk_widgets.CSLMAO.profile_opt.grid(
         row=0, column=6, padx=5, pady=5, sticky=tk.NSEW)
+    # profile funcs
 
+    def get_mod_profile():
+        return setting.get('Cslmao.profile', 'all')
+
+    def refresh_profile(profile):
+        if profile == 'all':
+            for id in range(len(tk_widgets.CSLMAO.mods)):
+                tk_widgets.CSLMAO.mods[id][0].grid(
+                    row=id, column=0, padx=2, pady=2, sticky=tk.NSEW)
+        else:
+            for id in range(len(tk_widgets.CSLMAO.mods)):
+                if cslmao.CSLMAO.MODS[id].profile == profile:
+                    tk_widgets.CSLMAO.mods[id][0].grid(
+                        row=id, column=0, padx=2, pady=2, sticky=tk.NSEW)
+                else:
+                    tk_widgets.CSLMAO.mods[id][0].grid_forget()
+    cslmao.tk_refresh_profile=refresh_profile
     # create modlist frame
     tk_widgets.CSLMAO.modlist_frame = ctk.CTkScrollableFrame(
         tk_widgets.CSLMAO.page_frame)
@@ -354,7 +422,7 @@ def create_CSLMAO_page():
         head_frame.columnconfigure(4, weight=1)
 
         def enable_cmd(widget):
-            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
+            if block_on_overlay():
                 return
             for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
                 if widget == stuffs[1]:
@@ -421,7 +489,7 @@ def create_CSLMAO_page():
         locate_button.grid(row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
         def edit_cmd(widget):
-            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
+            if block_on_overlay():
                 return
             for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
                 if widget == stuffs[6]:
@@ -445,7 +513,7 @@ def create_CSLMAO_page():
         edit_button.grid(row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
         def export_cmd(widget):
-            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
+            if block_on_overlay():
                 return
             for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
                 if widget == stuffs[7]:
@@ -477,13 +545,13 @@ def create_CSLMAO_page():
             mod_action_frame,
             width=30,
             text='',
-            image=EmojiImage.create('💾'),
+            image=EmojiImage.create('📤'),
             command=lambda: export_cmd(export_button)
         )
         export_button.grid(row=1, column=2, padx=5, pady=5, sticky=tk.NSEW)
 
         def remove_cmd(widget):
-            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
+            if block_on_overlay():
                 return
             for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
                 if widget == stuffs[8]:
@@ -548,7 +616,7 @@ def create_CSLMAO_page():
         edit_right_frame.grid(row=0, column=1, sticky=tk.NSEW)
 
         def edit_image_cmd(widget):
-            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
+            if block_on_overlay():
                 return
             for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
                 if widget == stuffs[11]:
@@ -610,7 +678,7 @@ def create_CSLMAO_page():
             row=1, column=1, padx=20, pady=5, sticky=tk.NSEW)
 
         def reset_cmd(widget):
-            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
+            if block_on_overlay():
                 return
             for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
                 if widget == stuffs[14]:
@@ -640,7 +708,7 @@ def create_CSLMAO_page():
         reset_button.grid(row=2, column=1, padx=20, pady=5, sticky=tk.NSEW)
 
         def save_cmd(widget):
-            if tk_widgets.CSLMAO.make_overlay != None or tk_widgets.CSLMAO.run_overlay != None:
+            if block_on_overlay():
                 return
             for mod_id, stuffs in enumerate(tk_widgets.CSLMAO.mods):
                 if widget == stuffs[9]:
@@ -663,7 +731,7 @@ def create_CSLMAO_page():
                 text=f'[Profile {mod.profile}] {info["Name"]} by {info["Author"]} V{info["Version"]}\n{info["Description"]}'
             )
             cslmao.CSLMAO.save_mods()
-            tk_widgets.CSLMAO.refresh_profile(
+            refresh_profile(
                 setting.get('Cslmao.profile', 'all'))
         # create save button
         save_button = ctk.CTkButton(
@@ -697,30 +765,8 @@ def create_CSLMAO_page():
         ])
         # return out as a grid method of this mod_frame
         # so we can control when to grid it later
-        def mod_grid(id=id): return mod_frame.grid(
-            row=id, column=0, padx=2, pady=2, sticky=tk.NSEW)
-        return mod_grid
-
-    def refresh_profile(profile):
-        if profile == 'all':
-            for id in range(len(tk_widgets.CSLMAO.mods)):
-                tk_widgets.CSLMAO.mods[id][0].grid(
-                    row=id, column=0, padx=2, pady=2, sticky=tk.NSEW)
-        else:
-            for id in range(len(tk_widgets.CSLMAO.mods)):
-                if cslmao.CSLMAO.MODS[id].profile == profile:
-                    tk_widgets.CSLMAO.mods[id][0].grid(
-                        row=id, column=0, padx=2, pady=2, sticky=tk.NSEW)
-
-                else:
-                    tk_widgets.CSLMAO.mods[id][0].grid_forget()
-
-    def get_mod_profile():
-        return setting.get('Cslmao.profile', 'all')
-
+        return lambda id=id: mod_frame.grid(row=id, column=0, padx=2, pady=2, sticky=tk.NSEW)
     cslmao.tk_add_mod = add_mod
-    tk_widgets.CSLMAO.refresh_profile = cslmao.tk_refresh_profile = refresh_profile
-    tk_widgets.CSLMAO.get_mod_profile = get_mod_profile
 
 
 def create_LFI_page():
@@ -732,6 +778,27 @@ def create_LFI_page():
     tk_widgets.LFI.page_frame.columnconfigure(0, weight=1)
     tk_widgets.LFI.page_frame.rowconfigure(0, weight=1)
     tk_widgets.LFI.page_frame.rowconfigure(1, weight=699)
+    # handle drop in LFI
+    def page_drop_cmd(event):
+        def page_drop_thrd():
+            paths = dnd_return_handle(event.data)
+            for path in paths:
+                path = path.replace('\\', '/')
+                if os.path.isdir(path):
+                    folderread_lfi(path)
+                else:
+                    fileread_lfi(path)
+
+        if check_thread_safe(tk_widgets.LFI.reading_thread):
+            tk_widgets.LFI.reading_thread = Thread(
+                    target=page_drop_thrd,
+                    daemon=True
+                )
+            tk_widgets.LFI.reading_thread.start()
+        else:
+            LOG('leaguefile_inspector: Failed: A thread is already running, wait for it to finished.')
+    tk_widgets.LFI.page_frame.drop_target_register(tkdnd.DND_FILES)
+    tk_widgets.LFI.page_frame.dnd_bind('<<Drop>>', page_drop_cmd)
     # init stuffs
     tk_widgets.LFI.reading_thread = None
     tk_widgets.LFI.loaded_files = []
@@ -758,7 +825,7 @@ def create_LFI_page():
         row=1, column=0, padx=0, pady=0, sticky=tk.NSEW)
     tk_widgets.LFI.view_frame.columnconfigure(0, weight=1)
     tk_widgets.LFI.view_frame._parent_canvas.unbind_all('<MouseWheel>')
-
+    
     def read_file(file_path, hastables=None):
         # read one file function
         if file_path.endswith('.bin') and tk_widgets.LFI.use_ritobin:
@@ -768,15 +835,13 @@ def create_LFI_page():
             path, fsize, ftype, json = leaguefile_inspector.read_lfi(
                 file_path, hastables)
         if json == None:
-            return
+            return lambda: None
         # id of this file
         file_frame_id = len(tk_widgets.LFI.loaded_files)
         # create file frame
         file_frame = ctk.CTkFrame(
             tk_widgets.LFI.view_frame
         )
-        file_frame.grid(row=file_frame_id, column=0,
-                        padx=2, pady=5, sticky=tk.NSEW)
         file_frame.columnconfigure(0, weight=1)
         file_frame.rowconfigure(0, weight=1)
         # create head frame
@@ -931,6 +996,15 @@ def create_LFI_page():
                 search_entry
             ]
         )
+        return lambda id=file_frame_id: file_frame.grid(row=id, column=0, padx=2, pady=5, sticky=tk.NSEW)
+    
+    def fileread_lfi(file_paths):
+        hash_manager.read_all_hashes()
+        fgs = [read_file(file_path, hash_manager.HASHTABLES) for file_path in file_paths]
+        hash_manager.free_all_hashes()
+        for fg in fgs:
+            fg()
+        
 
     def fileread_cmd():
         if check_thread_safe(tk_widgets.LFI.reading_thread):
@@ -959,11 +1033,7 @@ def create_LFI_page():
             )
             if len(file_paths) > 0:
                 def fileread_thrd():
-                    hash_manager.read_all_hashes()
-                    for file_path in file_paths:
-                        read_file(
-                            file_path, hash_manager.HASHTABLES)
-                    hash_manager.free_all_hashes()
+                    fileread_lfi(file_paths)
                 tk_widgets.LFI.reading_thread = Thread(
                     target=fileread_thrd,
                     daemon=True
@@ -983,6 +1053,19 @@ def create_LFI_page():
     tk_widgets.LFI.fileread_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
+    def folderread_lfi(dir_path):
+        fgs = []
+        hash_manager.read_all_hashes()
+        for root, dirs, files in os.walk(dir_path):
+            for file in files:
+                file_path = os.path.join(
+                    root, file).replace('\\', '/')
+                fgs.append(read_file(
+                    file_path, hash_manager.HASHTABLES))
+        hash_manager.free_all_hashes()
+        for fg in fgs:
+            fg()
+
     def folderread_cmd():
         if check_thread_safe(tk_widgets.LFI.reading_thread):
             dir_path = tkfd.askdirectory(
@@ -992,14 +1075,7 @@ def create_LFI_page():
             )
             if dir_path != '':
                 def folderread_thrd():
-                    hash_manager.read_all_hashes()
-                    for root, dirs, files in os.walk(dir_path):
-                        for file in files:
-                            file_path = os.path.join(
-                                root, file).replace('\\', '/')
-                            read_file(
-                                file_path, hash_manager.HASHTABLES)
-                    hash_manager.free_all_hashes()
+                    folderread_lfi(dir_path)
                 tk_widgets.LFI.reading_thread = Thread(
                     target=folderread_thrd,
                     daemon=True
@@ -1071,6 +1147,20 @@ def create_AMV_page():
     tk_widgets.AMV.page_frame.rowconfigure(0, weight=1)
     tk_widgets.AMV.page_frame.rowconfigure(1, weight=1)
     tk_widgets.AMV.page_frame.rowconfigure(2, weight=699)
+    # handle drop in AMV
+    def page_drop_cmd(event):
+        paths = dnd_return_handle(event.data)
+        for path in paths:
+            path = path.replace('\\', '/')
+            if os.path.isfile(path):
+                if path.endswith('.skl'):
+                    tk_widgets.AMV.skl_entry.delete(0, tk.END)
+                    tk_widgets.AMV.skl_entry.insert(tk.END, path)
+                elif path.endswith('.bin'):
+                    tk_widgets.AMV.bin_entry.delete(0, tk.END)
+                    tk_widgets.AMV.bin_entry.insert(tk.END, path)
+    tk_widgets.AMV.page_frame.drop_target_register(tkdnd.DND_FILES)
+    tk_widgets.AMV.page_frame.dnd_bind('<<Drop>>', page_drop_cmd)
 
     tk_widgets.AMV.table_loaded = False
     tk_widgets.AMV.bin_loaded = None
@@ -1108,7 +1198,7 @@ def create_AMV_page():
     tk_widgets.AMV.sklbrowse_button = ctk.CTkButton(
         tk_widgets.AMV.input_frame,
         text='Browse SKL',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('🦴'),
         anchor=tk.CENTER,
         command=sklbrowse_cmd
     )
@@ -1138,7 +1228,7 @@ def create_AMV_page():
     tk_widgets.AMV.binbrowse_button = ctk.CTkButton(
         tk_widgets.AMV.input_frame,
         text='Browse Animation BIN',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
         command=binbrowse_cmd
     )
@@ -1154,6 +1244,7 @@ def create_AMV_page():
     tk_widgets.AMV.action_frame.columnconfigure(1, weight=1)
     tk_widgets.AMV.action_frame.columnconfigure(2, weight=1)
     tk_widgets.AMV.action_frame.columnconfigure(3, weight=699)
+    
 
     # create load button
     def load_cmd():
@@ -1627,7 +1718,8 @@ def create_HM_page():
     # create add bin hash button
     tk_widgets.HM.addentry_button = ctk.CTkButton(
         tk_widgets.HM.addbin_frame,
-        text='->Entries',
+        text='Entries',
+        image=EmojiImage.create('👉🏻', weird=True),
         width=50,
         command=lambda: addbin_cmd('hashes.binentries.txt')
     )
@@ -1635,7 +1727,8 @@ def create_HM_page():
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.HM.addfield_button = ctk.CTkButton(
         tk_widgets.HM.addbin_frame,
-        text='->Fields',
+        text='Fields',
+        image=EmojiImage.create('👉🏻', weird=True),
         width=50,
         command=lambda: addbin_cmd('hashes.binfields.txt')
     )
@@ -1643,7 +1736,8 @@ def create_HM_page():
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.HM.addtype_button = ctk.CTkButton(
         tk_widgets.HM.addbin_frame,
-        text='->Types',
+        text='Types',
+        image=EmojiImage.create('👉🏻', weird=True),
         width=50,
         command=lambda: addbin_cmd('hashes.bintypes.txt')
     )
@@ -1651,7 +1745,8 @@ def create_HM_page():
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.HM.addhash_button = ctk.CTkButton(
         tk_widgets.HM.addbin_frame,
-        text='->Hashes',
+        text='Hashes',
+        image=EmojiImage.create('👉🏻', weird=True),
         width=50,
         command=lambda: addbin_cmd('hashes.binhashes.txt')
     )
@@ -1723,7 +1818,8 @@ def create_HM_page():
     # create add bin hash button
     tk_widgets.HM.addgame_button = ctk.CTkButton(
         tk_widgets.HM.addwad_frame,
-        text='->Game',
+        text='Game',
+        image=EmojiImage.create('👉🏻', weird=True),
         width=50,
         command=lambda: addwad_cmd('hashes.game.txt')
     )
@@ -1731,7 +1827,8 @@ def create_HM_page():
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.HM.addlcu_button = ctk.CTkButton(
         tk_widgets.HM.addwad_frame,
-        text='->Lcu',
+        text='Lcu',
+        image=EmojiImage.create('👉🏻', weird=True),
         width=50,
         command=lambda: addwad_cmd('hashes.lcu.txt')
     )
@@ -1781,6 +1878,32 @@ def create_VH_page():
     tk_widgets.VH.page_frame.rowconfigure(0, weight=1)
     tk_widgets.VH.page_frame.rowconfigure(1, weight=699)
     tk_widgets.VH.page_frame.rowconfigure(2, weight=1)
+    # handle drop in VH
+    def page_drop_cmd(event):
+        paths = dnd_return_handle(event.data)
+        for path in paths:
+            path = path.replace('\\', '/')
+            if os.path.isfile(path):
+                if path.endswith('.fantome') or path.endswith('.zip'):
+                    # update info text
+                    info, image, wads = vo_helper.scan_fantome(path)
+                    info_text = 'Info:\n'
+                    info_text += ''.join(f'{key}: {info[key]}\n' for key in info)
+                    info_text += '\nFiles:\n'
+                    info_text += 'META/info.json\n'
+                    if image:
+                        info_text += 'META/image.png\n'
+                    if len(wads) > 0:
+                        info_text += ''.join(f'{wad_name}\n' for wad_name in wads)
+                    tk_widgets.VH.info_text.configure(state=tk.NORMAL)
+                    tk_widgets.VH.info_text.delete('1.0', tk.END)
+                    tk_widgets.VH.info_text.insert(tk.END, info_text)
+                    tk_widgets.VH.info_text.configure(state=tk.DISABLED)
+                    tk_widgets.VH.fantome_entry.delete(0, tk.END)
+                    tk_widgets.VH.fantome_entry.insert(tk.END, path)
+                    break
+    tk_widgets.VH.page_frame.drop_target_register(tkdnd.DND_FILES)
+    tk_widgets.VH.page_frame.dnd_bind('<<Drop>>', page_drop_cmd)
     # init stuffs
     tk_widgets.VH.making_thread = None
     # create input frame
@@ -1826,7 +1949,6 @@ def create_VH_page():
                 info_text += 'META/image.png\n'
             if len(wads) > 0:
                 info_text += ''.join(f'{wad_name}\n' for wad_name in wads)
-
             tk_widgets.VH.info_text.configure(state=tk.NORMAL)
             tk_widgets.VH.info_text.delete('1.0', tk.END)
             tk_widgets.VH.info_text.insert(tk.END, info_text)
@@ -1838,7 +1960,7 @@ def create_VH_page():
     tk_widgets.VH.browse_button = ctk.CTkButton(
         tk_widgets.VH.input_frame,
         text='Browse FANTOME/ZIP',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('🐍'),
         anchor=tk.CENTER,
         command=browse_cmd
     )
@@ -1901,7 +2023,7 @@ def create_VH_page():
     tk_widgets.VH.target_button = ctk.CTkButton(
         tk_widgets.VH.action_frame,
         text='Remake For Selected Lang',
-        image=EmojiImage.create('👌'),
+        image=EmojiImage.create('🦎'),
         command=taget_cmd
     )
     tk_widgets.VH.target_button.grid(
@@ -1937,7 +2059,7 @@ def create_VH_page():
     tk_widgets.VH.make_button = ctk.CTkButton(
         tk_widgets.VH.action_frame,
         text='Remake For All Langs',
-        image=EmojiImage.create('👌'),
+        image=EmojiImage.create('🦖'),
         command=make_cmd
     )
     tk_widgets.VH.make_button.grid(
@@ -2043,7 +2165,7 @@ def create_NS_page():
     tk_widgets.NS.start_button = ctk.CTkButton(
         tk_widgets.NS.action_frame,
         text='Start',
-        image=EmojiImage.create('🗿'),
+        image=EmojiImage.create('🐧'),
         command=start_cmd
     )
     tk_widgets.NS.start_button.grid(
@@ -2073,6 +2195,24 @@ def create_UVEE_page():
     tk_widgets.UVEE.page_frame.columnconfigure(0, weight=1)
     tk_widgets.UVEE.page_frame.rowconfigure(0, weight=1)
     tk_widgets.UVEE.page_frame.rowconfigure(1, weight=699)
+    # handle drop in UVEE
+    def page_drop_cmd(event):
+        paths = dnd_return_handle(event.data)
+        fgs = []
+        for path in paths:
+            path = path.replace('\\', '/')
+            if os.path.isdir(path):
+                for root, dirs, files in os.walk(path):
+                    for file in files:
+                        if file.endswith('.skn') or file.endswith('.sco') or file.endswith('.scb'): 
+                            fgs.append(read_file(os.path.join(root, file).replace('\\', '/')))
+            else:
+                if path.endswith('.skn') or path.endswith('.sco') or path.endswith('.scb'):
+                    fgs.append(read_file(path))
+        for fg in fgs:
+            fg()
+    tk_widgets.UVEE.page_frame.drop_target_register(tkdnd.DND_FILES)
+    tk_widgets.UVEE.page_frame.dnd_bind('<<Drop>>', page_drop_cmd)
     # init stuffs
     tk_widgets.UVEE.loaded_files = []
     # create input frame
@@ -2101,15 +2241,13 @@ def create_UVEE_page():
     def read_file(file_path):
         uvee_imgs = uvee.uvee_file(file_path)
         if uvee_imgs == None or not tk_widgets.UVEE.load_extracted_files:
-            return
+            return lambda: None
         # id of this file
         file_frame_id = len(tk_widgets.UVEE.loaded_files)
         # create file frame
         file_frame = ctk.CTkFrame(
             tk_widgets.UVEE.view_frame
         )
-        file_frame.grid(row=file_frame_id, column=0,
-                        padx=2, pady=5, sticky=tk.NSEW)
         file_frame.columnconfigure(0, weight=1)
         file_frame.rowconfigure(0, weight=1)
         # create head frame
@@ -2200,6 +2338,7 @@ def create_UVEE_page():
                 False  # deleted or not
             ]
         )
+        return lambda id=file_frame_id: file_frame.grid(row=id, column=0, padx=2, pady=5, sticky=tk.NSEW)
 
     def fileread_cmd():
         file_paths = tkfd.askopenfilenames(
@@ -2218,8 +2357,11 @@ def create_UVEE_page():
             initialdir=setting.get('default_folder', None)
         )
         if len(file_paths) > 0:
+            fgs = []
             for file_path in file_paths:
-                read_file(file_path)
+                fgs.append(read_file(file_path))
+            for fg in fgs:
+                fg()
     # create file read button
     tk_widgets.UVEE.fileread_button = ctk.CTkButton(
         tk_widgets.UVEE.input_frame,
@@ -2238,11 +2380,14 @@ def create_UVEE_page():
             initialdir=setting.get('default_folder', None)
         )
         if dir_path != '':
+            fgs = []
             for root, dirs, files in os.walk(dir_path):
                 for file in files:
-                    file_path = os.path.join(
-                        root, file).replace('\\', '/')
-                    read_file(file_path)
+                    if file.endswith('.skn') or file.endswith('.sco') or file.endswith('.scb'):
+                        fgs.append(read_file(os.path.join(root, file).replace('\\', '/')))
+            for fg in fgs:
+                fg()
+                
     # create folder read button
     tk_widgets.UVEE.folderread_button = ctk.CTkButton(
         tk_widgets.UVEE.input_frame,
@@ -2343,7 +2488,7 @@ def create_SHR_page():
     tk_widgets.SHR.browsefile_button = ctk.CTkButton(
         tk_widgets.SHR.input_frame,
         text='Browse ANM',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('🦿'),
         anchor=tk.CENTER,
         command=browsefile_cmd
     )
@@ -2405,8 +2550,8 @@ def create_SHR_page():
     # create old skl button
     tk_widgets.SHR.old_skl_button = ctk.CTkButton(
         tk_widgets.SHR.mid_frame,
-        text='Load joints from SKL',
-        image=EmojiImage.create('📄'),
+        text='Load old SKL joints',
+        image=EmojiImage.create('🦴'),
         command=old_skl_cmd
     )
     tk_widgets.SHR.old_skl_button.grid(
@@ -2436,8 +2581,8 @@ def create_SHR_page():
     # create new skl button
     tk_widgets.SHR.new_skl_button = ctk.CTkButton(
         tk_widgets.SHR.mid_frame,
-        text='Load joints from SKL',
-        image=EmojiImage.create('📄'),
+        text='Load new SKL joints',
+        image=EmojiImage.create('🦴'),
         command=new_skl_cmd
     )
     tk_widgets.SHR.new_skl_button.grid(
@@ -2475,7 +2620,7 @@ def create_SHR_page():
     tk_widgets.SHR.rename_button = ctk.CTkButton(
         tk_widgets.SHR.action_frame,
         text='Rename Joints in ANMS',
-        image=EmojiImage.create('✅'),
+        image=EmojiImage.create('🍄'),
         command=rename_cmd
     )
     tk_widgets.SHR.rename_button.grid(
@@ -2540,7 +2685,7 @@ def create_HP_page():
     tk_widgets.HP.bin1_button = ctk.CTkButton(
         tk_widgets.HP.input_frame,
         text='Browse BIN1',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
         command=bin1_cmd
     )
@@ -2570,7 +2715,7 @@ def create_HP_page():
     tk_widgets.HP.bin2_button = ctk.CTkButton(
         tk_widgets.HP.input_frame,
         text='Browse BIN2',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
         command=bin2_cmd
     )
@@ -2660,6 +2805,46 @@ def create_WT_page():
     tk_widgets.WT.page_frame.columnconfigure(0, weight=1)
     tk_widgets.WT.page_frame.rowconfigure(0, weight=1)
     tk_widgets.WT.page_frame.rowconfigure(1, weight=699)
+    # handle drop in WT
+    def page_drop_cmd(event):
+        def page_drop_thrd():
+            hash_manager.read_wad_hashes()
+            paths = dnd_return_handle(event.data)
+            for path in paths:
+                path = path.replace('\\', '/')
+                if os.path.isdir(path):
+                    src = path
+                    dst = src
+                    if dst.endswith('.wad'):
+                        dst += '.client'
+                    else:
+                        if not dst.endswith('.wad.client'):
+                            dst += '.wad.client'
+                    Log.tk_cooldown = 5000
+                    wad_tool.pack(src, dst)
+                    Log.tk_cooldown = 0
+                    LOG(
+                        f'wad_tool: Done: Pack {src}')
+                elif os.path.isfile(path) and path.endswith('.wad.client'):
+                    Log.tk_cooldown = 5000
+                    src = path
+                    dst = src.replace('.wad.client', '.wad')
+                    wad_tool.unpack(src, dst, hash_manager.HASHTABLES)
+                    Log.tk_cooldown = 0
+                    LOG(
+                        f'wad_tool: Done: Unpack {src}')
+            hash_manager.free_wad_hashes()   
+
+        if check_thread_safe(tk_widgets.WT.working_thread):
+            tk_widgets.WT.working_thread = Thread(
+                target=page_drop_thrd,
+                daemon=True
+            )
+            tk_widgets.WT.working_thread.start()
+        else:
+            LOG('wad_tool: Failed: A thread is already running, wait for it to finished.')
+    tk_widgets.WT.page_frame.drop_target_register(tkdnd.DND_FILES)
+    tk_widgets.WT.page_frame.dnd_bind('<<Drop>>', page_drop_cmd)
     # init stuffs
     tk_widgets.WT.working_thread = None
     tk_widgets.WT.loaded_wads = []
@@ -2712,7 +2897,7 @@ def create_WT_page():
     tk_widgets.WT.wad2dir_button = ctk.CTkButton(
         tk_widgets.WT.action_frame,
         text='WAD to Folder',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('📦'),
         anchor=tk.CENTER,
         command=wad2dir_cmd
     )
@@ -2840,7 +3025,7 @@ def create_WT_page():
     tk_widgets.WT.addfile_button = ctk.CTkButton(
         tk_widgets.WT.action3_frame,
         text='Add WADs',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('📦'),
         command=addfile_cmd
     )
     tk_widgets.WT.addfile_button.grid(
@@ -3045,6 +3230,23 @@ def create_PT_page():
     tk_widgets.PT.page_frame.columnconfigure(0, weight=1)
     tk_widgets.PT.page_frame.rowconfigure(0, weight=1)
     tk_widgets.PT.page_frame.rowconfigure(1, weight=699)
+    # handle drop in PT
+    def page_drop_cmd(event):
+        def page_drop_thrd():
+            paths = dnd_return_handle(event.data)
+            for path in paths:
+                path = path.replace('\\', '/')
+                pyntex.parse(path)
+        if check_thread_safe(tk_widgets.PT.working_thread):
+            tk_widgets.PT.working_thread = Thread(
+                target=page_drop_thrd,
+                daemon=True
+            )
+            tk_widgets.PT.working_thread.start()
+        else:
+            LOG('wad_tool: Failed: A thread is already running, wait for it to finished.')
+    tk_widgets.PT.page_frame.drop_target_register(tkdnd.DND_FILES)
+    tk_widgets.PT.page_frame.dnd_bind('<<Drop>>', page_drop_cmd)
     # init stuffs
     tk_widgets.PT.working_thread = None
     # create action frame
@@ -3086,7 +3288,7 @@ def create_PT_page():
     tk_widgets.PT.parsewad_button = ctk.CTkButton(
         tk_widgets.PT.action_frame,
         text='Parse WAD',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('📦'),
         anchor=tk.CENTER,
         command=parsewad_cmd
     )
@@ -3164,6 +3366,67 @@ def create_ST_page():
     )
     tk_widgets.ST.general_label.grid(
         row=0, column=0, padx=10, pady=5, sticky=tk.NSEW)
+    # appearance mode 
+    tk_widgets.ST.appearance_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        text='Appearance:',
+        image=EmojiImage.create('☀️', weird=True),
+        compound=tk.LEFT,
+        anchor=tk.W
+    )
+    tk_widgets.ST.appearance_label.grid(
+        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    def appearance_cmd(choice):
+        setting.set('appearance', choice)
+        setting.save()
+        LOG('setting: Restart is require for appearance/style/theme changes to take effect.')
+    tk_widgets.ST.appearance_option = ctk.CTkOptionMenu(
+        tk_widgets.ST.scroll_frame,
+        values=[
+            'light',
+            'dark',
+            'system'
+        ],
+        command=appearance_cmd
+    )
+    tk_widgets.ST.appearance_option.set(setting.get('appearance', 'system'))
+    tk_widgets.ST.appearance_option.grid(
+        row=1, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # style
+    tk_widgets.ST.style_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        text='Style:',
+        image=EmojiImage.create('✨'),
+        compound=tk.LEFT,
+        anchor=tk.W
+    )
+    tk_widgets.ST.style_label.grid(
+        row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    def style_cmd(choice):
+        setting.set('style', choice)
+        setting.save()
+        LOG('setting: Restart is require for appearance/style/theme changes to take effect.')
+    tk_widgets.ST.style_option = ctk.CTkOptionMenu(
+        tk_widgets.ST.scroll_frame,
+        values=[
+            'system',
+            'mica',
+            'acrylic',
+            'aero',
+            'transparent',
+            'optimised',
+            'win7',
+            'inverse'
+        ],
+        command=style_cmd
+    )
+    tk_widgets.ST.style_option.set(setting.get('style', 'system'))
+    tk_widgets.ST.style_option.grid(
+        row=2, column=2, padx=5, pady=5, sticky=tk.NSEW)
+
     # theme
     tk_widgets.ST.theme_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
@@ -3173,24 +3436,36 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.theme_label.grid(
-        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def theme_cmd(choice):
-        ctk.set_appearance_mode(choice)
+        set_theme(choice)
         setting.set('theme', choice)
         setting.save()
+        LOG('setting: Restart is require for appearance/style/theme changes to take effect.')
     tk_widgets.ST.theme_option = ctk.CTkOptionMenu(
         tk_widgets.ST.scroll_frame,
         values=[
-            'light',
-            'dark',
-            'system'
+            'blue',
+            'dark-blue',
+            'green',
+            'carrot',
+            'coffee',
+            'marsh',
+            'metal',
+            'pink',
+            'red',
+            'sky',
+            'violet',
+            'yellow',
         ],
         command=theme_cmd
     )
-    tk_widgets.ST.theme_option.set(setting.get('theme', 'system'))
+    tk_widgets.ST.theme_option.set(setting.get('theme', 'blue'))
     tk_widgets.ST.theme_option.grid(
-        row=1, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=3, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    
+    
     # limit message
     tk_widgets.ST.loglimit_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
@@ -3200,7 +3475,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.loglimit_label.grid(
-        row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=4, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def loglimit_cmd(choice):
         Log.limit = int(choice)
@@ -3217,7 +3492,7 @@ def create_ST_page():
     )
     tk_widgets.ST.loglimit_option.set(setting.get('Log.limit', '100'))
     tk_widgets.ST.loglimit_option.grid(
-        row=2, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=4, column=2, padx=5, pady=5, sticky=tk.NSEW)
     # shortcut desktop
     tk_widgets.ST.desktop_button = ctk.CTkButton(
         tk_widgets.ST.scroll_frame,
@@ -3227,7 +3502,7 @@ def create_ST_page():
         command=winLT.Shortcut.create_desktop
     )
     tk_widgets.ST.desktop_button.grid(
-        row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=5, column=1, padx=5, pady=5, sticky=tk.NSEW)
     # explorer context
     tk_widgets.ST.contextadd_button = ctk.CTkButton(
         tk_widgets.ST.scroll_frame,
@@ -3237,7 +3512,7 @@ def create_ST_page():
         command=winLT.Context.create_contexts
     )
     tk_widgets.ST.contextadd_button.grid(
-        row=4, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=6, column=1, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.ST.contextrmv_button = ctk.CTkButton(
         tk_widgets.ST.scroll_frame,
         text='Remove Explorer Contexts',
@@ -3246,7 +3521,7 @@ def create_ST_page():
         command=winLT.Context.remove_contexts
     )
     tk_widgets.ST.contextrmv_button.grid(
-        row=4, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=6, column=2, padx=5, pady=5, sticky=tk.NSEW)
     # default folder
     tk_widgets.ST.defaultdir_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
@@ -3256,7 +3531,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.defaultdir_label.grid(
-        row=6, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=8, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def defaultdir_cmd():
         dir_path = tkfd.askdirectory(
@@ -3281,7 +3556,7 @@ def create_ST_page():
         command=defaultdir_cmd
     )
     tk_widgets.ST.defaultdir_button.grid(
-        row=6, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=8, column=2, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.ST.defaultdir_value_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
         anchor=tk.W
@@ -3292,14 +3567,14 @@ def create_ST_page():
             text='Default folder for all ask-file/ask-folder dialog'
         )
     tk_widgets.ST.defaultdir_value_label.grid(
-        row=6, column=3, padx=5, pady=5, sticky=tk.NSEW)
+        row=8, column=3, padx=5, pady=5, sticky=tk.NSEW)
     # cslmao label
     tk_widgets.ST.cslmao_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
         text='CSLMAO'
     )
     tk_widgets.ST.cslmao_label.grid(
-        row=7, column=0, padx=10, pady=5, sticky=tk.NSEW)
+        row=9, column=0, padx=10, pady=5, sticky=tk.NSEW)
     # game folder
     tk_widgets.ST.gamedir_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
@@ -3309,7 +3584,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.gamedir_label.grid(
-        row=8, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=10, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def gamedir_cmd():
         dir_path = tkfd.askdirectory(
@@ -3332,7 +3607,7 @@ def create_ST_page():
         command=gamedir_cmd
     )
     tk_widgets.ST.gamedir_button.grid(
-        row=8, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=10, column=2, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.ST.gamedir_value_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
         text=setting.get(
@@ -3340,7 +3615,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.gamedir_value_label.grid(
-        row=8, column=3, padx=5, pady=5, sticky=tk.NSEW)
+        row=10, column=3, padx=5, pady=5, sticky=tk.NSEW)
     # extra game modes
     tk_widgets.ST.egm_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
@@ -3350,7 +3625,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.egm_label.grid(
-        row=9, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=11, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def egm_cmd():
         setting.set('Cslmao.extra_game_modes',
@@ -3366,7 +3641,7 @@ def create_ST_page():
     else:
         tk_widgets.ST.egm_checkbox.deselect()
     tk_widgets.ST.egm_checkbox.grid(
-        row=9, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=11, column=2, padx=5, pady=5, sticky=tk.NSEW)
 
 
 def create_SBORF_page():
@@ -3484,7 +3759,7 @@ def create_SBORF_page():
     tk_widgets.SBORF.sklbrowse_button = ctk.CTkButton(
         tk_widgets.SBORF.browse_frame,
         text='Browse SKL',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('🦴'),
         anchor=tk.CENTER,
         command=sklbrowse_cmd
     )
@@ -3515,7 +3790,7 @@ def create_SBORF_page():
     tk_widgets.SBORF.riotsklbrowse_button = ctk.CTkButton(
         tk_widgets.SBORF.browse_frame,
         text='Browse Riot SKL',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('🦴'),
         anchor=tk.CENTER,
         command=riotsklbrowse_cmd
     )
@@ -3551,7 +3826,7 @@ def create_SBORF_page():
     tk_widgets.SBORF.sknbrowse_button = ctk.CTkButton(
         tk_widgets.SBORF.browse_frame,
         text='Browse SKN',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('🧊'),
         anchor=tk.CENTER,
         command=sknbrowse_cmd
     )
@@ -3582,7 +3857,7 @@ def create_SBORF_page():
     tk_widgets.SBORF.riotsknbrowse_button = ctk.CTkButton(
         tk_widgets.SBORF.browse_frame,
         text='Browse Riot SKN',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('🧊'),
         anchor=tk.CENTER,
         command=riotsknbrowse_cmd
     )
@@ -3613,7 +3888,7 @@ def create_SBORF_page():
     tk_widgets.SBORF.binbrowse_button = ctk.CTkButton(
         tk_widgets.SBORF.browse_frame,
         text='Browse Animation BIN',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
         command=binbrowse_cmd
     )
@@ -3644,7 +3919,7 @@ def create_SBORF_page():
     tk_widgets.SBORF.riotbinbrowse_button = ctk.CTkButton(
         tk_widgets.SBORF.browse_frame,
         text='Browse Riot Animtion BIN',
-        image=EmojiImage.create('📄'),
+        image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
         command=riotbinbrowse_cmd
     )
@@ -3987,7 +4262,9 @@ def start():
     create_main_app_and_frames()
     # load settings first
     setting.prepare(LOG)
-    ctk.set_appearance_mode(setting.get('theme', 'system'))
+    ctk.set_appearance_mode(setting.get('appearance','system'))
+    set_style(setting.get('style', 'system'))
+    set_theme(setting.get('theme', 'blue'))
     Log.limit = int(setting.get('Log.limit', '100'))
     # create UI
     create_page_controls()
