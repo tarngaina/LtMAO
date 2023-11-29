@@ -223,26 +223,26 @@ def copy_vfx_colors(src, dst):
                         compare_func=lambda field: field.hash == PRE_BIN_HASH['driver']
                     )
                     if dst_driver == None:
-                        return
+                        continue
                     src_driver = BINHelper.find_item(
                         items=src_DynamicMaterialParameterDef_Fresnel_Color.data,
                         compare_func=lambda field: field.hash == PRE_BIN_HASH['driver']
                     )
                     if src_driver == None:
-                        return
+                        continue
                     # matching mElements
                     dst_mElements = BINHelper.find_item(
                         items=dst_driver.data,
                         compare_func=lambda field: field.hash == PRE_BIN_HASH['mElements']
                     )
                     if dst_mElements == None:
-                        return
+                        continue
                     src_mElements = BINHelper.find_item(
                         items=src_driver.data,
                         compare_func=lambda field: field.hash == PRE_BIN_HASH['mElements']
                     )
                     if src_mElements == None:
-                        return
+                        continue
                     # matching SwitchMaterialDriverElement by order
                     src_mElements_length = len(src_mElements.data)
                     for id, dst_SwitchMaterialDriverElement in enumerate(dst_mElements.data):
@@ -255,13 +255,13 @@ def copy_vfx_colors(src, dst):
                             compare_func=lambda field: field.hash == PRE_BIN_HASH['mValue']
                         )
                         if dst_mValue == None:
-                            return
+                            continue
                         src_mValue = BINHelper.find_item(
                             items=src_SwitchMaterialDriverElement.data,
                             compare_func=lambda field: field.hash == PRE_BIN_HASH['mValue']
                         )
                         if src_mValue == None:
-                            return
+                            continue
                         # copy colors from src_mValue to dst_mValue
                         for dst_field in dst_mValue.data:
                             for field_name in (
