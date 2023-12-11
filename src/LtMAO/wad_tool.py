@@ -67,13 +67,15 @@ def pack(raw_dir, wad_file):
             # prepare chunk datas
             file_path = os.path.join(root, file).replace('\\', '/')
             chunk_datas.append(file_path)
-            # prepare chunk hash: remove extension of hashed file
-            # example: 6bff35087d62f95d.bin -> 6bff35087d62f95d
-            basename = file.split('.')[0]
+            # check hashed files
+            # by remove extension: 6bff35087d62f95d.bin -> 6bff35087d62f95d
+            basename = os.path.basename(file).split('.')[0]
             if check_hashed_name(basename):
-                file = basename
-            chunk_hashes.append(os.path.relpath(
-                file_path, raw_dir).replace('\\', '/'))
+                file_path = basename
+                chunk_hashes.append(file_path)
+            else:
+                chunk_hashes.append(os.path.relpath(
+                    file_path, raw_dir).replace('\\', '/'))
     # write wad
     wad = pyRitoFile.WAD()
     wad.chunks = [pyRitoFile.WADChunk.default()
