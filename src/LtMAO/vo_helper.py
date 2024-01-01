@@ -96,6 +96,7 @@ def make_fantome(fantome_name, output_dir, info, image, wads, langs):
         write_fantome(path, info, image, wads)
         LOG(f'vo_helper: Done: Remake Fantomes: {path}')
     hash_manager.CustomHashes.free_wad_hashes()
+    LOG(f'vo_helper: Done: Remake All Fantomes.')
 
 
 def write_fantome(path, info, image, wads):

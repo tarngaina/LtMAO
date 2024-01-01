@@ -59,7 +59,9 @@ class CSLMAO:
         os.makedirs(wad_folder, exist_ok=True)
 
     def delete_mod(mod):
-        rmtree(os.path.join(CSLMAO.raw_dir, mod.get_path()))
+        if mod in CSLMAO.MODS:
+            CSLMAO.MODS.remove(mod)
+        rmtree(os.path.join(CSLMAO.raw_dir, mod.get_path()), ignore_errors=True)
 
     def get_info(mod):
         info_file = os.path.join(

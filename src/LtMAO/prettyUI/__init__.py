@@ -247,6 +247,8 @@ def create_CSLMAO_page():
                         profile=mod.profile
                     )
                 )
+            else:
+                cslmao.delete_mod(mod)
         # grid after finish import
         for mg in mgs:
             mg()
@@ -557,7 +559,7 @@ def create_CSLMAO_page():
                 if widget == stuffs[8]:
                     break
             tk_widgets.CSLMAO.mods.pop(mod_id)[0].destroy()
-            cslmao.delete_mod(cslmao.CSLMAO.MODS.pop(mod_id))
+            cslmao.delete_mod(cslmao.CSLMAO.MODS[mod_id])
             cslmao.save_mods()
 
         # create remove button
