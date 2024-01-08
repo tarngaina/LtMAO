@@ -166,3 +166,4 @@ class SKN:
                 bs.write_f32(*vertex.weights)
                 bs.write_vec3(vertex.normal)
                 bs.write_vec2(vertex.uv)
+            return bs.raw() if raw else None

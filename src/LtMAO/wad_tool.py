@@ -1,6 +1,6 @@
 from . import pyRitoFile
 import os
-from json import dump
+import json
 
 LOG = print
 
@@ -50,7 +50,7 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
     # write hashed bins json
     if len(hashed_bins) > 0:
         with open(os.path.join(raw_dir, 'hashed_bins.json'), 'w+') as f:
-            dump(hashed_bins, f, indent=4)
+            json.dump(hashed_bins, f, indent=4)
 
 
 def pack(raw_dir, wad_file):

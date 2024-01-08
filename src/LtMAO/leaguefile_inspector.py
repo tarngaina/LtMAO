@@ -81,6 +81,11 @@ def read_lfi(path, hashtables=None):
             LOG(
                 f'leaguefile_inspector: Done: Read ANM: {path}')
             json = pyRitoFile.to_json(obj)
+        elif ftype == 'mapgeo':
+            obj = pyRitoFile.read_mapgeo(path)
+            LOG(
+                f'leaguefile_inspector: Done: Read MAPGEO: {path}')
+            json = pyRitoFile.to_json(obj)
         elif ftype == 'bin':
             obj = pyRitoFile.read_bin(path)
             obj.un_hash(hashtables)

@@ -2,6 +2,7 @@ from ..pyRitoFile.skl import SKL, SKLJoint
 from ..pyRitoFile.skn import SKN, SKNVertex, SKNSubmesh
 from ..pyRitoFile.so import SO
 from ..pyRitoFile.anm import ANM, ANMPose, ANMTrack, ANMErrorMetric
+from ..pyRitoFile.mapgeo import MAPGEO
 from ..pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINHelper, name_to_hex as bin_hash
 from ..pyRitoFile.bnk import BNK, BNKSection, BNKSectionData, BNKObject, BNKObjectData, BNKObjectType, BNKWem
 from ..pyRitoFile.tex import TEX, TEXFormat
@@ -22,43 +23,19 @@ class PRFEncoder(JSONEncoder):
 
 
 def write_json(path, obj):
+    good_types = [SKL, SKN, SO, ANM, MAPGEO, BIN, BNK, TEX, WAD]
     with open(path, 'w+') as f:
-        if isinstance(obj, SKL):
-            dump(obj, f, indent=4, cls=PRFEncoder)
-        elif isinstance(obj, SKN):
-            dump(obj, f, indent=4, cls=PRFEncoder)
-        elif isinstance(obj, SO):
-            dump(obj, f, indent=4, cls=PRFEncoder)
-        elif isinstance(obj, ANM):
-            dump(obj, f, indent=4, cls=PRFEncoder)
-        elif isinstance(obj, BIN):
-            dump(obj, f, indent=4, cls=PRFEncoder)
-        elif isinstance(obj, BNK):
-            dump(obj, f, indent=4, cls=PRFEncoder)
-        elif isinstance(obj, TEX):
-            dump(obj, f, indent=4, cls=PRFEncoder)
-        elif isinstance(obj, WAD):
-            dump(obj, f, indent=4, cls=PRFEncoder)
+        for good_type in good_types:
+            if isinstance(obj, good_type):
+                dump(obj, f, indent=4, cls=PRFEncoder)
 
 
 def to_json(obj):
-    if isinstance(obj, SKL):
-        return dumps(obj, indent=4, cls=PRFEncoder)
-    elif isinstance(obj, SKN):
-        return dumps(obj, indent=4, cls=PRFEncoder)
-    elif isinstance(obj, SO):
-        return dumps(obj, indent=4, cls=PRFEncoder)
-    elif isinstance(obj, ANM):
-        return dumps(obj, indent=4, cls=PRFEncoder)
-    elif isinstance(obj, BIN):
-        return dumps(obj, indent=4, cls=PRFEncoder)
-    elif isinstance(obj, BNK):
-        return dumps(obj, indent=4, cls=PRFEncoder)
-    elif isinstance(obj, TEX):
-        return dumps(obj, indent=4, cls=PRFEncoder)
-    elif isinstance(obj, WAD):
-        return dumps(obj, indent=4, cls=PRFEncoder)
-
+    good_types = [SKL, SKN, SO, ANM, MAPGEO, BIN, BNK, TEX, WAD]
+    for good_type in good_types:
+        if isinstance(obj, good_type):
+            return dumps(obj, indent=4, cls=PRFEncoder)
+        
 
 def read_skl(path, raw=None):
     skl = SKL()
@@ -96,6 +73,12 @@ def read_anm(path, raw=None):
     anm = ANM()
     anm.read(path, raw)
     return anm
+
+
+def read_mapgeo(path, raw=None):
+    mg = MAPGEO()
+    mg.read(path, raw)
+    return mg
 
 
 def read_bin(path, raw=None):

@@ -39,7 +39,7 @@ class BinStream:
     # read
 
     def read_fmt(self, fmt, fmt_size):
-        return Struct(fmt).unpack(self.stream.read_bytes(fmt_size))
+        return Struct(fmt).unpack(self.stream.read(fmt_size))
 
     def read(self, length):
         return self.stream.read(length)

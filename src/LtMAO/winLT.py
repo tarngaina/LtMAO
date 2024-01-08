@@ -81,6 +81,16 @@ class Context:
             shell='SystemFileAssociations\\.scb\\shell',
             sub_commands='LtMAO.UVEE;LtMAO.LFI;'
         )
+        # .anm contexts
+        Context.create_submenu(
+            shell='SystemFileAssociations\\.anm\\shell',
+            sub_commands='LtMAO.LFI;'
+        )
+        # .mapgeo contexts
+        Context.create_submenu(
+            shell='SystemFileAssociations\\.mapgeo\\shell',
+            sub_commands='LtMAO.LFI;'
+        )
         # .tex contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.tex\\shell',
@@ -230,6 +240,10 @@ class Context:
         Context.remove_submenu('SystemFileAssociations\\.sco\\shell')
         # .scb contexts
         Context.remove_submenu('SystemFileAssociations\\.scb\\shell')
+        # .anm contexts
+        Context.remove_submenu('SystemFileAssociations\\.anm\\shell')
+        # .mapgeo contexts
+        Context.remove_submenu('SystemFileAssociations\\.mapgeo\\shell')
         # .tex contexts
         Context.remove_submenu('SystemFileAssociations\\.tex\\shell')
         # .dds contexts
