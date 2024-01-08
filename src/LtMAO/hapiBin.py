@@ -1,4 +1,4 @@
-from LtMAO.pyRitoFile import bin_hash, read_bin, write_bin, BINHelper
+from .pyRitoFile import bin_hash, read_bin, write_bin, BINHelper
 
 
 LOG = print

@@ -40,7 +40,6 @@ def set(key, value): SETTINGS.set(key, value)
 load = SETTINGS.load
 save = SETTINGS.save
 
-
 def prepare(_LOG):
     # function need to call first
     global LOG

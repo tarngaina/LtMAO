@@ -1,6 +1,6 @@
 from io import BytesIO, StringIO
-from LtMAO.pyRitoFile.io import BinStream
-from LtMAO.pyRitoFile.structs import Vector
+from ..pyRitoFile.io import BinStream
+from ..pyRitoFile.structs import Vector
 
 
 class SO:

@@ -1,6 +1,6 @@
 from io import BytesIO
-from LtMAO.pyRitoFile.io import BinStream
-from LtMAO.pyRitoFile.hash import FNV1a
+from ..pyRitoFile.io import BinStream
+from ..pyRitoFile.hash import FNV1a
 from enum import Enum
 
 

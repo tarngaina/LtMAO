@@ -5,8 +5,8 @@ import tkinter as tk
 import tkinter.filedialog as tkfd
 import pywinstyles
 
-from LtMAO import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin, bnk_tool, sborf
-from LtMAO.prettyUI.helper import Keeper, Log, EmojiImage, check_thread_safe
+from .. import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin, bnk_tool, sborf, lol2fbx
+from ..prettyUI.helper import Keeper, Log, EmojiImage, check_thread_safe
 
 import os
 import os.path
@@ -3514,7 +3514,7 @@ def create_ST_page():
         command=winLT.Context.create_contexts
     )
     tk_widgets.ST.contextadd_button.grid(
-        row=6, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=5, column=2, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.ST.contextrmv_button = ctk.CTkButton(
         tk_widgets.ST.scroll_frame,
         text='Remove Explorer Contexts',
@@ -3523,17 +3523,17 @@ def create_ST_page():
         command=winLT.Context.remove_contexts
     )
     tk_widgets.ST.contextrmv_button.grid(
-        row=6, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=5, column=3, padx=5, pady=5, sticky=tk.NS+tk.W)
     # default folder
     tk_widgets.ST.defaultdir_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
-        text='Default Folder:',
+        text='Ask Default Folder:',
         image=EmojiImage.create('🌳'),
         compound=tk.LEFT,
         anchor=tk.W
     )
     tk_widgets.ST.defaultdir_label.grid(
-        row=8, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=6, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def defaultdir_cmd():
         dir_path = tkfd.askdirectory(
@@ -3558,7 +3558,7 @@ def create_ST_page():
         command=defaultdir_cmd
     )
     tk_widgets.ST.defaultdir_button.grid(
-        row=8, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=6, column=2, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.ST.defaultdir_value_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
         anchor=tk.W
@@ -3569,14 +3569,31 @@ def create_ST_page():
             text='Default folder for all ask-file/ask-folder dialog'
         )
     tk_widgets.ST.defaultdir_value_label.grid(
-        row=8, column=3, padx=5, pady=5, sticky=tk.NSEW)
+        row=6, column=3, padx=5, pady=5, sticky=tk.NSEW)
+    # restart ltmao
+    def restart_cmd():
+        import sys
+        LOG(f'Running: Restart LtMAO')
+        os.system(os.path.join(os.path.abspath(os.path.curdir),'start.bat'))
+        tk_widgets.main_tk.destroy()
+        sys.exit(0)
+        
+    tk_widgets.ST.contextrmv_button = ctk.CTkButton(
+        tk_widgets.ST.scroll_frame,
+        text='Restart LtMAO',
+        image=EmojiImage.create('🚀'),
+        anchor=tk.W,
+        command=restart_cmd
+    )
+    tk_widgets.ST.contextrmv_button.grid(
+        row=7, column=1, padx=5, pady=5, sticky=tk.NSEW)
     # cslmao label
     tk_widgets.ST.cslmao_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
         text='CSLMAO'
     )
     tk_widgets.ST.cslmao_label.grid(
-        row=9, column=0, padx=10, pady=5, sticky=tk.NSEW)
+        row=8, column=0, padx=10, pady=5, sticky=tk.NSEW)
     # game folder
     tk_widgets.ST.gamedir_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
@@ -3586,7 +3603,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.gamedir_label.grid(
-        row=10, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=9, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def gamedir_cmd():
         dir_path = tkfd.askdirectory(
@@ -3609,7 +3626,7 @@ def create_ST_page():
         command=gamedir_cmd
     )
     tk_widgets.ST.gamedir_button.grid(
-        row=10, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=9, column=2, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.ST.gamedir_value_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
         text=setting.get(
@@ -3617,7 +3634,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.gamedir_value_label.grid(
-        row=10, column=3, padx=5, pady=5, sticky=tk.NSEW)
+        row=9, column=3, padx=5, pady=5, sticky=tk.NSEW)
     # extra game modes
     tk_widgets.ST.egm_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
@@ -3627,7 +3644,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.egm_label.grid(
-        row=11, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=10, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def egm_cmd():
         setting.set('Cslmao.extra_game_modes',
@@ -3643,7 +3660,7 @@ def create_ST_page():
     else:
         tk_widgets.ST.egm_checkbox.deselect()
     tk_widgets.ST.egm_checkbox.grid(
-        row=11, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=10, column=2, padx=5, pady=5, sticky=tk.NSEW)
 
 
 def create_SBORF_page():
@@ -3751,8 +3768,7 @@ def create_SBORF_page():
         )
         tk_widgets.SBORF.skl_entry.delete(0, tk.END)
         tk_widgets.SBORF.skl_entry.insert(tk.END, skl_path)
-        skn_path = os.path.join(
-            os.path.dirname(skl_path), os.path.basename(skl_path).replace('.skl', '') + '.skn').replace('\\', '/')
+        skn_path = skl_path.replace('.skl', '.skn')
         if os.path.exists(skn_path) and tk_widgets.SBORF.skn_entry.get() == '':
             tk_widgets.SBORF.skn_entry.delete(0, tk.END)
             tk_widgets.SBORF.skn_entry.insert(tk.END, skn_path)
@@ -4034,6 +4050,202 @@ def create_SBORF_page():
         row=5, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
 
+def create_LOLFBX_page():
+    tk_widgets.LOLFBX.page_frame = ctk.CTkFrame(
+        tk_widgets.mainright_frame,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.LOLFBX.page_frame.columnconfigure(0, weight=1)
+    tk_widgets.LOLFBX.page_frame.rowconfigure(0, weight=1)
+    tk_widgets.LOLFBX.page_frame.rowconfigure(1, weight=999)
+
+    # create skin frame
+    tk_widgets.LOLFBX.skin_frame = ctk.CTkFrame(
+        tk_widgets.LOLFBX.page_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.LOLFBX.skin_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.LOLFBX.skin_frame.rowconfigure(0, weight=2)
+    tk_widgets.LOLFBX.skin_frame.rowconfigure(1, weight=8)
+    tk_widgets.LOLFBX.skin_frame.rowconfigure(2, weight=2)
+    tk_widgets.LOLFBX.skin_frame.columnconfigure(0, weight=1)
+    # create tool label 1
+    tk_widgets.LOLFBX.tool_label1 = ctk.CTkLabel(
+        tk_widgets.LOLFBX.skin_frame,
+        text = 'FBX <-> SKIN'
+    )
+    tk_widgets.LOLFBX.tool_label1.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create browse frame
+    tk_widgets.LOLFBX.browse_frame = ctk.CTkFrame(
+        tk_widgets.LOLFBX.skin_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.LOLFBX.browse_frame.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.LOLFBX.browse_frame.rowconfigure(0, weight=1)
+    tk_widgets.LOLFBX.browse_frame.rowconfigure(1, weight=1)
+    tk_widgets.LOLFBX.browse_frame.rowconfigure(2, weight=1)
+    tk_widgets.LOLFBX.browse_frame.rowconfigure(3, weight=999)
+    tk_widgets.LOLFBX.browse_frame.columnconfigure(0, weight=9)
+    tk_widgets.LOLFBX.browse_frame.columnconfigure(1, weight=1)
+
+    # create fbx entry
+    tk_widgets.LOLFBX.fbx_entry = ctk.CTkEntry(
+        tk_widgets.LOLFBX.browse_frame,
+    )
+    tk_widgets.LOLFBX.fbx_entry.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    def fbxbrowse_cmd():
+        fbx_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select your FBX file',
+            filetypes=(
+                ('FBX files', '*.fbx'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.LOLFBX.fbx_entry.delete(0, tk.END)
+        tk_widgets.LOLFBX.fbx_entry.insert(tk.END, fbx_path)
+        skn_path = fbx_path.replace('.fbx', '.skn')
+        if tk_widgets.LOLFBX.skn_entry.get() == '':
+            tk_widgets.LOLFBX.skn_entry.delete(0, tk.END)
+            tk_widgets.LOLFBX.skn_entry.insert(tk.END, skn_path)
+        skl_path = fbx_path.replace('.fbx', '.skl')
+        if tk_widgets.LOLFBX.skl_entry.get() == '':
+            tk_widgets.LOLFBX.skl_entry.delete(0, tk.END)
+            tk_widgets.LOLFBX.skl_entry.insert(tk.END, skl_path)
+    # create fbx browse button
+    tk_widgets.LOLFBX.fbxbrowse_button = ctk.CTkButton(
+        tk_widgets.LOLFBX.browse_frame,
+        text='Browse FBX',
+        image=EmojiImage.create('🌄'),
+        anchor=tk.CENTER,
+        command=fbxbrowse_cmd
+    )
+    tk_widgets.LOLFBX.fbxbrowse_button.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create skl entry
+    tk_widgets.LOLFBX.skl_entry = ctk.CTkEntry(
+        tk_widgets.LOLFBX.browse_frame,
+    )
+    tk_widgets.LOLFBX.skl_entry.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    def sklbrowse_cmd():
+        skl_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select your SKL file',
+            filetypes=(
+                ('SKL files', '*.skl'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.LOLFBX.skl_entry.delete(0, tk.END)
+        tk_widgets.LOLFBX.skl_entry.insert(tk.END, skl_path)
+        fbx_path = skl_path.replace('.skl', '.fbx')
+        if tk_widgets.LOLFBX.fbx_entry.get() == '':
+            tk_widgets.LOLFBX.fbx_entry.delete(0, tk.END)
+            tk_widgets.LOLFBX.fbx_entry.insert(tk.END, fbx_path)
+        skn_path = skl_path.replace('.skl', '.skn')
+        if tk_widgets.LOLFBX.skn_entry.get() == '':
+            tk_widgets.LOLFBX.skn_entry.delete(0, tk.END)
+            tk_widgets.LOLFBX.skn_entry.insert(tk.END, skn_path)
+        
+    # create skl browse button
+    tk_widgets.LOLFBX.sklbrowse_button = ctk.CTkButton(
+        tk_widgets.LOLFBX.browse_frame,
+        text='Browse SKL',
+        image=EmojiImage.create('🦴'),
+        anchor=tk.CENTER,
+        command=sklbrowse_cmd
+    )
+    tk_widgets.LOLFBX.sklbrowse_button.grid(
+        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create skn entry
+    tk_widgets.LOLFBX.skn_entry = ctk.CTkEntry(
+        tk_widgets.LOLFBX.browse_frame,
+    )
+    tk_widgets.LOLFBX.skn_entry.grid(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    def sknbrowse_cmd():
+        skn_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select your SKN file',
+            filetypes=(
+                ('SKN files', '*.skn'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.LOLFBX.skn_entry.delete(0, tk.END)
+        tk_widgets.LOLFBX.skn_entry.insert(tk.END, skn_path)
+        fbx_path = skn_path.replace('.skn', '.fbx')
+        if tk_widgets.LOLFBX.fbx_entry.get() == '':
+            tk_widgets.LOLFBX.fbx_entry.delete(0, tk.END)
+            tk_widgets.LOLFBX.fbx_entry.insert(tk.END, fbx_path)
+        skl_path = skn_path.replace('.skn', '.skl')
+        if tk_widgets.LOLFBX.skl_entry.get() == '':
+            tk_widgets.LOLFBX.skl_entry.delete(0, tk.END)
+            tk_widgets.LOLFBX.skl_entry.insert(tk.END, skl_path)
+    # create fbx browse button
+    tk_widgets.LOLFBX.sknbrowse_button = ctk.CTkButton(
+        tk_widgets.LOLFBX.browse_frame,
+        text='Browse SKN',
+        image=EmojiImage.create('🧊'),
+        anchor=tk.CENTER,
+        command=sknbrowse_cmd
+    )
+    tk_widgets.LOLFBX.sknbrowse_button.grid(
+        row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create action frame
+    tk_widgets.LOLFBX.action_frame = ctk.CTkFrame(
+        tk_widgets.LOLFBX.skin_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.LOLFBX.action_frame.grid(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.LOLFBX.action_frame.rowconfigure(0, weight=0)
+    tk_widgets.LOLFBX.action_frame.columnconfigure(0, weight=2)
+    tk_widgets.LOLFBX.action_frame.columnconfigure(1, weight=6)
+    tk_widgets.LOLFBX.action_frame.columnconfigure(2, weight=2)
+
+    def fbx2skin_cmd():
+        lol2fbx.fbx_to_skin(
+            fbx_path=tk_widgets.LOLFBX.fbx_entry.get(),
+            skl_path=tk_widgets.LOLFBX.skl_entry.get(),
+            skn_path=tk_widgets.LOLFBX.skn_entry.get()
+        )
+
+    # create fbx2skin button
+    tk_widgets.LOLFBX.fbx2skin_button = ctk.CTkButton(
+        tk_widgets.LOLFBX.action_frame,
+        text='FBX -> SKIN',
+        image=EmojiImage.create('🛸'),
+        anchor=tk.CENTER,
+        command=fbx2skin_cmd
+    )
+    tk_widgets.LOLFBX.fbx2skin_button.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create skin2fbx button
+    tk_widgets.LOLFBX.skin2fbx_button = ctk.CTkButton(
+        tk_widgets.LOLFBX.action_frame,
+        text='SKIN -> FBX',
+        image=EmojiImage.create('👽'),
+        anchor=tk.CENTER,
+        command=lambda: LOG('Not supported yet.')
+    )
+    tk_widgets.LOLFBX.skin2fbx_button.grid(
+        row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
+
+
 def select_right_page(selected):
     # hide all page
     for page in tk_widgets.pages:
@@ -4170,6 +4382,11 @@ def create_page_controls():
             tk_widgets.mainleft_frame,
             text='sborf',
             command=lambda: control_cmd(11)
+        ),
+        ctk.CTkButton(
+            tk_widgets.mainleft_frame,
+            text='lol2fbx',
+            command=lambda: control_cmd(12)
         )
     ]
     for id, control_button in enumerate(tk_widgets.control_buttons):
@@ -4204,6 +4421,7 @@ def create_page_controls():
     tk_widgets.WT = tk_widgets.pages[9]
     tk_widgets.PT = tk_widgets.pages[10]
     tk_widgets.SBORF = tk_widgets.pages[11]
+    tk_widgets.LOLFBX = tk_widgets.pages[12]
     # create right pages
     tk_widgets.create_right_page = [
         create_CSLMAO_page,
@@ -4217,7 +4435,8 @@ def create_page_controls():
         create_HP_page,
         create_WT_page,
         create_PT_page,
-        create_SBORF_page
+        create_SBORF_page,
+        create_LOLFBX_page
     ]
     # create LOG and ST control, page
     tk_widgets.minilog_control = None
@@ -4288,5 +4507,6 @@ def start():
     pyntex.prepare(LOG)
     bnk_tool.prepare(LOG)
     sborf.prepare(LOG)
+    lol2fbx.prepare(LOG)
     # loop the UI
     tk_widgets.main_tk.mainloop()

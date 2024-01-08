@@ -1,7 +1,7 @@
 import os
 from zipfile import ZipFile
 import json
-from LtMAO import pyRitoFile, hash_manager
+from . import pyRitoFile, hash_manager
 
 
 LOG = print

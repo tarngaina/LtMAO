@@ -1,6 +1,6 @@
 from io import BytesIO
-from LtMAO.pyRitoFile.io import BinStream
-from LtMAO.pyRitoFile.hash import FNV1a
+from ..pyRitoFile.io import BinStream
+from ..pyRitoFile.hash import FNV1a
 
 
 def bin_hash(name):
@@ -94,7 +94,7 @@ class SKN:
 
                 submesh = SKNSubmesh()
                 submesh.name = 'Base'
-                submesh.name = bin_hash(submesh.name)
+                submesh.bin_hash = bin_hash(submesh.name)
                 submesh.vertex_start = 0
                 submesh.vertex_count = vertex_count
                 submesh.index_start = 0

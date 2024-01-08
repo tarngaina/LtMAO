@@ -3,7 +3,7 @@ import os
 import os.path
 import json
 from threading import Thread
-from LtMAO import pyRitoFile
+from . import pyRitoFile
 
 LOG = print
 BIN_HASHES = (

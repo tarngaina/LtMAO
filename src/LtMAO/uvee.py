@@ -1,6 +1,6 @@
 import os
 import os.path
-from LtMAO.pyRitoFile import read_skn, read_scb, read_sco
+from .pyRitoFile import read_skn, read_scb, read_sco
 from PIL import Image, ImageDraw
 
 TEXTURE_SIZE = 1024

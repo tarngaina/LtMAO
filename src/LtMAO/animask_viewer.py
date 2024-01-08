@@ -1,5 +1,5 @@
-from LtMAO.pyRitoFile.hash import FNV1a
-from LtMAO.pyRitoFile import BINHelper, bin_hash
+from .pyRitoFile.hash import FNV1a
+from .pyRitoFile import BINHelper, bin_hash
 
 PRE_BIN_HASH = {
     'animationGraphData': bin_hash('animationGraphData'),

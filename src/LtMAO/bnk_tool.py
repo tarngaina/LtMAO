@@ -1,4 +1,4 @@
-from LtMAO import pyRitoFile
+from . import pyRitoFile
 import os
 import os.path
 

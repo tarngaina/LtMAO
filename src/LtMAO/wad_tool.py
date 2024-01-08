@@ -1,5 +1,4 @@
-from LtMAO import pyRitoFile
-from LtMAO import hash_manager
+from . import pyRitoFile
 import os
 from json import dump
 

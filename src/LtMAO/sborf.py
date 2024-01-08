@@ -1,9 +1,9 @@
-from LtMAO.pyRitoFile import SKLJoint, read_skl, read_skn, write_skl, write_skn, read_bin, write_bin
-from LtMAO.pyRitoFile.hash import Elf
-from LtMAO.pyRitoFile.structs import Vector, Quaternion
+from .pyRitoFile import SKLJoint, read_skl, read_skn, write_skl, write_skn, read_bin, write_bin
+from .pyRitoFile.hash import Elf
+from .pyRitoFile.structs import Vector, Quaternion
 from shutil import copy
 import os.path
-from LtMAO.animask_viewer import find_mMaskDataMap, get_weights, set_weights
+from .animask_viewer import find_mMaskDataMap, get_weights, set_weights
 
 LOG = print
 

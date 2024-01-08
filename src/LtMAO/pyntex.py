@@ -1,6 +1,6 @@
 import os
 import os.path
-from LtMAO import pyRitoFile, hash_manager
+from . import pyRitoFile, hash_manager
 import json
 
 LOG = print

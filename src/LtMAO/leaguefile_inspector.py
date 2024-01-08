@@ -1,6 +1,4 @@
-from LtMAO import pyRitoFile
-from LtMAO import hash_manager
-from LtMAO import ext_tools
+from . import pyRitoFile, hash_manager, ext_tools
 import os
 
 LOG = print

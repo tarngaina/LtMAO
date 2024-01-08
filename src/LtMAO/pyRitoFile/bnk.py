@@ -1,5 +1,5 @@
 from io import BytesIO
-from LtMAO.pyRitoFile.io import BinStream
+from ..pyRitoFile.io import BinStream
 from enum import Enum
 
 

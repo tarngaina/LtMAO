@@ -1,4 +1,4 @@
-from LtMAO import pyRitoFile
+from . import pyRitoFile
 
 LOG = print
 
@@ -8,7 +8,7 @@ def dds2tex(dds_path, tex_path=None):
     if tex_path == None:
         tex_path = dds_path.split('.dds')[0] + '.tex'
     LOG(
-        f'Ritoddstex: Running: tex2dds: Convert {dds_path} to {tex_path}')
+        f'Ritoddstex: Running: dds2tex: Convert {dds_path} to {tex_path}')
     # read dds header
     with pyRitoFile.io.BinStream(open(dds_path, 'rb')) as bs:
         signature, = bs.read_u32()
@@ -100,7 +100,7 @@ def dds2tex(dds_path, tex_path=None):
     # write tex file
     tex.write(tex_path)
     LOG(
-        f'Ritoddstex: Done: tex2dds: Write {tex_path}')
+        f'Ritoddstex: Done: dds2tex: Write {tex_path}')
 
 
 def tex2dds(tex_path, dds_path=None):

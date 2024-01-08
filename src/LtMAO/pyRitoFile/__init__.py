@@ -1,13 +1,13 @@
-from LtMAO.pyRitoFile.skl import SKL, SKLJoint
-from LtMAO.pyRitoFile.skn import SKN
-from LtMAO.pyRitoFile.so import SO
-from LtMAO.pyRitoFile.anm import ANM, ANMPose, ANMTrack, ANMErrorMetric
-from LtMAO.pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINHelper, name_to_hex as bin_hash
-from LtMAO.pyRitoFile.bnk import BNK, BNKSection, BNKSectionData, BNKObject, BNKObjectData, BNKObjectType, BNKWem
-from LtMAO.pyRitoFile.tex import TEX, TEXFormat
-from LtMAO.pyRitoFile.wad import WAD, WADChunk, WADCompressionType, name_to_hex as wad_hash, guess_extension
-from LtMAO.pyRitoFile import hash
-from LtMAO.pyRitoFile import io
+from ..pyRitoFile.skl import SKL, SKLJoint
+from ..pyRitoFile.skn import SKN, SKNVertex, SKNSubmesh
+from ..pyRitoFile.so import SO
+from ..pyRitoFile.anm import ANM, ANMPose, ANMTrack, ANMErrorMetric
+from ..pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINHelper, name_to_hex as bin_hash
+from ..pyRitoFile.bnk import BNK, BNKSection, BNKSectionData, BNKObject, BNKObjectData, BNKObjectType, BNKWem
+from ..pyRitoFile.tex import TEX, TEXFormat
+from ..pyRitoFile.wad import WAD, WADChunk, WADCompressionType, name_to_hex as wad_hash, guess_extension
+from ..pyRitoFile import hash
+from ..pyRitoFile import io
 from json import dump, dumps, JSONEncoder
 
 

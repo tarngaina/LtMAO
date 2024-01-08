@@ -1,7 +1,7 @@
 from io import BytesIO
-from LtMAO.pyRitoFile.io import BinStream
-from LtMAO.pyRitoFile.structs import Matrix4
-from LtMAO.pyRitoFile.hash import Elf, FNV1a
+from ..pyRitoFile.io import BinStream
+from ..pyRitoFile.structs import Matrix4
+from ..pyRitoFile.hash import Elf, FNV1a
 
 
 def bin_hash(name):

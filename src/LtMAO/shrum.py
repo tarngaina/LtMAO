@@ -1,5 +1,5 @@
-from LtMAO.pyRitoFile.io import BinStream
-from LtMAO.pyRitoFile.hash import Elf
+from .pyRitoFile.io import BinStream
+from .pyRitoFile.hash import Elf
 import os
 import os.path
 from shutil import copytree, copy

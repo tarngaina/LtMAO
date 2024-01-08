@@ -3,8 +3,7 @@ import os
 import os.path
 import zipfile
 import shutil
-from LtMAO import hash_manager
-from LtMAO import pyRitoFile
+from . import hash_manager, pyRitoFile
 
 
 def bin_hash(name):
