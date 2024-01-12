@@ -1,4 +1,22 @@
 if __name__ == '__main__':
-    from LtMAO import pyRitoFile
-    b = pyRitoFile.read_mapgeo('D:/test/test.mapgeo')
-    print(dir(b))
+    from cProfile import Profile
+    from pstats import Stats
+    # profile
+    def db(func):
+        pr = Profile()
+        pr.enable()
+
+        func()
+
+        pr.disable()
+        stats = Stats(pr)
+        stats.sort_stats('tottime').print_stats()
+
+    def test():
+        from LtMAO import pyRitoFile
+        from LtMAO.pyRitoFile import MAPGEO
+        b = MAPGEO()
+        b.read('D:/test/new.mapgeo')
+        pyRitoFile.write_json('D:/test/new.mapgeo.json', b)
+    
+test()

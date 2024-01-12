@@ -1,8 +1,51 @@
 from io import BytesIO
 from ..pyRitoFile.io import BinStream
 from ..pyRitoFile.structs import Vector, Matrix4
-
 from enum import Enum
+from flags import Flags
+
+class MAPGEOChannel:
+    __slots__ = ('name', 'scale', 'offset')
+
+    def __init__(self):
+        self.name = None
+        self.scale = None
+        self.offset = None
+
+    def __json__(self):
+        return {key: getattr(self, key) for key in self.__slots__}
+    
+class MAPGEORender(Flags):
+    Decal = 1 << 0
+    UseEnvironmentDistortionEffectBuffer  = 1 << 1
+    RenderOnlyIfEyeCandyOn = 1 << 2
+    RenderOnlyIfEyeCandyOff = 1 << 3
+
+    def __json__(self):
+        return self.to_simple_str()
+
+class MAPGEOQuality(Flags):
+    VeryLow = 1 << 0
+    Low = 1 << 1
+    Medium = 1 << 2
+    High = 1 << 3
+    VeryHigh = 1 << 4
+
+    def __json__(self):
+        return self.to_simple_str()
+
+class MAPGEOLayer(Flags):
+    Layer1 = 1 << 0
+    Layer2 = 1 << 1
+    Layer3 = 1 << 2
+    Layer4 = 1 << 3
+    Layer5 = 1 << 4
+    Layer6 = 1 << 5
+    Layer7 = 1 << 6
+    Layer8 = 1 << 7
+
+    def __json__(self):
+        return self.to_simple_str()
 
 class MAPGEOSubmesh:
     __slots__ = (
@@ -23,29 +66,23 @@ class MAPGEOSubmesh:
         return {key: getattr(self, key) for key in self.__slots__}
 
 class MAPGEOVertex:
-    __slots__ = (
-        'position', 'normal', 'diffuse_uv', 'lightmap_uv', 'color'
-    )
+    __slots__ = ('value')
 
     def __init__(self):
-        self.position = None
-        self.normal = None
-        self.diffuse_uv = None
-        self.lightmap_uv = None
-        self.color = None
+        self.value = {}
 
     def __json__(self):
-        return {key: getattr(self, key) for key in self.__slots__}
+        return self.value
 
 class MAPGEOModel:
     __slots__ = (
         'name',
         'vertex_buffer_count', 'vertex_description_id', 'vertex_buffer_ids', 'vertex_count', 'vertices', 
         'index_buffer_id', 'index_count', 'indices',
-        'layer', 'is_bush', 'bucket_hash',
-        'submeshes',
+        'layer', 'quality', 'disable_backface_culling', 'is_bush', 'render', 'point_light', 'light_probe', 
+        'bucket_grid_hash', 'submeshes',
         'bounding_box', 'matrix', 
-        'lightmap', 'lightmap_scale_offset'
+        'baked_light', 'stationary_light', 'baked_paint'
     )
 
     def __init__(self):
@@ -59,16 +96,25 @@ class MAPGEOModel:
         self.index_count = None
         self.indices = []
         self.layer = None
+        self.quality = None
+        self.disable_backface_culling = None
         self.is_bush = None
-        self.bucket_hash = None
+        self.render = None
+        self.point_light = None
+        self.light_probe = None
+        self.bucket_grid_hash = None
         self.submeshes = None
         self.bounding_box = None
         self.matrix = None
-        self.lightmap = None
-        self.lightmap_scale_offset = None
+        self.baked_light = None
+        self.stationary_light = None
+        self.baked_paint = None
 
     def __json__(self):
-        return {key: getattr(self, key) if key != 'vertices' else getattr(self, key)[:-1] for key in self.__slots__}
+        d = {key: getattr(self, key) for key in self.__slots__}
+        d['vertices'] = ('write only first vertex to save memory', d['vertices'][0])
+        d['indices'] = ('not write to save memory')
+        return d
     
 class MAPGEOVertexElementName(Enum):
     Position = 0
@@ -90,7 +136,7 @@ class MAPGEOVertexElementName(Enum):
 
     def __json__(self):
         return self.name
-    
+
 class MAPGEOVertexElementFormat(Enum):
     X_Float32 = 0
     XY_Float32 = 1
@@ -100,7 +146,7 @@ class MAPGEOVertexElementFormat(Enum):
     ZYXW_Packed8888 = 5
     RGBA_Packed8888 = 6
     XYZW_Packed8888 = 7
-    Unknown_8_Bytes = 8
+    XY_Float32_2 = 8
 
     def __json__(self):
         return self.name
@@ -114,7 +160,7 @@ class MAPGEOVertexElement:
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
-    
+
 class MAPGEOVertexUsage(Enum):
     Static = 0
     Dynamic = 1
@@ -132,6 +178,20 @@ class MAPGEOVertexDescription:
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
+
+class MAPGEOHelper:
+    MAPGEO_FORMAT_TO_PYTHON_VALUES = {
+        # mapgeo vertex format: (python struct format, bytes size, unpacked items size, unpacked type)
+        MAPGEOVertexElementFormat.X_Float32: ('f', 4, 1, float),  
+        MAPGEOVertexElementFormat.XY_Float32: ('2f', 8, 2, Vector),  
+        MAPGEOVertexElementFormat.XYZ_Float32: ('3f', 12, 3, Vector), 
+        MAPGEOVertexElementFormat.XYZW_Float32: ('4f', 16, 4, Vector),  
+        MAPGEOVertexElementFormat.BGRA_Packed8888: ('4B', 4, 4, tuple), 
+        MAPGEOVertexElementFormat.ZYXW_Packed8888: ('4B', 4, 4, tuple), 
+        MAPGEOVertexElementFormat.RGBA_Packed8888: ('4B', 4, 4, tuple), 
+        MAPGEOVertexElementFormat.XYZW_Packed8888: ('4B', 4, 4, tuple),  
+        MAPGEOVertexElementFormat.XY_Float32_2: ('2f', 8, 2, Vector)  
+    }
 
 class MAPGEO:
     __slots__ = (
@@ -176,9 +236,9 @@ class MAPGEO:
                 use_seperate_point_lights, = bs.read_b()
 
             if self.version >= 9:
-                self.baked_terrain_sampler1 = bs.read(bs.read_u32()[0]).decode('ascii')
+                self.baked_terrain_sampler1, = bs.read_a(bs.read_u32()[0])
                 if self.version >= 11:
-                    self.baked_terrain_sampler2 = bs.read(bs.read_u32()[0]).decode('ascii')
+                    self.baked_terrain_sampler2, = bs.read_a(bs.read_u32()[0])
 
             # vertex descriptions
             vd_count, = bs.read_u32()
@@ -201,7 +261,7 @@ class MAPGEO:
             vbos = [None]*vertex_buffer_count
             for i in range(vertex_buffer_count):
                 if self.version >= 13:
-                    bs.pad(1)  # layer
+                    bs.pad(1)  # layer 
                 vb_size, = bs.read_u32()
                 vbos[i] = bs.tell()
                 bs.pad(vb_size)
@@ -216,27 +276,14 @@ class MAPGEO:
                 ib_size, = bs.read_u32()
                 ibs[i] = bs.read_u16(ib_size // 2)
 
-            # for skip reading same vertex buffer
-            unpacked_vbs = [None]*vertex_buffer_count
-            format_convert_values = {
-                # mapgeo vertex: (python struct format, bytes size, unpacked items size)
-                MAPGEOVertexElementFormat.X_Float32: ('f', 4, 1),  
-                MAPGEOVertexElementFormat.XY_Float32: ('2f', 8, 2),  
-                MAPGEOVertexElementFormat.XYZ_Float32: ('3f', 12, 3), 
-                MAPGEOVertexElementFormat.XYZW_Float32: ('4f', 16, 4),  
-                MAPGEOVertexElementFormat.BGRA_Packed8888: ('4B', 4, 4), 
-                MAPGEOVertexElementFormat.ZYXW_Packed8888: ('4B', 4, 4), 
-                MAPGEOVertexElementFormat.RGBA_Packed8888: ('4B', 4, 4), 
-                MAPGEOVertexElementFormat.XYZW_Packed8888: ('4B', 4, 4),  
-                MAPGEOVertexElementFormat.Unknown_8_Bytes: ('2f', 8, 2)  
-            }
             # read models
+            unpacked_vbs = [None]*vertex_buffer_count # for skip reading same vertex buffer
             model_count, = bs.read_u32()
             self.models = [MAPGEOModel() for i in range(model_count)]
             for model_id, model in enumerate(self.models):
                 # model name
                 if self.version < 12:
-                    model.name = bs.read_ascii(bs.read_int32())
+                    model.name = bs.read_a(bs.read_i32()[0])
                 else:
                     model.name = f'MapGeo_Instance_{model_id}'
                 # model vertices
@@ -253,8 +300,9 @@ class MAPGEO:
                     vertex_python_format = ''
                     vertex_byte_size = 0
                     for element in vertex_description.elements:
-                        vertex_python_format += format_convert_values[element.format][0]
-                        vertex_byte_size += format_convert_values[element.format][1]
+                        python_format, byte_size, _, _ = MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[element.format]
+                        vertex_python_format += python_format
+                        vertex_byte_size += byte_size
                     # save the current offset (we are in middle of model reading)
                     # jump to vertex buffers place through saved vertex buffer offset
                     return_offset = bs.tell()
@@ -275,42 +323,22 @@ class MAPGEO:
                     current_index = 0
                     for vertex in model.vertices:
                         for element in vertex_description.elements:
-                            if element.name == MAPGEOVertexElementName.Position:
-                                vertex.position = Vector(
-                                    unpacked_vb[current_index],
-                                    unpacked_vb[current_index+1],
-                                    unpacked_vb[current_index+2]
-                                )
-                            elif element.name == MAPGEOVertexElementName.PrimaryColor:
-                                vertex.color = (
-                                    unpacked_vb[current_index],
-                                    unpacked_vb[current_index+1],
-                                    unpacked_vb[current_index+2],
-                                    unpacked_vb[current_index+3],
-                                )
-                            elif element.name == MAPGEOVertexElementName.Texcoord0:
-                                vertex.diffuse_uv = Vector(
-                                    unpacked_vb[current_index],
-                                    unpacked_vb[current_index+1]
-                                )
-                            elif element.name == MAPGEOVertexElementName.Texcoord7:
-                                vertex.lightmap_uv = Vector(
-                                    unpacked_vb[current_index],
-                                    unpacked_vb[current_index+1]
-                                )
-                            current_index += format_convert_values[element.format][2]
+                            _, _, unpacked_item_size, unpacked_type = MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[element.format]
+                            unpacked_item_value = (unpacked_vb[current_index+i] for i in range(unpacked_item_size))
+                            vertex.value[element.name.name] = unpacked_type(*unpacked_item_value) if unpacked_type is not tuple else unpacked_type(unpacked_item_value)
+                            current_index += unpacked_item_size
 
                 # model indices
                 model.index_count, model.index_buffer_id = bs.read_u32(2)
                 model.indices = ibs[model.index_buffer_id]
-                # layer
-                model.layer = 255
+
+                # layer - above or version 13
                 if self.version >= 13:
-                    model.layer, = bs.read_u8()
+                    model.layer = MAPGEOLayer(bs.read_u8()[0])
                 
-                # bucket hash
+                # bucket grid hash
                 if self.version >= 15:
-                    model.bucket_hash, = bs.read_u32()
+                    model.bucket_grid_hash, = bs.read_u32()
 
                 # submeshes
                 submesh_count, = bs.read_u32()
@@ -322,8 +350,7 @@ class MAPGEO:
                         4)
 
                 if self.version != 5:
-                    # flip normals
-                    bs.pad(1)
+                    model.disable_backface_culling, = bs.read_b()
 
                 # bounding box
                 model.bounding_box = (bs.read_vec3()[0], bs.read_vec3()[0])
@@ -331,47 +358,47 @@ class MAPGEO:
                 # transform matrix
                 model.matrix, = bs.read_mtx4()
 
-                # quality: 1, 2, 4, 8, 16
-                # all quality = 1|2|4|8|16 = 31
-                bs.pad(1)
+                # quality 
+                model.quality = MAPGEOQuality(bs.read_u8()[0])
 
                 # layer - below version 13
                 if self.version >= 7 and self.version <= 12:
-                    model.layer, = bs.read_u8()
+                    model.layer = MAPGEOLayer(bs.read_u8()[0])
 
-                # bush - version 14
+                # is_bush - version 14
                 if self.version >= 14:
                     model.is_bush, = bs.read_b()
 
+                # render flag
                 if self.version >= 11:
-                    # render flag
-                    bs.pad(1)
+                    model.render = MAPGEORender(bs.read_u8()[0])
 
-                if use_seperate_point_lights and self.version < 7:
-                    # pad seperated point light
-                    bs.pad(12)
+                # point light
+                if self.version < 7 and use_seperate_point_lights:
+                    model.point_light, = bs.read_vec3()
 
                 if self.version < 9:
-                    # pad 9 light probes
-                    bs.pad(108)
+                    # light probes
+                    # 27 floats, 9 for each RGB channel
+                    model.light_probe = (bs.read_f32(9), bs.read_f32(9), bs.read_f32(9))
 
                 # lightmap
-                model.lightmap, = bs.read_a(bs.read_u32()[0])
-                # lightmap so (scale & offset)
-                # real lightmap uv = lightmap uv * lightmap scale + lightmap offset
-                model.lightmap_scale_offset = bs.read_f32(4)
+                model.baked_light = MAPGEOChannel()
+                model.baked_light.name, = bs.read_a(bs.read_u32()[0])
+                model.baked_light.scale = bs.read_f32(2)
+                model.baked_light.offset = bs.read_f32(2)
 
                 if self.version >= 9:
-                    # baked light
-                    bs.pad(bs.read_u32()[0])
-                    # baked light so
-                    bs.pad(16)
+                    model.stationary_light = MAPGEOChannel()
+                    model.stationary_light.name, = bs.read_a(bs.read_u32()[0])
+                    model.stationary_light.scale = bs.read_f32(2)
+                    model.stationary_light.offset = bs.read_f32(2)
 
                     if self.version >= 12:
-                        # baked paint
-                        bs.pad(bs.read_u32()[0])
-                        # baked paint so
-                        bs.pad(16)
+                        model.baked_paint = MAPGEOChannel()
+                        model.baked_paint.name, = bs.read_a(bs.read_u32()[0])
+                        model.baked_paint.scale = bs.read_f32(2)
+                        model.baked_paint.offset = bs.read_f32(2)
 
             return
             # for modded file with no bucket grid, planar reflector: stop reading
