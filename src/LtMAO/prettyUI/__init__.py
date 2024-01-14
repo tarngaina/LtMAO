@@ -2779,6 +2779,14 @@ def create_HP_page():
                         target=working_thrd, daemon=True
                     )
                     tk_widgets.HP.working_thread.start()
+            elif func_id == 2:
+                if bin1 != '':
+                    def working_thrd():  # TODO: implement backup
+                        hapiBin.fix_vfx_shape(bin1)
+                    tk_widgets.HP.working_thread = Thread(
+                        target=working_thrd, daemon=True
+                    )
+                    tk_widgets.HP.working_thread.start()
         else:
             LOG(
                 'hapiBin: Failed: A thread is already running, wait for it to finished.')
@@ -2796,6 +2804,12 @@ def create_HP_page():
             'desc': 'Copy color, birthColor, reflectionDefinition, lingerColor of VfxEmitterDefinitionData.\nCopy colors, mColorOn, mColorOff of StaticMaterialShaderParamDef/DynamicMaterialParameterDef.',
             'func': lambda: hp_func(1),
             'icon': EmojiImage.create('🎨')
+        },
+        {
+            'name': 'Fix Vfx Shape Property + BirthTranslation',
+            'desc': 'Fix bin1 shape owo?! (backup not implemented yet good luck)',
+            'func': lambda: hp_func(2),
+            'icon': EmojiImage.create('💠')
         }
     ]
     # create hp funcs

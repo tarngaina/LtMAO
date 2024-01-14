@@ -27,6 +27,15 @@ def free_all_hashes(): CustomHashes.free_all_hashes()
 def free_wad_hashes(): CustomHashes.free_wad_hashes()
 def free_bin_hashes(): CustomHashes.free_bin_hashes()
 
+class _PRE_BIN_HASH(dict):
+    def __getitem__(self, key):
+        if key in self.keys():
+            return super().__getitem__(key)
+        else:
+            super().__setitem__(key, pyRitoFile.bin_hash(key))
+            return super().__getitem__(key)
+        
+PRE_BIN_HASH = _PRE_BIN_HASH()
 
 def HASH_SEPARATOR(filename):
     # space separator in hashes txt
