@@ -1,5 +1,6 @@
+import os.path
+from shutil import copy
 from .pyRitoFile import bin_hash, read_bin, write_bin, BINHelper
-
 
 LOG = print
 
@@ -28,15 +29,24 @@ PRE_BIN_HASH = {
 }
 
 
-def copy_linked_list(src, dst):
+def copy_linked_list(src, dst, backup=True):
     src_bin = read_bin(src)
     dst_bin = read_bin(dst)
     dst_bin.links = src_bin.links
+    if backup:
+        print('called')
+        LOG(f'hapiBin: Running: Backup target BIN.')
+        backup_dst = os.path.join(
+            os.path.dirname(dst),
+            'hapiBin_backup_' + os.path.basename(dst)
+        )
+        copy(dst, backup_dst)
+        LOG(f'hapiBin: Done: Backup target BIN.')
     write_bin(dst, dst_bin)
     LOG(f'hapiBin: Done: Copy linked list from {src} to {dst}.')
 
 
-def copy_vfx_colors(src, dst):
+def copy_vfx_colors(src, dst, backup=True):
     src_bin = read_bin(src)
     dst_bin = read_bin(dst)
 
@@ -279,6 +289,16 @@ def copy_vfx_colors(src, dst):
                                         dst_field.data = src_field.data
                                         LOG(
                                             f'hapiBin: Done: Copy {dst_name}.DynamicMaterialParameterDef.Fresnel_Color.{id}.{field_name}')
+    
+    if backup:
+        print('called')
+        LOG(f'hapiBin: Running: Backup target BIN.')
+        backup_dst = os.path.join(
+            os.path.dirname(dst),
+            'hapiBin_backup_' + os.path.basename(dst)
+        )
+        copy(dst, backup_dst)
+        LOG(f'hapiBin: Done: Backup target BIN.')
     write_bin(dst, dst_bin)
     LOG(f'hapiBin: Done: Copy vfx colors from {src} to {dst}.')
 
