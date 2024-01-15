@@ -2653,9 +2653,11 @@ def create_HP_page():
     tk_widgets.HP.page_frame.columnconfigure(0, weight=1)
     tk_widgets.HP.page_frame.rowconfigure(0, weight=1)
     tk_widgets.HP.page_frame.rowconfigure(1, weight=1)
-    tk_widgets.HP.page_frame.rowconfigure(2, weight=699)
+    tk_widgets.HP.page_frame.rowconfigure(2, weight=1)
+    tk_widgets.HP.page_frame.rowconfigure(3, weight=699)
     # init stuffs
     tk_widgets.HP.working_thread = None
+
     # create action frame
     tk_widgets.HP.action_frame = ctk.CTkFrame(
         tk_widgets.HP.page_frame,
@@ -2666,11 +2668,10 @@ def create_HP_page():
     tk_widgets.HP.action_frame.columnconfigure(0, weight=999)
     tk_widgets.HP.action_frame.columnconfigure(1, weight=1)
     tk_widgets.HP.action_frame.rowconfigure(0, weight=1)
-
+    # create backup switch
     def backup_cmd():
         setting.set('hapiBin.backup', tk_widgets.HP.backup_switch.get())
         setting.save()
-    # create backup switch
     tk_widgets.HP.backup_switch = ctk.CTkSwitch(
         tk_widgets.HP.action_frame,
         text='Do the backup thing',
@@ -2682,111 +2683,228 @@ def create_HP_page():
         tk_widgets.HP.backup_switch.deselect()
     tk_widgets.HP.backup_switch.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create input description label 
+    tk_widgets.HP.input_description_label = ctk.CTkLabel(
+        tk_widgets.HP.page_frame,
+        text='Selected source type must match target type.\n    BIN: run functions directly on selected BIN.\n    WAD/FOLDER: run functions on all bins inside selected WAD/FOLDER.',
+        anchor=tk.NW,
+        justify=tk.LEFT
+    )
+    tk_widgets.HP.input_description_label.grid(
+        row=1, column=0, padx=20, pady=0, sticky=tk.NSEW)
+
     # create input frame
     tk_widgets.HP.input_frame = ctk.CTkFrame(
         tk_widgets.HP.page_frame,
         fg_color=TRANSPARENT
     )
     tk_widgets.HP.input_frame.grid(
-        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
-    tk_widgets.HP.input_frame.columnconfigure(0, weight=9)
-    tk_widgets.HP.input_frame.columnconfigure(1, weight=1)
-    # create bin1 entry
-    tk_widgets.HP.bin1_entry = ctk.CTkEntry(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.HP.input_frame.columnconfigure(0, weight=1)
+    tk_widgets.HP.input_frame.rowconfigure(0, weight=1)
+    tk_widgets.HP.input_frame.rowconfigure(1, weight=1)
+    tk_widgets.HP.input_frame.rowconfigure(2, weight=1)
+    tk_widgets.HP.input_frame.rowconfigure(3, weight=1)
+
+    # create source entry
+    tk_widgets.HP.source_entry = ctk.CTkEntry(
         tk_widgets.HP.input_frame,
     )
-    tk_widgets.HP.bin1_entry.grid( 
+    tk_widgets.HP.source_entry.grid( 
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
-
-    def bin1_cmd():
-        skl_path = tkfd.askopenfilename(
+    # create source frame
+    tk_widgets.HP.source_frame = ctk.CTkFrame(
+        tk_widgets.HP.input_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.HP.source_frame.grid(
+        row=1, column=0, padx=0, pady=0, sticky=tk.NSEW)
+    tk_widgets.HP.source_frame.columnconfigure(0, weight=999)
+    tk_widgets.HP.source_frame.columnconfigure(1, weight=1)
+    tk_widgets.HP.source_frame.columnconfigure(2, weight=1)
+    tk_widgets.HP.source_frame.columnconfigure(3, weight=1)
+    tk_widgets.HP.source_frame.rowconfigure(0, weight=1)
+    # create source bin button
+    def source_bin_cmd():
+        bin_path = tkfd.askopenfilename(
             parent=tk_widgets.main_tk,
             title='Select source BIN file',
             filetypes=(
                 ('BIN files', '*.bin'),
-                ('All files', '*.*'),
             ),
             initialdir=setting.get('default_folder', None)
         )
-        tk_widgets.HP.bin1_entry.delete(0, tk.END)
-        tk_widgets.HP.bin1_entry.insert(tk.END, skl_path)
-    # create bin1 button
-    tk_widgets.HP.bin1_button = ctk.CTkButton(
-        tk_widgets.HP.input_frame,
+        tk_widgets.HP.source_entry.delete(0, tk.END)
+        tk_widgets.HP.source_entry.insert(tk.END, bin_path)
+    tk_widgets.HP.source_bin_button = ctk.CTkButton(
+        tk_widgets.HP.source_frame,
         text='Browse Source BIN',
         image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
-        command=bin1_cmd
+        command=source_bin_cmd
     )
-    tk_widgets.HP.bin1_button.grid(
+    tk_widgets.HP.source_bin_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    # create source wad button
+    def source_wad_cmd():
+        wad_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select source WAD file',
+            filetypes=(
+                ('WAD files', '*.wad.client'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.HP.source_entry.delete(0, tk.END)
+        tk_widgets.HP.source_entry.insert(tk.END, wad_path)
+    tk_widgets.HP.source_wad_button = ctk.CTkButton(
+        tk_widgets.HP.source_frame,
+        text='Browse Source WAD',
+        image=EmojiImage.create('📝'),
+        anchor=tk.CENTER,
+        command=source_wad_cmd
+    )
+    tk_widgets.HP.source_wad_button.grid(
+        row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    # create source dir button
+    def source_dir_cmd():
+        dir_path = tkfd.askdirectory(
+            parent=tk_widgets.main_tk,
+            title='Select source Folder',
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.HP.source_entry.delete(0, tk.END)
+        tk_widgets.HP.source_entry.insert(tk.END, dir_path)
+    tk_widgets.HP.source_dir_button = ctk.CTkButton(
+        tk_widgets.HP.source_frame,
+        text='Browse Source FOLDER',
+        image=EmojiImage.create('📝'),
+        anchor=tk.CENTER,
+        command=source_dir_cmd
+    )
+    tk_widgets.HP.source_dir_button.grid(
+        row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
 
-    # create bin2 entry
-    tk_widgets.HP.bin2_entry = ctk.CTkEntry(
+
+    # create target entry
+    tk_widgets.HP.target_entry = ctk.CTkEntry(
         tk_widgets.HP.input_frame,
     )
-    tk_widgets.HP.bin2_entry.grid(
-        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
-
-    def bin2_cmd():
-        skl_path = tkfd.askopenfilename(
+    tk_widgets.HP.target_entry.grid(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create target frame
+    tk_widgets.HP.target_frame = ctk.CTkFrame(
+        tk_widgets.HP.input_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.HP.target_frame.grid(
+        row=3, column=0, padx=0, pady=0, sticky=tk.NSEW)
+    tk_widgets.HP.target_frame.columnconfigure(0, weight=999)
+    tk_widgets.HP.target_frame.columnconfigure(1, weight=1)
+    tk_widgets.HP.target_frame.columnconfigure(2, weight=1)
+    tk_widgets.HP.target_frame.columnconfigure(3, weight=1)
+    tk_widgets.HP.target_frame.rowconfigure(0, weight=1)
+    # create target bin button
+    def target_bin_cmd():
+        bin_path = tkfd.askopenfilename(
             parent=tk_widgets.main_tk,
             title='Select target BIN file',
             filetypes=(
                 ('BIN files', '*.bin'),
-                ('All files', '*.*'),
             ),
             initialdir=setting.get('default_folder', None)
         )
-        tk_widgets.HP.bin2_entry.delete(0, tk.END)
-        tk_widgets.HP.bin2_entry.insert(tk.END, skl_path)
-    # create bin2 button
-    tk_widgets.HP.bin2_button = ctk.CTkButton(
-        tk_widgets.HP.input_frame,
+        tk_widgets.HP.target_entry.delete(0, tk.END)
+        tk_widgets.HP.target_entry.insert(tk.END, bin_path)
+    tk_widgets.HP.target_bin_button = ctk.CTkButton(
+        tk_widgets.HP.target_frame,
         text='Browse Target BIN',
         image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
-        command=bin2_cmd
+        command=target_bin_cmd
     )
-    tk_widgets.HP.bin2_button.grid(
-        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
-    # create action frame 2
-    tk_widgets.HP.action_frame2 = ctk.CTkFrame(
+    tk_widgets.HP.target_bin_button.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    # create target wad button
+    def target_wad_cmd():
+        wad_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select target WAD file',
+            filetypes=(
+                ('WAD files', '*.wad.client'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.HP.target_entry.delete(0, tk.END)
+        tk_widgets.HP.target_entry.insert(tk.END, wad_path)
+    tk_widgets.HP.target_wad_button = ctk.CTkButton(
+        tk_widgets.HP.target_frame,
+        text='Browse Target WAD',
+        image=EmojiImage.create('📝'),
+        anchor=tk.CENTER,
+        command=target_wad_cmd
+    )
+    tk_widgets.HP.target_wad_button.grid(
+        row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    # create target dir button
+    def target_dir_cmd():
+        dir_path = tkfd.askdirectory(
+            parent=tk_widgets.main_tk,
+            title='Select target Folder',
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.HP.target_entry.delete(0, tk.END)
+        tk_widgets.HP.target_entry.insert(tk.END, dir_path)
+    tk_widgets.HP.target_dir_button = ctk.CTkButton(
+        tk_widgets.HP.target_frame,
+        text='Browse target FOLDER',
+        image=EmojiImage.create('📝'),
+        anchor=tk.CENTER,
+        command=target_dir_cmd
+    )
+    tk_widgets.HP.target_dir_button.grid(
+        row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create func frame 
+    tk_widgets.HP.func_frame = ctk.CTkScrollableFrame(
         tk_widgets.HP.page_frame, fg_color=TRANSPARENT)
-    tk_widgets.HP.action_frame2.grid(
-        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
-    tk_widgets.HP.action_frame2.columnconfigure(0, weight=1)
+    tk_widgets.HP.func_frame.grid(
+        row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.HP.func_frame.columnconfigure(0, weight=1)
 
-    def hp_func(func_id):
+    def hp_func(func_id, require_dst):
         if check_thread_safe(tk_widgets.HP.working_thread):
-            bin1 = tk_widgets.HP.bin1_entry.get()
-            bin2 = tk_widgets.HP.bin2_entry.get()
+            def working_thrd():
+                src = tk_widgets.HP.source_entry.get()
+                dst = tk_widgets.HP.target_entry.get()
 
-            if func_id == 0:
-                if bin1 != '' and bin2 != '':
-                    def working_thrd():
-                        hapiBin.copy_linked_list(bin1, bin2, backup=setting.get('hapiBin.backup', 1))
-                    tk_widgets.HP.working_thread = Thread(
-                        target=working_thrd, daemon=True
-                    )
-                    tk_widgets.HP.working_thread.start()
+                LOG(f'hapiBin: Running: Read source & target.')
+                matching_src_dst_bins, src_type = hapiBin.read_src_dst(src, dst, require_dst)
 
-            elif func_id == 1:
-                if bin1 != '' and bin2 != '':
-                    def working_thrd():
-                        hapiBin.copy_vfx_colors(bin1, bin2, backup=setting.get('hapiBin.backup', 1))
-                    tk_widgets.HP.working_thread = Thread(
-                        target=working_thrd, daemon=True
-                    )
-                    tk_widgets.HP.working_thread.start()
-            elif func_id == 2:
-                if bin1 != '':
-                    def working_thrd():  # TODO: implement backup
-                        hapiBin.fix_vfx_shape(bin1)
-                    tk_widgets.HP.working_thread = Thread(
-                        target=working_thrd, daemon=True
-                    )
-                    tk_widgets.HP.working_thread.start()
+                # backup dst if require dst else src
+                hapiBin.backup(dst if setting.get('hapiBin.backup', 1) and require_dst else src)
+
+                if func_id == 0:     
+                    for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
+                        LOG(f'hapiBin: Running: Copy linked list: {src_bin_path} -> {dst_bin_path}.')
+                        hapiBin.copy_linked_list(src_bin, dst_bin)
+                elif func_id == 1:
+                    for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
+                        LOG(f'hapiBin: Running: Copy vfx colors: {src_bin_path} -> {dst_bin_path}.')
+                        hapiBin.copy_vfx_colors(src_bin, dst_bin)
+                elif func_id == 2:
+                    for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
+                        LOG(f'hapiBin: Running: Fix vfx shape on {src_bin_path}.')
+                        hapiBin.fix_vfx_shape(src_bin)
+                
+                hapiBin.write_src_dst(src, dst, matching_src_dst_bins, src_type, require_dst)
+                LOG(f'hapiBin: Done: Write source & target.')
+
+            tk_widgets.HP.working_thread = Thread(
+                target=working_thrd, daemon=True
+            )
+            tk_widgets.HP.working_thread.start()
         else:
             LOG(
                 'hapiBin: Failed: A thread is already running, wait for it to finished.')
@@ -2794,31 +2912,31 @@ def create_HP_page():
     # init funcs
     hp_funcs = [
         {
-            'name': 'Copy Linked List from source BIN to target BIN',
+            'name': 'Copy Linked List from source to target',
             'desc': 'Copy linked list.',
-            'func': lambda: hp_func(0),
+            'func': lambda: hp_func(func_id = 0, require_dst = True),
             'icon': EmojiImage.create('🔗')
         },
         {
-            'name': 'Copy VFX colors from source BIN to target BIN',
+            'name': 'Copy VFX colors from source to target',
             'desc': 'Copy color, birthColor, reflectionDefinition, lingerColor of VfxEmitterDefinitionData.\nCopy colors, mColorOn, mColorOff of StaticMaterialShaderParamDef/DynamicMaterialParameterDef.',
-            'func': lambda: hp_func(1),
+            'func': lambda: hp_func(func_id = 1, require_dst = True),
             'icon': EmojiImage.create('🎨')
         },
         {
-            'name': 'Fix Vfx Shape Property + BirthTranslation',
-            'desc': 'Fix bin1 shape owo?! (backup not implemented yet good luck)',
-            'func': lambda: hp_func(2),
+            'name': 'Fix VFX Shape Property + BirthTranslation on source',
+            'desc': 'Fix bin shape owo?! (patch 14.1)',
+            'func': lambda: hp_func(func_id = 2, require_dst = False),
             'icon': EmojiImage.create('💠')
         }
     ]
     # create hp funcs
     for func_id, func in enumerate(hp_funcs):
         func_frame = ctk.CTkFrame(
-            tk_widgets.HP.action_frame2
+            tk_widgets.HP.func_frame
         )
         func_frame.grid(row=func_id, column=0, padx=5, pady=5, sticky=tk.NSEW)
-        tk_widgets.HP.action_frame2.rowconfigure(func_id, weight=1)
+        tk_widgets.HP.func_frame.rowconfigure(func_id, weight=1)
         func_frame.rowconfigure(0, weight=1)
         func_frame.rowconfigure(1, weight=1)
         func_frame.columnconfigure(0, weight=1)
@@ -2832,11 +2950,11 @@ def create_HP_page():
         func_label = ctk.CTkLabel(
             func_frame,
             text=func['desc'],
-            anchor=tk.W,
+            anchor=tk.NW,
             justify=tk.LEFT
         )
-        func_label.grid(row=1, column=0, padx=5, pady=5, sticky=tk.NS+tk.W)
-    tk_widgets.HP.action_frame2.rowconfigure(len(hp_funcs), weight=699)
+        func_label.grid(row=1, column=0, padx=10, pady=0, sticky=tk.NS+tk.W)
+    tk_widgets.HP.func_frame.rowconfigure(len(hp_funcs), weight=699)
 
 
 def create_WT_page():

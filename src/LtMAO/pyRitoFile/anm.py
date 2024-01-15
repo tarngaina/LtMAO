@@ -144,9 +144,8 @@ class ANM:
                 joint_hashes = bs.read_u32(joint_count)
                 # create tracks
                 self.tracks = [ANMTrack() for i in range(joint_count)]
-                for i in range(joint_count):
-                    track = self.tracks[i]
-                    track.joint_hash = joint_hashes[i]
+                for track_id, track in enumerate(self.tracks):
+                    track.joint_hash = joint_hashes[track_id]
                 # read frames
                 bs.seek(frames_offset + 12)
                 for i in range(frame_count):
@@ -234,14 +233,12 @@ class ANM:
                     uni_quats = [decompress_quat(
                         bs.read(6)) for i in range(quat_count)]
                     # parse tracks
-                    self.tracks = [ANMTrack() for i in range(track_count)]
-                    for i in range(track_count):
-                        track = self.tracks[i]
-                        track.joint_hash = joint_hashes[i]
+                    self.tracks = [ANMTrack() for i in range(joint_count)]
+                    for track_id, track in enumerate(self.tracks):
+                        track.joint_hash = joint_hashes[track_id]
                     # read frames
                     bs.seek(frames_offset + 12)
-                    for t in range(track_count):
-                        track = self.tracks[t]
+                    for track in self.tracks:
                         for f in range(frame_count):
                             translate_index, scale_index, rotate_index = bs.read_u16(
                                 3)
@@ -328,8 +325,7 @@ class ANM:
                     self.duration = frame_count
                     # parse tracks
                     self.tracks = [ANMTrack() for i in range(track_count)]
-                    for i in range(track_count):
-                        track = self.tracks[i]
+                    for track in self.tracks:
                         track.joint_hash = Elf(bs.read_a_padded(32)[0])
                         bs.pad(4)  # flags
                         # parse pose

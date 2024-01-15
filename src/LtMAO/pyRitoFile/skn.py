@@ -104,8 +104,7 @@ class SKN:
                 # read submeshes
                 submesh_count, = bs.read_u32()
                 self.submeshes = [SKNSubmesh() for i in range(submesh_count)]
-                for i in range(submesh_count):
-                    submesh = self.submeshes[i]
+                for submesh in self.submeshes:
                     submesh.name, = bs.read_a_padded(64)
                     submesh.bin_hash = bin_hash(submesh.name)
                     submesh.vertex_start, submesh.vertex_count, submesh.index_start, submesh.index_count = bs.read_u32(
@@ -133,8 +132,7 @@ class SKN:
 
             # read vertices
             self.vertices = [SKNVertex() for i in range(vertex_count)]
-            for i in range(vertex_count):
-                vertex = self.vertices[i]
+            for vertex in self.vertices:
                 vertex.position, = bs.read_vec3()
                 vertex.influences = bs.read_u8(4)
                 vertex.weights = bs.read_f32(4)

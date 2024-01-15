@@ -16,7 +16,7 @@ if __name__ == '__main__':
         from LtMAO import pyRitoFile
         from LtMAO.pyRitoFile import MAPGEO
         b = MAPGEO()
-        b.read('D:/test/new.mapgeo')
-        pyRitoFile.write_json('D:/test/new.mapgeo.json', b)
+        b.read('D:/test/riot.mapgeo')
+        pyRitoFile.write_json('D:/test/riot.mapgeo.json', b)
     
 test()

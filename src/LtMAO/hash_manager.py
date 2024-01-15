@@ -27,7 +27,7 @@ def free_all_hashes(): CustomHashes.free_all_hashes()
 def free_wad_hashes(): CustomHashes.free_wad_hashes()
 def free_bin_hashes(): CustomHashes.free_bin_hashes()
 
-class _PRE_BIN_HASH(dict):
+class CACHED_BIN_HASHES(dict):
     def __getitem__(self, key):
         if key in self.keys():
             return super().__getitem__(key)
@@ -35,7 +35,7 @@ class _PRE_BIN_HASH(dict):
             super().__setitem__(key, pyRitoFile.bin_hash(key))
             return super().__getitem__(key)
         
-PRE_BIN_HASH = _PRE_BIN_HASH()
+cached_bin_hashes = CACHED_BIN_HASHES()
 
 def HASH_SEPARATOR(filename):
     # space separator in hashes txt
@@ -114,7 +114,6 @@ class ExtractedHashes:
     def local_file(filename): return f'{ExtractedHashes.local_dir}/{filename}'
 
     def extract(*file_paths):
-        bin_hash = pyRitoFile.bin_hash
         wad_hash = pyRitoFile.wad_hash
 
         hashtables = {
@@ -122,13 +121,6 @@ class ExtractedHashes:
             'hashes.binhashes.txt': {},
             'hashes.game.txt': {}
         }
-        PRE_BIN_HASH = {
-            'VfxSystemDefinitionData': bin_hash('VfxSystemDefinitionData'),
-            'particlePath': bin_hash('particlePath'),
-            'StaticMaterialDef': bin_hash('StaticMaterialDef'),
-            'name': bin_hash('name')
-        }
-
         def extract_skn(file_path, raw=None):
             try:
                 # extract submesh hash <-> submesh name
@@ -200,18 +192,18 @@ class ExtractedHashes:
                     bin = pyRitoFile.read_bin('', raw)
                 for entry in bin.entries:
                     # extract VfxSystemDefinitionData <-> particlePath
-                    if entry.type == PRE_BIN_HASH['VfxSystemDefinitionData']:
+                    if entry.type == cached_bin_hashes['VfxSystemDefinitionData']:
                         particlePath = pyRitoFile.BINHelper.find_item(
                             items=entry.data,
-                            compare_func=lambda field: field.hash == PRE_BIN_HASH['particlePath']
+                            compare_func=lambda field: field.hash == cached_bin_hashes['particlePath']
                         )
                         if particlePath != None:
                             hashtables['hashes.binentries.txt'][entry.hash] = particlePath.data
                     # extract StaticMaterialDef <-> name
-                    elif entry.type == PRE_BIN_HASH['StaticMaterialDef']:
+                    elif entry.type == cached_bin_hashes['StaticMaterialDef']:
                         name = pyRitoFile.BINHelper.find_item(
                             items=entry.data,
-                            compare_func=lambda field: field.hash == PRE_BIN_HASH['name']
+                            compare_func=lambda field: field.hash == cached_bin_hashes['name']
                         )
                         if name != None:
                             hashtables['hashes.binentries.txt'][entry.hash] = name.data

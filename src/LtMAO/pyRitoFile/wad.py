@@ -253,9 +253,8 @@ class WAD:
             # read chunks
             chunk_count, = bs.read_u32()
             self.chunks = [WADChunk() for i in range(chunk_count)]
-            for i in range(chunk_count):
-                chunk = self.chunks[i]
-                chunk.id = i
+            for chunk_id, chunk in enumerate(self.chunks):
+                chunk.id = chunk_id
                 chunk.hash = hash_to_hex(bs.read_u64()[0])
                 chunk.offset, chunk.compressed_size, chunk.decompressed_size, = bs.read_u32(
                     3)

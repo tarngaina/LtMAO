@@ -1,22 +1,18 @@
 import os
 import os.path
 from . import pyRitoFile, hash_manager
+from .hash_manager import cached_bin_hashes
 import json
 
 LOG = print
 
-PRE_BIN_HASH = {
-    'SkinCharacterDataProperties': pyRitoFile.bin_hash('SkinCharacterDataProperties'),
-    'StaticMaterialDef': pyRitoFile.bin_hash('StaticMaterialDef'),
-    'GearSkinUpgrade': pyRitoFile.bin_hash('GearSkinUpgrade'),
-    'VfxSystemDefinitionData': pyRitoFile.bin_hash('VfxSystemDefinitionData')
-}
-
-
 def parse_bin(bin, *, existing_files=[]):
     bin_hash = pyRitoFile.bin_hash
-    wad_hash = pyRitoFile.wad_hash
-    temp_hashes = PRE_BIN_HASH.values()
+    temp_hashes = [
+        cached_bin_hashes[text] for text in (
+            'SkinCharacterDataProperties', 'StaticMaterialDef', 'GearSkinUpgrade', 'VfxSystemDefinitionData'
+        )
+    ]
 
     def parse_entry(entry):
         mentioned_files = []

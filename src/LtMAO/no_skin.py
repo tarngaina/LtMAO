@@ -4,7 +4,7 @@ import os.path
 import zipfile
 import shutil
 from . import hash_manager, pyRitoFile
-
+from .hash_manager import cached_bin_hashes
 
 def bin_hash(name):
     return f'{pyRitoFile.hash.FNV1a(name):08x}'
@@ -20,11 +20,6 @@ FANTOME_META = {
     'Author': 'tarngaina',
     'Version': '1.0',
     'Description': ''
-}
-PRE_BIN_HASH = {
-    'SkinCharacterDataProperties': bin_hash('SkinCharacterDataProperties'),
-    'ResourceResolver': bin_hash('ResourceResolver'),
-    'mResourceResolver': bin_hash('mResourceResolver')
 }
 
 
@@ -129,13 +124,13 @@ def parse(champions_dir, output_dir):
             base_rr = None
             base_mrr = None
             for entry in base_bin[character].entries:
-                if entry.type == PRE_BIN_HASH['SkinCharacterDataProperties']:
+                if entry.type == cached_bin_hashes['SkinCharacterDataProperties']:
                     base_scdp = entry
                     for field in entry.data:
-                        if field.hash == PRE_BIN_HASH['mResourceResolver']:
+                        if field.hash == cached_bin_hashes['mResourceResolver']:
                             base_mrr = field
                             break
-                elif entry.type == PRE_BIN_HASH['ResourceResolver']:
+                elif entry.type == cached_bin_hashes['ResourceResolver']:
                     base_rr = entry
             # replace skin_bin hashes on same base_bin
             # each time dump base_bin as chunk_data
@@ -144,10 +139,10 @@ def parse(champions_dir, output_dir):
                 skin_scdp_hash = None
                 skin_rr_hash = None
                 for entry in skin_bin.entries:
-                    if entry.type == PRE_BIN_HASH['SkinCharacterDataProperties']:
+                    if entry.type == cached_bin_hashes['SkinCharacterDataProperties']:
                         skin_scdp_hash = entry.hash
                         for field in entry.data:
-                            if field.hash == PRE_BIN_HASH['mResourceResolver']:
+                            if field.hash == cached_bin_hashes['mResourceResolver']:
                                 skin_rr_hash = field.data
                                 break
                         break
@@ -172,6 +167,7 @@ def parse(champions_dir, output_dir):
         for id, chunk in enumerate(wad.chunks):
             chunk.write_data(
                 bs, id, swapped_chunks[id][0], swapped_chunks[id][1])
+            chunk.free_data()
     # create fantome
     meta_dir = os.path.join(cache_dir, 'META')
     os.makedirs(meta_dir, exist_ok=True)

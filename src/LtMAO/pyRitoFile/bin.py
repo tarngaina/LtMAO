@@ -460,22 +460,19 @@ class BIN:
             entry_count, = bs.read_u32()
             entry_types = bs.read_u32(entry_count)
             self.entries = [BINEntry() for i in range(entry_count)]
-            for i in range(entry_count):
-                entry = self.entries[i]
-
-                entry.type = hash_to_hex(entry_types[i])
+            for entry_id, entry in enumerate(self.entries):
+                entry.type = hash_to_hex(entry_types[entry_id])
                 bs.pad(4)  # size
                 entry.hash = hash_to_hex(bs.read_u32()[0])
 
                 field_count, = bs.read_u16()
                 entry.data = [BINHelper.read_field(
-                    bs) for j in range(field_count)]
+                    bs) for i in range(field_count)]
             # patches
             if self.is_patch and self.version >= 3:
                 patch_count, = bs.read_u32()
                 self.patches = [BINPatch() for i in range(patch_count)]
-                for i in range(patch_count):
-                    patch = self.patches[i]
+                for patch in self.patches:
                     patch.hash = hash_to_hex(bs.read_u32()[0])
                     bs.pad(4)  # size
                     patch.type = BINHelper.fix_type(bs.read_u8()[0])

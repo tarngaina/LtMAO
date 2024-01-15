@@ -1,16 +1,9 @@
 from . import pyRitoFile
+from .hash_manager import cached_bin_hashes
 import os
 import os.path
 
 LOG = print
-bin_hash = pyRitoFile.bin_hash
-PRE_BIN_HASH = {
-    'SkinCharacterDataProperties': bin_hash('SkinCharacterDataProperties'),
-    'skinAudioProperties': bin_hash('skinAudioProperties'),
-    'bankUnits': bin_hash('bankUnits'),
-    'events': bin_hash('events'),
-}
-
 
 def parse_audio_bnk(audio_bnk):
     didx = None
@@ -57,23 +50,23 @@ def parse_bin(bin):
     event_names_by_id = {}
     SkinCharacterDataProperties = pyRitoFile.BINHelper.find_item(
         items=bin.entries,
-        compare_func=lambda entry: entry.type == PRE_BIN_HASH['SkinCharacterDataProperties']
+        compare_func=lambda entry: entry.type == cached_bin_hashes['SkinCharacterDataProperties']
     )
     if SkinCharacterDataProperties != None:
         skinAudioProperties = pyRitoFile.BINHelper.find_item(
             items=SkinCharacterDataProperties.data,
-            compare_func=lambda field: field.hash == PRE_BIN_HASH['skinAudioProperties']
+            compare_func=lambda field: field.hash == cached_bin_hashes['skinAudioProperties']
         )
         if skinAudioProperties != None:
             bankUnits = pyRitoFile.BINHelper.find_item(
                 items=skinAudioProperties.data,
-                compare_func=lambda field: field.hash == PRE_BIN_HASH['bankUnits']
+                compare_func=lambda field: field.hash == cached_bin_hashes['bankUnits']
             )
             if bankUnits != None and len(bankUnits.data) > 0:
                 for BankUnit in bankUnits.data:
                     events = pyRitoFile.BINHelper.find_item(
                         items=BankUnit.data,
-                        compare_func=lambda field: field.hash == PRE_BIN_HASH['events']
+                        compare_func=lambda field: field.hash == cached_bin_hashes['events']
                     )
                     if events == None:
                         continue

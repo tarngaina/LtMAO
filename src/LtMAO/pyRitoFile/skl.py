@@ -91,9 +91,7 @@ class SKL:
                 if joints_offset > 0 and joint_count > 0:
                     bs.seek(joints_offset)
                     self.joints = [SKLJoint() for i in range(joint_count)]
-                    for i in range(joint_count):
-                        joint = self.joints[i]
-
+                    for joint in self.joints:
                         joint.flags, = bs.read_u16()
                         joint.id, joint.parent, = bs.read_i16(2)
                         bs.pad(2)  # pad
@@ -140,12 +138,10 @@ class SKL:
                 joint_count, = bs.read_u32()
                 self.joints = [SKLJoint() for i in range(joint_count)]
                 old_matrices = [None] * joint_count
-                for i in range(joint_count):
-                    joint = self.joints[i]
-
+                for joint_id, joint in enumerate(self.joints):
                     joint.name, = bs.read_a_padded(32)
                     joint.bin_hash = bin_hash(joint.name)
-                    joint.id = i
+                    joint.id = joint_id
                     joint.hash = Elf(joint.name)
                     joint.parent, = bs.read_i32()
                     joint.radius, = bs.read_f32()
@@ -154,15 +150,14 @@ class SKL:
                         for r in range(4):
                             floats[r*4+c], = bs.read_f32()
                     floats[15] = 1.0
-                    old_matrices[i] = Matrix4(*floats)
+                    old_matrices[joint_id] = Matrix4(*floats)
 
                 # old matrix to local translation, ibind rotation
-                for i in range(joint_count):
-                    joint = self.joints[i]
-                    local = old_matrices[i] if joint.parent == - \
-                        1 else old_matrices[i] * old_matrices[joint.parent].inverse()
+                for joint_id, joint in enumerate(self.joints):
+                    local = old_matrices[joint_id] if joint.parent == - \
+                        1 else old_matrices[joint_id] * old_matrices[joint.parent].inverse()
                     joint.local_translate, joint.local_rotate, joint.local_scale = local.decompose()
-                    ibind = old_matrices[i].inverse()
+                    ibind = old_matrices[joint_id].inverse()
                     joint.ibind_translate, joint.ibind_rotate, joint.ibind_scale = ibind.decompose()
 
                 # read influences
@@ -209,10 +204,8 @@ class SKL:
                 bs.write_b(0)
 
             bs.seek(joints_offset)
-            for i in range(joint_count):
-                joint = self.joints[i]
-
-                bs.write_u16(0, i)  # flags + id
+            for joint_id, joint in enumerate(self.joints):
+                bs.write_u16(0, joint_id)  # flags + id
                 bs.write_i16(joint.parent)  # -1, cant be uint
                 bs.write_u16(0)  # pad
                 bs.write_u32(joint.hash)
@@ -228,7 +221,7 @@ class SKL:
                 bs.write_vec3(joint.ibind_scale)
                 bs.write_quat(joint.ibind_rotate)
 
-                bs.write_u32(joint_offset[i] - bs.tell())
+                bs.write_u32(joint_offset[joint_id] - bs.tell())
 
             # influences
             bs.seek(influences_offset)

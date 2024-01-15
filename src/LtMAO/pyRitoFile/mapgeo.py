@@ -1,14 +1,84 @@
 from io import BytesIO
 from ..pyRitoFile.io import BinStream
-from ..pyRitoFile.structs import Vector, Matrix4
+from ..pyRitoFile.structs import Vector
 from enum import Enum
 from flags import Flags
 
-class MAPGEOChannel:
-    __slots__ = ('name', 'scale', 'offset')
+class MAPGEOPlanarReflector:
+    __slots__ = (
+        'transform', 'plane', 'normal'
+    )
 
     def __init__(self):
-        self.name = None
+        self.transform = None
+        self.plane = None
+        self.normal = None
+
+    def __json__(self):
+        return {key: getattr(self, key) for key in self.__slots__}
+
+class MAPGEOBUcketGridFlag(Flags):
+    HasFaceVisibilityFlags = 1 << 0
+
+    def __json__(self):
+        return self.to_simple_str()
+
+class MAPGEOBucket:
+    __slots__ = (
+        'max_stickout_x', 'max_stickout_z',
+        'start_index', 'base_vertex',
+        'inside_face_count', 'sticking_out_face_count'
+    )
+
+    def __init__(self):
+        self.max_stickout_x = None
+        self.max_stickout_z = None
+        self.start_index = None
+        self.base_vertex = None
+        self.inside_face_count = None
+        self.sticking_out_face_count = None
+    
+    def __json__(self):
+        return {key: getattr(self, key) for key in self.__slots__}
+
+class MAPGEOBucketGrid:
+    __slots__ = (
+        'hash',
+        'min_x', 'min_z', 'max_x', 'max_z', 
+        'max_stickout_x', 'max_stickout_z', 'bucket_size_x', 'bucket_size_z',
+        'is_disabled', 'bucket_grid_flags',
+        'buckets', 'vertices', 'indices',
+        'face_layers'
+    )
+
+    def __init__(self):
+        self.hash = None
+        self.min_x = None
+        self.min_z = None
+        self.max_x = None
+        self.max_z = None
+        self.max_stickout_x = None
+        self.max_stickout_z = None
+        self.bucket_size_x = None
+        self.bucket_size_z = None
+        self.is_disabled = None
+        self.bucket_grid_flags = None
+        self.buckets = []
+        self.vertices = []
+        self.indices = []
+        self.face_layers = []
+    
+    def __json__(self):
+        dic = {key: getattr(self, key) for key in self.__slots__}
+        dic['vertices'] = ('write only first vertex to save memory', dic['vertices'][0])
+        dic['indices'] = ('not write to save memory')
+        return dic
+
+class MAPGEOChannel:
+    __slots__ = ('path', 'scale', 'offset')
+
+    def __init__(self):
+        self.path = None
         self.scale = None
         self.offset = None
 
@@ -111,10 +181,10 @@ class MAPGEOModel:
         self.baked_paint = None
 
     def __json__(self):
-        d = {key: getattr(self, key) for key in self.__slots__}
-        d['vertices'] = ('write only first vertex to save memory', d['vertices'][0])
-        d['indices'] = ('not write to save memory')
-        return d
+        dic = {key: getattr(self, key) for key in self.__slots__}
+        dic['vertices'] = ('write only first vertex to save memory', dic['vertices'][0])
+        dic['indices'] = ('not write to save memory')
+        return dic
     
 class MAPGEOVertexElementName(Enum):
     Position = 0
@@ -198,7 +268,7 @@ class MAPGEO:
         'signature', 'version',
         'baked_terrain_sampler1', 'baked_terrain_sampler2',
         'vertex_descriptions',
-        'models'
+        'models', 'bucket_grids', 'planar_reflectors'
     )
     
     def __init__(self):
@@ -208,6 +278,8 @@ class MAPGEO:
         self.baked_terrain_sampler2 = None
         self.vertex_descriptions = []
         self.models = []
+        self.bucket_grids = []
+        self.planar_reflectors = []
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -243,15 +315,14 @@ class MAPGEO:
             # vertex descriptions
             vd_count, = bs.read_u32()
             self.vertex_descriptions = [MAPGEOVertexDescription() for i in range(vd_count)]
-            for i in range(vd_count):
-                vertex_description = self.vertex_descriptions[i]
+            for vertex_description in self.vertex_descriptions:
                 vertex_description.usage = MAPGEOVertexUsage(bs.read_u32()[0])
                 element_count, = bs.read_u32()
                 unpacked_u32s = bs.read_u32(element_count * 2)
-                vertex_description.elements = [MAPGEOVertexElement() for j in range(element_count)]
-                for j in range(element_count):
-                    vertex_description.elements[j].name = MAPGEOVertexElementName(unpacked_u32s[j*2])
-                    vertex_description.elements[j].format = MAPGEOVertexElementFormat(unpacked_u32s[j*2+1])
+                vertex_description.elements = [MAPGEOVertexElement() for i in range(element_count)]
+                for element_id, element in enumerate(vertex_description.elements):
+                    element.name = MAPGEOVertexElementName(unpacked_u32s[element_id*2])
+                    element.format = MAPGEOVertexElementFormat(unpacked_u32s[element_id*2+1])
                 bs.pad(8 * (15 - element_count))  # pad empty vertex descriptions
 
             # vertex buffers 
@@ -384,65 +455,60 @@ class MAPGEO:
 
                 # lightmap
                 model.baked_light = MAPGEOChannel()
-                model.baked_light.name, = bs.read_a(bs.read_u32()[0])
+                model.baked_light.path, = bs.read_a(bs.read_u32()[0])
                 model.baked_light.scale = bs.read_f32(2)
                 model.baked_light.offset = bs.read_f32(2)
 
                 if self.version >= 9:
                     model.stationary_light = MAPGEOChannel()
-                    model.stationary_light.name, = bs.read_a(bs.read_u32()[0])
+                    model.stationary_light.path, = bs.read_a(bs.read_u32()[0])
                     model.stationary_light.scale = bs.read_f32(2)
                     model.stationary_light.offset = bs.read_f32(2)
 
                     if self.version >= 12:
                         model.baked_paint = MAPGEOChannel()
-                        model.baked_paint.name, = bs.read_a(bs.read_u32()[0])
+                        model.baked_paint.path, = bs.read_a(bs.read_u32()[0])
                         model.baked_paint.scale = bs.read_f32(2)
                         model.baked_paint.offset = bs.read_f32(2)
 
-            return
             # for modded file with no bucket grid, planar reflector: stop reading
+            # (probably exported by lol_maya)
             current = bs.tell()
             end = bs.end()
             if current == end:
                 return
 
-            # there is no reason to read bucket grids below suporting version
-            if version >= 15:
-                # bucket grids
-                bucket_grid_count = bs.read_uint32()
-                self.bucket_grids = [MAPGEOBucketGrid() for i in range(bucket_grid_count)]
-                for i in range(bucket_grid_count):
-                    # hash
-                    self.bucket_grids[i].hash = bs.read_uint32()
-                    # min/max x/z(16), max out stick x/z(8), bucket size x/z(8)
-                    self.bucket_grids[i].header = bs.read_bytes(32)
-                    bucket_size = bs.read_uint16()
-                    self.bucket_grids[i].no_bucket = bs.read_byte()[0]
-                    self.bucket_grids[i].bucket_flag = bs.read_byte()[0]
-                    vertex_count, index_count = bs.read_uint32(2)
-                    if self.bucket_grids[i].no_bucket == 0:
-                        self.bucket_grids[i].vertices = bs.read_bytes(12*vertex_count)
-                        self.bucket_grids[i].indices = bs.read_bytes(2*index_count)
-                        # max stick out x/z(8)
-                        # start index + base vertex(8)
-                        # inside face count + sticking out face count(4)
-                        self.bucket_grids[i].buckets = bs.read_bytes(
-                            20*bucket_size*bucket_size)
-                        if self.bucket_grids[i].bucket_flag >= 1:
-                            # if first bit = 1, read face flags
-                            self.bucket_grids[i].face_flags = bs.read_bytes(
-                                index_count//3)
-
-                self.planar_reflector = MAPGEOPlanarReflector()
-                pr_count = bs.read_uint32()
-                self.planar_reflector.prs = [None]*pr_count
-                for i in range(pr_count):
-                    self.planar_reflector.prs[i] = (
-                        # matrix4 transform of viewpoint?
-                        bs.read_bytes(64),
-                        # 2 vec3 position to indicate the plane
-                        bs.read_bytes(24),
-                        # vec3 normal, direction of plane
-                        bs.read_bytes(12)
-                    )
+            # bucket grids
+            # version 15: multi bucket grids, below version 15 only store one
+            bucket_grid_count = bs.read_u32()[0] if self.version >= 15 else 1
+            self.bucket_grids = [MAPGEOBucketGrid() for i in range(bucket_grid_count)]
+            for bucket_grid in self.bucket_grids:
+                # hash - version 15
+                if self.version >= 15:
+                    bucket_grid.hash, = bs.read_u32()
+                bucket_grid.min_x, bucket_grid.min_z, bucket_grid.max_x, bucket_grid.max_z, bucket_grid.max_stickout_x, bucket_grid.max_stickout_z, bucket_grid.bucket_size_x, bucket_grid.bucket_size_z = bs.read_f32(8)
+                bucket_count, = bs.read_u16()
+                bucket_grid.is_disabled, = bs.read_b()
+                bucket_grid.bucket_grid_flags = MAPGEOBUcketGridFlag(bs.read_u8()[0])
+                vertex_count, index_count = bs.read_u32(2)
+                if not bucket_grid.is_disabled:
+                    bucket_grid.vertices = bs.read_vec3(vertex_count)
+                    bucket_grid.indices = bs.read_u16(index_count)
+                    bucket_grid.buckets = [[MAPGEOBucket() for j in range(bucket_count)] for i in range(bucket_count)]
+                    for bucket_row in bucket_grid.buckets:
+                        for bucket in bucket_row:
+                            bucket.max_stickout_x, bucket.max_stickout_z = bs.read_f32(2)
+                            bucket.start_index, bucket.base_vertex = bs.read_u32(2)
+                            bucket.inside_face_count, bucket.sticking_out_face_count = bs.read_u16(2)
+            
+                if MAPGEOBUcketGridFlag.HasFaceVisibilityFlags in bucket_grid.bucket_grid_flags:
+                    unpacked_u8s = bs.read_u8(index_count // 3)
+                    bucket_grid.face_layers = [MAPGEOLayer(unpacked_u8) for unpacked_u8 in unpacked_u8s]
+            
+            if self.version >= 13:
+                pr_count, = bs.read_u32()
+                self.planar_reflectors = [MAPGEOPlanarReflector() for i in range(pr_count)]
+                for planar_reflector in self.planar_reflectors:
+                    planar_reflector.transform = bs.read_mtx4,
+                    planar_reflector.plane = bs.read_vec3(2)
+                    planar_reflector.normal, = bs.read_vec3()
