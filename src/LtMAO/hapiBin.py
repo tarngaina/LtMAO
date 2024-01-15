@@ -283,14 +283,11 @@ def copy_vfx_colors(src, dst, backup=True):
 
 def fix_vfx_shape(bin1):
     from .pyRitoFile import BINField, BINType, BIN
+    from .pyRitoFile.structs import Vector
 
 
     bin_file = BIN()
     bin_file.read(bin1)
-    flags = BINField()
-    flags.data = 1
-    flags.type = BINType.U8
-    flags.hash = PRE_BIN_HASH["Flags"]
     for entry in bin_file.entries:
         if entry.type == PRE_BIN_HASH['VfxSystemDefinitionData']:
             for data in entry.data:
@@ -304,21 +301,28 @@ def fix_vfx_shape(bin1):
                                 shit_dict["EmitRotationAnglesKeyValues"] = False
                                 shit_dict["EmitRotationAxesShit"] = False
                                 shit_dict["Flags"] = False
+                                shit_dict["KeepItAs0x4f4e2ed7"] = False
+                                
                                 for inside_of_shape in shape.data:
                                     # Handle birtTranslatation outside
                                     if inside_of_shape.hash == PRE_BIN_HASH["BirthTranslation"]:
-                                        birth_translation = BINField()
-                                        birth_translation.data = inside_of_shape.data.copy()
-                                        birth_translation.hash = PRE_BIN_HASH["NewBirthTranslation"]
-                                        birth_translation.type = BINType.Embed
-                                        birth_translation.hash_type = '68dc32b6'
-                                        emitter.data.append(birth_translation)
+                                        # To get the constant
+                                        for i in range(len(inside_of_shape.data)):
+                                            if inside_of_shape.data[i].hash == PRE_BIN_HASH["ConstantValue"] and inside_of_shape.data[i].type == BINType.Vec3:
+                                                birth_translation = BINField()
+                                                birth_translation.data = [inside_of_shape.data[i]]
+                                                birth_translation.hash = PRE_BIN_HASH["NewBirthTranslation"]
+                                                birth_translation.type = BINType.Embed
+                                                birth_translation.hash_type = '68dc32b6'
+                                                emitter.data.append(birth_translation)
+                                                inside_of_shape.data = []
+                                                break
+                                                #shape.data.remove(inside_of_shape)  Cancer line
                                         inside_of_shape.data = []
-                                        #shape.data.remove(inside_of_shape)  Cancer line
-
+                                    
                                     if inside_of_shape.hash == PRE_BIN_HASH["EmitOffset"]:
                                         for inside_of_emitoffset in inside_of_shape.data:
-                                            if inside_of_emitoffset.hash == PRE_BIN_HASH["ConstantValue"]:
+                                            if inside_of_emitoffset.hash == PRE_BIN_HASH["ConstantValue"] and inside_of_emitoffset.type == BINType.Vec3:
                                                 shit_dict["Radius"] = inside_of_emitoffset.data.x
                                                 shit_dict["Height"] = inside_of_emitoffset.data.y # lmao?
                                             if inside_of_emitoffset.hash == PRE_BIN_HASH["Dynamics"]:
@@ -371,23 +375,27 @@ def fix_vfx_shape(bin1):
                                             height.hash = PRE_BIN_HASH["Height"]
                                             shape.data.append(radius)
                                         if shit_dict["Flags"]:
+                                            flags = BINField()
+                                            flags.data = 1
+                                            flags.type = BINType.U8
+                                            flags.hash = PRE_BIN_HASH["Flags"]
                                             shape.data.append(flags)
+                                        continue
                                     else:
-                                        if len(shape.data) == 1 and shape.data[0].hash == PRE_BIN_HASH["EmitOffset"]:
+                                        if len(shape.data) == 1 and shape.data[0].hash == PRE_BIN_HASH["EmitOffset"] and isinstance(shape.data[0].data[0].data, Vector):
                                             # 0xee39916f moment, transform emitoffset to a vec3
-                                            shape.type = BINType.Pointer
                                             shape.hash_type = 'ee39916f'
-
                                             constant_value = shape.data[0].data[0]
                                             emitoffset = BINField()
                                             emitoffset.type = BINType.Vec3
                                             emitoffset.hash = PRE_BIN_HASH["EmitOffset"]
                                             emitoffset.data = constant_value.data
                                             shape.data = [emitoffset]
-
+                                            continue
                                         else:
                                             # Clueless, default 0x4f4e2ed7
                                             shape.hash_type = '4f4e2ed7'
+                                            continue
     
     bin_file.write(bin1)
     LOG(f'hapiBin: Done: FixVfxShape and BirthTranslation')
