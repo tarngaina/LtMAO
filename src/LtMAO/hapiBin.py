@@ -9,8 +9,6 @@ tk_widgets_data = []
 LOG = print
 
 
-
-
 class HPHelper:
     @staticmethod
     def create_tk_button(label, description, icon, require_dst):
@@ -74,9 +72,9 @@ class HPHelper:
             for root, dirs, files in os.walk(src):
                 for file in files:
                     if file.endswith('.bin'):
-                        src_bin_path = os.path.join(root, file) 
+                        src_bin_path = os.path.join(root, file).replace('\\','/')
                         if require_dst:
-                            dst_bin_path = os.path.join(dst, os.path.relpath(src_bin_path, src))
+                            dst_bin_path = os.path.join(dst, os.path.relpath(src_bin_path, src)).replace('\\','/')
                             if os.path.exists(dst_bin_path):
                                 matching_src_dst_bins.append((
                                     src_bin_path,
@@ -109,8 +107,8 @@ class HPHelper:
                         if require_dst:
                             if chunk.hash in prepared_dst_chunks:
                                 matching_src_dst_bins.append((
-                                    os.path.join(src, chunk.hash),
-                                    os.path.join(dst, chunk.hash),
+                                    os.path.join(src, chunk.hash).replace('\\','/'),
+                                    os.path.join(dst, chunk.hash).replace('\\','/'),
                                     read_bin('', raw=chunk.data),
                                     prepared_dst_chunks[chunk.hash]
                                 ))
@@ -164,14 +162,13 @@ class HPHelper:
         backup_path = os.path.join(
             os.path.dirname(path),
             'hapiBin_backup_' + os.path.basename(path)
-        )
+        ).replace('\\','/')
         LOG(f'hapiBin: Running: Backup target {path} -> {backup_path}.')
         if os.path.isdir(path):
             copytree(path, backup_path)
         else:
             copy(path, backup_path)
         LOG(f'hapiBin: Done: Backup target {path} -> {backup_path}.')
-
 
 
 @HPHelper.create_tk_button(

@@ -2917,6 +2917,17 @@ def create_HP_page():
         func_label.grid(row=1, column=0, padx=10, pady=0, sticky=tk.NS+tk.W)
     tk_widgets.HP.func_frame.rowconfigure(len(hapiBin.tk_widgets_data), weight=699)
 
+    # handle drop in PT
+    def entry_drop_cmd(event, entry):
+        entry_path = dnd_return_handle(event.data)[0]
+        if entry_path.endswith('.bin') or entry_path.endswith('.wad.client') or os.path.isdir(entry_path):
+            entry.delete(0, tk.END)
+            entry.insert(tk.END, entry_path)
+    tk_widgets.HP.source_entry.drop_target_register(tkdnd.DND_FILES)
+    tk_widgets.HP.source_entry.dnd_bind('<<Drop>>', lambda event: entry_drop_cmd(event, tk_widgets.HP.source_entry))
+    tk_widgets.HP.target_entry.drop_target_register(tkdnd.DND_FILES)
+    tk_widgets.HP.target_entry.dnd_bind('<<Drop>>', lambda event: entry_drop_cmd(event, tk_widgets.HP.target_entry))
+
 
 def create_WT_page():
     # create page frame
