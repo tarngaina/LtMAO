@@ -2858,7 +2858,7 @@ def create_HP_page():
         tk_widgets.HP.target_entry.insert(tk.END, dir_path)
     tk_widgets.HP.target_dir_button = ctk.CTkButton(
         tk_widgets.HP.target_frame,
-        text='Browse target FOLDER',
+        text='Browse Target FOLDER',
         image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
         command=target_dir_cmd
@@ -2873,34 +2873,16 @@ def create_HP_page():
         row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.HP.func_frame.columnconfigure(0, weight=1)
 
-    def hp_func(func_id, require_dst):
+    def run_hp_command(hp_command, require_dst):
         if check_thread_safe(tk_widgets.HP.working_thread):
             def working_thrd():
-                src = tk_widgets.HP.source_entry.get()
-                dst = tk_widgets.HP.target_entry.get()
-
-                LOG(f'hapiBin: Running: Read source & target.')
-                matching_src_dst_bins, src_type = hapiBin.read_src_dst(src, dst, require_dst)
-
-                # backup dst if require dst else src
-                hapiBin.backup(dst if setting.get('hapiBin.backup', 1) and require_dst else src)
-
-                if func_id == 0:     
-                    for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
-                        LOG(f'hapiBin: Running: Copy linked list: {src_bin_path} -> {dst_bin_path}.')
-                        hapiBin.copy_linked_list(src_bin, dst_bin)
-                elif func_id == 1:
-                    for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
-                        LOG(f'hapiBin: Running: Copy vfx colors: {src_bin_path} -> {dst_bin_path}.')
-                        hapiBin.copy_vfx_colors(src_bin, dst_bin)
-                elif func_id == 2:
-                    for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
-                        LOG(f'hapiBin: Running: Fix vfx shape on {src_bin_path}.')
-                        hapiBin.fix_vfx_shape(src_bin)
-                
-                hapiBin.write_src_dst(src, dst, matching_src_dst_bins, src_type, require_dst)
-                LOG(f'hapiBin: Done: Write source & target.')
-
+                hapiBin.HPHelper.main(
+                    src=tk_widgets.HP.source_entry.get(), 
+                    dst=tk_widgets.HP.target_entry.get(),
+                    hp_command=hp_command, 
+                    require_dst=require_dst, 
+                    backup=setting.get('hapiBin.backup', 1)
+                )
             tk_widgets.HP.working_thread = Thread(
                 target=working_thrd, daemon=True
             )
@@ -2909,29 +2891,8 @@ def create_HP_page():
             LOG(
                 'hapiBin: Failed: A thread is already running, wait for it to finished.')
 
-    # init funcs
-    hp_funcs = [
-        {
-            'name': 'Copy Linked List from source to target',
-            'desc': 'Copy linked list.',
-            'func': lambda: hp_func(func_id = 0, require_dst = True),
-            'icon': EmojiImage.create('🔗')
-        },
-        {
-            'name': 'Copy VFX colors from source to target',
-            'desc': 'Copy color, birthColor, reflectionDefinition, lingerColor of VfxEmitterDefinitionData.\nCopy colors, mColorOn, mColorOff of StaticMaterialShaderParamDef/DynamicMaterialParameterDef.',
-            'func': lambda: hp_func(func_id = 1, require_dst = True),
-            'icon': EmojiImage.create('🎨')
-        },
-        {
-            'name': 'Fix VFX Shape Property + BirthTranslation on source',
-            'desc': 'Fix bin shape owo?! (patch 14.1)',
-            'func': lambda: hp_func(func_id = 2, require_dst = False),
-            'icon': EmojiImage.create('💠')
-        }
-    ]
     # create hp funcs
-    for func_id, func in enumerate(hp_funcs):
+    for func_id, (label, descritpion, icon, hp_command, require_dst) in enumerate(hapiBin.tk_widgets_data):
         func_frame = ctk.CTkFrame(
             tk_widgets.HP.func_frame
         )
@@ -2942,19 +2903,19 @@ def create_HP_page():
         func_frame.columnconfigure(0, weight=1)
         func_button = ctk.CTkButton(
             func_frame,
-            text=func['name'],
-            command=func['func'],
-            image=func['icon']
+            text=label,
+            command=lambda hp_command=hp_command, require_dst=require_dst: run_hp_command(hp_command, require_dst),
+            image=EmojiImage.create(icon)
         )
         func_button.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NS+tk.W)
         func_label = ctk.CTkLabel(
             func_frame,
-            text=func['desc'],
+            text=descritpion,
             anchor=tk.NW,
             justify=tk.LEFT
         )
         func_label.grid(row=1, column=0, padx=10, pady=0, sticky=tk.NS+tk.W)
-    tk_widgets.HP.func_frame.rowconfigure(len(hp_funcs), weight=699)
+    tk_widgets.HP.func_frame.rowconfigure(len(hapiBin.tk_widgets_data), weight=699)
 
 
 def create_WT_page():

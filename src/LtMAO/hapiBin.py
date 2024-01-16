@@ -4,144 +4,192 @@ from .pyRitoFile import read_bin, write_bin, read_wad, write_wad, BINHelper
 from .pyRitoFile import BINField, BINType
 from .pyRitoFile.structs import Vector
 from .hash_manager import cached_bin_hashes
+
+tk_widgets_data = []
 LOG = print
 
-def read_src_dst(src, dst, require_dst):
-    # parsing src first
-    if src == '':
-        raise Exception('hapiBin: Failed: Source entry is empty.')
-    src_type = check_type(src)
-    # parsing dst next if require
-    if require_dst:
-        if dst == '':
-            raise Exception('hapiBin: Failed: Target entry is empty.')
-        dst_type = check_type(dst)
-        if src_type != dst_type:
-            raise Exception('hapiBin: Failed: Source entry\'s type is different from target entry type.')
 
-    # list of matching src_dst_bins 
-    # (src_path, dst_path, src_bin, dst_bin)
-    matching_src_dst_bins = []
-    if src_type == 'bin':
-        matching_src_dst_bins.append((
-            src, 
-            dst if require_dst else None, 
-            read_bin(src), 
-            read_bin(dst) if require_dst else None
-        ))
-    elif src_type == 'folder':
-        for root, dirs, files in os.walk(src):
-            for file in files:
-                if file.endswith('.bin'):
-                    src_bin_path = os.path.join(root, file) 
-                    if require_dst:
-                        dst_bin_path = os.path.join(dst, os.path.relpath(src_bin_path, src))
-                        if os.path.exists(dst_bin_path):
+
+
+class HPHelper:
+    @staticmethod
+    def create_tk_button(label, description, icon, require_dst):
+        def wrapper(hp_command):
+            tk_widgets_data.append((label, description, icon, hp_command, require_dst))
+        return wrapper
+
+    @staticmethod
+    def main(src, dst, hp_command, require_dst, backup):
+        matching_src_dst_bins, src_type = HPHelper.read_src_dst(src, dst, require_dst)
+
+        # backup dst if require dst else src
+        HPHelper.backup(dst if backup and require_dst else src)
+
+        for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
+            if require_dst:
+                LOG(f'hapiBin: Running: {hp_command.__name__}: {src_bin_path} -> {dst_bin_path}.')
+            else:
+                LOG(f'hapiBin: Running: {hp_command.__name__}: {src_bin_path}.')
+            hp_command(src_bin, dst_bin)
+        
+        HPHelper.write_src_dst(src, dst, matching_src_dst_bins, src_type, require_dst)
+
+    @staticmethod
+    def check_type(path):
+        if os.path.isdir(path):
+            return 'folder'
+        else:
+            if path.endswith('.wad.client'):
+                return 'wad'
+            elif path.endswith('.bin'):
+                return 'bin'
+        raise Exception('hapiBin: Failed: {path} is not a BIN/WAD or FOLDER.')
+
+    @staticmethod
+    def read_src_dst(src, dst, require_dst):
+        LOG(f'hapiBin: Running: Read source & target.')
+        # parsing src first
+        if src == '':
+            raise Exception('hapiBin: Failed: Source entry is empty.')
+        src_type = HPHelper.check_type(src)
+        # parsing dst next if require
+        if require_dst:
+            if dst == '':
+                raise Exception('hapiBin: Failed: Target entry is empty.')
+            dst_type = HPHelper.check_type(dst)
+            if src_type != dst_type:
+                raise Exception('hapiBin: Failed: Source entry\'s type is different from target entry type.')
+
+        # list of matching src_dst_bins 
+        # (src_path, dst_path, src_bin, dst_bin)
+        matching_src_dst_bins = []
+        if src_type == 'bin':
+            matching_src_dst_bins.append((
+                src, 
+                dst if require_dst else None, 
+                read_bin(src), 
+                read_bin(dst) if require_dst else None
+            ))
+        elif src_type == 'folder':
+            for root, dirs, files in os.walk(src):
+                for file in files:
+                    if file.endswith('.bin'):
+                        src_bin_path = os.path.join(root, file) 
+                        if require_dst:
+                            dst_bin_path = os.path.join(dst, os.path.relpath(src_bin_path, src))
+                            if os.path.exists(dst_bin_path):
+                                matching_src_dst_bins.append((
+                                    src_bin_path,
+                                    dst_bin_path, 
+                                    read_bin(src_bin_path),
+                                    read_bin(dst_bin_path)
+                                ))
+                        else:
                             matching_src_dst_bins.append((
                                 src_bin_path,
-                                dst_bin_path, 
+                                None,
                                 read_bin(src_bin_path),
-                                read_bin(dst_bin_path)
+                                None
                             ))
-                    else:
-                        matching_src_dst_bins.append((
-                            src_bin_path,
-                            None,
-                            read_bin(src_bin_path),
-                            None
-                        ))
-    else:
-        src_wad = read_wad(src)
-        if require_dst:
-            prepared_dst_chunks = {}
-            dst_wad = read_wad(dst)
-            with dst_wad.stream(dst, 'rb') as bs:
-                for chunk in dst_wad.chunks:
-                    chunk.read_data(bs)
-                    if chunk.extension == 'bin':
-                        prepared_dst_chunks[chunk.hash] = read_bin('', raw=chunk.data)
-                    chunk.free_data()
-        with src_wad.stream(src, 'rb') as bs:
-            for chunk in src_wad.chunks:
-                chunk.read_data(bs)
-                if chunk.extension == 'bin': 
-                    if require_dst:
-                        if chunk.hash in prepared_dst_chunks:
-                            matching_src_dst_bins.append((
-                                os.path.join(src, chunk.hash),
-                                os.path.join(dst, chunk.hash),
-                                read_bin('', raw=chunk.data),
-                                prepared_dst_chunks[chunk.hash]
-                            ))
-                    else:
-                        matching_src_dst_bins.append((
-                            chunk.hash,
-                            None,
-                            read_bin('', raw=chunk.data),
-                            None
-                        ))
-                chunk.free_data()
-    return matching_src_dst_bins, src_type
-
-def write_src_dst(src, dst, matching_src_dst_bins, src_type, require_dst):
-    if src_type == 'bin':
-        for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
-            if require_dst:
-                write_bin(dst_bin_path, dst_bin)
-            else:
-                write_bin(src_bin_path, src_bin)               
-    elif src_type == 'folder':
-        for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
-            if require_dst:
-                write_bin(dst_bin_path, dst_bin)
-            else:
-                write_bin(src_bin_path, src_bin)     
-    else:
-        if require_dst:
-            wad_path = dst
-            wad = read_wad(wad_path)
-            chunks = [(os.path.basename(dst_bin_path), dst_bin) for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins]
         else:
-            wad_path = src
-            wad = read_wad(wad_path)
-            chunks = [(os.path.basename(src_bin_path), src_bin) for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins]
-        with wad.stream(wad_path, 'rb+') as bs:
-            for chunk in wad.chunks:
-                matching_chunk_hash, matching_chunk_bin_data = next(
-                    ((chunk_hash, chunk_bin_data) for chunk_hash, chunk_bin_data in chunks if chunk_hash == chunk.hash),
-                    (None, None)
-                )
-                if matching_chunk_hash == None:
-                    continue
-                chunk.write_data(bs, chunk.id, chunk.hash, matching_chunk_bin_data.write('', raw=True))
-                chunk.free_data()
+            src_wad = read_wad(src)
+            if require_dst:
+                prepared_dst_chunks = {}
+                dst_wad = read_wad(dst)
+                with dst_wad.stream(dst, 'rb') as bs:
+                    for chunk in dst_wad.chunks:
+                        chunk.read_data(bs)
+                        if chunk.extension == 'bin':
+                            prepared_dst_chunks[chunk.hash] = read_bin('', raw=chunk.data)
+                        chunk.free_data()
+            with src_wad.stream(src, 'rb') as bs:
+                for chunk in src_wad.chunks:
+                    chunk.read_data(bs)
+                    if chunk.extension == 'bin': 
+                        if require_dst:
+                            if chunk.hash in prepared_dst_chunks:
+                                matching_src_dst_bins.append((
+                                    os.path.join(src, chunk.hash),
+                                    os.path.join(dst, chunk.hash),
+                                    read_bin('', raw=chunk.data),
+                                    prepared_dst_chunks[chunk.hash]
+                                ))
+                        else:
+                            matching_src_dst_bins.append((
+                                chunk.hash,
+                                None,
+                                read_bin('', raw=chunk.data),
+                                None
+                            ))
+                    chunk.free_data()
+        return matching_src_dst_bins, src_type
 
-def check_type(path):
-    if os.path.isdir(path):
-        return 'folder'
-    else:
-        if path.endswith('.wad.client'):
-            return 'wad'
-        elif path.endswith('.bin'):
-            return 'bin'
-    raise Exception('hapiBin: Failed: {path} is not a BIN/WAD or FOLDER.')
+    @staticmethod
+    def write_src_dst(src, dst, matching_src_dst_bins, src_type, require_dst):
+        if src_type == 'bin':
+            for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
+                if require_dst:
+                    write_bin(dst_bin_path, dst_bin)
+                else:
+                    write_bin(src_bin_path, src_bin)               
+        elif src_type == 'folder':
+            for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
+                if require_dst:
+                    write_bin(dst_bin_path, dst_bin)
+                else:
+                    write_bin(src_bin_path, src_bin)     
+        else:
+            if require_dst:
+                wad_path = dst
+                wad = read_wad(wad_path)
+                chunks = [(os.path.basename(dst_bin_path), dst_bin) for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins]
+            else:
+                wad_path = src
+                wad = read_wad(wad_path)
+                chunks = [(os.path.basename(src_bin_path), src_bin) for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins]
+            with wad.stream(wad_path, 'rb+') as bs:
+                for chunk in wad.chunks:
+                    matching_chunk_hash, matching_chunk_bin_data = next(
+                        ((chunk_hash, chunk_bin_data) for chunk_hash, chunk_bin_data in chunks if chunk_hash == chunk.hash),
+                        (None, None)
+                    )
+                    if matching_chunk_hash == None:
+                        continue
+                    chunk.write_data(bs, chunk.id, chunk.hash, matching_chunk_bin_data.write('', raw=True))
+                    chunk.free_data()
+        LOG(f'hapiBin: Done: Write source & target.')
 
-def backup(path):
-    backup_path = os.path.join(
-        os.path.dirname(path),
-        'hapiBin_backup_' + os.path.basename(path)
-    )
-    LOG(f'hapiBin: Running: Backup target {path} -> {backup_path}.')
-    if os.path.isdir(path):
-        copytree(path, backup_path)
-    else:
-        copy(path, backup_path)
-    LOG(f'hapiBin: Done: Backup target {path} -> {backup_path}.')
+    @staticmethod
+    def backup(path):
+        backup_path = os.path.join(
+            os.path.dirname(path),
+            'hapiBin_backup_' + os.path.basename(path)
+        )
+        LOG(f'hapiBin: Running: Backup target {path} -> {backup_path}.')
+        if os.path.isdir(path):
+            copytree(path, backup_path)
+        else:
+            copy(path, backup_path)
+        LOG(f'hapiBin: Done: Backup target {path} -> {backup_path}.')
 
+
+
+@HPHelper.create_tk_button(
+    label='Copy Linked List from source to target',
+    description='Copy linked list.',
+    icon='🔗',
+    require_dst=True
+)
 def copy_linked_list(src_bin, dst_bin):
     dst_bin.links = src_bin.links 
     LOG(f'hapiBin: Done: Copy {len(dst_bin.links)} links.')
 
+@HPHelper.create_tk_button(
+    label='Copy VFX colors from source to target',
+    description='Copy color, birthColor, reflectionDefinition, lingerColor of VfxEmitterDefinitionData.\nCopy colors, Color, mColorOn, mColorOff of StaticMaterialShaderParamDef/DynamicMaterialParameterDef.',
+    icon='🎨',
+    require_dst=True
+)
 def copy_vfx_colors(src_bin, dst_bin):
     copied_field_count = 0
     for dst_entry in dst_bin.entries:
@@ -384,11 +432,17 @@ def copy_vfx_colors(src_bin, dst_bin):
                                         copied_field_count += 1
     LOG(f'hapiBin: Done: Copy {copied_field_count} color fields.')                          
 
-def fix_vfx_shape(bin_file):
+@HPHelper.create_tk_button(
+    label='Fix VFX Shape Property + BirthTranslation on source',
+    description='Fix bin shape owo?! (patch 14.1)',
+    icon='💠',
+    require_dst=False
+)
+def fix_vfx_shape(src_bin, dst_bin):
     # These ones we dont know the name so hard keep it as a hash instead of trying to generate one u know
     cached_bin_hashes["NewBirthTranslation"] = "563d4a22"
     cached_bin_hashes["NewShapeHash"] = "3bf0b4ed"
-    for entry in bin_file.entries:
+    for entry in src_bin.entries:
         if entry.type == cached_bin_hashes['VfxSystemDefinitionData']:
             for data in entry.data:
                 if data.hash == cached_bin_hashes["ComplexEmitterDefinitionData"]:

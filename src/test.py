@@ -13,10 +13,7 @@ if __name__ == '__main__':
         stats.sort_stats('tottime').print_stats()
 
     def test():
-        from LtMAO import pyRitoFile
-        from LtMAO.pyRitoFile import MAPGEO
-        b = MAPGEO()
-        b.read('D:/test/riot.mapgeo')
-        pyRitoFile.write_json('D:/test/riot.mapgeo.json', b)
+        from LtMAO import hapiBin
+        #hapiBin.test()
     
 test()
