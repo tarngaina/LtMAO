@@ -2917,7 +2917,7 @@ def create_HP_page():
         func_label.grid(row=1, column=0, padx=10, pady=0, sticky=tk.NS+tk.W)
     tk_widgets.HP.func_frame.rowconfigure(len(hapiBin.tk_widgets_data), weight=699)
 
-    # handle drop in PT
+    # handle drop in HP
     def entry_drop_cmd(event, entry):
         entry_path = dnd_return_handle(event.data)[0]
         if entry_path.endswith('.bin') or entry_path.endswith('.wad.client') or os.path.isdir(entry_path):
@@ -4195,6 +4195,50 @@ def create_LOLFBX_page():
     tk_widgets.LOLFBX.page_frame.rowconfigure(0, weight=1)
     tk_widgets.LOLFBX.page_frame.rowconfigure(1, weight=999)
 
+    def page_drop_cmd(event):
+        path = dnd_return_handle(event.data)[0]
+        if path.endswith('.skl'):
+            skl_path = path
+            skn_path = path.replace('.skl', '.skn')
+            fbx_path = path.replace('.skl', '.fbx')
+            tk_widgets.LOLFBX.skl_entry.delete(0, tk.END)
+            tk_widgets.LOLFBX.skl_entry.insert(tk.END, skl_path)
+            if tk_widgets.LOLFBX.skn_entry.get() == '':
+                tk_widgets.LOLFBX.skn_entry.delete(0, tk.END)
+                tk_widgets.LOLFBX.skn_entry.insert(tk.END, skn_path)
+            if tk_widgets.LOLFBX.fbx_entry.get() == '':
+                tk_widgets.LOLFBX.fbx_entry.delete(0, tk.END)
+                tk_widgets.LOLFBX.fbx_entry.insert(tk.END, fbx_path)
+        elif path.endswith('.skn'):
+            skn_path = path
+            skl_path = path.replace('.skn', '.skl')
+            fbx_path = path.replace('.skn', '.fbx')
+            tk_widgets.LOLFBX.skn_entry.delete(0, tk.END)
+            tk_widgets.LOLFBX.skn_entry.insert(tk.END, skn_path)
+            if tk_widgets.LOLFBX.skl_entry.get() == '':
+                tk_widgets.LOLFBX.skl_entry.delete(0, tk.END)
+                tk_widgets.LOLFBX.skl_entry.insert(tk.END, skl_path)
+            if tk_widgets.LOLFBX.fbx_entry.get() == '':
+                tk_widgets.LOLFBX.fbx_entry.delete(0, tk.END)
+                tk_widgets.LOLFBX.fbx_entry.insert(tk.END, fbx_path)
+        elif path.endswith('.fbx'):
+            fbx_path = path
+            skn_path = path.replace('.fbx', '.skn')
+            skl_path = path.replace('.fbx', '.skl')
+            tk_widgets.LOLFBX.fbx_entry.delete(0, tk.END)
+            tk_widgets.LOLFBX.fbx_entry.insert(tk.END, fbx_path)
+            if tk_widgets.LOLFBX.skn_entry.get() == '':
+                tk_widgets.LOLFBX.skn_entry.delete(0, tk.END)
+                tk_widgets.LOLFBX.skn_entry.insert(tk.END, skn_path)
+            if tk_widgets.LOLFBX.skl_entry.get() == '':
+                tk_widgets.LOLFBX.skl_entry.delete(0, tk.END)
+                tk_widgets.LOLFBX.skl_entry.insert(tk.END, skl_path)
+
+    tk_widgets.LOLFBX.page_frame.drop_target_register(
+        tkdnd.DND_FILES)
+    tk_widgets.LOLFBX.page_frame.dnd_bind(
+        '<<Drop>>', page_drop_cmd)
+
     # create skin frame
     tk_widgets.LOLFBX.skin_frame = ctk.CTkFrame(
         tk_widgets.LOLFBX.page_frame,
@@ -4369,6 +4413,13 @@ def create_LOLFBX_page():
     )
     tk_widgets.LOLFBX.fbx2skin_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    
+    def skin2fbx_cmd():
+        lol2fbx.skin_to_fbx(
+            skl_path=tk_widgets.LOLFBX.skl_entry.get(),
+            skn_path=tk_widgets.LOLFBX.skn_entry.get(),
+            fbx_path=tk_widgets.LOLFBX.fbx_entry.get()
+        )
 
     # create skin2fbx button
     tk_widgets.LOLFBX.skin2fbx_button = ctk.CTkButton(
@@ -4376,7 +4427,7 @@ def create_LOLFBX_page():
         text='SKIN -> FBX',
         image=EmojiImage.create('👽'),
         anchor=tk.CENTER,
-        command=lambda: LOG('Not supported yet.')
+        command=skin2fbx_cmd
     )
     tk_widgets.LOLFBX.skin2fbx_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)

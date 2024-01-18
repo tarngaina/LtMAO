@@ -13,7 +13,9 @@ if __name__ == '__main__':
         stats.sort_stats('tottime').print_stats()
 
     def test():
-        from LtMAO import hapiBin
-        #hapiBin.test()
+        from LtMAO import lol2fbx
+        lol2fbx.fbx_to_skin(
+            'D:/test/aatrox.fbx'
+        )
     
 test()

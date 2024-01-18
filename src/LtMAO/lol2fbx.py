@@ -2,7 +2,7 @@ from fbx import *
 from .pyRitoFile import SKL, SKLJoint, SKN, SKNVertex, SKNSubmesh, read_skl, read_skn, write_skl, write_skn
 from .pyRitoFile.hash import Elf
 from .pyRitoFile.structs import Vector, Quaternion
-import string
+import os.path
 
 ALPHANUMERIC = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
 LOG = print
@@ -12,7 +12,7 @@ def GetName(node):
     return ''.join(c if c in ALPHANUMERIC else f'FBXASC{ord(c):03}' for c in node.GetNameOnly().Buffer())
 
 
-def mirrorX(skl = None, skn = None):
+def mirrorX(skl=None, skn=None):
     if skl != None:
         for joint in skl.joints:
             joint.local_translate.x = -joint.local_translate.x
@@ -180,25 +180,44 @@ def dump_skn(fbx_meshes, materials, skl, blender_armature_node_name, blender_arm
             fill_zero = [0 for j in range(4 - len(vertex_influences[i]))]
             vertex_influences[i] += fill_zero 
             vertex_weights[i] += fill_zero
-        # uv indices 
+        # uv values
+        flag, uvs = fbx_mesh.GetTextureUV()
+        if not flag:
+            raise Exception(f'lol2fbx: Failed: {mesh_name}: GetTextureUV()')
+        # uv indices base on mapping mode
+        vertex_uv_indices = [[] for i in range(vertex_count)]
+        fbx_uv = fbx_mesh.GetElementUV(0)
+        fbx_uv_mapping_mode = fbx_uv.GetMappingMode() 
+        if fbx_uv_mapping_mode == FbxLayerElement.EMappingMode.eByControlPoint:
+            # easy mapping mode, straight forward 1 vertex - 1 uv index
+            for face_id in range(face_count):
+                for i in range(0, 3):
+                    index_id = face_id*3+i 
+                    vertex = indices[index_id]
+                    vertex_uv_indices[vertex].append(
+                        (index_id, vertex)
+                    )
+        elif fbx_uv_mapping_mode == FbxLayerElement.EMappingMode.eByPolygonVertex:
+            # this one 1 vertex could contains multiple uv indices
+            for face_id in range(face_count):
+                for i in range(0, 3):
+                    index_id = face_id*3+i 
+                    vertex = indices[index_id]
+                    vertex_uv_indices[vertex].append(
+                        (index_id, fbx_mesh.GetTextureUVIndex(face_id, i))
+                    )
+        else:
+            # not yet support mapping mode
+            # actually only 2 mapping mode above is needed because the rest is pepega for UVs?
+            raise Exception(f'lol2fbx: Failed: {mesh_name}: Unsupported UV MappingMode: {fbx_uv_mapping_mode}')
+        # dump vertex by uv index
+        # -> first prepare normalized index by material
+        # -> start dump each vertex with its uv indices
+        # -> create new vertex if multiple uv index
+        # -> replace indices of newly created vertex
         material_start_index = [0 for i in range(material_count)]
         for material_id in range(1, material_count):
             material_start_index[material_id] = material_start_index[material_id-1] + len(submesh_indices[material_id-1])
-        flag, uvs = fbx_mesh.GetTextureUV()
-        if not flag:
-            raise Exception('lol2fbx: Failed: {mesh_name}: GetTextureUV()')
-        vertex_uv_indices = [[] for i in range(vertex_count)]
-        for face_id in range(face_count):
-            for i in range(0, 3):
-                index_id = face_id*3+i 
-                vertex = indices[index_id]
-                vertex_uv_indices[vertex].append(
-                    (index_id, fbx_mesh.GetTextureUVIndex(face_id, i))
-                )
-
-        # dump vertex by uv index
-        # -> create new vertex if multiple uv index
-        # -> replace indices of newly created vertex
         submesh_vertices = [[] for i in range(len(materials))]
         for i in range(vertex_count):
             material_id = material_vertices[i]
@@ -265,8 +284,9 @@ def dump_skn(fbx_meshes, materials, skl, blender_armature_node_name, blender_arm
     
     if len(skn.vertices) > 65535:
         raise Exception(f'lol2fbx: Failed Too many vertices found: {len(skn.vertices)}, max allowed: 65535 vertices. (base on UVs)')
-
+    LOG(f'lol2fbx: Done: Dump SKN.')
     return skn
+
 
 def fbx_to_skin(fbx_path, skl_path='', skn_path=''):
     # io & load scene
@@ -274,11 +294,10 @@ def fbx_to_skin(fbx_path, skl_path='', skn_path=''):
     fbx_importer = FbxImporter.Create(fbx_manager, 'importer')
     fbx_importer.Initialize(fbx_path)
     major, minor, revision = fbx_importer.GetFileVersion()
-    LOG(f'lol2fbx: Fbx File: {fbx_path}')
-    LOG(f'lol2fbx: Version: {major}.{minor}.{revision}\n')
     fbx_scene = FbxScene.Create(fbx_manager, 'scene')
     fbx_importer.Import(fbx_scene)
-    fbx_importer.Destroy()
+    LOG(f'lol2fbx: Done: Read FBX: {fbx_path}')
+    LOG(f'lol2fbx: FBX Version: {major}.{minor}.{revision}')
 
     # nodes
     fbx_nodes = [fbx_scene.GetNode(i) for i in range(fbx_scene.GetNodeCount())]
@@ -294,7 +313,7 @@ def fbx_to_skin(fbx_path, skl_path='', skn_path=''):
             fbx_joints[GetName(node)] = node
     joint_count = len(fbx_joints)
     mesh_count = len(fbx_meshes)
-    LOG(f'lol2fbx: Joints: {joint_count}, Meshes: {mesh_count}\n')
+    LOG(f'lol2fbx: Joints: {joint_count}, Meshes: {mesh_count}')
 
     skl, blender_armature_node_name, blender_armature_node_local_matrix = dump_skl(fbx_joints)
     materials = [fbx_scene.GetMaterial(i) for i in range(fbx_scene.GetMaterialCount())]
@@ -305,14 +324,153 @@ def fbx_to_skin(fbx_path, skl_path='', skn_path=''):
     mirrorX(skl, skn)
     
     # write file out after dump
-    if skl_path != None:
+    if skl_path == '':
         skl_path = fbx_path.replace('.fbx', '.skl')
     write_skl(skl_path, skl)
-    LOG(f'lol2fbx: Done: Write SKL')
-    if skn_path != None:
+    LOG(f'lol2fbx: Done: Write SKL: {skl_path}')
+    if skn_path == '':
         skn_path = fbx_path.replace('.fbx', '.skn')
     write_skn(skn_path, skn)
-    LOG(f'lol2fbx: Done: Write SKN')
+    LOG(f'lol2fbx: Done: Write SKN: {skn_path}')
+
+    # boom boom bakudan
+    fbx_importer.Destroy()
+
+
+def load_skl(fbx_root_node, fbx_scene, skl):
+    # create joints
+    # -> set joint's local transform
+    fbx_joint_nodes = {}
+    for joint_id, joint in enumerate(skl.joints):
+        fbx_joint_node = FbxNode.Create(fbx_scene, f'{joint.name}')
+        fbx_joint = FbxSkeleton.Create(fbx_scene, 'joint_{joint.name}')
+        fbx_joint.SetSkeletonType(FbxSkeleton.EType.eLimbNode)
+        fbx_joint_node.SetNodeAttribute(fbx_joint)
+        fbx_root_node.AddChild(fbx_joint_node)
+        local_rotate = FbxVector4()
+        local_rotate.SetXYZ(FbxQuaternion(joint.local_rotate.x, joint.local_rotate.y, joint.local_rotate.z, joint.local_rotate.w))
+        fbx_joint_node.LclTranslation.Set(FbxDouble3(joint.local_translate.x, joint.local_translate.y, joint.local_translate.z))
+        fbx_joint_node.LclRotation.Set(FbxDouble3(local_rotate[0], local_rotate[1], local_rotate[2]))
+        fbx_joint_node.LclScaling.Set(FbxDouble3(joint.local_scale.x, joint.local_scale.y, joint.local_scale.z))
+        fbx_joint_nodes[joint_id] = fbx_joint_node
+    # link joint parents
+    for joint_id, joint in enumerate(skl.joints):
+        if joint.parent != -1:
+            fbx_joint_nodes[joint.parent].AddChild(fbx_joint_nodes[joint_id])
+    LOG(f'lol2fbx: Done: Load SKL.')
+    return fbx_joint_nodes
+
+
+def load_skn(fbx_root_node, fbx_scene, mesh_name, skn, skl, fbx_joint_nodes):
+    # create mesh
+    fbx_mesh_node = FbxNode.Create(fbx_scene, f'mesh_{mesh_name}')
+    fbx_mesh = FbxMesh.Create(fbx_scene, f'shape_{mesh_name}')
+    fbx_mesh_node.SetNodeAttribute(fbx_mesh)
+    fbx_root_node.AddChild(fbx_mesh_node)
+    
+    # set vertex position
+    vertex_count = len(skn.vertices)
+    fbx_mesh.InitControlPoints(vertex_count)
+    for vertex_id, vertex in enumerate(skn.vertices):
+        fbx_mesh.SetControlPointAt(FbxVector4(vertex.position.x, vertex.position.y, vertex.position.z), vertex_id)
+   
+    # create materials
+    fbx_material = fbx_mesh.CreateElementMaterial()
+    fbx_material.SetMappingMode(FbxLayerElement.EMappingMode.eByPolygon)
+    fbx_material.SetReferenceMode(FbxLayerElement.EReferenceMode.eIndexToDirect)
+    for submesh in skn.submeshes:
+        fbx_lambert = FbxSurfaceLambert.Create(fbx_scene, submesh.name)
+        fbx_mesh_node.AddMaterial(fbx_lambert)
+    
+    # create faces on each material
+    for submesh_id, submesh in enumerate(skn.submeshes):
+        for index in range(submesh.index_start, submesh.index_start+submesh.index_count, 3):
+            fbx_mesh.BeginPolygon(submesh_id)
+            fbx_mesh.AddPolygon(skn.indices[index])
+            fbx_mesh.AddPolygon(skn.indices[index+1])
+            fbx_mesh.AddPolygon(skn.indices[index+2])
+            fbx_mesh.EndPolygon()   
+    
+    # set uvs
+    fbx_diffuse_uv = fbx_mesh.CreateElementUV('DiffuseUV')
+    fbx_diffuse_uv.SetMappingMode(FbxLayerElement.EMappingMode.eByControlPoint)
+    fbx_diffuse_uv.SetReferenceMode(FbxLayerElement.EReferenceMode.eDirect)
+    uvs = fbx_diffuse_uv.GetDirectArray()
+    for vertex in skn.vertices:
+        uvs.Add(FbxVector2(vertex.uv.x, 1-vertex.uv.y))
+    # set normals - doesnt work?
+    fbx_normal = fbx_mesh.CreateElementNormal()
+    fbx_normal.SetMappingMode(FbxLayerElement.EMappingMode.eByControlPoint)
+    fbx_normal.SetReferenceMode(FbxLayerElement.EReferenceMode.eDirect)
+    normals = fbx_normal.GetDirectArray()
+    for vertex in skn.vertices:
+        normals.Add(FbxVector4(vertex.normal.x, vertex.normal.y, vertex.normal.z))  
+    
+    # set weights 
+    # -> create skin 
+    # -> create cluster 
+    # -> set cluster weights, and transform link matrix (why?)
+    fbx_skin = FbxSkin.Create(fbx_scene, 'skinned_mesh')
+    fbx_skin.SetSkinningType(FbxSkin.EType.eBlend)
+    fbx_mesh.AddDeformer(fbx_skin)
+    weight_vertices = {influence: [] for influence in skl.influences}
+    weight_values =  {influence: [] for influence in skl.influences}
+    for vertex_id, vertex in enumerate(skn.vertices):
+        for i in range(4):
+            influence_id = vertex.influences[i]
+            weight = vertex.weights[i]
+            weight_vertices[skl.influences[influence_id]].append(vertex_id)
+            weight_values[skl.influences[influence_id]].append(weight)
+    for influence in skl.influences:
+        fbx_cluster = FbxCluster.Create(fbx_scene, f'cluster_{influence}')
+        fbx_cluster.SetLink(fbx_joint_nodes[influence])
+        fbx_cluster.SetLinkMode(FbxCluster.ELinkMode.eTotalOne)
+        weight_vertex_value_count = len(weight_vertices[influence]) 
+        for i in range(weight_vertex_value_count):
+            fbx_cluster.AddControlPointIndex(weight_vertices[influence][i], weight_values[influence][i])
+        fbx_cluster.SetTransformLinkMatrix(fbx_joint_nodes[influence].EvaluateGlobalTransform())
+        fbx_skin.AddCluster(fbx_cluster)
+    LOG(f'lol2fbx: Done: Load SKN.')
+
+
+def skin_to_fbx(skl_path, skn_path, fbx_path=''):
+    # read skl and skn
+    skl = read_skl(skl_path)
+    LOG(f'lol2fbx: Done: Read SKL: {skl_path}')
+    LOG(f'lol2fbx: SKL Version: {skl.version}')
+    skn = read_skn(skn_path)
+    LOG(f'lol2fbx: Done: Read SKN: {skn_path}')
+    LOG(f'lol2fbx: SKN Version: {skn.version}')
+
+    # flipX 
+    mirrorX(skl,skn)
+
+    # create scene
+    fbx_manager = FbxManager()
+    fbx_scene = FbxScene.Create(fbx_manager, 'export_scene')
+    fbx_root_node = fbx_scene.GetRootNode()
+    
+    # build skeleton
+    LOG(f'lol2fbx: Joints: {len(skl.joints)}, Influences: {len(skl.influences)}')
+    fbx_joint_nodes = load_skl(fbx_root_node, fbx_scene, skl)
+
+    # build mesh
+    LOG(f'lol2fbx: Indices: {len(skn.indices)}, Vertices: {len(skn.vertices)}, Submeshes: {len(skn.submeshes)}')
+    mesh_name = os.path.basename(skn_path).split('.')[0]
+    load_skn(fbx_root_node, fbx_scene, mesh_name, skn, skl, fbx_joint_nodes)
+    
+    # io & save scene
+    if fbx_path == '':
+        fbx_path = skn_path.replace('.skn', '.fbx')
+    fbx_ios = FbxIOSettings.Create(fbx_manager, 'ios')
+    fbx_manager.SetIOSettings(fbx_ios)
+    fbx_exporter = FbxExporter.Create(fbx_manager, 'exporter')
+    fbx_exporter.Initialize(fbx_path)
+    fbx_exporter.Export(fbx_scene)
+    LOG(f'lol2fbx: Done: Write FBX: {fbx_path}')
+
+    # boom boom bakudan
+    fbx_exporter.Destroy()
 
 
 def prepare(_LOG):
