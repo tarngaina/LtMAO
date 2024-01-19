@@ -15,7 +15,7 @@ if __name__ == '__main__':
     def test():
         from LtMAO import lol2fbx
         lol2fbx.fbx_to_skin(
-            'D:/test/aatrox.fbx'
+            'D:/test/untitled.fbx'
         )
     
 test()

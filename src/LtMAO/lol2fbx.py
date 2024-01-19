@@ -96,7 +96,7 @@ def dump_skl(fbx_joints):
 
 def dump_skn(fbx_meshes, materials, skl, blender_armature_node_name, blender_armature_node_local_matrix):
     def dump_mesh(mesh_name, fbx_mesh):
-        LOG(f'lol2fbx: Running: Read {mesh_name}')
+        LOG(f'lol2fbx: Running: Read {mesh_name}')   
 
         # check triangle
         is_triangle = fbx_mesh.IsTriangleMesh()
@@ -111,7 +111,9 @@ def dump_skn(fbx_meshes, materials, skl, blender_armature_node_name, blender_arm
         face_count = index_count // 3
         LOG(f'lol2fbx: Faces: {face_count}, Vertices: {vertex_count}, Indices: {index_count}')
         
-        # mateiral faces (auto sort?) 
+        # mateiral faces - some fbx dont get sorted
+        #-> sort it by value, also sort the indices too
+        #-> save the old order for some stuff later
         #-> check shared vertex 
         #-> dump indices into each submesh
         #-> normalize submesh indices
@@ -121,6 +123,28 @@ def dump_skn(fbx_meshes, materials, skl, blender_armature_node_name, blender_arm
             raise Exception(f'lol2fbx: Failed: {mesh_name}: GetMaterialIndices()')
         if material_faces.GetCount() == 1:
             material_faces = [material_faces[0] for i in range(face_count)]
+        else:
+            material_faces = [material_faces[i] for i in range(face_count)]
+        parsed_material_faces = {material_id: [] for material_id in range(material_count)}
+        for face_id in range(face_count):
+            index1_id = face_id*3
+            index2_id = face_id*3+1
+            index3_id = face_id*3+2
+            parsed_material_faces[material_faces[face_id]].append((
+                index1_id, indices[index1_id],
+                index2_id, indices[index2_id],
+                index3_id, indices[index3_id]
+            ))
+        indices = []
+        material_faces = []
+        old_index_by_sorted_index = [0 for i in range(index_count)]
+        temp_index_count = 0
+        for material_id in range(material_count):
+            for index1_id, index1, index2_id, index2, index3_id, index3 in parsed_material_faces[material_id]:
+                material_faces.append(material_id)
+                indices.extend((index1, index2, index3))
+                old_index_by_sorted_index.extend((temp_index_count, temp_index_count+1, temp_index_count+2))
+                temp_index_count+=3
         material_vertices = [-1 for i in range(vertex_count)]
         for face_id, material_id in enumerate(material_faces):
             for i in range(3):
@@ -143,8 +167,8 @@ def dump_skn(fbx_meshes, materials, skl, blender_armature_node_name, blender_arm
         if not flag:
             raise Exception(f'lol2fbx: Failed: {mesh_name}: GetPolygonVertexNormals()')
         vertex_normals = [[FbxVector4(0.0, 0.0, 0.0, 0.0), 0] for i in range(vertex_count)]
-        for index, vertex in enumerate(indices):
-            vertex_normals[vertex][0] += fbx_normals[index]
+        for index, vertex in enumerate(indices): # this indices is sorted 
+            vertex_normals[vertex][0] += fbx_normals[old_index_by_sorted_index[index]]
             vertex_normals[vertex][1] += 1
         vertex_normals = [s/c for s, c in vertex_normals]
         # weights indices -> vertex weights -> sort and prune 4+ (influence, weight)
