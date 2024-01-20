@@ -57,7 +57,7 @@ class CDTB:
 
     def remote_file(filename):
         # return f'https://raw.githubusercontent.com/CommunityDragon/CDTB/master/cdragontoolbox/{filename}'
-        return f'https://raw.communitydragon.org/binviewer/hashes/{filename}'
+        return f'https://raw.communitydragon.org/data/hashes/lol/{filename}'
 
     etag_path = f'{local_dir}/etag.json'
     ETAG = {}
