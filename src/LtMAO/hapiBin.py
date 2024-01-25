@@ -439,10 +439,12 @@ def fix_vfx_shape(src_bin, dst_bin):
     # These ones we dont know the name so hard keep it as a hash instead of trying to generate one u know
     cached_bin_hashes["NewBirthTranslation"] = "563d4a22"
     cached_bin_hashes["NewShapeHash"] = "3bf0b4ed"
+    possible_emitters_containers = (cached_bin_hashes["ComplexEmitterDefinitionData"],
+                                    cached_bin_hashes["SimpleEmitterDefinitionData"])
     for entry in src_bin.entries:
         if entry.type == cached_bin_hashes['VfxSystemDefinitionData']:
             for data in entry.data:
-                if data.hash == cached_bin_hashes["ComplexEmitterDefinitionData"]:
+                if data.hash in possible_emitters_containers:
                     for emitter in data.data:
                         for attribute in emitter.data:
                             if attribute.hash == cached_bin_hashes["Shape"]:
