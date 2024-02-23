@@ -78,7 +78,7 @@ def make_fantome(fantome_name, output_dir, info, image, wads, langs):
             for chunk in wad.chunks:
                 if 'assets/sounds/wwise2016/vo/' in chunk.hash:
                     chunk_hash = chunk.hash.split('/')
-                    chunk_hash[4] = lang
+                    chunk_hash[4] = "en_us" #lang
                     chunk.hash = '/'.join(chunk_hash)
         # convert parsed to wads
         for id in range(len(parsed)):
