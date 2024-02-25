@@ -13,9 +13,20 @@ if __name__ == '__main__':
         stats.sort_stats('tottime').print_stats()
 
     def test():
-        from LtMAO import lol2fbx
-        lol2fbx.fbx_to_skin(
-            'D:/test/untitled.fbx'
+        from LtMAO import hash_manager
+        hash_manager.read_wad_hashes()
+        new_hashtables = {}
+        for hash, value in hash_manager.HASHTABLES['hashes.game.txt'].items():
+            if 'assets/sounds/wwise2016/vo' in value:
+                new_hashtables[hash]=value
+        
+        f = open('D:/LtMAO/resources/vo_helper/old_vo_hashes.game.txt', 'w+')
+        f.write(
+            '\n'.join(hash + ' ' + value for hash, value in new_hashtables.items())
         )
+        f.close()
+
+
+
     
 test()

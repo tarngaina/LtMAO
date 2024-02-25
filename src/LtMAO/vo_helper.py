@@ -7,7 +7,9 @@ from . import pyRitoFile, hash_manager
 LOG = print
 local_dir = './resources/vo_helper'
 langs_file = f'{local_dir}/langs.json'
+old_vo_file = f'{local_dir}/old_vo_hashes.game.txt'
 LANGS = {}
+OLD_VO_HASHTABLES = {}
 
 
 def load_langs():
@@ -15,6 +17,17 @@ def load_langs():
     with open(langs_file, 'r') as f:
         LANGS = json.load(f)
 
+def read_old_vo_hashes():
+    filename = 'hashes.game.txt'
+    OLD_VO_HASHTABLES[filename] = {}
+    with open(old_vo_file, 'r') as f:
+        sep = 16
+        for line in f:
+            OLD_VO_HASHTABLES[filename][line[:sep]] = line[sep+1:-1]
+
+def free_old_vo_hashes():
+    global OLD_VO_HASHTABLES
+    OLD_VO_HASHTABLES = {}
 
 def scan_fantome(path):
     info, image, wads = None, False, []
@@ -49,7 +62,13 @@ def read_fantome(path):
 
 
 def make_fantome(fantome_name, output_dir, info, image, wads, langs):
+    # read vo hashes first
+    # why read old vo hashes?
+    # patch 14.4 rito decide to change inside vo files from all langs to just en_us
+    # -> cdragon will purge unused hashes 
+    # -> vo_helper need a separated old vo hashes file to deal with old mods
     hash_manager.CustomHashes.read_wad_hashes()
+    read_old_vo_hashes()
     # read vo wads first
     parsed = []
     for wad_name, wad_data in wads:
@@ -58,6 +77,7 @@ def make_fantome(fantome_name, output_dir, info, image, wads, langs):
         if is_vo:
             wad = pyRitoFile.read_wad('', raw=wad_data)
             wad.un_hash(hash_manager.HASHTABLES)
+            wad.un_hash(OLD_VO_HASHTABLES)
             with wad.stream('', 'rb', raw=wad_data) as bs:
                 for chunk in wad.chunks:
                     chunk.read_data(bs)
@@ -80,12 +100,8 @@ def make_fantome(fantome_name, output_dir, info, image, wads, langs):
                     chunk_hash = chunk.hash.split('/')
                     chunk_hash[4] = "en_us"
                     #chunk_hash[4] = lang
-                    # ^This was the old line, 
-                    #  change the language inside because old fantome files 
-                    #  before the patch
-                    #  while in theory, yes its easier just to rename the wad files itself
-                    #  but that wouldn't take care of dumbness of people
-                    #  so this will just hardly change it to en_us inside
+                    # Force to change en_us inside instead of just renaming the wad:
+                    # because of old mods
                     chunk.hash = '/'.join(chunk_hash)
         # convert parsed to wads
         for id in range(len(parsed)):
@@ -103,6 +119,7 @@ def make_fantome(fantome_name, output_dir, info, image, wads, langs):
         write_fantome(path, info, image, wads)
         LOG(f'vo_helper: Done: Remake Fantomes: {path}')
     hash_manager.CustomHashes.free_wad_hashes()
+    free_old_vo_hashes()
     LOG(f'vo_helper: Done: Remake All Fantomes.')
 
 

@@ -19,6 +19,7 @@ LOG = Log.add
 TRANSPARENT = 'transparent'
 # to keep all created widgets
 tk_widgets = Keeper()
+VERSION = ''
 
 
 def set_rce():
@@ -60,7 +61,7 @@ def create_main_app_and_frames():
     # create main app
     tk_widgets.main_tk = CTkDnD()
     tk_widgets.main_tk.geometry('1000x620')
-    tk_widgets.main_tk.title('LtMAO')
+    tk_widgets.main_tk.title(f'LtMAO V{VERSION}')
     if os.path.exists(winLT.icon_file):
         tk_widgets.main_tk.iconbitmap(winLT.icon_file)
     # create main top-bottom frame
@@ -1882,32 +1883,50 @@ def create_VH_page():
     tk_widgets.VH.page_frame.rowconfigure(2, weight=1)
     # handle drop in VH
     def page_drop_cmd(event):
+        tk_widgets.VH.scanned_fantomes = []
         paths = dnd_return_handle(event.data)
+        # get all fantome paths
+        fantome_paths = []
         for path in paths:
             path = path.replace('\\', '/')
             if os.path.isfile(path):
                 if path.endswith('.fantome') or path.endswith('.zip'):
-                    # update info text
-                    info, image, wads = vo_helper.scan_fantome(path)
-                    info_text = 'Info:\n'
-                    info_text += ''.join(f'{key}: {info[key]}\n' for key in info)
-                    info_text += '\nFiles:\n'
-                    info_text += 'META/info.json\n'
-                    if image:
-                        info_text += 'META/image.png\n'
-                    if len(wads) > 0:
-                        info_text += ''.join(f'{wad_name}\n' for wad_name in wads)
-                    tk_widgets.VH.info_text.configure(state=tk.NORMAL)
-                    tk_widgets.VH.info_text.delete('1.0', tk.END)
-                    tk_widgets.VH.info_text.insert(tk.END, info_text)
-                    tk_widgets.VH.info_text.configure(state=tk.DISABLED)
-                    tk_widgets.VH.fantome_entry.delete(0, tk.END)
-                    tk_widgets.VH.fantome_entry.insert(tk.END, path)
-                    break
+                    fantome_paths.append(path)
+            else:
+                for root, dirs, files in os.walk(path):
+                    for file in files:
+                        if file.endswith('.fantome') or file.endswith('.zip'):
+                            fantome_paths.append(os.path.join(root, file).replace('\\', '/'))
+        # scane fantome paths
+        info_text = ''
+        for fantome_path in fantome_paths:
+            info_text += fantome_path
+            try: 
+                info, image, wads = vo_helper.scan_fantome(fantome_path)
+                info_text += '\n\nInfo:\n'
+                info_text += ''.join(f'{key}: {info[key]}\n' for key in info)
+                info_text += '\nFiles:\n'
+                info_text += 'META/info.json\n'
+                if image:
+                    info_text += 'META/image.png\n'
+                if len(wads) > 0:
+                    info_text += ''.join(f'{wad_name}\n' for wad_name in wads)
+                info_text += '\n\n'
+                tk_widgets.VH.scanned_fantomes.append(fantome_path)
+            except Exception as e:
+                info_text += '\n'+str(e) + '\n\n'
+        tk_widgets.VH.info_text.configure(state=tk.NORMAL)
+        tk_widgets.VH.info_text.delete('1.0', tk.END)
+        tk_widgets.VH.info_text.insert(tk.END, info_text)
+        tk_widgets.VH.info_text.configure(state=tk.DISABLED)
+        tk_widgets.VH.input_entry.delete(0, tk.END)
+        tk_widgets.VH.input_entry.insert(tk.END, 'Files dropped, click remake next')
+
     tk_widgets.VH.page_frame.drop_target_register(tkdnd.DND_FILES)
     tk_widgets.VH.page_frame.dnd_bind('<<Drop>>', page_drop_cmd)
     # init stuffs
     tk_widgets.VH.making_thread = None
+    tk_widgets.VH.scanned_fantomes = []
     # create input frame
     tk_widgets.VH.input_frame = ctk.CTkFrame(
         tk_widgets.VH.page_frame,
@@ -1918,14 +1937,16 @@ def create_VH_page():
     tk_widgets.VH.input_frame.rowconfigure(0, weight=1)
     tk_widgets.VH.input_frame.columnconfigure(0, weight=9)
     tk_widgets.VH.input_frame.columnconfigure(1, weight=1)
-    # create fantome entry
-    tk_widgets.VH.fantome_entry = ctk.CTkEntry(
+    tk_widgets.VH.input_frame.columnconfigure(2, weight=1)
+    # create input entry
+    tk_widgets.VH.input_entry = ctk.CTkEntry(
         tk_widgets.VH.input_frame
     )
-    tk_widgets.VH.fantome_entry.grid(
+    tk_widgets.VH.input_entry.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
-    def browse_cmd():
+    def browse_fantome_cmd():
+        tk_widgets.VH.scanned_fantomes = []
         fantome_path = tkfd.askopenfilename(
             parent=tk_widgets.main_tk,
             title='Select FANTOME/ZIP that contains VO WAD',
@@ -1942,32 +1963,92 @@ def create_VH_page():
         )
         if fantome_path != '':
             # update info text
-            info, image, wads = vo_helper.scan_fantome(fantome_path)
-            info_text = 'Info:\n'
-            info_text += ''.join(f'{key}: {info[key]}\n' for key in info)
-            info_text += '\nFiles:\n'
-            info_text += 'META/info.json\n'
-            if image:
-                info_text += 'META/image.png\n'
-            if len(wads) > 0:
-                info_text += ''.join(f'{wad_name}\n' for wad_name in wads)
+            info_text = fantome_path
+            try:
+                info, image, wads = vo_helper.scan_fantome(fantome_path)
+                info_text += '\n\nInfo:\n'
+                info_text += ''.join(f'{key}: {info[key]}\n' for key in info)
+                info_text += '\nFiles:\n'
+                info_text += 'META/info.json\n'
+                if image:
+                    info_text += 'META/image.png\n'
+                if len(wads) > 0:
+                    info_text += ''.join(f'{wad_name}\n' for wad_name in wads)
+                tk_widgets.VH.scanned_fantomes.append(fantome_path)
+            except Exception as e:
+                info_text += '\n'+str(e)
             tk_widgets.VH.info_text.configure(state=tk.NORMAL)
             tk_widgets.VH.info_text.delete('1.0', tk.END)
             tk_widgets.VH.info_text.insert(tk.END, info_text)
             tk_widgets.VH.info_text.configure(state=tk.DISABLED)
-        tk_widgets.VH.fantome_entry.delete(0, tk.END)
-        tk_widgets.VH.fantome_entry.insert(tk.END, fantome_path)
-
-    # create browse button
-    tk_widgets.VH.browse_button = ctk.CTkButton(
+        else:
+            tk_widgets.VH.info_text.configure(state=tk.NORMAL)
+            tk_widgets.VH.info_text.delete('1.0', tk.END)
+            tk_widgets.VH.info_text.configure(state=tk.DISABLED)
+        tk_widgets.VH.input_entry.delete(0, tk.END)
+        tk_widgets.VH.input_entry.insert(tk.END, fantome_path)
+    # create browse fantome button
+    tk_widgets.VH.browsefantome_button = ctk.CTkButton(
         tk_widgets.VH.input_frame,
         text='Browse FANTOME/ZIP',
         image=EmojiImage.create('🐍'),
         anchor=tk.CENTER,
-        command=browse_cmd
+        command=browse_fantome_cmd
     )
-    tk_widgets.VH.browse_button.grid(
+    tk_widgets.VH.browsefantome_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    
+    def browsefolder_cmd():
+        tk_widgets.VH.scanned_fantomes = []
+        dir_path = tkfd.askdirectory(
+            parent=tk_widgets.main_tk,
+            title='Select Folder of FANTOMEs/ZIPs',
+            initialdir=setting.get('default_folder', None)
+        )
+        if dir_path != '':
+            fantome_paths = []
+            for root, dirs, files in os.walk(dir_path):
+                for file in files:
+                    if file.endswith('.fantome') or file.endswith('.zip'):
+                        fantome_paths.append(os.path.join(root, file).replace('\\', '/'))
+            info_text = ''
+            for fantome_path in fantome_paths:
+                info_text += fantome_path
+                # update info text
+                try:
+                    info, image, wads = vo_helper.scan_fantome(fantome_path)
+                    info_text += '\n\nInfo:\n'
+                    info_text += ''.join(f'{key}: {info[key]}\n' for key in info)
+                    info_text += '\nFiles:\n'
+                    info_text += 'META/info.json\n'
+                    if image:
+                        info_text += 'META/image.png\n'
+                    if len(wads) > 0:
+                        info_text += ''.join(f'{wad_name}\n' for wad_name in wads)
+                    info_text += '\n\n'
+                    tk_widgets.VH.scanned_fantomes.append(fantome_path)
+                except Exception as e:
+                    info_text += '\n'+str(e) + '\n\n'
+            tk_widgets.VH.info_text.configure(state=tk.NORMAL)
+            tk_widgets.VH.info_text.delete('1.0', tk.END)
+            tk_widgets.VH.info_text.insert(tk.END, info_text)
+            tk_widgets.VH.info_text.configure(state=tk.DISABLED)
+        else:
+            tk_widgets.VH.info_text.configure(state=tk.NORMAL)
+            tk_widgets.VH.info_text.delete('1.0', tk.END)
+            tk_widgets.VH.info_text.configure(state=tk.DISABLED)
+        tk_widgets.VH.input_entry.delete(0, tk.END)
+        tk_widgets.VH.input_entry.insert(tk.END, dir_path)
+    # create browse folder button
+    tk_widgets.VH.browsefolder_button = ctk.CTkButton(
+        tk_widgets.VH.input_frame,
+        text='Browse Folder of FANTOMEs/ZIPs',
+        image=EmojiImage.create('📁'),
+        anchor=tk.CENTER,
+        command=browsefolder_cmd
+    )
+    tk_widgets.VH.browsefolder_button.grid(
+        row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
     # create info text
     tk_widgets.VH.info_text = ctk.CTkTextbox(
         tk_widgets.VH.page_frame,
@@ -1995,28 +2076,21 @@ def create_VH_page():
     tk_widgets.VH.target_option.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
-    def taget_cmd():
+    def target_cmd():
         if not check_thread_safe(tk_widgets.VH.making_thread):
             LOG(
                 'vo_helper: Failed: Remake Fantomes: A thread is already running, wait for it to finished.')
             return
-        dir_path = tkfd.askdirectory(
-            parent=tk_widgets.main_tk,
-            title='Select Output Folder',
-            initialdir=setting.get('default_folder', None)
-        )
-        if dir_path == '':
-            return
-        fantome_path = tk_widgets.VH.fantome_entry.get()
-        fantome_name = os.path.basename(fantome_path)
-        if fantome_path == '':
-            return
-
+        
         def make_thrd():
-            LOG(f'vo_helper: Running: Remake FANTOME {fantome_path}')
-            info, image, wads = vo_helper.read_fantome(fantome_path)
-            vo_helper.make_fantome(
-                fantome_name, dir_path, info, image, wads, [tk_widgets.VH.target_option.get()])
+            for fantome_path in tk_widgets.VH.scanned_fantomes:
+                fantome_name = os.path.basename(fantome_path)
+                output_dir_path = fantome_path.replace('.fantome', '') + " VO HELPER"
+                os.makedirs(output_dir_path, exist_ok=True)
+                LOG(f'vo_helper: Running: Remake FANTOME {fantome_path}')
+                info, image, wads = vo_helper.read_fantome(fantome_path)
+                vo_helper.make_fantome(
+                    fantome_name, output_dir_path, info, image, wads, [tk_widgets.VH.target_option.get()])
 
         tk_widgets.VH.making_thread = Thread(target=make_thrd, daemon=True)
         tk_widgets.VH.making_thread.start()
@@ -2026,7 +2100,7 @@ def create_VH_page():
         tk_widgets.VH.action_frame,
         text='Remake For Selected Lang',
         image=EmojiImage.create('🦎'),
-        command=taget_cmd
+        command=target_cmd
     )
     tk_widgets.VH.target_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -2036,23 +2110,16 @@ def create_VH_page():
             LOG(
                 'vo_helper: Failed: Remake Fantomes: A thread is already running, wait for it to finished.')
             return
-        dir_path = tkfd.askdirectory(
-            parent=tk_widgets.main_tk,
-            title='Select Output Folder',
-            initialdir=setting.get('default_folder', None)
-        )
-        if dir_path == '':
-            return
-        fantome_path = tk_widgets.VH.fantome_entry.get()
-        fantome_name = os.path.basename(fantome_path)
-        if fantome_path == '':
-            return
-
+        
         def make_thrd():
-            LOG(f'vo_helper: Running: Remake FANTOME {fantome_path}')
-            info, image, wads = vo_helper.read_fantome(fantome_path)
-            vo_helper.make_fantome(
-                fantome_name, dir_path, info, image, wads, vo_helper.LANGS)
+            for fantome_path in tk_widgets.VH.scanned_fantomes:
+                fantome_name = os.path.basename(fantome_path)
+                output_dir_path = fantome_path.replace('.fantome', '') + " VO HELPER"
+                os.makedirs(output_dir_path, exist_ok=True)
+                LOG(f'vo_helper: Running: Remake FANTOME {fantome_path}')
+                info, image, wads = vo_helper.read_fantome(fantome_path)
+                vo_helper.make_fantome(
+                    fantome_name, output_dir_path, info, image, wads, vo_helper.LANGS)
 
         tk_widgets.VH.making_thread = Thread(target=make_thrd, daemon=True)
         tk_widgets.VH.making_thread.start()
@@ -4513,66 +4580,79 @@ def create_page_controls():
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='cslmao',
+            image=EmojiImage.create('🕹️', weird=True),
             command=lambda: control_cmd(0)
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='leaguefile_inspector',
+            image=EmojiImage.create('🔎'),
             command=lambda: control_cmd(1)
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='animask_viewer',
+            image=EmojiImage.create('🎬'),
             command=lambda: control_cmd(2)
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='hash_manager',
+            image=EmojiImage.create('📖'),
             command=lambda: control_cmd(3)
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='vo_helper',
+            image=EmojiImage.create('🗣️', weird=True),
             command=lambda: control_cmd(4)
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='no_skin',
+            image=EmojiImage.create('🚫'),
             command=lambda: control_cmd(5)
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='uvee',
+            image=EmojiImage.create('🖼️', weird=True),
             command=lambda: control_cmd(6)
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='shrum',
+            image=EmojiImage.create('✏️', weird=True),
             command=lambda: control_cmd(7)
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='hapiBin',
+            image=EmojiImage.create('🐱'),
             command=lambda: control_cmd(8)
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='wad_tool',
+            image=EmojiImage.create('📦'),
             command=lambda: control_cmd(9)
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='pyntex',
+            image=EmojiImage.create('🕵🏻', weird=True),
             command=lambda: control_cmd(10)
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='sborf',
+            image=EmojiImage.create('🛠️', weird=True),
             command=lambda: control_cmd(11)
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='lol2fbx',
+            image=EmojiImage.create('💎'),
             command=lambda: control_cmd(12)
         )
     ]
@@ -4635,8 +4715,8 @@ def create_page_controls():
 
 
 def create_bottom_widgets():
-    tk_widgets.mainbottom_frame.columnconfigure(0, weight=1)
-    tk_widgets.mainbottom_frame.columnconfigure(1, weight=0)
+    tk_widgets.mainbottom_frame.columnconfigure(0, weight=999)
+    tk_widgets.mainbottom_frame.columnconfigure(1, weight=1)
     tk_widgets.mainbottom_frame.rowconfigure(0, weight=1)
     tk_widgets.bottom_widgets = Keeper()
     # create mini log
@@ -4655,18 +4735,25 @@ def create_bottom_widgets():
     # create setting button
     tk_widgets.bottom_widgets.setting_button = ctk.CTkButton(
         tk_widgets.mainbottom_frame,
-        width=30,
-        text='',
+        text='Setting',
+        anchor=tk.CENTER,
         image=EmojiImage.create('⚙️', weird=True),
         command=lambda: tk_widgets.select_control(1000)
     )
     tk_widgets.bottom_widgets.setting_button.grid(
-        row=0, column=1, padx=(0, 5), pady=0, sticky=tk.NSEW)
+        row=0, column=1, padx=0, pady=0, sticky=tk.NSEW)
     tk_widgets.setting_control = tk_widgets.bottom_widgets.setting_button
 
 
+def sync_version():
+    local_file = './version'
+    with open(local_file, 'r') as f:
+        global VERSION
+        VERSION = f.read()
+
 def start():
     set_rce()
+    sync_version()
     create_main_app_and_frames()
     # load settings first
     setting.prepare(LOG)
