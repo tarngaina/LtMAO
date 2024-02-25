@@ -154,6 +154,37 @@ class CLI:
         if ext_tools.WW2OGG.run(src).returncode == 0:
             ext_tools.REVORB.run(dst)
 
+    def zipfantome(src):
+        from zipfile import ZipFile
+        import os.path
+        import json
+        info_file = src + '/META/info.json'
+        if not os.path.exists(info_file):
+            raise Exception(f'zipfantome: Failed: No META/info.json found inside {src}.')
+
+        info = {}
+        with open(info_file, 'r') as f:
+            info = json.load(f)
+
+        dst = os.path.dirname(src) + f'/{info["Name"]} V{info["Version"]} by {info["Author"]}.fantome'
+        print(f'zipfantome: Running: Zip: {src} to {dst}')
+        with ZipFile(dst, 'w') as zip:
+            for root, dirs, files in os.walk(src):
+                for file in files:
+                    filename = os.path.join(root, file)
+                    arcname = os.path.relpath(filename, src)
+                    zip.write(filename, arcname)
+
+    def unzipfantome(src):
+        from zipfile import ZipFile
+
+        dst = src.replace('.fantome', '')
+        print(f'unzipfantome: Running: Unzip: {src} to {dst}')
+        with ZipFile(src, 'r') as zip:
+            zip.extractall(dst)
+        
+
+
 
 def main():
     args = parse_arguments()
@@ -184,6 +215,10 @@ def main():
         CLI.dds2x4x(args.source)
     elif args.tool == 'wem2ogg':
         CLI.wem2ogg(args.source)
+    elif args.tool == 'zipfantome':
+        CLI.zipfantome(args.source)
+    elif args.tool == 'unzipfantome':
+        CLI.unzipfantome(args.source)
 
 
 if __name__ == '__main__':

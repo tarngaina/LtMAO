@@ -44,7 +44,7 @@ class Context:
         # folder contexts
         Context.create_submenu(
             shell='Directory\\shell',
-            sub_commands='LtMAO.RawToWad;LtMAO.hashextract;LtMAO.PT;'
+            sub_commands='LtMAO.RawToWad;LtMAO.ZipFantome;LtMAO.hashextract;LtMAO.PT;'
         )
         # .wad (.client) contexts
         Context.create_submenu(
@@ -110,6 +110,11 @@ class Context:
         Context.create_submenu(
             shell='SystemFileAssociations\\.wem\\shell',
             sub_commands='LtMAO.wem2ogg;'
+        )
+        # .fantome contexts
+        Context.create_submenu(
+            shell='SystemFileAssociations\\.fantome\\shell',
+            sub_commands='LtMAO.UnzipFantome;'
         )
 
         # create commands
@@ -211,6 +216,20 @@ class Context:
                 cmd_name='LtMAO.wem2ogg',
                 cmd_desc='ww2ogg, ReVorb: Convert To Ogg',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wem2ogg" -src="%V"'
+            )
+            # ZipFantome
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.ZipFantome',
+                cmd_desc='cslmao: Zip Fantome',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="zipfantome" -src="%V"'
+            )
+            # UnzipFantome
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.UnzipFantome',
+                cmd_desc='cslmao: Unzip Fantome',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="unzipfantome" -src="%V"'
             )
         LOG('winLT: Done: Create Explorer Contexts')
 
