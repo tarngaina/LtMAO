@@ -4,6 +4,7 @@ import tkinterdnd2 as tkdnd
 import tkinter as tk
 import tkinter.filedialog as tkfd
 import pywinstyles
+import requests
 
 from .. import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin, bnk_tool, sborf, lol2fbx
 from ..prettyUI.helper import Keeper, Log, EmojiImage, check_thread_safe
@@ -19,8 +20,6 @@ LOG = Log.add
 TRANSPARENT = 'transparent'
 # to keep all created widgets
 tk_widgets = Keeper()
-VERSION = ''
-
 
 def set_rce():
     def rce(self, *args):
@@ -61,7 +60,7 @@ def create_main_app_and_frames():
     # create main app
     tk_widgets.main_tk = CTkDnD()
     tk_widgets.main_tk.geometry('1000x620')
-    tk_widgets.main_tk.title(f'LtMAO V{VERSION}')
+    tk_widgets.main_tk.title('LtMAO')
     if os.path.exists(winLT.icon_file):
         tk_widgets.main_tk.iconbitmap(winLT.icon_file)
     # create main top-bottom frame
@@ -4745,15 +4744,29 @@ def create_bottom_widgets():
     tk_widgets.setting_control = tk_widgets.bottom_widgets.setting_button
 
 
-def sync_version():
-    local_file = './version'
-    with open(local_file, 'r') as f:
-        global VERSION
-        VERSION = f.read()
+def check_version():
+    def check_thrd():
+        # read offline
+        local_file = './version'
+        with open(local_file, 'r') as f:
+            global VERSION
+            VERSION = f.read()
+        title = f'LtMAO V{VERSION}'
+        # read online
+        remote_file = 'https://raw.githubusercontent.com/tarngaina/LtMAO/master/version'
+        get = requests.get(remote_file)
+        get.raise_for_status()
+        global NEW_VERSION
+        NEW_VERSION = get.text
+        if VERSION != NEW_VERSION:
+            title += f' - A new version has been out: {NEW_VERSION}, please redownload LtMAO to update it.'
+        tk_widgets.main_tk.title(title)
+    
+    Thread(target=check_thrd, daemon=True).start()
 
 def start():
     set_rce()
-    sync_version()
+    check_version()
     create_main_app_and_frames()
     # load settings first
     setting.prepare(LOG)
