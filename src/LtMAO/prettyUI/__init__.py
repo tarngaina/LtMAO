@@ -4747,27 +4747,31 @@ def create_bottom_widgets():
 def check_version():
     def check_thrd():
         # read offline
-        local_file = './version'
-        with open(local_file, 'r') as f:
-            global VERSION
-            VERSION = f.read()
-        title = f'LtMAO V{VERSION}'
-        # read online
-        remote_file = 'https://raw.githubusercontent.com/tarngaina/LtMAO/master/version'
-        get = requests.get(remote_file)
-        get.raise_for_status()
-        global NEW_VERSION
-        NEW_VERSION = get.text
-        if VERSION != NEW_VERSION:
-            title += f' - A new version has been out: {NEW_VERSION}, please redownload LtMAO to update it.'
-        tk_widgets.main_tk.title(title)
+        try:
+            local_file = './version'
+            with open(local_file, 'r') as f:
+                global VERSION
+                VERSION = f.read()
+            title = f'LtMAO V{VERSION}'
+            tk_widgets.main_tk.title(title)
+            # read online
+            remote_file = 'https://raw.githubusercontent.com/tarngaina/LtMAO/master/version'
+            get = requests.get(remote_file)
+            get.raise_for_status()
+            global NEW_VERSION
+            NEW_VERSION = get.text
+            if VERSION != NEW_VERSION:
+                title += f' - A new version has been out: {NEW_VERSION}, please redownload LtMAO to update it.'
+            tk_widgets.main_tk.title(title) 
+        except Exception as e:
+            LOG(f'check_version: Failed: {e}')
     
     Thread(target=check_thrd, daemon=True).start()
 
 def start():
     set_rce()
-    check_version()
     create_main_app_and_frames()
+    check_version()
     # load settings first
     setting.prepare(LOG)
     ctk.set_appearance_mode(setting.get('appearance','system'))

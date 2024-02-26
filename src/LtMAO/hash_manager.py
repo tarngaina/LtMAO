@@ -65,34 +65,37 @@ class CDTB:
     @staticmethod
     def sync_hashes(*filenames):
         for filename in filenames:
-            local_file = CDTB.local_file(filename)
-            remote_file = CDTB.remote_file(filename)
-            # GET request
-            get = requests.get(remote_file, stream=True)
-            get.raise_for_status()
-            # get etag and compare, new etag = sync
-            etag_local = CDTB.ETAG.get(filename, None)
-            etag_remote = get.headers['ETag']
-            if etag_local == None or etag_local != etag_remote or not os.path.exists(local_file):
-                # set etag
-                CDTB.ETAG[filename] = etag_remote
-                # download file
-                bytes_downloaded = 0
-                chunk_size = 1024**2*5
-                bytes_downloaded_log = 0
-                bytes_downloaded_log_limit = 1024**2
-                with open(local_file, 'wb') as f:
-                    for chunk in get.iter_content(chunk_size):
-                        chunk_length = len(chunk)
-                        bytes_downloaded += chunk_length
-                        f.write(chunk)
-                        bytes_downloaded_log += chunk_length
-                        if bytes_downloaded_log > bytes_downloaded_log_limit:
-                            LOG(
-                                f'hash_manager: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
-                            bytes_downloaded_log = 0
-                combine_custom_hashes(filename)
-            LOG(f'hash_manager: Done: Sync hash: {local_file}')
+            try:
+                local_file = CDTB.local_file(filename)
+                remote_file = CDTB.remote_file(filename)
+                # GET request
+                get = requests.get(remote_file, stream=True)
+                get.raise_for_status()
+                # get etag and compare, new etag = sync
+                etag_local = CDTB.ETAG.get(filename, None)
+                etag_remote = get.headers['ETag']
+                if etag_local == None or etag_local != etag_remote or not os.path.exists(local_file):
+                    # set etag
+                    CDTB.ETAG[filename] = etag_remote
+                    # download file
+                    bytes_downloaded = 0
+                    chunk_size = 1024**2*5
+                    bytes_downloaded_log = 0
+                    bytes_downloaded_log_limit = 1024**2
+                    with open(local_file, 'wb') as f:
+                        for chunk in get.iter_content(chunk_size):
+                            chunk_length = len(chunk)
+                            bytes_downloaded += chunk_length
+                            f.write(chunk)
+                            bytes_downloaded_log += chunk_length
+                            if bytes_downloaded_log > bytes_downloaded_log_limit:
+                                LOG(
+                                    f'hash_manager: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
+                                bytes_downloaded_log = 0
+                LOG(f'hash_manager: Done: Sync hash: {local_file}')
+            except Exception as e:
+                LOG(f'hash_manager: Failed: Sync hash: {filename}: {e}')
+            combine_custom_hashes(filename)
         LOG(f'hash_manager: Done: Sync all hashes.')
 
     @staticmethod
