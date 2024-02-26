@@ -57,7 +57,7 @@ class CLI:
 
     @staticmethod
     def lfi(src):
-        from LtMAO import leaguefile_inspector, hash_manager, pyRitoFile
+        from LtMAO import leaguefile_inspector, hash_manager
         hash_manager.read_all_hashes()
         path, size, type, json = leaguefile_inspector.read_lfi(
             src, hash_manager.HASHTABLES)

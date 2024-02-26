@@ -106,6 +106,16 @@ class Context:
             shell='SystemFileAssociations\\.png\\shell',
             sub_commands='LtMAO.png2dds;'
         )
+        # .bnk contexts
+        Context.create_submenu(
+            shell='SystemFileAssociations\\.bnk\\shell',
+            sub_commands='LtMAO.LFI;'
+        )
+        # .wpk contexts
+        Context.create_submenu(
+            shell='SystemFileAssociations\\.wpk\\shell',
+            sub_commands='LtMAO.LFI;'
+        )
         # .wem contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.wem\\shell',

@@ -74,6 +74,9 @@ class BinStream:
     def read_f32(self, count=1):
         return Struct(f'<{count}f').unpack(self.stream.read(count*4))
 
+    def read_f64(self, count=1):
+        return Struct(f'<{count}d').unpack(self.stream.read(count*4))
+
     def read_vec2(self, count=1):
         floats = Struct(f'<{count*2}f').unpack(self.stream.read(count*8))
         return [Vector(floats[i], floats[i+1]) for i in range(0, len(floats), 2)]
@@ -106,6 +109,13 @@ class BinStream:
             if c == 0:
                 break
             s += chr(c)
+        return s,
+
+    def read_c_sep_0(self, length):
+        s = ''
+        for i in range(length):
+            s += chr(self.stream.read(1)[0])
+            self.pad(1)
         return s,
 
     # write

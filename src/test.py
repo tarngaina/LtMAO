@@ -13,20 +13,13 @@ if __name__ == '__main__':
         stats.sort_stats('tottime').print_stats()
 
     def test():
-        from LtMAO import hash_manager
-        hash_manager.read_wad_hashes()
-        new_hashtables = {}
-        for hash, value in hash_manager.HASHTABLES['hashes.game.txt'].items():
-            if 'assets/sounds/wwise2016/vo' in value:
-                new_hashtables[hash]=value
-        
-        f = open('D:/LtMAO/resources/vo_helper/old_vo_hashes.game.txt', 'w+')
-        f.write(
-            '\n'.join(hash + ' ' + value for hash, value in new_hashtables.items())
+        from LtMAO import bnk_tool
+        bnk_tool.extract(
+            'D:/test/kaisa_base_sfx_audio.bnk',
+            'D:/test/kaisa_base_sfx_events.bnk',
+            'D:/test/extracted',
+            'D:/test/skin0.bin'
         )
-        f.close()
-
-
 
     
 test()

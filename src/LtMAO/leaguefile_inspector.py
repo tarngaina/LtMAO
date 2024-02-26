@@ -92,6 +92,16 @@ def read_lfi(path, hashtables=None):
             LOG(
                 f'leaguefile_inspector: Done: Read BIN: {path}')
             json = pyRitoFile.to_json(obj)
+        elif ftype == 'bnk':
+            obj = pyRitoFile.read_bnk(path)
+            LOG(
+                f'leaguefile_inspector: Done: Read BNK: {path}')
+            json = pyRitoFile.to_json(obj)
+        elif ftype == 'wpk':
+            obj = pyRitoFile.read_wpk(path)
+            LOG(
+                f'leaguefile_inspector: Done: Read WPK: {path}')
+            json = pyRitoFile.to_json(obj)
         elif ftype == 'tex':
             obj = pyRitoFile.read_tex(path)
             LOG(

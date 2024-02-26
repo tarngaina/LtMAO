@@ -4,7 +4,8 @@ from ..pyRitoFile.so import SO
 from ..pyRitoFile.anm import ANM, ANMPose, ANMTrack, ANMErrorMetric
 from ..pyRitoFile.mapgeo import MAPGEO
 from ..pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINHelper, name_to_hex as bin_hash
-from ..pyRitoFile.bnk import BNK, BNKSection, BNKSectionData, BNKObject, BNKObjectData, BNKObjectType, BNKWem
+from ..pyRitoFile.bnk import BNK, BNKObjectType
+from ..pyRitoFile.wpk import WPK
 from ..pyRitoFile.tex import TEX, TEXFormat
 from ..pyRitoFile.wad import WAD, WADChunk, WADCompressionType, name_to_hex as wad_hash, guess_extension
 from ..pyRitoFile import hash
@@ -23,7 +24,7 @@ class PRFEncoder(JSONEncoder):
 
 
 def write_json(path, obj):
-    good_types = [SKL, SKN, SO, ANM, MAPGEO, BIN, BNK, TEX, WAD]
+    good_types = [SKL, SKN, SO, ANM, MAPGEO, BIN, BNK, WPK, TEX, WAD]
     with open(path, 'w+') as f:
         for good_type in good_types:
             if isinstance(obj, good_type):
@@ -31,7 +32,7 @@ def write_json(path, obj):
 
 
 def to_json(obj):
-    good_types = [SKL, SKN, SO, ANM, MAPGEO, BIN, BNK, TEX, WAD]
+    good_types = [SKL, SKN, SO, ANM, MAPGEO, BIN, BNK, WPK, TEX, WAD]
     for good_type in good_types:
         if isinstance(obj, good_type):
             return dumps(obj, indent=4, cls=PRFEncoder)
@@ -95,6 +96,11 @@ def read_bnk(path, raw=None):
     bnk = BNK()
     bnk.read(path, raw)
     return bnk
+
+def read_wpk(path, raw=None):
+    wpk = WPK()
+    wpk.read(path, raw)
+    return wpk
 
 
 def read_tex(path, raw=None):

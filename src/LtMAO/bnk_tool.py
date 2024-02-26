@@ -6,30 +6,20 @@ import os.path
 LOG = print
 
 def parse_audio_bnk(audio_bnk):
-    didx = None
-    data = None
-    for section in audio_bnk.sections:
-        if section.signature == 'DIDX':
-            didx = section.data
-        if section.signature == 'DATA':
-            data = section.data
-    if didx == None:
+    if audio_bnk.didx == None:
         raise Exception(
             'bnk_tool: Failed: Extract BNK: No DIDX section found in audio BNK.')
-    if data == None:
+    if audio_bnk.data == None:
         raise Exception(
             'bnk_tool: Failed: Extract BNK: No DATA section found in audio BNK.')
-    return didx, data
+    return audio_bnk.didx, audio_bnk.data
 
 
 def parse_events_bnk(events_bnk):
-    hirc = None
-    for section in events_bnk.sections:
-        if section.signature == 'HIRC':
-            hirc = section.data
-    if hirc == None:
+    if events_bnk.hirc == None:
         raise Exception(
             'bnk_tool: Failed: Extract BNK: No HIRC section found in events BNK.')
+    hirc = events_bnk.hirc
     sounds_by_id = {}
     events_by_id = {}
     actions_by_id = {}
@@ -76,9 +66,13 @@ def parse_bin(bin):
 
 
 def extract(audio_path, events_path, output_dir, bin_path=''):
-    # parse audio.bnk
-    audio_bnk = pyRitoFile.read_bnk(audio_path)
-    didx, data = parse_audio_bnk(audio_bnk)
+    # parse audio.bnk or audio.wpk
+    bnk_audio_parsing = True if audio_path.endswith('.bnk') else False
+    if bnk_audio_parsing:
+        audio = pyRitoFile.read_bnk(audio_path)
+        didx, data = parse_audio_bnk(audio)
+    else:
+        audio = pyRitoFile.read_wpk(audio_path)
     # parse events.bnk
     events_bnk = pyRitoFile.read_bnk(events_path)
     sounds_by_id, events_by_id, actions_by_id, ranseq_containers_by_id = parse_events_bnk(
@@ -88,46 +82,85 @@ def extract(audio_path, events_path, output_dir, bin_path=''):
     if bin_path != '':
         bin = pyRitoFile.read_bin(bin_path)
         event_names_by_id = parse_bin(bin)
+    for id, name in event_names_by_id.items():
+        print(id, name)
     # parse wem ids per event
     wem_ids_by_event_id = {}
     for event_id, event in events_by_id.items():
         wem_ids_by_event_id[event_id] = []
         for action_id in event.action_ids:
             action = actions_by_id[action_id]
-            # if action link to ranseq container object
-            if action.object_id in ranseq_containers_by_id:
-                container = ranseq_containers_by_id[action.object_id]
-                # ranseq container a list of sound objects
-                for sound_id in container.sound_ids:
-                    wem_id = sounds_by_id[sound_id].wem_id
-                    if wem_id not in wem_ids_by_event_id[event_id]:
-                        wem_ids_by_event_id[event_id].append(wem_id)
-            # if action link to sound object
-            elif action.object_id in sounds_by_id:
-                wem_id = sounds_by_id[action.object_id].wem_id
-                if wem_id not in wem_ids_by_event_id[event_id]:
-                    wem_ids_by_event_id[event_id].append(wem_id)
+            if hasattr(action, 'object_id'):
+                if action.type != 4: # play 
+                    continue
+                # if action link to ranseq container object
+                if action.object_id in ranseq_containers_by_id:
+                    container = ranseq_containers_by_id[action.object_id]
+                    # ranseq container a list of sound objects
+                    for sound_id in container.sound_ids:
+                        wem_id = sounds_by_id[sound_id].wem_id
+                        new_wem = True
+                        for existed_wem_id, existed_container_id in wem_ids_by_event_id[event_id]:
+                            if wem_id == existed_wem_id:
+                                new_wem = False
+                                break
+                        if new_wem:
+                            wem_ids_by_event_id[event_id].append([wem_id, None])
+                # if action link to sound object
+                elif action.object_id in sounds_by_id:
+                    wem_id = sounds_by_id[action.object_id].wem_id
+                    new_wem = True
+                    for existed_wem_id, existed_container_id in wem_ids_by_event_id[event_id]:
+                        if wem_id == existed_wem_id:
+                            new_wem = False
+                            break
+                    if new_wem:
+                        wem_ids_by_event_id[event_id].append([wem_id, None])
+                # if action link to a ranseq container object switch container
+                else:
+                    for container_id, container in ranseq_containers_by_id.items():
+                        if container.switch_container_id == action.object_id:
+                            for sound_id in container.sound_ids:
+                                wem_id = sounds_by_id[sound_id].wem_id
+                                new_wem = True
+                                for stuffs in wem_ids_by_event_id[event_id]:
+                                    existed_wem_id, existed_container_id = stuffs
+                                    if wem_id == existed_wem_id:
+                                        if existed_container_id == None:
+                                            stuffs[1] = container_id
+                                        new_wem = False
+                                        break
+                                if new_wem:
+                                    wem_ids_by_event_id[event_id].append([wem_id, container_id])
+
     # extract bnk
     # prepare output
     os.makedirs(output_dir, exist_ok=True)
-    with audio_bnk.stream(audio_path, 'rb') as bs:
-        for wem in didx.wems:
-            bs.seek(data.start_offset+wem.offset)
+    with audio.stream(audio_path, 'rb') as bs:
+        wems = didx.wems if bnk_audio_parsing else audio.wems
+        for wem in wems:
+            bs.seek(data.start_offset+wem.offset if bnk_audio_parsing else wem.offset)
             wem_data = bs.read(wem.size)
             for event_id in wem_ids_by_event_id:
-                if wem.id in wem_ids_by_event_id[event_id]:
-                    event_name = str(event_id)
-                    if event_id in event_names_by_id:
-                        event_name = event_names_by_id[event_id]
-                    event_dir = os.path.join(
-                        output_dir, event_name)
-                    os.makedirs(event_dir, exist_ok=True)
-                    audio_file = os.path.join(
-                        event_dir, f'{wem.id}.wem')
-                    with open(audio_file, 'wb') as f:
-                        f.write(wem_data)
-                    LOG(
-                        f'bnk_tool: Done: Extracted [{wem.size}] {wem.id} of {event_id}-{event_name}')
+                for wem_id, container_id in wem_ids_by_event_id[event_id]:
+                    if wem.id == wem_id:
+                        event_name = str(event_id)
+                        if event_id in event_names_by_id:
+                            event_name = event_names_by_id[event_id]
+                        event_dir = os.path.join(
+                            output_dir, event_name)
+                        os.makedirs(event_dir, exist_ok=True)
+                        wem_dir = event_dir
+                        if container_id != None:
+                            container_dir = os.path.join(event_dir, str(container_id))
+                            os.makedirs(container_dir, exist_ok=True)
+                            wem_dir = container_dir
+                        wem_file = os.path.join(
+                            wem_dir, f'{wem.id}.wem')
+                        with open(wem_file, 'wb') as f:
+                            f.write(wem_data)
+                        LOG(
+                            f'bnk_tool: Done: Extracted [{wem.size}bytes] {wem.id} of {event_id}-{event_name}')
 
 
 def prepare(_LOG):
