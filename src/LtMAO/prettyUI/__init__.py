@@ -104,7 +104,8 @@ def create_CSLMAO_page():
     )
     tk_widgets.CSLMAO.page_frame.columnconfigure(0, weight=1)
     tk_widgets.CSLMAO.page_frame.rowconfigure(0, weight=1)
-    tk_widgets.CSLMAO.page_frame.rowconfigure(1, weight=699)
+    tk_widgets.CSLMAO.page_frame.rowconfigure(1, weight=1)
+    tk_widgets.CSLMAO.page_frame.rowconfigure(2, weight=699)
     # handle drop in cslmao
     def page_drop_cmd(event):
         if block_on_overlay():
@@ -125,11 +126,80 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.make_overlay = None
     tk_widgets.CSLMAO.run_overlay = None
     tk_widgets.CSLMAO.toggle_all = True
+
+    # create setting frame
+    tk_widgets.CSLMAO.setting_frame = ctk.CTkFrame(
+        tk_widgets.CSLMAO.page_frame, fg_color=TRANSPARENT)
+    tk_widgets.CSLMAO.setting_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.CSLMAO.setting_frame.columnconfigure(0, weight=1)
+    tk_widgets.CSLMAO.setting_frame.columnconfigure(1, weight=699)
+    tk_widgets.CSLMAO.setting_frame.columnconfigure(2, weight=1)
+    tk_widgets.CSLMAO.setting_frame.columnconfigure(3, weight=1)
+
+    # create game folder setting
+    def gamedir_cmd():
+        dir_path = tkfd.askdirectory(
+            parent=tk_widgets.main_tk,
+            title='Select League of Legends/Game Folder',
+            initialdir=setting.get('default_folder', None)
+        )
+        if dir_path != '':
+            dir_path = dir_path.replace('\\', '/')
+            if not os.path.exists(os.path.join(dir_path, 'League of Legends.exe')):
+                raise Exception(
+                    f'cslmao: Failed: Select League of Legends/Game: No "League of Legends.exe" found in {dir_path}')
+            setting.set('game_folder', dir_path)
+            setting.save()
+            tk_widgets.CSLMAO.gamedir_value_label.configure(text=dir_path)
+    tk_widgets.CSLMAO.gamedir_button = ctk.CTkButton(
+        tk_widgets.CSLMAO.setting_frame,
+        text='Browse Game Folder',
+        image=EmojiImage.create('🎮'),
+        command=gamedir_cmd
+    )
+    tk_widgets.CSLMAO.gamedir_button.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.CSLMAO.gamedir_value_label = ctk.CTkLabel(
+        tk_widgets.CSLMAO.setting_frame,
+        text=setting.get(
+            'game_folder', 'Please choose League of Legends/Game folder.'),
+        anchor=tk.W
+    )
+    tk_widgets.CSLMAO.gamedir_value_label.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    # extra game modes
+    tk_widgets.CSLMAO.egm_label = ctk.CTkLabel(
+        tk_widgets.CSLMAO.setting_frame,
+        text='Extra Game Modes:',
+        image=EmojiImage.create('🕹️', weird=True),
+        compound=tk.LEFT,
+        anchor=tk.W
+    )
+    tk_widgets.CSLMAO.egm_label.grid(
+        row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
+
+    def egm_cmd():
+        setting.set('Cslmao.extra_game_modes',
+                    tk_widgets.CSLMAO.egm_checkbox.get())
+        setting.save()
+    tk_widgets.CSLMAO.egm_checkbox = ctk.CTkCheckBox(
+        tk_widgets.CSLMAO.setting_frame,
+        text='',
+        command=egm_cmd
+    )
+    if setting.get('Cslmao.extra_game_modes', 0) == 1:
+        tk_widgets.CSLMAO.egm_checkbox.select()
+    else:
+        tk_widgets.CSLMAO.egm_checkbox.deselect()
+    tk_widgets.CSLMAO.egm_checkbox.grid(
+        row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
+    
     # create action frame
     tk_widgets.CSLMAO.action_frame = ctk.CTkFrame(
         tk_widgets.CSLMAO.page_frame, fg_color=TRANSPARENT)
     tk_widgets.CSLMAO.action_frame.grid(
-        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.CSLMAO.action_frame.rowconfigure(0, weight=1)
     tk_widgets.CSLMAO.action_frame.columnconfigure(0, weight=1)
     tk_widgets.CSLMAO.action_frame.columnconfigure(1, weight=1)
@@ -396,7 +466,7 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.modlist_frame = ctk.CTkScrollableFrame(
         tk_widgets.CSLMAO.page_frame)
     tk_widgets.CSLMAO.modlist_frame.grid(
-        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.CSLMAO.modlist_frame.rowconfigure(0, weight=1)
     tk_widgets.CSLMAO.modlist_frame.columnconfigure(0, weight=1)
 
@@ -3711,7 +3781,7 @@ def create_ST_page():
         command=winLT.Context.create_contexts
     )
     tk_widgets.ST.contextadd_button.grid(
-        row=5, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=6, column=1, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.ST.contextrmv_button = ctk.CTkButton(
         tk_widgets.ST.scroll_frame,
         text='Remove Explorer Contexts',
@@ -3720,7 +3790,7 @@ def create_ST_page():
         command=winLT.Context.remove_contexts
     )
     tk_widgets.ST.contextrmv_button.grid(
-        row=5, column=3, padx=5, pady=5, sticky=tk.NS+tk.W)
+        row=6, column=2, padx=5, pady=5, sticky=tk.NS+tk.W)
     # default folder
     tk_widgets.ST.defaultdir_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
@@ -3730,7 +3800,7 @@ def create_ST_page():
         anchor=tk.W
     )
     tk_widgets.ST.defaultdir_label.grid(
-        row=6, column=1, padx=5, pady=5, sticky=tk.NSEW)
+        row=7, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def defaultdir_cmd():
         dir_path = tkfd.askdirectory(
@@ -3755,7 +3825,7 @@ def create_ST_page():
         command=defaultdir_cmd
     )
     tk_widgets.ST.defaultdir_button.grid(
-        row=6, column=2, padx=5, pady=5, sticky=tk.NSEW)
+        row=7, column=2, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.ST.defaultdir_value_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
         anchor=tk.W
@@ -3766,7 +3836,7 @@ def create_ST_page():
             text='Default folder for all ask-file/ask-folder dialog'
         )
     tk_widgets.ST.defaultdir_value_label.grid(
-        row=6, column=3, padx=5, pady=5, sticky=tk.NSEW)
+        row=7, column=3, padx=5, pady=5, sticky=tk.NSEW)
     # restart ltmao
     def restart_cmd():
         import sys
@@ -3775,95 +3845,77 @@ def create_ST_page():
         tk_widgets.main_tk.destroy()
         sys.exit(0)
         
-    tk_widgets.ST.contextrmv_button = ctk.CTkButton(
+    tk_widgets.ST.restart_button = ctk.CTkButton(
         tk_widgets.ST.scroll_frame,
         text='Restart LtMAO',
         image=EmojiImage.create('🚀'),
         anchor=tk.W,
         command=restart_cmd
     )
-    tk_widgets.ST.contextrmv_button.grid(
-        row=7, column=1, padx=5, pady=5, sticky=tk.NSEW)
-    # cslmao label
-    tk_widgets.ST.cslmao_label = ctk.CTkLabel(
+    tk_widgets.ST.restart_button.grid(
+        row=8, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    # update ltmao
+    def update_cmd():
+        def update_thrd():
+            def to_human(size): 
+                return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) + ["", " KB", " MB", " GB", " TB", " PB", " EB"][max(size.bit_length()-1, 0)//10]
+            
+            check_version()
+            
+            if VERSION == NEW_VERSION:
+                LOG('update: Failed: Current version {VERSION} is the latest version.')
+            else:
+                local_file = './LtMAO-master.zip'
+                remote_file = 'https://codeload.github.com/tarngaina/LtMAO/zip/refs/heads/master'
+                # GET request
+                get = requests.get(remote_file, stream=True)
+                get.raise_for_status()
+                # download update
+                bytes_downloaded = 0
+                chunk_size = 1024**2*5
+                bytes_downloaded_log = 0
+                bytes_downloaded_log_limit = 1024**2
+                with open(local_file, 'wb') as f:
+                    for chunk in get.iter_content(chunk_size):
+                        chunk_length = len(chunk)
+                        bytes_downloaded += chunk_length
+                        f.write(chunk)
+                        bytes_downloaded_log += chunk_length
+                        if bytes_downloaded_log > bytes_downloaded_log_limit:
+                            LOG(
+                                f'update: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
+                            bytes_downloaded_log = 0
+                LOG(f'update: Done: Downloaded: {local_file}')
+                # extract update
+                from zipfile import ZipFile
+                with ZipFile(local_file) as zip:
+                    for zipinfo in zip.infolist():
+                        zipinfo.filename = zipinfo.filename.replace('LtMAO-master/', '')
+                        try:
+                            zip.extract(zipinfo, '.')
+                        except Exception as e:
+                            LOG(f'update: Failed but Ignored: Extract: {zipinfo.filename}: {e}')
+                # remove update file
+                os.remove(local_file)
+                # restat ltmao
+                import sys
+                LOG(f'Running: Restart LtMAO')
+                os.system(os.path.join(os.path.abspath(os.path.curdir),'start.bat'))
+                tk_widgets.main_tk.destroy()
+                sys.exit(0)
+
+        Thread(target=update_thrd, daemon=True).start()
+
+    tk_widgets.ST.update_button = ctk.CTkButton(
         tk_widgets.ST.scroll_frame,
-        text='CSLMAO'
+        text='Update LtMAO',
+        image=EmojiImage.create('🚨'),
+        anchor=tk.W,
+        command=update_cmd
     )
-    tk_widgets.ST.cslmao_label.grid(
-        row=8, column=0, padx=10, pady=5, sticky=tk.NSEW)
-    # game folder
-    tk_widgets.ST.gamedir_label = ctk.CTkLabel(
-        tk_widgets.ST.scroll_frame,
-        text='Game Folder:',
-        image=EmojiImage.create('🎮'),
-        compound=tk.LEFT,
-        anchor=tk.W
-    )
-    tk_widgets.ST.gamedir_label.grid(
+    tk_widgets.ST.update_button.grid(
         row=9, column=1, padx=5, pady=5, sticky=tk.NSEW)
-    
-    def gamedir_cmd():
-        dir_path = tkfd.askdirectory(
-            parent=tk_widgets.main_tk,
-            title='Select League of Legends/Game Folder',
-            initialdir=setting.get('default_folder', None)
-        )
-        if dir_path != '':
-            dir_path = dir_path.replace('\\', '/')
-            if not os.path.exists(os.path.join(dir_path, 'League of Legends.exe')):
-                raise Exception(
-                    f'cslmao: Failed: Select League of Legends/Game: No "League of Legends.exe" found in {dir_path}')
-            setting.set('game_folder', dir_path)
-            setting.save()
-            tk_widgets.ST.gamedir_value_label.configure(text=dir_path)
-    tk_widgets.ST.gamedir_button = ctk.CTkButton(
-        tk_widgets.ST.scroll_frame,
-        text='Browse',
-        image=EmojiImage.create('📁'),
-        command=gamedir_cmd
-    )
-    tk_widgets.ST.gamedir_button.grid(
-        row=9, column=2, padx=5, pady=5, sticky=tk.NSEW)
-    tk_widgets.ST.gamedir_value_label = ctk.CTkLabel(
-        tk_widgets.ST.scroll_frame,
-        text=setting.get(
-            'game_folder', 'Please choose League of Legends/Game folder.'),
-        anchor=tk.W
-    )
-    tk_widgets.ST.gamedir_value_label.grid(
-        row=9, column=3, padx=5, pady=5, sticky=tk.NSEW)
-    def gamedir_value_cmd(event):
-        gamedir_path = setting.get('game_folder', '')
-        if gamedir_path != '' and os.path.exists(gamedir_path) and os.path.isdir(gamedir_path):
-            os.startfile(gamedir_path)
-    tk_widgets.ST.gamedir_value_label.bind('<Button-1>', gamedir_value_cmd)
-    # extra game modes
-    tk_widgets.ST.egm_label = ctk.CTkLabel(
-        tk_widgets.ST.scroll_frame,
-        text='Extra Game Modes:',
-        image=EmojiImage.create('🕹️', weird=True),
-        compound=tk.LEFT,
-        anchor=tk.W
-    )
-    tk_widgets.ST.egm_label.grid(
-        row=10, column=1, padx=5, pady=5, sticky=tk.NSEW)
-
-    def egm_cmd():
-        setting.set('Cslmao.extra_game_modes',
-                    tk_widgets.ST.egm_checkbox.get())
-        setting.save()
-    tk_widgets.ST.egm_checkbox = ctk.CTkCheckBox(
-        tk_widgets.ST.scroll_frame,
-        text='',
-        command=egm_cmd
-    )
-    if setting.get('Cslmao.extra_game_modes', 0) == 1:
-        tk_widgets.ST.egm_checkbox.select()
-    else:
-        tk_widgets.ST.egm_checkbox.deselect()
-    tk_widgets.ST.egm_checkbox.grid(
-        row=10, column=2, padx=5, pady=5, sticky=tk.NSEW)
-
 
 def create_SBORF_page():
     tk_widgets.SBORF.page_frame = ctk.CTkFrame(
@@ -4745,33 +4797,30 @@ def create_bottom_widgets():
 
 
 def check_version():
-    def check_thrd():
-        # read offline
-        try:
-            local_file = './version'
-            with open(local_file, 'r') as f:
-                global VERSION
-                VERSION = f.read()
-            title = f'LtMAO V{VERSION}'
-            tk_widgets.main_tk.title(title)
-            # read online
-            remote_file = 'https://raw.githubusercontent.com/tarngaina/LtMAO/master/version'
-            get = requests.get(remote_file)
-            get.raise_for_status()
-            global NEW_VERSION
-            NEW_VERSION = get.text
-            if VERSION != NEW_VERSION:
-                title += f' - A new version has been out: {NEW_VERSION}, please redownload LtMAO to update it.'
-            tk_widgets.main_tk.title(title) 
-        except Exception as e:
-            LOG(f'check_version: Failed: {e}')
+    # read offline
+    try:
+        local_file = './version'
+        with open(local_file, 'r') as f:
+            global VERSION
+            VERSION = f.read()
+        title = f'LtMAO V{VERSION}'
+        tk_widgets.main_tk.title(title)
+        # read online
+        remote_file = 'https://raw.githubusercontent.com/tarngaina/LtMAO/master/version'
+        get = requests.get(remote_file)
+        get.raise_for_status()
+        global NEW_VERSION
+        NEW_VERSION = get.text
+        if VERSION != NEW_VERSION:
+            title += f' - A new version has been out: {NEW_VERSION}, please redownload LtMAO to update it.'
+        tk_widgets.main_tk.title(title) 
+    except Exception as e:
+        LOG(f'check_version: Failed: {e}')
     
-    Thread(target=check_thrd, daemon=True).start()
-
+    
 def start():
     set_rce()
     create_main_app_and_frames()
-    check_version()
     # load settings first
     setting.prepare(LOG)
     ctk.set_appearance_mode(setting.get('appearance','system'))
@@ -4787,6 +4836,7 @@ def start():
     cslmao.prepare(LOG)
     winLT.prepare(LOG)
     hash_manager.prepare(LOG)
+    Thread(target=check_version, daemon=True).start()
     wad_tool.prepare(LOG)
     ext_tools.prepare(LOG)
     leaguefile_inspector.prepare(LOG)

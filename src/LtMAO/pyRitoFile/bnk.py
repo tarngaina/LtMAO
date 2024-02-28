@@ -264,7 +264,7 @@ class BNK:
                             BNKHelper.skip_init_params(bs)
                             BNKHelper.skip_pos_params(bs, self.bkhd.version)
                             BNKHelper.skip_aux(bs)
-                            BNKHelper.skip_rtpc()
+                            BNKHelper.skip_rtpc(bs, self.bkhd.version)
                             segment.music_track_ids = bs.read_u32(bs.read_u32()[0])
                         elif obj.type == BNKObjectType.MusicTrack:
                             track = obj.data 

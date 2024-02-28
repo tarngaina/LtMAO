@@ -75,7 +75,7 @@ class BinStream:
         return Struct(f'<{count}f').unpack(self.stream.read(count*4))
 
     def read_f64(self, count=1):
-        return Struct(f'<{count}d').unpack(self.stream.read(count*4))
+        return Struct(f'<{count}d').unpack(self.stream.read(count*8))
 
     def read_vec2(self, count=1):
         floats = Struct(f'<{count*2}f').unpack(self.stream.read(count*8))

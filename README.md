@@ -1,6 +1,6 @@
 # LtMAO
 `LtMAO` is my toolpack to help League modding.
-![](https://i.imgur.com/S6fEl1f.png)
+![](https://i.imgur.com/dSpQlfc.png)
 
 # Installation
 1. Download: [LtMAO-master.zip](https://github.com/tarngaina/LtMAO/archive/refs/heads/master.zip)
@@ -8,8 +8,9 @@
 3. Run `LtMAO/start.bat`
 
 # Updates
-If you see [new commit here](https://github.com/tarngaina/LtMAO/commits/master), that means there is new update. You can check the commit description to see what changed.
-To update new version: re-download the app and extract it to same location.
+1. LtMAO always check for latest version when you open the app. If there is a newer version, the app will display update message in title bar.
+2. To fully update: re-download the whole app from github and extract it to same location.
+3. To lazily update LtMAO: press "Update LtMAO" button from setting page. This is not recommended because but if it works, it works.
 
 # Documentation
 ## Shortcut & How to Run as Admin

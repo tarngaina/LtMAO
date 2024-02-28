@@ -105,6 +105,8 @@ class BINHelper:
                     BINHelper.read_field(bs)
                     for i in range(count)
                 ]
+            else:
+                field.data = None
             value = field
         elif value_type == BINType.Link:
             value = hash_to_hex(bs.read_u32()[0])
@@ -219,7 +221,7 @@ class BINHelper:
             value_size += 8
         elif value_type == BINType.Pointer or value_type == BINType.Embed:
             field = value  # treat the value as BINField
-            if field.data == None:
+            if field.hash_type == '00000000':
                 bs.write_u32(0)
                 value_size += 4
             else:
@@ -267,7 +269,7 @@ class BINHelper:
 
             field_size += content_size
         elif field.type == BINType.Pointer or field.type == BINType.Embed:
-            if field.data == None:
+            if field.hash_type == '00000000':
                 bs.write_u32(0)  # hash_type
                 field_size += 4
             else:
@@ -544,10 +546,11 @@ class BIN:
             elif value_type in (BINType.List, BINType.List2):
                 value.data = [un_hash_value(v, value_type) for v in value.data]
             elif value_type in (BINType.Embed, BINType.Pointer):
-                value.hash_type = hex_to_name(
-                    hashtables, 'hashes.bintypes.txt',  value.hash_type)
-                for f in value.data:
-                    un_hash_field(f)
+                if value.hash_type != '00000000':
+                    value.hash_type = hex_to_name(
+                        hashtables, 'hashes.bintypes.txt',  value.hash_type)
+                    for f in value.data:
+                        un_hash_field(f)
             return value
 
         def un_hash_field(field):
@@ -561,10 +564,11 @@ class BIN:
                 field.data = [un_hash_value(v, field.value_type)
                               for v in field.data]
             elif field.type in (BINType.Embed, BINType.Pointer):
-                field.hash_type = hex_to_name(
-                    hashtables, 'hashes.bintypes.txt', field.hash_type)
-                for f in field.data:
-                    un_hash_field(f)
+                if field.hash_type != '00000000':
+                    field.hash_type = hex_to_name(
+                        hashtables, 'hashes.bintypes.txt', field.hash_type)
+                    for f in field.data:
+                        un_hash_field(f)
             elif field.type == BINType.Map:
                 field.key_type = hex_to_name(
                     hashtables, 'hashes.bintypes.txt', field.key_type)

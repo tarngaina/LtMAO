@@ -13,13 +13,15 @@ if __name__ == '__main__':
         stats.sort_stats('tottime').print_stats()
 
     def test():
-        from LtMAO import bnk_tool
-        bnk_tool.extract(
-            'D:/test/kaisa_base_sfx_audio.bnk',
-            'D:/test/kaisa_base_sfx_events.bnk',
-            'D:/test/extracted',
-            'D:/test/skin0.bin'
-        )
+        src = 'D:/test/skin11.bin'
+        from LtMAO import leaguefile_inspector, hash_manager
+        hash_manager.read_all_hashes()
+        path, size, type, json = leaguefile_inspector.read_lfi(
+            src, hash_manager.HASHTABLES)
+        dst = src + '.json'
+        with open(dst, 'w+') as f:
+            f.write(json if json != None else '{}')
+        hash_manager.free_all_hashes()
 
     
 test()
