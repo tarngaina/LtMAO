@@ -1,6 +1,6 @@
 from datetime import datetime
 from customtkinter import CTkImage
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageTk
 
 
 class Keeper:
@@ -22,9 +22,12 @@ class EmojiImage:
     cache = {}
 
     @staticmethod
-    def create(emoji, size=24, weird=False):
+    def create(emoji, size=24, weird=False, return_ctk=True):
         if emoji in EmojiImage.cache:
-            return EmojiImage.cache[emoji]
+            if return_ctk:
+                return EmojiImage.cache[emoji]
+            else:
+                return ImageTk.PhotoImage(EmojiImage.cache[emoji].cget('light_image'))
         # convert emoji to CTkImage
         font = ImageFont.truetype(EmojiImage.font_file, size=int(size/1.5))
         img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
@@ -34,8 +37,10 @@ class EmojiImage:
                   embedded_color=True, font=font, anchor='mm', align='center')
         img = CTkImage(img, size=(size, size))
         EmojiImage.cache[emoji] = img
-        return img
-
+        if return_ctk:
+            return img
+        else:
+            return ImageTk.PhotoImage(EmojiImage.cache[emoji].cget('light_image'))
 
 class Log:
     limit = 1000

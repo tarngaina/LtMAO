@@ -1,8 +1,10 @@
 if __name__ == '__main__':
-    from cProfile import Profile
-    from pstats import Stats
+    
     # profile
     def db(func):
+        from cProfile import Profile
+        from pstats import Stats
+
         pr = Profile()
         pr.enable()
 
@@ -13,15 +15,13 @@ if __name__ == '__main__':
         stats.sort_stats('tottime').print_stats()
 
     def test():
-        src = 'D:/test/skin11.bin'
-        from LtMAO import leaguefile_inspector, hash_manager
-        hash_manager.read_all_hashes()
-        path, size, type, json = leaguefile_inspector.read_lfi(
-            src, hash_manager.HASHTABLES)
-        dst = src + '.json'
-        with open(dst, 'w+') as f:
-            f.write(json if json != None else '{}')
-        hash_manager.free_all_hashes()
+        from LtMAO import bnk_tool
+        parser = bnk_tool.BNKParser(
+            'D:/test/kaisa_base_vo_audio.wpk',
+            'D:/test/kaisa_base_vo_events.bnk',
+            ''
+        )
+        parser.unpack('D:/test')
 
     
 test()

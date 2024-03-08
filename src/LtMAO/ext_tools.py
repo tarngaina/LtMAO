@@ -18,6 +18,7 @@ def block_and_stream_process_output(process, log_message_header=''):
 class CSLOL:
     local_file = './resources/ext_tools/mod-tools.exe'
 
+    @staticmethod
     def import_fantome(src, dst, game=None, noTFT=True):
         local_file = os.path.abspath(CSLOL.local_file)
         cmds = [local_file, 'import', src, dst]
@@ -31,6 +32,7 @@ class CSLOL:
         )
         return p
 
+    @staticmethod
     def export_fantome(src, dst, game=None, noTFT=True):
         local_file = os.path.abspath(CSLOL.local_file)
         cmds = [local_file, 'export', src, dst]
@@ -44,6 +46,7 @@ class CSLOL:
         )
         return p
 
+    @staticmethod
     def make_overlay(src, overlay, game=None, mods=None, noTFT=True, ignore_conflict=True):
         local_file = os.path.abspath(CSLOL.local_file)
         cmds = [local_file, 'mkoverlay', src, overlay]
@@ -61,6 +64,7 @@ class CSLOL:
         )
         return p
 
+    @staticmethod
     def run_overlay(overlay, config, game=None):
         local_file = os.path.abspath(CSLOL.local_file)
         cmds = [local_file, 'runoverlay', overlay, config]
@@ -76,6 +80,7 @@ class CSLOL:
 class RITOBIN:
     local_file = './resources/ext_tools/ritobin_cli.exe'
 
+    @staticmethod
     def run(src, dst=None, *, dir_hashes=None):
         cmds = [os.path.abspath(RITOBIN.local_file), src]
         if dst:
@@ -93,6 +98,7 @@ class RITOBIN:
 class ImageMagick:
     local_file = './resources/ext_tools/magick.exe'
 
+    @staticmethod
     def to_png(src, png):
         cmds = [
             os.path.abspath(ImageMagick.local_file),
@@ -106,6 +112,7 @@ class ImageMagick:
         block_and_stream_process_output(p, 'ImageMagick: ')
         return p
 
+    @staticmethod
     def to_dds(src, dds, format='dxt5', mipmap=False):
         if format not in ('dxt1', 'dxt5'):
             format = 'dxt5'
@@ -125,6 +132,7 @@ class ImageMagick:
         block_and_stream_process_output(p, 'ImageMagick: ')
         return p
 
+    @staticmethod
     def resize_dds(src, dst, width, height):
         cmds = [
             os.path.abspath(ImageMagick.local_file),
@@ -145,7 +153,8 @@ class WW2OGG:
     local_file = './resources/ext_tools/ww2ogg.exe'
     pcb_file = './resources/ext_tools/packed_codebooks.bin'
 
-    def run(src):
+    @staticmethod
+    def run(src, silent=False):
         cmds = [
             os.path.abspath(WW2OGG.local_file),
             src,
@@ -156,20 +165,26 @@ class WW2OGG:
             cmds, creationflags=CREATE_NO_WINDOW,
             stdout=PIPE, stderr=STDOUT
         )
-        block_and_stream_process_output(p, 'ww2ogg: ')
+        if not silent:
+            block_and_stream_process_output(p, 'ww2ogg: ')
+        else:
+            p.wait()
         return p
-
 
 class REVORB:
     local_file = './resources/ext_tools/ReVorb.exe'
 
-    def run(src):
+    @staticmethod
+    def run(src, silent=False):
         cmds = [os.path.abspath(REVORB.local_file), src]
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
             stdout=PIPE, stderr=STDOUT
         )
-        block_and_stream_process_output(p, 'ReVorb: ')
+        if not silent:
+            block_and_stream_process_output(p, 'ReVorb: ')
+        else:
+            p.wait()
         return p
 
 

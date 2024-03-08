@@ -3,14 +3,13 @@ import os
 import subprocess
 import sys
 import tempfile
-import warnings
 from distutils import log
 from distutils.errors import DistutilsError
 from functools import partial
 
 from . import _reqs
 from .wheel import Wheel
-from ._deprecation_warning import SetuptoolsDeprecationWarning
+from .warnings import SetuptoolsDeprecationWarning
 
 
 def _fixup_find_links(find_links):
@@ -25,7 +24,7 @@ def fetch_build_egg(dist, req):
     """Fetch an egg needed for building.
 
     Use pip/wheel to fetch/build a wheel."""
-    _DeprecatedInstaller.warn(stacklevel=2)
+    _DeprecatedInstaller.emit()
     _warn_wheel_not_available(dist)
     return _fetch_build_egg_no_warn(dist, req)
 
@@ -33,7 +32,7 @@ def fetch_build_egg(dist, req):
 def _fetch_build_eggs(dist, requires):
     import pkg_resources  # Delay import to avoid unnecessary side-effects
 
-    _DeprecatedInstaller.warn(stacklevel=3)
+    _DeprecatedInstaller.emit(stacklevel=3)
     _warn_wheel_not_available(dist)
 
     resolved_dists = pkg_resources.working_set.resolve(
@@ -56,8 +55,10 @@ def _fetch_build_egg_no_warn(dist, req):  # noqa: C901  # is too complex (16)  #
     # take precedence.
     opts = dist.get_option_dict('easy_install')
     if 'allow_hosts' in opts:
-        raise DistutilsError('the `allow-hosts` option is not supported '
-                             'when using pip to install requirements.')
+        raise DistutilsError(
+            'the `allow-hosts` option is not supported '
+            'when using pip to install requirements.'
+        )
     quiet = 'PIP_QUIET' not in os.environ and 'PIP_VERBOSE' not in os.environ
     if 'PIP_INDEX_URL' in os.environ:
         index_url = None
@@ -66,8 +67,7 @@ def _fetch_build_egg_no_warn(dist, req):  # noqa: C901  # is too complex (16)  #
     else:
         index_url = None
     find_links = (
-        _fixup_find_links(opts['find_links'][1])[:] if 'find_links' in opts
-        else []
+        _fixup_find_links(opts['find_links'][1])[:] if 'find_links' in opts else []
     )
     if dist.dependency_links:
         find_links.extend(dist.dependency_links)
@@ -78,10 +78,14 @@ def _fetch_build_egg_no_warn(dist, req):  # noqa: C901  # is too complex (16)  #
             return egg_dist
     with tempfile.TemporaryDirectory() as tmpdir:
         cmd = [
-            sys.executable, '-m', 'pip',
+            sys.executable,
+            '-m',
+            'pip',
             '--disable-pip-version-check',
-            'wheel', '--no-deps',
-            '-w', tmpdir,
+            'wheel',
+            '--no-deps',
+            '-w',
+            tmpdir,
         ]
         if quiet:
             cmd.append('--quiet')
@@ -101,10 +105,11 @@ def _fetch_build_egg_no_warn(dist, req):  # noqa: C901  # is too complex (16)  #
         dist_location = os.path.join(eggs_dir, wheel.egg_name())
         wheel.install_as_egg(dist_location)
         dist_metadata = pkg_resources.PathMetadata(
-            dist_location, os.path.join(dist_location, 'EGG-INFO'))
-        dist = pkg_resources.Distribution.from_filename(
-            dist_location, metadata=dist_metadata)
-        return dist
+            dist_location, os.path.join(dist_location, 'EGG-INFO')
+        )
+        return pkg_resources.Distribution.from_filename(
+            dist_location, metadata=dist_metadata
+        )
 
 
 def strip_marker(req):
@@ -131,12 +136,9 @@ def _warn_wheel_not_available(dist):
 
 
 class _DeprecatedInstaller(SetuptoolsDeprecationWarning):
-    @classmethod
-    def warn(cls, stacklevel=1):
-        warnings.warn(
-            "setuptools.installer and fetch_build_eggs are deprecated. "
-            "Requirements should be satisfied by a PEP 517 installer. "
-            "If you are using pip, you can try `pip install --use-pep517`.",
-            cls,
-            stacklevel=stacklevel+1
-        )
+    _SUMMARY = "setuptools.installer and fetch_build_eggs are deprecated."
+    _DETAILS = """
+    Requirements should be satisfied by a PEP 517 installer.
+    If you are using pip, you can try `pip install --use-pep517`.
+    """
+    # _DUE_DATE not decided yet

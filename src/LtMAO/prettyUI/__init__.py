@@ -3,10 +3,11 @@ import customtkinter as ctk
 import tkinterdnd2 as tkdnd
 import tkinter as tk
 import tkinter.filedialog as tkfd
+import tkinter.ttk as ttk
 import pywinstyles
 import requests
 
-from .. import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin, bnk_tool, sborf, lol2fbx
+from .. import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin, bnk_tool, sborf, lol2fbx, Ritoddstex
 from ..prettyUI.helper import Keeper, Log, EmojiImage, check_thread_safe
 
 import os
@@ -14,6 +15,7 @@ import os.path
 from threading import Thread
 from traceback import format_exception
 from PIL import Image
+
 
 LOG = Log.add
 # transparent color
@@ -83,7 +85,7 @@ def create_main_app_and_frames():
     tk_widgets.maintop_frame.rowconfigure(0, weight=1)
     tk_widgets.maintop_frame.columnconfigure(0, weight=0)
     tk_widgets.maintop_frame.columnconfigure(1, weight=1)
-    tk_widgets.mainleft_frame = ctk.CTkFrame(
+    tk_widgets.mainleft_frame = ctk.CTkScrollableFrame(
         tk_widgets.maintop_frame,
         fg_color=TRANSPARENT
     )
@@ -962,6 +964,7 @@ def create_LFI_page():
         )
         file_label.grid(row=0, column=1, padx=2,
                         pady=2, sticky=tk.W)
+        
         # create search entry
         search_entry = ctk.CTkEntry(
             head_frame,
@@ -3614,309 +3617,6 @@ def create_LOG_page():
     Log.tk_log = tk_widgets.LOG.log_textbox
 
 
-def create_ST_page():
-    tk_widgets.ST.page_frame = ctk.CTkFrame(
-        tk_widgets.mainright_frame,
-        fg_color=TRANSPARENT,
-    )
-    tk_widgets.ST.page_frame.columnconfigure(0, weight=1)
-    tk_widgets.ST.page_frame.rowconfigure(0, weight=1)
-
-    tk_widgets.ST.scroll_frame = ctk.CTkScrollableFrame(
-        tk_widgets.ST.page_frame,
-        fg_color=TRANSPARENT
-    )
-    tk_widgets.ST.scroll_frame.grid(
-        row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
-    # general label
-    tk_widgets.ST.general_label = ctk.CTkLabel(
-        tk_widgets.ST.scroll_frame,
-        text='General'
-    )
-    tk_widgets.ST.general_label.grid(
-        row=0, column=0, padx=10, pady=5, sticky=tk.NSEW)
-    # appearance mode 
-    tk_widgets.ST.appearance_label = ctk.CTkLabel(
-        tk_widgets.ST.scroll_frame,
-        text='Appearance:',
-        image=EmojiImage.create('☀️', weird=True),
-        compound=tk.LEFT,
-        anchor=tk.W
-    )
-    tk_widgets.ST.appearance_label.grid(
-        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
-
-    def appearance_cmd(choice):
-        setting.set('appearance', choice)
-        setting.save()
-        LOG('setting: Restart is require for appearance/style/theme changes to take effect.')
-    tk_widgets.ST.appearance_option = ctk.CTkOptionMenu(
-        tk_widgets.ST.scroll_frame,
-        values=[
-            'light',
-            'dark',
-            'system'
-        ],
-        command=appearance_cmd
-    )
-    tk_widgets.ST.appearance_option.set(setting.get('appearance', 'system'))
-    tk_widgets.ST.appearance_option.grid(
-        row=1, column=2, padx=5, pady=5, sticky=tk.NSEW)
-    
-    # style
-    tk_widgets.ST.style_label = ctk.CTkLabel(
-        tk_widgets.ST.scroll_frame,
-        text='Style:',
-        image=EmojiImage.create('✨'),
-        compound=tk.LEFT,
-        anchor=tk.W
-    )
-    tk_widgets.ST.style_label.grid(
-        row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
-
-    def style_cmd(choice):
-        setting.set('style', choice)
-        setting.save()
-        LOG('setting: Restart is require for appearance/style/theme changes to take effect.')
-    tk_widgets.ST.style_option = ctk.CTkOptionMenu(
-        tk_widgets.ST.scroll_frame,
-        values=[
-            'system',
-            'mica',
-            'acrylic',
-            'aero',
-            'transparent',
-            'optimised',
-            'win7',
-            'inverse'
-        ],
-        command=style_cmd
-    )
-    tk_widgets.ST.style_option.set(setting.get('style', 'system'))
-    tk_widgets.ST.style_option.grid(
-        row=2, column=2, padx=5, pady=5, sticky=tk.NSEW)
-
-    # theme
-    tk_widgets.ST.theme_label = ctk.CTkLabel(
-        tk_widgets.ST.scroll_frame,
-        text='Theme:',
-        image=EmojiImage.create('🖌️', weird=True),
-        compound=tk.LEFT,
-        anchor=tk.W
-    )
-    tk_widgets.ST.theme_label.grid(
-        row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
-
-    def theme_cmd(choice):
-        set_theme(choice)
-        setting.set('theme', choice)
-        setting.save()
-        LOG('setting: Restart is require for appearance/style/theme changes to take effect.')
-    tk_widgets.ST.theme_option = ctk.CTkOptionMenu(
-        tk_widgets.ST.scroll_frame,
-        values=[
-            'blue',
-            'dark-blue',
-            'green',
-            'carrot',
-            'coffee',
-            'marsh',
-            'metal',
-            'pink',
-            'red',
-            'sky',
-            'violet',
-            'yellow',
-        ],
-        command=theme_cmd
-    )
-    tk_widgets.ST.theme_option.set(setting.get('theme', 'blue'))
-    tk_widgets.ST.theme_option.grid(
-        row=3, column=2, padx=5, pady=5, sticky=tk.NSEW)
-    
-    
-    # limit message
-    tk_widgets.ST.loglimit_label = ctk.CTkLabel(
-        tk_widgets.ST.scroll_frame,
-        text='Log Limit Messages:',
-        image=EmojiImage.create('🗒️', weird=True),
-        compound=tk.LEFT,
-        anchor=tk.W
-    )
-    tk_widgets.ST.loglimit_label.grid(
-        row=4, column=1, padx=5, pady=5, sticky=tk.NSEW)
-
-    def loglimit_cmd(choice):
-        Log.limit = int(choice)
-        setting.set('Log.limit', choice)
-        setting.save()
-    tk_widgets.ST.loglimit_option = ctk.CTkOptionMenu(
-        tk_widgets.ST.scroll_frame,
-        values=[
-            '100',
-            '1000',
-            '10000'
-        ],
-        command=loglimit_cmd
-    )
-    tk_widgets.ST.loglimit_option.set(setting.get('Log.limit', '100'))
-    tk_widgets.ST.loglimit_option.grid(
-        row=4, column=2, padx=5, pady=5, sticky=tk.NSEW)
-    # shortcut desktop
-    tk_widgets.ST.desktop_button = ctk.CTkButton(
-        tk_widgets.ST.scroll_frame,
-        text='Create Desktop Shortcut',
-        image=EmojiImage.create('🖥️', weird=True),
-        anchor=tk.W,
-        command=winLT.Shortcut.create_desktop
-    )
-    tk_widgets.ST.desktop_button.grid(
-        row=5, column=1, padx=5, pady=5, sticky=tk.NSEW)
-    # explorer context
-    tk_widgets.ST.contextadd_button = ctk.CTkButton(
-        tk_widgets.ST.scroll_frame,
-        text='Create Explorer Contexts',
-        image=EmojiImage.create('💬'),
-        anchor=tk.W,
-        command=winLT.Context.create_contexts
-    )
-    tk_widgets.ST.contextadd_button.grid(
-        row=6, column=1, padx=5, pady=5, sticky=tk.NSEW)
-    tk_widgets.ST.contextrmv_button = ctk.CTkButton(
-        tk_widgets.ST.scroll_frame,
-        text='Remove Explorer Contexts',
-        image=EmojiImage.create('❌'),
-        anchor=tk.W,
-        command=winLT.Context.remove_contexts
-    )
-    tk_widgets.ST.contextrmv_button.grid(
-        row=6, column=2, padx=5, pady=5, sticky=tk.NS+tk.W)
-    # default folder
-    tk_widgets.ST.defaultdir_label = ctk.CTkLabel(
-        tk_widgets.ST.scroll_frame,
-        text='Ask Default Folder:',
-        image=EmojiImage.create('🌳'),
-        compound=tk.LEFT,
-        anchor=tk.W
-    )
-    tk_widgets.ST.defaultdir_label.grid(
-        row=7, column=1, padx=5, pady=5, sticky=tk.NSEW)
-
-    def defaultdir_cmd():
-        dir_path = tkfd.askdirectory(
-            parent=tk_widgets.main_tk,
-            title='Select Default Folder',
-            initialdir=setting.get('default_folder', None)
-        )
-        if dir_path == '':
-            dir_path = None
-            tk_widgets.ST.defaultdir_value_label.configure(
-                text='Default folder for all ask-file/ask-folder dialogs.'
-            )
-        else:
-            tk_widgets.ST.defaultdir_value_label.configure(text=dir_path)
-        setting.set('default_folder', dir_path)
-        setting.save()
-
-    tk_widgets.ST.defaultdir_button = ctk.CTkButton(
-        tk_widgets.ST.scroll_frame,
-        text='Browse',
-        image=EmojiImage.create('📁'),
-        command=defaultdir_cmd
-    )
-    tk_widgets.ST.defaultdir_button.grid(
-        row=7, column=2, padx=5, pady=5, sticky=tk.NSEW)
-    tk_widgets.ST.defaultdir_value_label = ctk.CTkLabel(
-        tk_widgets.ST.scroll_frame,
-        anchor=tk.W
-    )
-    defaultdir = setting.get('default_dir', None)
-    if defaultdir == None:
-        tk_widgets.ST.defaultdir_value_label.configure(
-            text='Default folder for all ask-file/ask-folder dialog'
-        )
-    tk_widgets.ST.defaultdir_value_label.grid(
-        row=7, column=3, padx=5, pady=5, sticky=tk.NSEW)
-    # restart ltmao
-    def restart_cmd():
-        import sys
-        LOG(f'Running: Restart LtMAO')
-        os.system(os.path.join(os.path.abspath(os.path.curdir),'start.bat'))
-        tk_widgets.main_tk.destroy()
-        sys.exit(0)
-        
-    tk_widgets.ST.restart_button = ctk.CTkButton(
-        tk_widgets.ST.scroll_frame,
-        text='Restart LtMAO',
-        image=EmojiImage.create('🚀'),
-        anchor=tk.W,
-        command=restart_cmd
-    )
-    tk_widgets.ST.restart_button.grid(
-        row=8, column=1, padx=5, pady=5, sticky=tk.NSEW)
-
-    # update ltmao
-    def update_cmd():
-        def update_thrd():
-            def to_human(size): 
-                return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) + ["", " KB", " MB", " GB", " TB", " PB", " EB"][max(size.bit_length()-1, 0)//10]
-            
-            check_version()
-            
-            if VERSION == NEW_VERSION:
-                LOG('update: Failed: Current version {VERSION} is the latest version.')
-            else:
-                local_file = './LtMAO-master.zip'
-                remote_file = 'https://codeload.github.com/tarngaina/LtMAO/zip/refs/heads/master'
-                # GET request
-                get = requests.get(remote_file, stream=True)
-                get.raise_for_status()
-                # download update
-                bytes_downloaded = 0
-                chunk_size = 1024**2*5
-                bytes_downloaded_log = 0
-                bytes_downloaded_log_limit = 1024**2
-                with open(local_file, 'wb') as f:
-                    for chunk in get.iter_content(chunk_size):
-                        chunk_length = len(chunk)
-                        bytes_downloaded += chunk_length
-                        f.write(chunk)
-                        bytes_downloaded_log += chunk_length
-                        if bytes_downloaded_log > bytes_downloaded_log_limit:
-                            LOG(
-                                f'update: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
-                            bytes_downloaded_log = 0
-                LOG(f'update: Done: Downloaded: {local_file}')
-                # extract update
-                from zipfile import ZipFile
-                with ZipFile(local_file) as zip:
-                    for zipinfo in zip.infolist():
-                        zipinfo.filename = zipinfo.filename.replace('LtMAO-master/', '')
-                        try:
-                            zip.extract(zipinfo, '.')
-                        except Exception as e:
-                            LOG(f'update: Failed but Ignored: Extract: {zipinfo.filename}: {e}')
-                # remove update file
-                os.remove(local_file)
-                # restat ltmao
-                import sys
-                LOG(f'Running: Restart LtMAO')
-                os.system(os.path.join(os.path.abspath(os.path.curdir),'start.bat'))
-                tk_widgets.main_tk.destroy()
-                sys.exit(0)
-
-        Thread(target=update_thrd, daemon=True).start()
-
-    tk_widgets.ST.update_button = ctk.CTkButton(
-        tk_widgets.ST.scroll_frame,
-        text='Update LtMAO',
-        image=EmojiImage.create('🚨'),
-        anchor=tk.W,
-        command=update_cmd
-    )
-    tk_widgets.ST.update_button.grid(
-        row=9, column=1, padx=5, pady=5, sticky=tk.NSEW)
-
 def create_SBORF_page():
     tk_widgets.SBORF.page_frame = ctk.CTkFrame(
         tk_widgets.mainright_frame,
@@ -4551,6 +4251,1044 @@ def create_LOLFBX_page():
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
 
 
+
+def create_BNKT_page():
+    # apply style to ttk treeview
+    bg_color = tk_widgets.main_tk._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["fg_color"])
+    text_color = tk_widgets.main_tk._apply_appearance_mode(ctk.ThemeManager.theme["CTkLabel"]["text_color"])
+    selected_color = tk_widgets.main_tk._apply_appearance_mode(ctk.ThemeManager.theme["CTkButton"]["fg_color"])
+    font = ctk.CTkLabel(None).cget('font')
+    font_size = font.cget('size')
+    font.configure(size=int(font_size*1.4))
+    treestyle = ttk.Style()
+    treestyle.theme_use('default')
+    treestyle.configure("Treeview", background=bg_color, foreground=text_color, fieldbackground=bg_color, borderwidth=0, font=font, rowheight=int(font_size*2.5))
+    treestyle.map('Treeview', background=[('selected', bg_color)], foreground=[('selected', selected_color)])
+    tk_widgets.main_tk.bind('<<TreeviewSelect>>', lambda event: tk_widgets.main_tk.focus_set())
+    
+    tk_widgets.BNKT.page_frame = ctk.CTkFrame(
+        tk_widgets.mainright_frame,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.BNKT.page_frame.columnconfigure(0, weight=1)
+    tk_widgets.BNKT.page_frame.rowconfigure(0, weight=1)
+    tk_widgets.BNKT.page_frame.rowconfigure(1, weight=999)
+
+    # init stuffs
+    tk_widgets.BNKT.treeview = None
+
+    # create input frame
+    tk_widgets.BNKT.input_frame = ctk.CTkFrame(
+        tk_widgets.BNKT.page_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.BNKT.input_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.BNKT.input_frame.columnconfigure(0, weight=9)
+    tk_widgets.BNKT.input_frame.columnconfigure(1, weight=1)
+    tk_widgets.BNKT.input_frame.rowconfigure(0, weight=1)
+    tk_widgets.BNKT.input_frame.rowconfigure(1, weight=1)
+    tk_widgets.BNKT.input_frame.rowconfigure(2, weight=1)
+
+    # create audio entry
+    tk_widgets.BNKT.audio_entry = ctk.CTkEntry(
+        tk_widgets.BNKT.input_frame,
+    )
+    tk_widgets.BNKT.audio_entry.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create audio browse button
+
+    def audiobrowse_cmd():
+        audio_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select Audio BNK/WPK file',
+            filetypes=(
+                ('BNK/WPK files', ('*.bnk', '*.wpk')),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        if audio_path != '':
+            tk_widgets.BNKT.audio_entry.delete(0, tk.END)
+            tk_widgets.BNKT.audio_entry.insert(tk.END, audio_path)
+    tk_widgets.BNKT.audiobrowse_button = ctk.CTkButton(
+        tk_widgets.BNKT.input_frame,
+        text='Browse Audio BNK/WPK',
+        image=EmojiImage.create('🔈'),
+        anchor=tk.CENTER,
+        command=audiobrowse_cmd
+    )
+    tk_widgets.BNKT.audiobrowse_button.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create event entry
+    tk_widgets.BNKT.event_entry = ctk.CTkEntry(
+        tk_widgets.BNKT.input_frame,
+    )
+    tk_widgets.BNKT.event_entry.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create event browse button
+
+    def eventbrowse_cmd():
+        event_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select Events BNK file',
+            filetypes=(
+                ('BNK files', '*.bnk'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        if event_path != '':
+            tk_widgets.BNKT.event_entry.delete(0, tk.END)
+            tk_widgets.BNKT.event_entry.insert(tk.END, event_path)
+    tk_widgets.BNKT.audiobrowse_button = ctk.CTkButton(
+        tk_widgets.BNKT.input_frame,
+        text='Browse Events BNK',
+        image=EmojiImage.create('📋'),
+        anchor=tk.CENTER,
+        command=eventbrowse_cmd
+    )
+    tk_widgets.BNKT.audiobrowse_button.grid(
+        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create bin entry
+    tk_widgets.BNKT.bin_entry = ctk.CTkEntry(
+        tk_widgets.BNKT.input_frame,
+    )
+    tk_widgets.BNKT.bin_entry.grid(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+    def binbrowse_cmd():
+        bin_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select BIN file',
+            filetypes=(
+                ('BIN files', '*.bin'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        if bin_path != '':
+            tk_widgets.BNKT.bin_entry.delete(0, tk.END)
+            tk_widgets.BNKT.bin_entry.insert(tk.END, bin_path)
+    # create bin browse button
+    tk_widgets.BNKT.binbrowse_button = ctk.CTkButton(
+        tk_widgets.BNKT.input_frame,
+        text='Browse BIN',
+        image=EmojiImage.create('📝'),
+        anchor=tk.CENTER,
+        command=binbrowse_cmd
+    )
+    tk_widgets.BNKT.binbrowse_button.grid(
+        row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create view frame
+    tk_widgets.BNKT.view_frame = ctk.CTkFrame(
+        tk_widgets.BNKT.page_frame
+    )
+    tk_widgets.BNKT.view_frame.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.BNKT.view_frame.rowconfigure(0, weight=1)
+    tk_widgets.BNKT.view_frame.columnconfigure(0, weight=9)
+    tk_widgets.BNKT.view_frame.columnconfigure(1, weight=1)
+
+    # create tree frame
+    tk_widgets.BNKT.tree_frame = ctk.CTkFrame(
+        tk_widgets.BNKT.view_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.BNKT.tree_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.BNKT.tree_frame.columnconfigure(0, weight=1)
+    tk_widgets.BNKT.tree_frame.columnconfigure(1, weight=0)
+    tk_widgets.BNKT.tree_frame.rowconfigure(0, weight=1)
+
+    # create control frame
+    tk_widgets.BNKT.control_frame = ctk.CTkFrame(
+        tk_widgets.BNKT.view_frame
+    )
+    tk_widgets.BNKT.control_frame.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.BNKT.control_frame.columnconfigure(0, weight=1)
+    tk_widgets.BNKT.control_frame.rowconfigure(0, weight=1)
+    tk_widgets.BNKT.control_frame.rowconfigure(1, weight=1)
+    tk_widgets.BNKT.control_frame.rowconfigure(2, weight=1)
+    tk_widgets.BNKT.control_frame.rowconfigure(3, weight=1)
+    tk_widgets.BNKT.control_frame.rowconfigure(4, weight=1)
+    tk_widgets.BNKT.control_frame.rowconfigure(5, weight=1)
+    tk_widgets.BNKT.control_frame.rowconfigure(6, weight=1)
+    tk_widgets.BNKT.control_frame.rowconfigure(7, weight=1)
+    tk_widgets.BNKT.control_frame.rowconfigure(8, weight=1)
+    tk_widgets.BNKT.control_frame.rowconfigure(9, weight=699)
+
+    # create load button
+    def load_cmd():
+        if tk_widgets.BNKT.treeview != None:
+            raise Exception('bnk_tool: Failed: There is already a treeview loaded, please click clear button to reset the app.')
+        
+        # read stuffs
+        bnk_tool.BNKParser.reset_cache()
+        parser = tk_widgets.BNKT.loaded_parser = bnk_tool.BNKParser(
+            audio_path=tk_widgets.BNKT.audio_entry.get(),
+            events_path=tk_widgets.BNKT.event_entry.get(),
+            bin_path=tk_widgets.BNKT.bin_entry.get()
+        )
+        parser.unpack(parser.get_cache_dir())
+        
+        # create treeview
+        tk_widgets.BNKT.treeview = treeview = ttk.Treeview(
+            tk_widgets.BNKT.tree_frame, 
+            show='tree'
+        )
+        treeview.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        treeview.parser = parser
+
+        # create scrollbar
+        treeview.treeview_scrollbar = treeview_scrollbar = ctk.CTkScrollbar(
+            tk_widgets.BNKT.tree_frame,
+            command=treeview.yview
+        )
+        treeview_scrollbar.grid(row=0, column=1, padx=0, pady=0, sticky=tk.NSEW)
+        treeview.configure(yscrollcommand=treeview_scrollbar.set)
+        
+        # pass data to the tree
+        root_tree_id = ''
+        treeview.cached_imgs = []
+        for event_id  in parser.audio_tree:
+            event_image = EmojiImage.create('📢', return_ctk=False)
+            event_tree_id = treeview.insert(
+                root_tree_id, 
+                tk.END, 
+                text=str(event_id), 
+                image=event_image,
+                tags='event'
+            )
+            treeview.cached_imgs.append(event_image)
+            for container_id in parser.audio_tree[event_id]:
+                container_image = EmojiImage.create('📣', return_ctk=False)
+                container_tree_id = treeview.insert(
+                    event_tree_id, 
+                    tk.END, 
+                    text=str(container_id), 
+                    image=container_image,
+                    tags='container'
+                )
+                treeview.cached_imgs.append(container_image)
+                for wem_id in parser.audio_tree[event_id][container_id]:
+                    wem_image = EmojiImage.create('🎵', return_ctk=False)
+                    wem_tree_id = treeview.insert(
+                        container_tree_id, 
+                        tk.END, 
+                        text=str(wem_id), 
+                        image=wem_image,
+                        tags='wem'
+                    )
+                    treeview.cached_imgs.append(wem_image)
+        # treeview event 
+        def wem_selected(event):
+            tree = event.widget
+            # this part is for replace button
+            selected = [tree.item(item) for item in tree.selection()]
+            wem_selected = [item for item in selected if item['tags'] == 'wem']
+            # play focus item if its a wem
+            if setting.get('bnktool.auto_play', 1) == 1:
+                focus_item = tree.item(tree.focus())
+                if focus_item['tags'][0] == 'wem':
+                    wem_id = int(focus_item['text'])
+                    parser.play(wem_id)
+
+        treeview.bind('<<TreeviewSelect>>', wem_selected)
+
+    tk_widgets.BNKT.load_button = ctk.CTkButton(
+        tk_widgets.BNKT.control_frame,
+        text='Load',
+        image=EmojiImage.create('💿'),
+        anchor=tk.CENTER,
+        command=load_cmd
+    )
+    tk_widgets.BNKT.load_button.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create save button
+    def save_cmd():
+        LOG('not yet supported this version')
+    tk_widgets.BNKT.save_button = ctk.CTkButton(
+        tk_widgets.BNKT.control_frame,
+        text='Save',
+        image=EmojiImage.create('💾'),
+        anchor=tk.CENTER,
+        command=save_cmd
+    )
+    tk_widgets.BNKT.save_button.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        
+    # create clear button
+    def clear_cmd():
+        if tk_widgets.BNKT.treeview != None:
+            tk_widgets.BNKT.treeview.treeview_scrollbar.destroy()
+            tk_widgets.BNKT.treeview.destroy()
+            tk_widgets.BNKT.treeview = None
+        bnk_tool.BNKParser.reset_cache()
+
+    tk_widgets.BNKT.clear_button = ctk.CTkButton(
+        tk_widgets.BNKT.control_frame,
+        text='Clear',
+        image=EmojiImage.create('❌'),
+        anchor=tk.CENTER,
+        command=clear_cmd
+    )
+    tk_widgets.BNKT.clear_button.grid(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create extract button
+    def extract_cmd():
+        LOG('not yet supported this version')
+    tk_widgets.BNKT.extract_button = ctk.CTkButton(
+        tk_widgets.BNKT.control_frame,
+        text='Extract all wems',
+        image=EmojiImage.create('➡️', weird=True),
+        anchor=tk.CENTER,
+        command=extract_cmd
+    )
+    tk_widgets.BNKT.extract_button.grid(
+        row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create replace button
+    def replace_cmd():
+        LOG('not yet supported this version')
+    tk_widgets.BNKT.replace_button = ctk.CTkButton(
+        tk_widgets.BNKT.control_frame,
+        text='Replace wem data',
+        image=EmojiImage.create('🔁'),
+        anchor=tk.CENTER,
+        command=replace_cmd
+    )
+    tk_widgets.BNKT.replace_button.grid(
+        row=4, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create play button
+    def play_cmd():
+        tree = tk_widgets.BNKT.treeview
+        if tree != None:
+            # this part is for replace button
+            selected = [tree.item(item) for item in tree.selection()]
+            wem_selected = [item for item in selected if item['tags'] == 'wem']
+            # play focus item if its a wem
+            focus_item = tree.item(tree.focus())
+            if focus_item['tags'][0] == 'wem':
+                wem_id = int(focus_item['text'])
+                tree.parser.play(wem_id)
+    tk_widgets.BNKT.play_button = ctk.CTkButton(
+        tk_widgets.BNKT.control_frame,
+        text='Play selected',
+        image=EmojiImage.create('▶️', weird=True),
+        anchor=tk.CENTER,
+        command=play_cmd
+    )
+    tk_widgets.BNKT.play_button.grid(
+        row=5, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create auto play check box
+    def autoplay_cmd():
+        setting.set('bnktool.auto_play',
+                    tk_widgets.BNKT.autoplay_checkbox.get())
+        setting.save()
+    tk_widgets.BNKT.autoplay_checkbox = ctk.CTkCheckBox(
+        tk_widgets.BNKT.control_frame,
+        text='Auto Play',
+        command=autoplay_cmd
+    )
+    tk_widgets.BNKT.autoplay_checkbox.grid(
+        row=6, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    if setting.get('bnktool.auto_play', 1) == 1:
+        tk_widgets.BNKT.autoplay_checkbox.select()
+    else:
+        tk_widgets.BNKT.autoplay_checkbox.deselect()
+
+    # create volume label
+    tk_widgets.BNKT.volume_label = ctk.CTkLabel(
+        tk_widgets.BNKT.control_frame,
+        text = 'Volume:',
+        anchor = tk.W
+    )
+    tk_widgets.BNKT.volume_label.grid(
+        row=7, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create volume slider
+    tk_widgets.BNKT.volume_slider = ctk.CTkSlider(
+        tk_widgets.BNKT.control_frame
+    )
+    tk_widgets.BNKT.volume_slider.grid(
+        row=8, column=0, padx=5, pady=5, sticky=tk.NSEW)
+
+
+def create_DDSM_page():    
+    tk_widgets.DDSM.page_frame = ctk.CTkFrame(
+        tk_widgets.mainright_frame,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.DDSM.page_frame.columnconfigure(0, weight=1)
+    tk_widgets.DDSM.page_frame.rowconfigure(0, weight=1)
+    # init stuffs
+    tk_widgets.DDSM.working_thread = None
+    # create action frame
+    tk_widgets.DDSM.action_frame = ctk.CTkFrame(
+        tk_widgets.DDSM.page_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.DDSM.action_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.DDSM.action_frame.columnconfigure(0, weight=1)
+    tk_widgets.DDSM.action_frame.columnconfigure(1, weight=1)
+    tk_widgets.DDSM.action_frame.columnconfigure(2, weight=699)
+    tk_widgets.DDSM.action_frame.rowconfigure(0, weight=1)
+    tk_widgets.DDSM.action_frame.rowconfigure(1, weight=1)
+    tk_widgets.DDSM.action_frame.rowconfigure(2, weight=1)
+    tk_widgets.DDSM.action_frame.rowconfigure(3, weight=1)
+    tk_widgets.DDSM.action_frame.rowconfigure(4, weight=1)
+    tk_widgets.DDSM.action_frame.rowconfigure(5, weight=1)
+    tk_widgets.DDSM.action_frame.rowconfigure(6, weight=1)
+    tk_widgets.DDSM.action_frame.rowconfigure(7, weight=1)
+    tk_widgets.DDSM.action_frame.rowconfigure(8, weight=1)
+    tk_widgets.DDSM.action_frame.rowconfigure(9, weight=1)
+    tk_widgets.DDSM.action_frame.rowconfigure(10, weight=699)
+    
+    # create dds2png label
+    tk_widgets.DDSM.dds2png_label = ctk.CTkLabel(
+        tk_widgets.DDSM.action_frame,
+        text = 'DDS to PNG',
+        anchor=tk.W
+    )
+    tk_widgets.DDSM.dds2png_label.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create dds2png button
+    def dds2png_cmd(isdir=False):
+        def dds2png_thrd():
+            if isdir:
+                dir_path = tkfd.askdirectory(
+                    parent=tk_widgets.main_tk,
+                    title='Select Default Folder',
+                    initialdir=setting.get('default_folder', None)
+                )
+                dds_paths = []
+                for root, dirs, files in os.walk(dir_path):
+                    for file in files:
+                        if file.endswith('.dds'):
+                            dds_paths.append(os.path.join(root, file).replace('\\', '/'))
+            else:
+                dds_paths = tkfd.askopenfilenames(
+                    title='Select DDS',
+                    parent=tk_widgets.main_tk,
+                    filetypes=(('DDS file', '*.dds'),),
+                    initialdir=setting.get('default_folder', None)
+                )
+            if len(dds_paths) > 0:
+                LOG(f'ddsmart: Running: dds2png: {len(dds_paths)} items.')
+                for dds_path in dds_paths:
+                    ext_tools.ImageMagick.to_png(
+                        src=dds_path,
+                        png=dds_path.replace('.dds', '.png')
+                    )
+                LOG(f'ddsmart: Done: dds2png: {len(dds_paths)} items.')
+        
+        if check_thread_safe(tk_widgets.DDSM.working_thread):
+            tk_widgets.DDSM.working_thread = Thread(target=dds2png_thrd, daemon=True)
+            tk_widgets.DDSM.working_thread.start()
+        else:
+            LOG(
+                'ddsmart: Failed: A thread is already running, wait for it to finished.')
+        
+    tk_widgets.DDSM.dds2png_button = ctk.CTkButton(
+        tk_widgets.DDSM.action_frame,
+        text='Select DDS',
+        image=EmojiImage.create('🏞️', weird=True),
+        anchor=tk.CENTER,
+        command=lambda: dds2png_cmd(isdir=False)
+    )
+    tk_widgets.DDSM.dds2png_button.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.DDSM.dds2png_dir_button = ctk.CTkButton(
+        tk_widgets.DDSM.action_frame,
+        text='Select Folder',
+        image=EmojiImage.create('📁'),
+        anchor=tk.CENTER,
+        command=lambda: dds2png_cmd(isdir=True)
+    )
+    tk_widgets.DDSM.dds2png_dir_button.grid(
+        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create png2dds label
+    tk_widgets.DDSM.png2dds_label = ctk.CTkLabel(
+        tk_widgets.DDSM.action_frame,
+        text = 'PNG to DDS',
+        anchor=tk.W
+    )
+    tk_widgets.DDSM.png2dds_label.grid(
+        row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create png2dds button
+    def png2dds_cmd(isdir=False):
+        def png2dds_thrd():
+            if isdir:
+                dir_path = tkfd.askdirectory(
+                    parent=tk_widgets.main_tk,
+                    title='Select Default Folder',
+                    initialdir=setting.get('default_folder', None)
+                )
+                png_paths = []
+                for root, dirs, files in os.walk(dir_path):
+                    for file in files:
+                        if file.endswith('.png'):
+                            png_paths.append(os.path.join(root, file).replace('\\', '/'))
+            else:
+                png_paths = tkfd.askopenfilenames(
+                    title='Select PNG',
+                    parent=tk_widgets.main_tk,
+                    filetypes=(('PNG file', '*.png'),),
+                    initialdir=setting.get('default_folder', None)
+                )
+            if len(png_paths) > 0:
+                LOG(f'ddsmart: Running: png2dds: {len(png_paths)} items.')
+                for png_path in png_paths:
+                    ext_tools.ImageMagick.to_dds(
+                        src=png_path,
+                        dds=png_path.replace('.png', '.dds')
+                    )
+                LOG(f'ddsmart: Done: png2dds: {len(png_paths)} items.')
+        
+        if check_thread_safe(tk_widgets.DDSM.working_thread):
+            tk_widgets.DDSM.working_thread = Thread(target=png2dds_thrd, daemon=True)
+            tk_widgets.DDSM.working_thread.start()
+        else:
+            LOG(
+                'ddsmart: Failed: A thread is already running, wait for it to finished.')
+    tk_widgets.DDSM.png2dds_button = ctk.CTkButton(
+        tk_widgets.DDSM.action_frame,
+        text='Select PNG',
+        image=EmojiImage.create('🌇'),
+        anchor=tk.CENTER,
+        command=lambda: png2dds_cmd(isdir=False)
+    )
+    tk_widgets.DDSM.png2dds_button.grid(
+        row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.DDSM.png2dds_dir_button = ctk.CTkButton(
+        tk_widgets.DDSM.action_frame,
+        text='Select Folder',
+        image=EmojiImage.create('📁'),
+        anchor=tk.CENTER,
+        command=lambda: png2dds_cmd(isdir=True)
+    )
+    tk_widgets.DDSM.png2dds_dir_button.grid(
+        row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    
+
+    # create dds2tex label
+    tk_widgets.DDSM.dds2tex_label = ctk.CTkLabel(
+        tk_widgets.DDSM.action_frame,
+        text = 'DDS To TEX',
+        anchor=tk.W
+    )
+    tk_widgets.DDSM.dds2tex_label.grid(
+        row=4, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create dds2tex button
+    def dds2tex_cmd(isdir=False):
+        def dds2tex_thrd():
+            if isdir:
+                dir_path = tkfd.askdirectory(
+                    parent=tk_widgets.main_tk,
+                    title='Select Default Folder',
+                    initialdir=setting.get('default_folder', None)
+                )
+                dds_paths = []
+                for root, dirs, files in os.walk(dir_path):
+                    for file in files:
+                        if file.endswith('.dds'):
+                            dds_paths.append(os.path.join(root, file).replace('\\', '/'))
+            else:
+                dds_paths = tkfd.askopenfilenames(
+                    title='Select DDS',
+                    parent=tk_widgets.main_tk,
+                    filetypes=(('DDS file', '*.dds'),),
+                    initialdir=setting.get('default_folder', None)
+                )
+            if len(dds_paths) > 0:
+                LOG(f'ddsmart: Running: dds2tex: {len(dds_paths)} items.')
+                for dds_path in dds_paths:
+                    Ritoddstex.dds2tex(dds_path)
+                LOG(f'ddsmart: Done: dds2tex: {len(dds_paths)} items.')
+        
+        if check_thread_safe(tk_widgets.DDSM.working_thread):
+            tk_widgets.DDSM.working_thread = Thread(target=dds2tex_thrd, daemon=True)
+            tk_widgets.DDSM.working_thread.start()
+        else:
+            LOG(
+                'ddsmart: Failed: A thread is already running, wait for it to finished.')
+    tk_widgets.DDSM.dds2tex_button = ctk.CTkButton(
+        tk_widgets.DDSM.action_frame,
+        text='Select DDS',
+        image=EmojiImage.create('🏞️', weird=True),
+        anchor=tk.CENTER,
+        command=lambda: dds2tex_cmd(isdir=False)
+    )
+    tk_widgets.DDSM.dds2tex_button.grid(
+        row=5, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.DDSM.dds2tex_dir_button = ctk.CTkButton(
+        tk_widgets.DDSM.action_frame,
+        text='Select Folder',
+        image=EmojiImage.create('📁'),
+        anchor=tk.CENTER,
+        command=lambda: dds2tex_cmd(isdir=True)
+    )
+    tk_widgets.DDSM.dds2tex_dir_button.grid(
+        row=5, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+
+    # create tex2dds label
+    tk_widgets.DDSM.tex2dds_label = ctk.CTkLabel(
+        tk_widgets.DDSM.action_frame,
+        text = 'TEX to DDS',
+        anchor=tk.W
+    )
+    tk_widgets.DDSM.tex2dds_label.grid(
+        row=6, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create tex2dds button
+    def tex2dds_cmd(isdir=False):
+        def tex2dds_thrd():
+            if isdir:
+                dir_path = tkfd.askdirectory(
+                    parent=tk_widgets.main_tk,
+                    title='Select Default Folder',
+                    initialdir=setting.get('default_folder', None)
+                )
+                tex_paths = []
+                for root, dirs, files in os.walk(dir_path):
+                    for file in files:
+                        if file.endswith('.tex'):
+                            tex_paths.append(os.path.join(root, file).replace('\\', '/'))
+            else:
+                tex_paths = tkfd.askopenfilenames(
+                    title='Select TEX',
+                    parent=tk_widgets.main_tk,
+                    filetypes=(('TEX file', '*.tex'),),
+                    initialdir=setting.get('default_folder', None)
+                )
+            if len(tex_paths) > 0:
+                LOG(f'ddsmart: Running: tex2dds: {len(tex_paths)} items.')
+                for tex_path in tex_paths:
+                    Ritoddstex.tex2dds(tex_path)
+                LOG(f'ddsmart: Done: tex2dds: {len(tex_paths)} items.')
+        
+        if check_thread_safe(tk_widgets.DDSM.working_thread):
+            tk_widgets.DDSM.working_thread = Thread(target=tex2dds_thrd, daemon=True)
+            tk_widgets.DDSM.working_thread.start()
+        else:
+            LOG(
+                'ddsmart: Failed: A thread is already running, wait for it to finished.')
+    tk_widgets.DDSM.tex2dds_button = ctk.CTkButton(
+        tk_widgets.DDSM.action_frame,
+        text='Select TEX',
+        image=EmojiImage.create('🌌'),
+        anchor=tk.CENTER,
+        command=lambda: tex2dds_cmd(isdir=False)
+    )
+    tk_widgets.DDSM.tex2dds_button.grid(
+        row=7, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.DDSM.tex2dds_dir_button = ctk.CTkButton(
+        tk_widgets.DDSM.action_frame,
+        text='Select Folder',
+        image=EmojiImage.create('📁'),
+        anchor=tk.CENTER,
+        command=lambda: tex2dds_cmd(isdir=True)
+    )
+    tk_widgets.DDSM.tex2dds_dir_button.grid(
+        row=7, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    
+    # create make2x4xdds label
+    tk_widgets.DDSM.make2x4xdds_label = ctk.CTkLabel(
+        tk_widgets.DDSM.action_frame,
+        text = 'Make 2x, 4x DDS',
+        anchor=tk.W
+    )
+    tk_widgets.DDSM.make2x4xdds_label.grid(
+        row=8, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    # create make2x4xdds button
+    def make2x4xdds_cmd(isdir=False):
+        def make2x4xdds_thrd():
+            if isdir:
+                dir_path = tkfd.askdirectory(
+                    parent=tk_widgets.main_tk,
+                    title='Select Default Folder',
+                    initialdir=setting.get('default_folder', None)
+                )
+                dds_paths = []
+
+                for root, dirs, files in os.walk(dir_path):
+                    for file in files:
+                        if file.endswith('.dds') and file[:3] not in ('2x_', '4x_'):
+                                dds_paths.append(os.path.join(root, file).replace('\\', '/'))
+            else:
+                dds_paths = tkfd.askopenfilenames(
+                    title='Select DDS',
+                    parent=tk_widgets.main_tk,
+                    filetypes=(('DDS file', '*.dds'),),
+                    initialdir=setting.get('default_folder', None)
+                )
+            if len(dds_paths) > 0:
+                LOG(f'ddsmart: Running: make2x4xdds: {len(dds_paths)} items.')
+                for dds_path in dds_paths:
+                    src = dds_path
+                    with Image.open(src) as img:
+                        basename = os.path.basename(src)
+                        dirname = os.path.dirname(src)
+                        width_2x = img.width // 2
+                        height_2x = img.height // 2
+                        file_2x = os.path.join(dirname, '2x_'+basename).replace('\\', '/')
+                        width_4x = img.width // 4
+                        height_4x = img.height // 4
+                        file_4x = os.path.join(dirname, '4x_'+basename).replace('\\', '/')
+                    if not os.path.exists(file_2x):
+                        ext_tools.ImageMagick.resize_dds(
+                            src=src,
+                            dst=file_2x, width=width_2x, height=height_2x
+                        )
+                    if not os.path.exists(file_4x):
+                        ext_tools.ImageMagick.resize_dds(
+                            src=src,
+                            dst=file_4x, width=width_4x, height=height_4x
+                        )
+                LOG(f'ddsmart: Done: make2x4xdds: {len(dds_paths)} items.')
+        
+        if check_thread_safe(tk_widgets.DDSM.working_thread):
+            tk_widgets.DDSM.working_thread = Thread(target=make2x4xdds_thrd, daemon=True)
+            tk_widgets.DDSM.working_thread.start()
+        else:
+            LOG(
+                'ddsmart: Failed: A thread is already running, wait for it to finished.')
+    tk_widgets.DDSM.make2x4xdds_button = ctk.CTkButton(
+        tk_widgets.DDSM.action_frame,
+        text='Select DDS',
+        image=EmojiImage.create('🏞️', weird=True),
+        anchor=tk.CENTER,
+        command=lambda: make2x4xdds_cmd(isdir=False)
+    )
+    tk_widgets.DDSM.make2x4xdds_button.grid(
+        row=9, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.DDSM.make2x4xdds_dir_button = ctk.CTkButton(
+        tk_widgets.DDSM.action_frame,
+        text='Select Folder',
+        image=EmojiImage.create('📁'),
+        anchor=tk.CENTER,
+        command=lambda: make2x4xdds_cmd(isdir=True)
+    )
+    tk_widgets.DDSM.make2x4xdds_dir_button.grid(
+        row=9, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+
+
+def create_ST_page():
+    tk_widgets.ST.page_frame = ctk.CTkFrame(
+        tk_widgets.mainright_frame,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.ST.page_frame.columnconfigure(0, weight=1)
+    tk_widgets.ST.page_frame.rowconfigure(0, weight=1)
+
+    tk_widgets.ST.scroll_frame = ctk.CTkScrollableFrame(
+        tk_widgets.ST.page_frame,
+        fg_color=TRANSPARENT
+    )
+    tk_widgets.ST.scroll_frame.grid(
+        row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
+    # general label
+    tk_widgets.ST.general_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        text='General'
+    )
+    tk_widgets.ST.general_label.grid(
+        row=0, column=0, padx=10, pady=5, sticky=tk.NSEW)
+    # appearance mode 
+    tk_widgets.ST.appearance_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        text='Appearance:',
+        image=EmojiImage.create('☀️', weird=True),
+        compound=tk.LEFT,
+        anchor=tk.W
+    )
+    tk_widgets.ST.appearance_label.grid(
+        row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    def appearance_cmd(choice):
+        setting.set('appearance', choice)
+        setting.save()
+        LOG('setting: Restart is require for appearance/style/theme changes to take effect.')
+    tk_widgets.ST.appearance_option = ctk.CTkOptionMenu(
+        tk_widgets.ST.scroll_frame,
+        values=[
+            'light',
+            'dark',
+            'system'
+        ],
+        command=appearance_cmd
+    )
+    tk_widgets.ST.appearance_option.set(setting.get('appearance', 'system'))
+    tk_widgets.ST.appearance_option.grid(
+        row=1, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # style
+    tk_widgets.ST.style_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        text='Style:',
+        image=EmojiImage.create('✨'),
+        compound=tk.LEFT,
+        anchor=tk.W
+    )
+    tk_widgets.ST.style_label.grid(
+        row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    def style_cmd(choice):
+        setting.set('style', choice)
+        setting.save()
+        LOG('setting: Restart is require for appearance/style/theme changes to take effect.')
+    tk_widgets.ST.style_option = ctk.CTkOptionMenu(
+        tk_widgets.ST.scroll_frame,
+        values=[
+            'system',
+            'mica',
+            'acrylic',
+            'aero',
+            'transparent',
+            'optimised',
+            'win7',
+            'inverse'
+        ],
+        command=style_cmd
+    )
+    tk_widgets.ST.style_option.set(setting.get('style', 'system'))
+    tk_widgets.ST.style_option.grid(
+        row=2, column=2, padx=5, pady=5, sticky=tk.NSEW)
+
+    # theme
+    tk_widgets.ST.theme_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        text='Theme:',
+        image=EmojiImage.create('🖌️', weird=True),
+        compound=tk.LEFT,
+        anchor=tk.W
+    )
+    tk_widgets.ST.theme_label.grid(
+        row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    def theme_cmd(choice):
+        set_theme(choice)
+        setting.set('theme', choice)
+        setting.save()
+        LOG('setting: Restart is require for appearance/style/theme changes to take effect.')
+    tk_widgets.ST.theme_option = ctk.CTkOptionMenu(
+        tk_widgets.ST.scroll_frame,
+        values=[
+            'blue',
+            'dark-blue',
+            'green',
+            'carrot',
+            'coffee',
+            'marsh',
+            'metal',
+            'pink',
+            'red',
+            'sky',
+            'violet',
+            'yellow',
+        ],
+        command=theme_cmd
+    )
+    tk_widgets.ST.theme_option.set(setting.get('theme', 'blue'))
+    tk_widgets.ST.theme_option.grid(
+        row=3, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # limit message
+    tk_widgets.ST.loglimit_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        text='Log Limit Messages:',
+        image=EmojiImage.create('🗒️', weird=True),
+        compound=tk.LEFT,
+        anchor=tk.W
+    )
+    tk_widgets.ST.loglimit_label.grid(
+        row=4, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    def loglimit_cmd(choice):
+        Log.limit = int(choice)
+        setting.set('Log.limit', choice)
+        setting.save()
+    tk_widgets.ST.loglimit_option = ctk.CTkOptionMenu(
+        tk_widgets.ST.scroll_frame,
+        values=[
+            '100',
+            '1000',
+            '10000'
+        ],
+        command=loglimit_cmd
+    )
+    tk_widgets.ST.loglimit_option.set(setting.get('Log.limit', '100'))
+    tk_widgets.ST.loglimit_option.grid(
+        row=4, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    # shortcut desktop
+    tk_widgets.ST.desktop_button = ctk.CTkButton(
+        tk_widgets.ST.scroll_frame,
+        text='Create Desktop Shortcut',
+        image=EmojiImage.create('🖥️', weird=True),
+        anchor=tk.W,
+        command=winLT.Shortcut.create_desktop
+    )
+    tk_widgets.ST.desktop_button.grid(
+        row=5, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    # explorer context
+    tk_widgets.ST.contextadd_button = ctk.CTkButton(
+        tk_widgets.ST.scroll_frame,
+        text='Create Explorer Contexts',
+        image=EmojiImage.create('💬'),
+        anchor=tk.W,
+        command=winLT.Context.create_contexts
+    )
+    tk_widgets.ST.contextadd_button.grid(
+        row=6, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.ST.contextrmv_button = ctk.CTkButton(
+        tk_widgets.ST.scroll_frame,
+        text='Remove Explorer Contexts',
+        image=EmojiImage.create('❌'),
+        anchor=tk.W,
+        command=winLT.Context.remove_contexts
+    )
+    tk_widgets.ST.contextrmv_button.grid(
+        row=6, column=2, padx=5, pady=5, sticky=tk.NS+tk.W)
+    # default folder
+    tk_widgets.ST.defaultdir_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        text='Ask Default Folder:',
+        image=EmojiImage.create('🌳'),
+        compound=tk.LEFT,
+        anchor=tk.W
+    )
+    tk_widgets.ST.defaultdir_label.grid(
+        row=7, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    def defaultdir_cmd():
+        dir_path = tkfd.askdirectory(
+            parent=tk_widgets.main_tk,
+            title='Select Default Folder',
+            initialdir=setting.get('default_folder', None)
+        )
+        if dir_path == '':
+            dir_path = None
+            tk_widgets.ST.defaultdir_value_label.configure(
+                text='Default folder for all ask-file/ask-folder dialogs.'
+            )
+        else:
+            tk_widgets.ST.defaultdir_value_label.configure(text=dir_path)
+        setting.set('default_folder', dir_path)
+        setting.save()
+
+    tk_widgets.ST.defaultdir_button = ctk.CTkButton(
+        tk_widgets.ST.scroll_frame,
+        text='Browse',
+        image=EmojiImage.create('📁'),
+        command=defaultdir_cmd
+    )
+    tk_widgets.ST.defaultdir_button.grid(
+        row=7, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.ST.defaultdir_value_label = ctk.CTkLabel(
+        tk_widgets.ST.scroll_frame,
+        anchor=tk.W
+    )
+    defaultdir = setting.get('default_dir', None)
+    if defaultdir == None:
+        tk_widgets.ST.defaultdir_value_label.configure(
+            text='Default folder for all ask-file/ask-folder dialog'
+        )
+    tk_widgets.ST.defaultdir_value_label.grid(
+        row=7, column=3, padx=5, pady=5, sticky=tk.NSEW)
+    # restart ltmao
+    def restart_cmd():
+        import sys
+        LOG(f'Running: Restart LtMAO')
+        os.system(os.path.join(os.path.abspath(os.path.curdir),'start.bat'))
+        tk_widgets.main_tk.destroy()
+        sys.exit(0)
+        
+    tk_widgets.ST.restart_button = ctk.CTkButton(
+        tk_widgets.ST.scroll_frame,
+        text='Restart LtMAO',
+        image=EmojiImage.create('🚀'),
+        anchor=tk.W,
+        command=restart_cmd
+    )
+    tk_widgets.ST.restart_button.grid(
+        row=8, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    # update ltmao
+    def update_cmd():
+        def update_thrd():
+            def to_human(size): 
+                return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) + ["", " KB", " MB", " GB", " TB", " PB", " EB"][max(size.bit_length()-1, 0)//10]
+            
+            check_version()
+            
+            if VERSION == NEW_VERSION:
+                LOG('update: Failed: Current version {VERSION} is the latest version.')
+            else:
+                local_file = './LtMAO-master.zip'
+                remote_file = 'https://codeload.github.com/tarngaina/LtMAO/zip/refs/heads/master'
+                # GET request
+                get = requests.get(remote_file, stream=True)
+                get.raise_for_status()
+                # download update
+                bytes_downloaded = 0
+                chunk_size = 1024**2*5
+                bytes_downloaded_log = 0
+                bytes_downloaded_log_limit = 1024**2
+                with open(local_file, 'wb') as f:
+                    for chunk in get.iter_content(chunk_size):
+                        chunk_length = len(chunk)
+                        bytes_downloaded += chunk_length
+                        f.write(chunk)
+                        bytes_downloaded_log += chunk_length
+                        if bytes_downloaded_log > bytes_downloaded_log_limit:
+                            LOG(
+                                f'update: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
+                            bytes_downloaded_log = 0
+                LOG(f'update: Done: Downloaded: {local_file}')
+                # extract update
+                from zipfile import ZipFile
+                with ZipFile(local_file) as zip:
+                    for zipinfo in zip.infolist():
+                        zipinfo.filename = zipinfo.filename.replace('LtMAO-master/', '')
+                        try:
+                            zip.extract(zipinfo, '.')
+                        except Exception as e:
+                            LOG(f'update: Failed but Ignored: Extract: {zipinfo.filename}: {e}')
+                # remove update file
+                os.remove(local_file)
+                # restat ltmao
+                import sys
+                LOG(f'Running: Restart LtMAO')
+                os.system(os.path.join(os.path.abspath(os.path.curdir),'start.bat'))
+                tk_widgets.main_tk.destroy()
+                sys.exit(0)
+
+        Thread(target=update_thrd, daemon=True).start()
+
+    tk_widgets.ST.update_button = ctk.CTkButton(
+        tk_widgets.ST.scroll_frame,
+        text='Update LtMAO',
+        image=EmojiImage.create('🚨'),
+        anchor=tk.W,
+        command=update_cmd
+    )
+    tk_widgets.ST.update_button.grid(
+        row=9, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+
 def select_right_page(selected):
     # hide all page
     for page in tk_widgets.pages:
@@ -4667,7 +5405,7 @@ def create_page_controls():
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='uvee',
-            image=EmojiImage.create('🖼️', weird=True),
+            image=EmojiImage.create('🧱'),
             command=lambda: control_cmd(6)
         ),
         ctk.CTkButton(
@@ -4705,6 +5443,18 @@ def create_page_controls():
             text='lol2fbx',
             image=EmojiImage.create('💎'),
             command=lambda: control_cmd(12)
+        ),
+        ctk.CTkButton(
+            tk_widgets.mainleft_frame,
+            text='bnk_tool',
+            image=EmojiImage.create('🔊'),
+            command=lambda: control_cmd(13)
+        ),
+        ctk.CTkButton(
+            tk_widgets.mainleft_frame,
+            text='ddsmart',
+            image=EmojiImage.create('🛣️', weird=True),
+            command=lambda: control_cmd(14)
         )
     ]
     for id, control_button in enumerate(tk_widgets.control_buttons):
@@ -4740,6 +5490,8 @@ def create_page_controls():
     tk_widgets.PT = tk_widgets.pages[10]
     tk_widgets.SBORF = tk_widgets.pages[11]
     tk_widgets.LOLFBX = tk_widgets.pages[12]
+    tk_widgets.BNKT = tk_widgets.pages[13]
+    tk_widgets.DDSM = tk_widgets.pages[14]
     # create right pages
     tk_widgets.create_right_page = [
         create_CSLMAO_page,
@@ -4754,7 +5506,9 @@ def create_page_controls():
         create_WT_page,
         create_PT_page,
         create_SBORF_page,
-        create_LOLFBX_page
+        create_LOLFBX_page,
+        create_BNKT_page,
+        create_DDSM_page
     ]
     # create LOG and ST control, page
     tk_widgets.minilog_control = None
