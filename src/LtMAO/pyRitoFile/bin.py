@@ -70,7 +70,7 @@ class BINHelper:
         elif value_type == BINType.I32:
             value = bs.read_i32()[0]
         elif value_type == BINType.U32:
-            value = bs.read_i32()[0]
+            value = bs.read_u32()[0]
         elif value_type == BINType.I64:
             value = bs.read_i64()[0]
         elif value_type == BINType.U64:

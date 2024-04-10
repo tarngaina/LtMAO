@@ -150,7 +150,8 @@ class WADChunk:
         elif self.compression_type == WADCompressionType.ZstdChunked:
             if raw[:4] == b'\x28\xb5\x2f\xfd':
                 self.data = pyzstd.decompress(raw)
-            self.data = raw
+            else:
+                self.data = raw
         # guess extension
         if self.extension == None:
             self.extension = guess_extension(self.data)
