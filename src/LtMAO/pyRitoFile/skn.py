@@ -14,7 +14,7 @@ class SKNVertexType(IntFlag):
     TANGENT = 1 << 1
 
     def __json__(self):
-        return self.to_simple_str()
+        return self.value
 
 
 class SKNVertex:
