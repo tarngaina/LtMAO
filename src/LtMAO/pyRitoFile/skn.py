@@ -9,7 +9,6 @@ def bin_hash(name):
 
 
 class SKNVertexType(IntFlag):
-    BASIC = 1
     COLOR = 1 << 0
     TANGENT = 1 << 1
 
@@ -131,7 +130,7 @@ class SKN:
 
                     if self.vertex_type in (0, 1, 2):
                         self.vertex_type = SKNVertexType(self.vertex_type)
-                        if self.vertex_size == 52 and self.vertex_type == SKNVertexType.BASIC\
+                        if self.vertex_size == 52 and self.vertex_type.value == 0\
                         or self.vertex_size == 56 and self.vertex_type == SKNVertexType.COLOR \
                         or self.vertex_size == 72 and self.vertex_type == SKNVertexType.TANGENT: pass
                         else: raise Exception(f'pyRitoFile: Failed: Read SKN {path}: Invalid vertex_type:{self.vertex_type} vertex_size:{self.vertex_size}')
