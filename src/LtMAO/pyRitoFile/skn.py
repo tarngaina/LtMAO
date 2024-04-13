@@ -167,15 +167,31 @@ class SKN:
         with self.stream(path, 'wb', raw) as bs:
             # magic, version
             bs.write_u32(0x00112233)
-            bs.write_u16(1, 1)
+            if self.version >= 4:
+                bs.write_u16(4, 1)
+            else:
+                bs.write_u16(1, 1)
+
             # submesh
             bs.write_u32(len(self.submeshes))
             for submesh in self.submeshes:
                 bs.write_a_padded(submesh.name, 64)
                 bs.write_u32(
                     submesh.vertex_start, submesh.vertex_count, submesh.index_start, submesh.index_count)
+            
+            if self.version >= 4:
+                bs.write_u32(self.flags)
+
             # indices vertices
             bs.write_u32(len(self.indices), len(self.vertices))
+            if self.version >= 4:
+                bs.write_u32(self.vertex_size)
+                bs.write_u32(self.vertex_type.value)
+                bs.write_vec3(self.bounding_box[0])
+                bs.write_vec3(self.bounding_box[1])
+                bs.write_vec3(self.bounding_sphere[0])
+                bs.write_f32(self.bounding_sphere[1])
+            
             bs.write_u16(*self.indices)
             for vertex in self.vertices:
                 bs.write_vec3(vertex.position)
@@ -183,4 +199,10 @@ class SKN:
                 bs.write_f32(*vertex.weights)
                 bs.write_vec3(vertex.normal)
                 bs.write_vec2(vertex.uv)
+                if self.version >= 4:
+                    if self.vertex_type != None:
+                        if self.vertex_type in (SKNVertexType.COLOR, SKNVertexType.TANGENT):
+                            bs.write_u8(*vertex.color)
+                            if self.vertex_type == SKNVertexType.TANGENT:
+                                bs.write_vec4(vertex.tangent)
             return bs.raw() if raw else None
