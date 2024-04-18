@@ -1,16 +1,17 @@
 from io import BytesIO
 from ..pyRitoFile.io import BinStream
 from ..pyRitoFile.hash import FNV1a
-from enum import IntFlag
+from enum import Enum
 
 
 def bin_hash(name):
     return f'{FNV1a(name):08x}'
 
 
-class SKNVertexType(IntFlag):
-    COLOR = 1 << 0
-    TANGENT = 1 << 1
+class SKNVertexType(Enum):
+    BASIC = 0
+    COLOR = 1
+    TANGENT = 2
 
     def __json__(self):
         return self.value
@@ -130,7 +131,7 @@ class SKN:
 
                     if self.vertex_type in (0, 1, 2):
                         self.vertex_type = SKNVertexType(self.vertex_type)
-                        if self.vertex_size == 52 and self.vertex_type.value == 0\
+                        if self.vertex_size == 52 and self.vertex_type == SKNVertexType.BASIC\
                         or self.vertex_size == 56 and self.vertex_type == SKNVertexType.COLOR \
                         or self.vertex_size == 72 and self.vertex_type == SKNVertexType.TANGENT: pass
                         else: raise Exception(f'pyRitoFile: Failed: Read SKN {path}: Invalid vertex_type:{self.vertex_type} vertex_size:{self.vertex_size}')
