@@ -16,12 +16,12 @@ from threading import Thread
 from traceback import format_exception
 from PIL import Image
 
-
 LOG = Log.add
 # transparent color
 TRANSPARENT = 'transparent'
 # to keep all created widgets
 tk_widgets = Keeper()
+le_font = None
 
 def set_rce():
     def rce(self, *args):
@@ -59,12 +59,15 @@ def create_main_app_and_frames():
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.TkdndVersion = tkdnd.TkinterDnD._require(self)
+    
     # create main app
     tk_widgets.main_tk = CTkDnD()
     tk_widgets.main_tk.geometry('1000x620')
     tk_widgets.main_tk.title('LtMAO')
     if os.path.exists(winLT.icon_file):
         tk_widgets.main_tk.iconbitmap(winLT.icon_file)
+    global le_font
+    le_font=ctk.CTkFont(family='Consolas', size=14)
     # create main top-bottom frame
     tk_widgets.main_tk.rowconfigure(0, weight=100)
     tk_widgets.main_tk.rowconfigure(1, weight=1)
@@ -138,6 +141,7 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.setting_frame.columnconfigure(1, weight=699)
     tk_widgets.CSLMAO.setting_frame.columnconfigure(2, weight=1)
     tk_widgets.CSLMAO.setting_frame.columnconfigure(3, weight=1)
+    tk_widgets.CSLMAO.setting_frame.columnconfigure(4, weight=1)
 
     # create game folder setting
     def gamedir_cmd():
@@ -158,7 +162,8 @@ def create_CSLMAO_page():
         tk_widgets.CSLMAO.setting_frame,
         text='Browse Game Folder',
         image=EmojiImage.create('🎮'),
-        command=gamedir_cmd
+        command=gamedir_cmd,
+        font=le_font
     )
     tk_widgets.CSLMAO.gamedir_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -166,7 +171,8 @@ def create_CSLMAO_page():
         tk_widgets.CSLMAO.setting_frame,
         text=setting.get(
             'game_folder', 'Please choose League of Legends/Game folder.'),
-        anchor=tk.W
+        anchor=tk.W,
+        font=le_font
     )
     tk_widgets.CSLMAO.gamedir_value_label.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -176,7 +182,8 @@ def create_CSLMAO_page():
         text='Extra Game Modes:',
         image=EmojiImage.create('🕹️', weird=True),
         compound=tk.LEFT,
-        anchor=tk.W
+        anchor=tk.W,
+        font=le_font
     )
     tk_widgets.CSLMAO.egm_label.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -188,7 +195,8 @@ def create_CSLMAO_page():
     tk_widgets.CSLMAO.egm_checkbox = ctk.CTkCheckBox(
         tk_widgets.CSLMAO.setting_frame,
         text='',
-        command=egm_cmd
+        command=egm_cmd,
+        width=30
     )
     if setting.get('Cslmao.extra_game_modes', 0) == 1:
         tk_widgets.CSLMAO.egm_checkbox.select()
@@ -196,6 +204,20 @@ def create_CSLMAO_page():
         tk_widgets.CSLMAO.egm_checkbox.deselect()
     tk_widgets.CSLMAO.egm_checkbox.grid(
         row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create cslol diagnose
+    def diagnose_cmd():
+        cslmao.diagnose()
+    tk_widgets.CSLMAO.diagnose_button = ctk.CTkButton(
+        tk_widgets.CSLMAO.setting_frame,
+        text='Diagnose',
+        image=EmojiImage.create('🩺'),
+        command=diagnose_cmd,
+        font=le_font
+    )
+    tk_widgets.CSLMAO.diagnose_button.grid(
+        row=0, column=4, padx=5, pady=5, sticky=tk.NSEW)
+    
     
     # create action frame
     tk_widgets.CSLMAO.action_frame = ctk.CTkFrame(
@@ -289,7 +311,8 @@ def create_CSLMAO_page():
         tk_widgets.CSLMAO.action_frame,
         text='Run',
         image=EmojiImage.create('🚀'),
-        command=run_cmd
+        command=run_cmd,
+        font=le_font
     )
     tk_widgets.CSLMAO.run_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -341,7 +364,8 @@ def create_CSLMAO_page():
         tk_widgets.CSLMAO.action_frame,
         text='Import',
         image=EmojiImage.create('📥'),
-        command=import_cmd
+        command=import_cmd,
+        font=le_font
     )
     tk_widgets.CSLMAO.import_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -382,7 +406,8 @@ def create_CSLMAO_page():
         tk_widgets.CSLMAO.action_frame,
         text='New',
         image=EmojiImage.create('💥'),
-        command=new_cmd
+        command=new_cmd,
+        font=le_font
     )
     tk_widgets.CSLMAO.new_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -406,9 +431,10 @@ def create_CSLMAO_page():
     # create toggle button
     tk_widgets.CSLMAO.toggle_button = ctk.CTkButton(
         tk_widgets.CSLMAO.action_frame,
-        text='Enable/Disable All',
+        text='On/Off All',
         image=EmojiImage.create('✅'),
-        command=toggle_cmd
+        command=toggle_cmd,
+        font=le_font
     )
     tk_widgets.CSLMAO.toggle_button.grid(
         row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
@@ -416,7 +442,8 @@ def create_CSLMAO_page():
     # create profile label
     tk_widgets.CSLMAO.profile_label = ctk.CTkLabel(
         tk_widgets.CSLMAO.action_frame,
-        text='Profile: '
+        text='Profile: ',
+        font=le_font
     )
     tk_widgets.CSLMAO.profile_label.grid(
         row=0, column=5, padx=5, pady=5, sticky=tk.NSEW)
@@ -441,7 +468,8 @@ def create_CSLMAO_page():
             '8',
             '9'
         ],
-        command=profile_cmd
+        command=profile_cmd,
+        font=le_font
     )
     tk_widgets.CSLMAO.profile_opt.set(setting.get('Cslmao.profile', 'all'))
     tk_widgets.CSLMAO.profile_opt.grid(
@@ -527,7 +555,8 @@ def create_CSLMAO_page():
         # create mod info
         mod_info = ctk.CTkLabel(
             head_frame,
-            text=f'[Profile {profile}] {name} by {author} V{version}\n{description}'
+            text=f'[Profile {profile}] {name} by {author} V{version}\n{description}',
+            font=le_font
         )
         mod_info.grid(row=id, column=2, padx=5, sticky=tk.NSEW)
         # create mod action frame
@@ -663,24 +692,28 @@ def create_CSLMAO_page():
         # create name entry
         name_entry = ctk.CTkEntry(
             edit_left_frame,
+            font=le_font
         )
         name_entry.insert(0, name)
         name_entry.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
         # create author entry
         author_entry = ctk.CTkEntry(
-            edit_left_frame
+            edit_left_frame,
+            font=le_font
         )
         author_entry.insert(0, author)
         author_entry.grid(row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
         # create version entry
         version_entry = ctk.CTkEntry(
-            edit_left_frame
+            edit_left_frame,
+            font=le_font
         )
         version_entry.insert(0, version)
         version_entry.grid(row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
         # create description entry
         description_entry = ctk.CTkEntry(
-            edit_left_frame
+            edit_left_frame,
+            font=le_font
         )
         description_entry.insert(0, description)
         description_entry.grid(row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -746,6 +779,7 @@ def create_CSLMAO_page():
                 '8',
                 '9'
             ],
+            font=le_font
         )
         edit_profile_opt.set(profile)
         edit_profile_opt.grid(
@@ -777,7 +811,8 @@ def create_CSLMAO_page():
             edit_action_frame,
             text='Reset',
             image=EmojiImage.create('🔃'),
-            command=lambda: reset_cmd(reset_button)
+            command=lambda: reset_cmd(reset_button),
+            font=le_font
         )
         reset_button.grid(row=2, column=1, padx=20, pady=5, sticky=tk.NSEW)
 
@@ -812,7 +847,8 @@ def create_CSLMAO_page():
             edit_action_frame,
             text='Save',
             image=EmojiImage.create('💾'),
-            command=lambda: save_cmd(save_button)
+            command=lambda: save_cmd(save_button),
+            font=le_font
         )
         save_button.grid(row=3, column=1, padx=20, pady=5, sticky=tk.NSEW)
         tk_widgets.CSLMAO.mods.append([
@@ -960,7 +996,8 @@ def create_LFI_page():
             head_frame,
             text=f'[{fsize}] [{ftype.upper()}] {path}',
             anchor=tk.W,
-            justify=tk.LEFT
+            justify=tk.LEFT,
+            font=le_font
         )
         file_label.grid(row=0, column=1, padx=2,
                         pady=2, sticky=tk.W)
@@ -969,7 +1006,8 @@ def create_LFI_page():
         search_entry = ctk.CTkEntry(
             head_frame,
             placeholder_text='Search',
-            width=300
+            width=300,
+            font=le_font
         )
 
         def search_cmd(event, search_entry, file_frame_id):
@@ -1048,7 +1086,8 @@ def create_LFI_page():
         content_frame.rowconfigure(0, weight=1)
         # create file text
         file_text = ctk.CTkTextbox(
-            content_frame
+            content_frame,
+            font=le_font
         )
         file_text.insert('1.0', json)
         file_text.configure(
@@ -1123,7 +1162,8 @@ def create_LFI_page():
         text='Read Files',
         image=EmojiImage.create('📄'),
         anchor=tk.CENTER,
-        command=fileread_cmd
+        command=fileread_cmd,
+        font=le_font
     )
     tk_widgets.LFI.fileread_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -1165,7 +1205,8 @@ def create_LFI_page():
         text='Read Folder',
         image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
-        command=folderread_cmd
+        command=folderread_cmd,
+        font=le_font
     )
     tk_widgets.LFI.folderread_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -1187,7 +1228,8 @@ def create_LFI_page():
         text='Clear',
         image=EmojiImage.create('❌'),
         anchor=tk.CENTER,
-        command=clear_cmd
+        command=clear_cmd,
+        font=le_font
     )
     tk_widgets.LFI.clear_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -1201,7 +1243,8 @@ def create_LFI_page():
     tk_widgets.LFI.use_ritobin_switch = ctk.CTkSwitch(
         tk_widgets.LFI.input_frame,
         text='Read BIN files using ritobin',
-        command=ritobin_cmd
+        command=ritobin_cmd,
+        font=le_font
     )
     tk_widgets.LFI.use_ritobin = setting.get(
         'LFI.use_ritobin', False)
@@ -1253,6 +1296,7 @@ def create_AMV_page():
     # create skl entry
     tk_widgets.AMV.skl_entry = ctk.CTkEntry(
         tk_widgets.AMV.input_frame,
+        font=le_font
     )
     tk_widgets.AMV.skl_entry.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -1275,7 +1319,8 @@ def create_AMV_page():
         text='Browse SKL',
         image=EmojiImage.create('🦴'),
         anchor=tk.CENTER,
-        command=sklbrowse_cmd
+        command=sklbrowse_cmd,
+        font=le_font
     )
     tk_widgets.AMV.sklbrowse_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -1283,6 +1328,7 @@ def create_AMV_page():
     # create bin entry
     tk_widgets.AMV.bin_entry = ctk.CTkEntry(
         tk_widgets.AMV.input_frame,
+        font=le_font
     )
     tk_widgets.AMV.bin_entry.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -1305,7 +1351,8 @@ def create_AMV_page():
         text='Browse Animation BIN',
         image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
-        command=binbrowse_cmd
+        command=binbrowse_cmd,
+        font=le_font
     )
     tk_widgets.AMV.binbrowse_button.grid(
         row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -1450,7 +1497,8 @@ def create_AMV_page():
                     tk_widgets.AMV.table_widgets[windex] = ctk.CTkLabel(
                         tk_widgets.AMV.vtable_frame,
                         width=90,
-                        text=mask_names[j-1]
+                        text=mask_names[j-1],
+                        font=le_font
                     )
                 # create joint name labels
                 elif j == 0:
@@ -1458,7 +1506,8 @@ def create_AMV_page():
                         tk_widgets.AMV.vtable_frame,
                         width=160,
                         text=f'[{i-1}] {joint_names[i-1]}',
-                        anchor=tk.W
+                        anchor=tk.W,
+                        font=le_font
                     )
                 # create weight entries
                 else:
@@ -1471,7 +1520,8 @@ def create_AMV_page():
                             (tk_widgets.AMV.page_frame.register(
                                 validate_weight_cmd)),
                             '%P'
-                        )
+                        ),
+                        font=le_font
                     )
                     tk_widgets.AMV.table_widgets[windex].bind(
                         '<FocusIn>', focus_cmd)
@@ -1498,7 +1548,8 @@ def create_AMV_page():
         tk_widgets.AMV.action_frame,
         text='Load',
         image=EmojiImage.create('🗿'),
-        command=load_cmd
+        command=load_cmd,
+        font=le_font
     )
     tk_widgets.AMV.load_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -1553,7 +1604,8 @@ def create_AMV_page():
         tk_widgets.AMV.action_frame,
         text='Save As',
         image=EmojiImage.create('💾'),
-        command=save_cmd
+        command=save_cmd,
+        font=le_font
     )
     tk_widgets.AMV.save_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -1575,7 +1627,8 @@ def create_AMV_page():
         tk_widgets.AMV.action_frame,
         text='Clear',
         image=EmojiImage.create('❌'),
-        command=clear_cmd
+        command=clear_cmd,
+        font=le_font
     )
     tk_widgets.AMV.clear_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -1628,7 +1681,8 @@ def create_HM_page():
         folder_label = ctk.CTkLabel(
             tk_widgets.HM.info_frame,
             text=folder_label_text[i],
-            anchor=tk.W
+            anchor=tk.W,
+            font=le_font
         )
         folder_label.grid(row=i, column=0, padx=5,
                           pady=5, sticky=tk.NSEW)
@@ -1636,7 +1690,8 @@ def create_HM_page():
             tk_widgets.HM.info_frame,
             text='Open',
             image=EmojiImage.create('📂'),
-            command=lambda index=i: folder_cmd(index)
+            command=lambda index=i: folder_cmd(index),
+            font=le_font
         )
         folder_button.grid(row=i, column=1, padx=5,
                            pady=5, sticky=tk.NSEW)
@@ -1649,7 +1704,8 @@ def create_HM_page():
         tk_widgets.HM.info_frame,
         text='Reset to CDTB hashes',
         image=EmojiImage.create('❌'),
-        command=reset_cmd
+        command=reset_cmd,
+        font=le_font
     )
     reset_button.grid(row=2, column=2, padx=5, pady=5, sticky=tk.NSEW)
 
@@ -1703,7 +1759,8 @@ def create_HM_page():
         text='Extract From Files',
         image=EmojiImage.create('📄'),
         anchor=tk.CENTER,
-        command=fileextract_cmd
+        command=fileextract_cmd,
+        font=le_font
     )
     tk_widgets.HM.fileread_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -1741,7 +1798,8 @@ def create_HM_page():
         text='Extract From Folder',
         image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
-        command=folderextract_cmd
+        command=folderextract_cmd,
+        font=le_font
     )
     tk_widgets.HM.folderread_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -1762,7 +1820,8 @@ def create_HM_page():
     # create bin label
     tk_widgets.HM.bin_label = ctk.CTkLabel(
         tk_widgets.HM.generate_frame,
-        text='Generate BIN hash:'
+        text='Generate BIN hash:',
+        font=le_font
     )
     tk_widgets.HM.bin_label.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -1796,7 +1855,8 @@ def create_HM_page():
         text='Entries',
         image=EmojiImage.create('👉🏻', weird=True),
         width=50,
-        command=lambda: addbin_cmd('hashes.binentries.txt')
+        command=lambda: addbin_cmd('hashes.binentries.txt'),
+        font=le_font
     )
     tk_widgets.HM.addentry_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -1805,7 +1865,8 @@ def create_HM_page():
         text='Fields',
         image=EmojiImage.create('👉🏻', weird=True),
         width=50,
-        command=lambda: addbin_cmd('hashes.binfields.txt')
+        command=lambda: addbin_cmd('hashes.binfields.txt'),
+        font=le_font
     )
     tk_widgets.HM.addfield_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -1814,7 +1875,8 @@ def create_HM_page():
         text='Types',
         image=EmojiImage.create('👉🏻', weird=True),
         width=50,
-        command=lambda: addbin_cmd('hashes.bintypes.txt')
+        command=lambda: addbin_cmd('hashes.bintypes.txt'),
+        font=le_font
     )
     tk_widgets.HM.addtype_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -1823,7 +1885,8 @@ def create_HM_page():
         text='Hashes',
         image=EmojiImage.create('👉🏻', weird=True),
         width=50,
-        command=lambda: addbin_cmd('hashes.binhashes.txt')
+        command=lambda: addbin_cmd('hashes.binhashes.txt'),
+        font=le_font
     )
     tk_widgets.HM.addhash_button.grid(
         row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
@@ -1845,7 +1908,8 @@ def create_HM_page():
     tk_widgets.HM.binraw_text = ctk.CTkTextbox(
         tk_widgets.HM.generate_frame,
         height=100,
-        wrap=tk.NONE
+        wrap=tk.NONE,
+        font=le_font
     )
     tk_widgets.HM.binraw_text.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -1855,14 +1919,16 @@ def create_HM_page():
         tk_widgets.HM.generate_frame,
         height=100,
         wrap=tk.NONE,
-        state=tk.DISABLED
+        state=tk.DISABLED,
+        font=le_font
     )
     tk_widgets.HM.binhash_text.grid(
         row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
     # create wad label
     tk_widgets.HM.wad_label = ctk.CTkLabel(
         tk_widgets.HM.generate_frame,
-        text='Generate WAD hash:'
+        text='Generate WAD hash:',
+        font=le_font
     )
     tk_widgets.HM.wad_label.grid(
         row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -1896,7 +1962,8 @@ def create_HM_page():
         text='Game',
         image=EmojiImage.create('👉🏻', weird=True),
         width=50,
-        command=lambda: addwad_cmd('hashes.game.txt')
+        command=lambda: addwad_cmd('hashes.game.txt'),
+        font=le_font
     )
     tk_widgets.HM.addgame_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -1905,7 +1972,8 @@ def create_HM_page():
         text='Lcu',
         image=EmojiImage.create('👉🏻', weird=True),
         width=50,
-        command=lambda: addwad_cmd('hashes.lcu.txt')
+        command=lambda: addwad_cmd('hashes.lcu.txt'),
+        font=le_font
     )
     tk_widgets.HM.addlcu_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -1927,7 +1995,8 @@ def create_HM_page():
     tk_widgets.HM.wadraw_text = ctk.CTkTextbox(
         tk_widgets.HM.generate_frame,
         height=100,
-        wrap=tk.NONE
+        wrap=tk.NONE,
+        font=le_font
     )
     tk_widgets.HM.wadraw_text.grid(
         row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -1937,7 +2006,8 @@ def create_HM_page():
         tk_widgets.HM.generate_frame,
         height=100,
         wrap=tk.NONE,
-        state=tk.DISABLED
+        state=tk.DISABLED,
+        font=le_font
     )
     tk_widgets.HM.wadhash_text.grid(
         row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -2012,7 +2082,8 @@ def create_VH_page():
     tk_widgets.VH.input_frame.columnconfigure(2, weight=1)
     # create input entry
     tk_widgets.VH.input_entry = ctk.CTkEntry(
-        tk_widgets.VH.input_frame
+        tk_widgets.VH.input_frame,
+        font=le_font
     )
     tk_widgets.VH.input_entry.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -2065,7 +2136,8 @@ def create_VH_page():
         text='Browse FANTOME/ZIP',
         image=EmojiImage.create('🐍'),
         anchor=tk.CENTER,
-        command=browse_fantome_cmd
+        command=browse_fantome_cmd,
+        font=le_font
     )
     tk_widgets.VH.browsefantome_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -2117,7 +2189,8 @@ def create_VH_page():
         text='Browse Folder of FANTOMEs/ZIPs',
         image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
-        command=browsefolder_cmd
+        command=browsefolder_cmd,
+        font=le_font
     )
     tk_widgets.VH.browsefolder_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -2125,8 +2198,12 @@ def create_VH_page():
     tk_widgets.VH.info_text = ctk.CTkTextbox(
         tk_widgets.VH.page_frame,
         state=tk.DISABLED,
-        wrap=tk.NONE
+        wrap=tk.NONE,
+        font=le_font,
     )
+    tk_widgets.VH.info_text.configure(state=tk.NORMAL)
+    tk_widgets.VH.info_text.insert(tk.END, 'Starting from patch 14.4, rito decided to use en_us for all clients/regions.\nSo this tool is not needed anymore except for updating old mods before 14.4.')
+    tk_widgets.VH.info_text.configure(state=tk.DISABLED)
     tk_widgets.VH.info_text.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
     # create action frame
@@ -2143,7 +2220,8 @@ def create_VH_page():
     # create target options
     tk_widgets.VH.target_option = ctk.CTkOptionMenu(
         tk_widgets.VH.action_frame,
-        values=vo_helper.LANGS
+        values=vo_helper.LANGS,
+        font=le_font
     )
     tk_widgets.VH.target_option.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -2172,7 +2250,8 @@ def create_VH_page():
         tk_widgets.VH.action_frame,
         text='Remake For Selected Lang',
         image=EmojiImage.create('🦎'),
-        command=target_cmd
+        command=target_cmd,
+        font=le_font
     )
     tk_widgets.VH.target_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -2201,7 +2280,8 @@ def create_VH_page():
         tk_widgets.VH.action_frame,
         text='Remake For All Langs',
         image=EmojiImage.create('🦖'),
-        command=make_cmd
+        command=make_cmd,
+        font=le_font
     )
     tk_widgets.VH.make_button.grid(
         row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
@@ -2230,7 +2310,8 @@ def create_NS_page():
     tk_widgets.NS.input_frame.columnconfigure(1, weight=1)
     # create champions folder entry
     tk_widgets.NS.cfolder_entry = ctk.CTkEntry(
-        tk_widgets.NS.input_frame
+        tk_widgets.NS.input_frame,
+        font=le_font
     )
     tk_widgets.NS.cfolder_entry.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -2253,7 +2334,8 @@ def create_NS_page():
         text='Browse Champions folder',
         image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
-        command=browse_cmd
+        command=browse_cmd,
+        font=le_font
     )
     tk_widgets.NS.browse_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -2276,7 +2358,8 @@ def create_NS_page():
         tk_widgets.NS.action_frame,
         text='Save SKIPS',
         image=EmojiImage.create('💾'),
-        command=save_skips_cmd
+        command=save_skips_cmd,
+        font=le_font
     )
     tk_widgets.NS.save_skips_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -2307,14 +2390,16 @@ def create_NS_page():
         tk_widgets.NS.action_frame,
         text='Start',
         image=EmojiImage.create('🐧'),
-        command=start_cmd
+        command=start_cmd,
+        font=le_font
     )
     tk_widgets.NS.start_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
     # create skips textbox
     tk_widgets.NS.skips_textbox = ctk.CTkTextbox(
         tk_widgets.NS.page_frame,
-        wrap=tk.NONE
+        wrap=tk.NONE,
+        font=le_font
     )
 
     def tab_pressed():
@@ -2429,7 +2514,8 @@ def create_UVEE_page():
             head_frame,
             text=file_path,
             anchor=tk.W,
-            justify=tk.LEFT
+            justify=tk.LEFT,
+            font=le_font
         )
         file_label.grid(row=0, column=1, padx=2,
                         pady=2, sticky=tk.W)
@@ -2465,7 +2551,8 @@ def create_UVEE_page():
                 compound=tk.BOTTOM,
                 anchor=tk.W,
                 justify=tk.LEFT,
-                fg_color='black'
+                fg_color='black',
+                font=le_font
             )
             uv_image_label.grid(
                 row=id, column=0, padx=2, pady=2)
@@ -2509,7 +2596,8 @@ def create_UVEE_page():
         text='Extract UVs From Files',
         image=EmojiImage.create('📄'),
         anchor=tk.CENTER,
-        command=fileread_cmd
+        command=fileread_cmd,
+        font=le_font
     )
     tk_widgets.UVEE.fileread_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -2535,7 +2623,8 @@ def create_UVEE_page():
         text='Extract UVs From Folder',
         image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
-        command=folderread_cmd
+        command=folderread_cmd,
+        font=le_font
     )
     tk_widgets.UVEE.folderread_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -2557,7 +2646,8 @@ def create_UVEE_page():
         text='Clear Loaded Images',
         image=EmojiImage.create('❌'),
         anchor=tk.CENTER,
-        command=clear_cmd
+        command=clear_cmd,
+        font=le_font
     )
     tk_widgets.UVEE.clear_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -2571,7 +2661,8 @@ def create_UVEE_page():
     tk_widgets.UVEE.lef_switch = ctk.CTkSwitch(
         tk_widgets.UVEE.input_frame,
         text='Load extracted files',
-        command=lef_cmd
+        command=lef_cmd,
+        font=le_font
     )
     tk_widgets.UVEE.load_extracted_files = setting.get(
         'Uvee.load_extracted_files', False)
@@ -2608,7 +2699,8 @@ def create_SHR_page():
     tk_widgets.SHR.input_frame.columnconfigure(2, weight=1)
     # create input entry
     tk_widgets.SHR.input_entry = ctk.CTkEntry(
-        tk_widgets.SHR.input_frame
+        tk_widgets.SHR.input_frame,
+        font=le_font
     )
     tk_widgets.SHR.input_entry.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -2631,7 +2723,8 @@ def create_SHR_page():
         text='Browse ANM',
         image=EmojiImage.create('🦿'),
         anchor=tk.CENTER,
-        command=browsefile_cmd
+        command=browsefile_cmd,
+        font=le_font
     )
     tk_widgets.SHR.browsefile_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -2650,7 +2743,8 @@ def create_SHR_page():
         text='Browse Folder of ANMs',
         image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
-        command=browsefolder_cmd
+        command=browsefolder_cmd,
+        font=le_font
     )
     tk_widgets.SHR.browsefolder_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -2669,7 +2763,8 @@ def create_SHR_page():
     # create old textbox
     tk_widgets.SHR.old_text = ctk.CTkTextbox(
         tk_widgets.SHR.mid_frame,
-        wrap=tk.NONE
+        wrap=tk.NONE,
+        font=le_font
     )
     tk_widgets.SHR.old_text.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -2693,14 +2788,16 @@ def create_SHR_page():
         tk_widgets.SHR.mid_frame,
         text='Load old SKL joints',
         image=EmojiImage.create('🦴'),
-        command=old_skl_cmd
+        command=old_skl_cmd,
+        font=le_font
     )
     tk_widgets.SHR.old_skl_button.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
     # create new textbox
     tk_widgets.SHR.new_text = ctk.CTkTextbox(
         tk_widgets.SHR.mid_frame,
-        wrap=tk.NONE
+        wrap=tk.NONE,
+        font=le_font
     )
     tk_widgets.SHR.new_text.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -2724,7 +2821,8 @@ def create_SHR_page():
         tk_widgets.SHR.mid_frame,
         text='Load new SKL joints',
         image=EmojiImage.create('🦴'),
-        command=new_skl_cmd
+        command=new_skl_cmd,
+        font=le_font
     )
     tk_widgets.SHR.new_skl_button.grid(
         row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -2762,7 +2860,8 @@ def create_SHR_page():
         tk_widgets.SHR.action_frame,
         text='Rename Joints in ANMS',
         image=EmojiImage.create('🍄'),
-        command=rename_cmd
+        command=rename_cmd,
+        font=le_font
     )
     tk_widgets.SHR.rename_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -2774,7 +2873,8 @@ def create_SHR_page():
     tk_widgets.SHR.backup_switch = ctk.CTkSwitch(
         tk_widgets.SHR.action_frame,
         text='Create backup before rename (safe)',
-        command=backup_cmd
+        command=backup_cmd,
+        font=le_font
     )
     if setting.get('Shrum.backup', 1) == 1:
         tk_widgets.SHR.backup_switch.select()
@@ -2814,7 +2914,8 @@ def create_HP_page():
     tk_widgets.HP.backup_switch = ctk.CTkSwitch(
         tk_widgets.HP.action_frame,
         text='Do the backup thing',
-        command=backup_cmd
+        command=backup_cmd,
+        font=le_font
     )
     if setting.get('hapiBin.backup', 1) == 1:
         tk_widgets.HP.backup_switch.select()
@@ -2828,7 +2929,8 @@ def create_HP_page():
         tk_widgets.HP.page_frame,
         text='Selected source type must match target type.\n    BIN: run functions directly on selected BIN.\n    WAD/FOLDER: run functions on all bins inside selected WAD/FOLDER.',
         anchor=tk.NW,
-        justify=tk.LEFT
+        justify=tk.LEFT,
+        font=le_font
     )
     tk_widgets.HP.input_description_label.grid(
         row=1, column=0, padx=20, pady=0, sticky=tk.NSEW)
@@ -2849,6 +2951,7 @@ def create_HP_page():
     # create source entry
     tk_widgets.HP.source_entry = ctk.CTkEntry(
         tk_widgets.HP.input_frame,
+        font=le_font
     )
     tk_widgets.HP.source_entry.grid( 
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -2881,7 +2984,8 @@ def create_HP_page():
         text='Browse Source BIN',
         image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
-        command=source_bin_cmd
+        command=source_bin_cmd,
+        font=le_font
     )
     tk_widgets.HP.source_bin_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -2902,7 +3006,8 @@ def create_HP_page():
         text='Browse Source WAD',
         image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
-        command=source_wad_cmd
+        command=source_wad_cmd,
+        font=le_font
     )
     tk_widgets.HP.source_wad_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -2920,7 +3025,8 @@ def create_HP_page():
         text='Browse Source FOLDER',
         image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
-        command=source_dir_cmd
+        command=source_dir_cmd,
+        font=le_font
     )
     tk_widgets.HP.source_dir_button.grid(
         row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
@@ -2929,6 +3035,7 @@ def create_HP_page():
     # create target entry
     tk_widgets.HP.target_entry = ctk.CTkEntry(
         tk_widgets.HP.input_frame,
+        font=le_font
     )
     tk_widgets.HP.target_entry.grid(
         row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -2961,7 +3068,8 @@ def create_HP_page():
         text='Browse Target BIN',
         image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
-        command=target_bin_cmd
+        command=target_bin_cmd,
+        font=le_font
     )
     tk_widgets.HP.target_bin_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -2982,7 +3090,8 @@ def create_HP_page():
         text='Browse Target WAD',
         image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
-        command=target_wad_cmd
+        command=target_wad_cmd,
+        font=le_font
     )
     tk_widgets.HP.target_wad_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -3000,7 +3109,8 @@ def create_HP_page():
         text='Browse Target FOLDER',
         image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
-        command=target_dir_cmd
+        command=target_dir_cmd,
+        font=le_font
     )
     tk_widgets.HP.target_dir_button.grid(
         row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
@@ -3044,14 +3154,16 @@ def create_HP_page():
             func_frame,
             text=label,
             command=lambda hp_command=hp_command, require_dst=require_dst: run_hp_command(hp_command, require_dst),
-            image=EmojiImage.create(icon)
+            image=EmojiImage.create(icon),
+            font=le_font
         )
         func_button.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NS+tk.W)
         func_label = ctk.CTkLabel(
             func_frame,
             text=descritpion,
             anchor=tk.NW,
-            justify=tk.LEFT
+            justify=tk.LEFT,
+            font=le_font
         )
         func_label.grid(row=1, column=0, padx=10, pady=0, sticky=tk.NS+tk.W)
     tk_widgets.HP.func_frame.rowconfigure(len(hapiBin.tk_widgets_data), weight=699)
@@ -3171,7 +3283,8 @@ def create_WT_page():
         text='WAD to Folder',
         image=EmojiImage.create('📦'),
         anchor=tk.CENTER,
-        command=wad2dir_cmd
+        command=wad2dir_cmd,
+        font=le_font
     )
     tk_widgets.WT.wad2dir_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3211,7 +3324,8 @@ def create_WT_page():
         text='Folder to WAD',
         image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
-        command=dir2wad_cmd
+        command=dir2wad_cmd,
+        font=le_font
     )
     tk_widgets.WT.dir2wad_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -3230,7 +3344,8 @@ def create_WT_page():
     # create bulk label
     tk_widgets.WT.bulk_label = ctk.CTkLabel(
         tk_widgets.WT.action2_frame,
-        text='Bulk unpack WADs to same Folder'
+        text='Bulk unpack WADs to same Folder',
+        font=le_font
     )
     tk_widgets.WT.bulk_label.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3298,7 +3413,8 @@ def create_WT_page():
         tk_widgets.WT.action3_frame,
         text='Add WADs',
         image=EmojiImage.create('📦'),
-        command=addfile_cmd
+        command=addfile_cmd,
+        font=le_font
     )
     tk_widgets.WT.addfile_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3323,7 +3439,8 @@ def create_WT_page():
         tk_widgets.WT.action3_frame,
         text='Scan WADs in folder',
         image=EmojiImage.create('📁'),
-        command=addfolder_cmd
+        command=addfolder_cmd,
+        font=le_font
     )
     tk_widgets.WT.addfolder_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -3344,7 +3461,8 @@ def create_WT_page():
         tk_widgets.WT.action3_frame,
         text='Clear',
         image=EmojiImage.create('❌'),
-        command=clear_cmd
+        command=clear_cmd,
+        font=le_font
     )
     tk_widgets.WT.clear_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -3410,7 +3528,8 @@ def create_WT_page():
     # create include entry
     tk_widgets.WT.include_entry = ctk.CTkEntry(
         tk_widgets.WT.action3_frame,
-        placeholder_text='Include keywords'
+        placeholder_text='Include keywords',
+        font=le_font
     )
     tk_widgets.WT.include_entry.grid(
         row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
@@ -3419,7 +3538,8 @@ def create_WT_page():
     # create exclude entry
     tk_widgets.WT.exclude_entry = ctk.CTkEntry(
         tk_widgets.WT.action3_frame,
-        placeholder_text='Exclude keywords (after include)'
+        placeholder_text='Exclude keywords (after include)',
+        font=le_font
     )
     tk_widgets.WT.exclude_entry.grid(
         row=0, column=4, padx=5, pady=5, sticky=tk.NSEW)
@@ -3438,7 +3558,8 @@ def create_WT_page():
     tk_widgets.WT.wad_text = ctk.CTkTextbox(
         tk_widgets.WT.label_frame,
         wrap=tk.NONE,
-        state=tk.DISABLED
+        state=tk.DISABLED,
+        font=le_font
     )
     tk_widgets.WT.wad_text.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3446,7 +3567,8 @@ def create_WT_page():
     tk_widgets.WT.chunk_text = ctk.CTkTextbox(
         tk_widgets.WT.label_frame,
         wrap=tk.NONE,
-        state=tk.DISABLED
+        state=tk.DISABLED,
+        font=le_font
     )
     tk_widgets.WT.chunk_text.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -3487,7 +3609,8 @@ def create_WT_page():
         tk_widgets.WT.action2_frame,
         text='Bulk Unpack',
         image=EmojiImage.create('⏏️', weird=True),
-        command=bulk_cmd
+        command=bulk_cmd,
+        font=le_font
     )
     tk_widgets.WT.bulk_button.grid(
         row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3562,7 +3685,8 @@ def create_PT_page():
         text='Parse WAD',
         image=EmojiImage.create('📦'),
         anchor=tk.CENTER,
-        command=parsewad_cmd
+        command=parsewad_cmd,
+        font=le_font
     )
     tk_widgets.PT.parsewad_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3591,7 +3715,8 @@ def create_PT_page():
         text='Parse Folder',
         image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
-        command=parsedir_cmd
+        command=parsedir_cmd,
+        font=le_font
     )
     tk_widgets.PT.parsedir_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -3611,7 +3736,8 @@ def create_LOG_page():
         corner_radius=0,
         wrap=tk.NONE,
         state=tk.DISABLED,
-        border_spacing=10
+        border_spacing=10,
+        font=le_font
     )
     tk_widgets.LOG.log_textbox.grid(row=0, column=0, sticky=tk.NSEW)
     Log.tk_log = tk_widgets.LOG.log_textbox
@@ -3645,7 +3771,8 @@ def create_SBORF_page():
     tk_widgets.SBORF.backup_switch = ctk.CTkSwitch(
         tk_widgets.SBORF.action_frame,
         text='Create backup before fix (safe)',
-        command=backup_cmd
+        command=backup_cmd,
+        font=le_font
     )
     if setting.get('Sborf.backup', 1) == 1:
         tk_widgets.SBORF.backup_switch.select()
@@ -3687,7 +3814,8 @@ def create_SBORF_page():
         tk_widgets.SBORF.browse_frame,
         text='Your skin',
         anchor=tk.CENTER,
-        justify=tk.CENTER
+        justify=tk.CENTER,
+        font=le_font
     )
     tk_widgets.SBORF.yourskin_label.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3697,7 +3825,8 @@ def create_SBORF_page():
         tk_widgets.SBORF.browse_frame,
         text='Rito skin',
         anchor=tk.CENTER,
-        justify=tk.CENTER
+        justify=tk.CENTER,
+        font=le_font
     )
     tk_widgets.SBORF.riotskin_label.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -3705,7 +3834,8 @@ def create_SBORF_page():
     # create skl entry
     tk_widgets.SBORF.skl_entry = ctk.CTkEntry(
         tk_widgets.SBORF.browse_frame,
-        placeholder_text='(Require)'
+        placeholder_text='(Require)',
+        font=le_font
     )
     tk_widgets.SBORF.skl_entry.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3733,7 +3863,8 @@ def create_SBORF_page():
         text='Browse SKL',
         image=EmojiImage.create('🦴'),
         anchor=tk.CENTER,
-        command=sklbrowse_cmd
+        command=sklbrowse_cmd,
+        font=le_font
     )
     tk_widgets.SBORF.sklbrowse_button.grid(
         row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -3741,7 +3872,8 @@ def create_SBORF_page():
     # create riot skl entry
     tk_widgets.SBORF.riotskl_entry = ctk.CTkEntry(
         tk_widgets.SBORF.browse_frame,
-        placeholder_text='(Require)'
+        placeholder_text='(Require)',
+        font=le_font
     )
     tk_widgets.SBORF.riotskl_entry.grid(
         row=1, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -3764,7 +3896,8 @@ def create_SBORF_page():
         text='Browse Riot SKL',
         image=EmojiImage.create('🦴'),
         anchor=tk.CENTER,
-        command=riotsklbrowse_cmd
+        command=riotsklbrowse_cmd,
+        font=le_font
     )
     tk_widgets.SBORF.riotsklbrowse_button.grid(
         row=1, column=3, padx=5, pady=5, sticky=tk.NSEW)
@@ -3772,7 +3905,8 @@ def create_SBORF_page():
     # create skn entry
     tk_widgets.SBORF.skn_entry = ctk.CTkEntry(
         tk_widgets.SBORF.browse_frame,
-        placeholder_text='(Require if fix skin)'
+        placeholder_text='(Require if fix skin)',
+        font=le_font
     )
     tk_widgets.SBORF.skn_entry.grid(
         row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3800,7 +3934,8 @@ def create_SBORF_page():
         text='Browse SKN',
         image=EmojiImage.create('🧊'),
         anchor=tk.CENTER,
-        command=sknbrowse_cmd
+        command=sknbrowse_cmd,
+        font=le_font
     )
     tk_widgets.SBORF.sknbrowse_button.grid(
         row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -3808,7 +3943,8 @@ def create_SBORF_page():
     # create riot skn entry
     tk_widgets.SBORF.riotskn_entry = ctk.CTkEntry(
         tk_widgets.SBORF.browse_frame,
-        placeholder_text='(Leave empty if dont need)'
+        placeholder_text='(Leave empty if dont need)',
+        font=le_font
     )
     tk_widgets.SBORF.riotskn_entry.grid(
         row=2, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -3831,7 +3967,8 @@ def create_SBORF_page():
         text='Browse Riot SKN',
         image=EmojiImage.create('🧊'),
         anchor=tk.CENTER,
-        command=riotsknbrowse_cmd
+        command=riotsknbrowse_cmd,
+        font=le_font
     )
     tk_widgets.SBORF.riotsknbrowse_button.grid(
         row=2, column=3, padx=5, pady=5, sticky=tk.NSEW)
@@ -3839,7 +3976,8 @@ def create_SBORF_page():
     # create bin entry
     tk_widgets.SBORF.bin_entry = ctk.CTkEntry(
         tk_widgets.SBORF.browse_frame,
-        placeholder_text='(Require if adapt MaskData)'
+        placeholder_text='(Require if adapt MaskData)',
+        font=le_font
     )
     tk_widgets.SBORF.bin_entry.grid(
         row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3862,7 +4000,8 @@ def create_SBORF_page():
         text='Browse Animation BIN',
         image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
-        command=binbrowse_cmd
+        command=binbrowse_cmd,
+        font=le_font
     )
     tk_widgets.SBORF.binbrowse_button.grid(
         row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -3870,7 +4009,8 @@ def create_SBORF_page():
     # create riot bin entry
     tk_widgets.SBORF.riotbin_entry = ctk.CTkEntry(
         tk_widgets.SBORF.browse_frame,
-        placeholder_text='(Require if adapt MaskData)'
+        placeholder_text='(Require if adapt MaskData)',
+        font=le_font
     )
     tk_widgets.SBORF.riotbin_entry.grid(
         row=3, column=2, padx=5, pady=5, sticky=tk.NSEW)
@@ -3893,7 +4033,8 @@ def create_SBORF_page():
         text='Browse Riot Animtion BIN',
         image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
-        command=riotbinbrowse_cmd
+        command=riotbinbrowse_cmd,
+        font=le_font
     )
     tk_widgets.SBORF.riotbinbrowse_button.grid(
         row=3, column=3, padx=5, pady=5, sticky=tk.NSEW)
@@ -3954,7 +4095,8 @@ def create_SBORF_page():
         text='Fix your skin',
         image=EmojiImage.create('🐊'),
         anchor=tk.CENTER,
-        command=skinfix_cmd
+        command=skinfix_cmd,
+        font=le_font
     )
     tk_widgets.SBORF.fixskin_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3962,7 +4104,8 @@ def create_SBORF_page():
         tk_widgets.SBORF.fix_frame,
         text='Sort your SKL joints base on riot SKL, fill removed riot joints back and move new custom joints to the end of list.\nSort SKN vertex influences base on the new order.\nIf selected riot SKN, sort SKN materials base on riot SKN.\nThrow exception if total joints = your SKL joints + removed joints > 256.',
         anchor=tk.NW,
-        justify=tk.LEFT
+        justify=tk.LEFT,
+        font=le_font
     )
     tk_widgets.SBORF.fixskin_label.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3972,7 +4115,8 @@ def create_SBORF_page():
         text='Fix your skin but do not add removed riot joint back',
         image=EmojiImage.create('🐸'),
         anchor=tk.CENTER,
-        command=lambda: skinfix_cmd(dont_add_joint_back=True)
+        command=lambda: skinfix_cmd(dont_add_joint_back=True),
+        font=le_font
     )
     tk_widgets.SBORF.fixskin2_button.grid(
         row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3980,7 +4124,8 @@ def create_SBORF_page():
         tk_widgets.SBORF.fix_frame,
         text='Sort your custom SKL joints order similar to riot SKL and your new joints also moved to the end of list.\nYou need to use custom animation BIN MaskData tho.',
         anchor=tk.NW,
-        justify=tk.LEFT
+        justify=tk.LEFT,
+        font=le_font
     )
     tk_widgets.SBORF.fixskin2_label.grid(
         row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3990,7 +4135,8 @@ def create_SBORF_page():
         text='Adapt animation BIN MaskData',
         image=EmojiImage.create('🦀'),
         anchor=tk.CENTER,
-        command=adaptmaskdata_cmd
+        command=adaptmaskdata_cmd,
+        font=le_font
     )
     tk_widgets.SBORF.adaptmaskdata_button.grid(
         row=4, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -3998,7 +4144,8 @@ def create_SBORF_page():
         tk_widgets.SBORF.fix_frame,
         text='Copy MaskData weight values from riot animation BIN to your custom animation BIN base on your SKL+riot SKL.\nNew custom joints will have weight set to 0.0.',
         anchor=tk.NW,
-        justify=tk.LEFT
+        justify=tk.LEFT,
+        font=le_font
     )
     tk_widgets.SBORF.adaptmaskdata_label.grid(
         row=5, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4071,7 +4218,8 @@ def create_LOLFBX_page():
     # create tool label 1
     tk_widgets.LOLFBX.tool_label1 = ctk.CTkLabel(
         tk_widgets.LOLFBX.skin_frame,
-        text = 'FBX <-> SKIN'
+        text = 'FBX <-> SKIN',
+        font=le_font
     )
     tk_widgets.LOLFBX.tool_label1.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4093,6 +4241,7 @@ def create_LOLFBX_page():
     # create fbx entry
     tk_widgets.LOLFBX.fbx_entry = ctk.CTkEntry(
         tk_widgets.LOLFBX.browse_frame,
+        font=le_font
     )
     tk_widgets.LOLFBX.fbx_entry.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4122,7 +4271,8 @@ def create_LOLFBX_page():
         text='Browse FBX',
         image=EmojiImage.create('🌄'),
         anchor=tk.CENTER,
-        command=fbxbrowse_cmd
+        command=fbxbrowse_cmd,
+        font=le_font
     )
     tk_widgets.LOLFBX.fbxbrowse_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -4130,6 +4280,7 @@ def create_LOLFBX_page():
     # create skl entry
     tk_widgets.LOLFBX.skl_entry = ctk.CTkEntry(
         tk_widgets.LOLFBX.browse_frame,
+        font=le_font
     )
     tk_widgets.LOLFBX.skl_entry.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4160,7 +4311,8 @@ def create_LOLFBX_page():
         text='Browse SKL',
         image=EmojiImage.create('🦴'),
         anchor=tk.CENTER,
-        command=sklbrowse_cmd
+        command=sklbrowse_cmd,
+        font=le_font
     )
     tk_widgets.LOLFBX.sklbrowse_button.grid(
         row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -4168,6 +4320,7 @@ def create_LOLFBX_page():
     # create skn entry
     tk_widgets.LOLFBX.skn_entry = ctk.CTkEntry(
         tk_widgets.LOLFBX.browse_frame,
+        font=le_font
     )
     tk_widgets.LOLFBX.skn_entry.grid(
         row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4197,7 +4350,8 @@ def create_LOLFBX_page():
         text='Browse SKN',
         image=EmojiImage.create('🧊'),
         anchor=tk.CENTER,
-        command=sknbrowse_cmd
+        command=sknbrowse_cmd,
+        font=le_font
     )
     tk_widgets.LOLFBX.sknbrowse_button.grid(
         row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -4227,7 +4381,8 @@ def create_LOLFBX_page():
         text='FBX -> SKIN',
         image=EmojiImage.create('🛸'),
         anchor=tk.CENTER,
-        command=fbx2skin_cmd
+        command=fbx2skin_cmd,
+        font=le_font
     )
     tk_widgets.LOLFBX.fbx2skin_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4245,24 +4400,23 @@ def create_LOLFBX_page():
         text='SKIN -> FBX',
         image=EmojiImage.create('👽'),
         anchor=tk.CENTER,
-        command=skin2fbx_cmd
+        command=skin2fbx_cmd,
+        font=le_font
     )
     tk_widgets.LOLFBX.skin2fbx_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
 
-
-
 def create_BNKT_page():
     # apply style to ttk treeview
-    bg_color = tk_widgets.main_tk._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["fg_color"])
-    text_color = tk_widgets.main_tk._apply_appearance_mode(ctk.ThemeManager.theme["CTkLabel"]["text_color"])
-    selected_color = tk_widgets.main_tk._apply_appearance_mode(ctk.ThemeManager.theme["CTkButton"]["fg_color"])
+    bg_color = tk_widgets.main_tk._apply_appearance_mode(ctk.ThemeManager.theme['CTkFrame']['fg_color'])
+    text_color = tk_widgets.main_tk._apply_appearance_mode(ctk.ThemeManager.theme['CTkLabel']['text_color'])
+    selected_color = tk_widgets.main_tk._apply_appearance_mode(ctk.ThemeManager.theme['CTkButton']['fg_color'])
     font = ctk.CTkLabel(None).cget('font')
     font_size = font.cget('size')
     font.configure(size=int(font_size*1.4))
     treestyle = ttk.Style()
     treestyle.theme_use('default')
-    treestyle.configure("Treeview", background=bg_color, foreground=text_color, fieldbackground=bg_color, borderwidth=0, font=font, rowheight=int(font_size*2.5))
+    treestyle.configure('Treeview', background=bg_color, foreground=text_color, fieldbackground=bg_color, borderwidth=0, font=font, rowheight=int(font_size*2.5))
     treestyle.map('Treeview', background=[('selected', bg_color)], foreground=[('selected', selected_color)])
     tk_widgets.main_tk.bind('<<TreeviewSelect>>', lambda event: tk_widgets.main_tk.focus_set())
     
@@ -4293,6 +4447,7 @@ def create_BNKT_page():
     # create audio entry
     tk_widgets.BNKT.audio_entry = ctk.CTkEntry(
         tk_widgets.BNKT.input_frame,
+        font=le_font
     )
     tk_widgets.BNKT.audio_entry.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4316,7 +4471,8 @@ def create_BNKT_page():
         text='Browse Audio BNK/WPK',
         image=EmojiImage.create('🔈'),
         anchor=tk.CENTER,
-        command=audiobrowse_cmd
+        command=audiobrowse_cmd,
+        font=le_font
     )
     tk_widgets.BNKT.audiobrowse_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -4324,6 +4480,7 @@ def create_BNKT_page():
     # create event entry
     tk_widgets.BNKT.event_entry = ctk.CTkEntry(
         tk_widgets.BNKT.input_frame,
+        font=le_font
     )
     tk_widgets.BNKT.event_entry.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4347,7 +4504,8 @@ def create_BNKT_page():
         text='Browse Events BNK',
         image=EmojiImage.create('📋'),
         anchor=tk.CENTER,
-        command=eventbrowse_cmd
+        command=eventbrowse_cmd,
+        font=le_font
     )
     tk_widgets.BNKT.audiobrowse_button.grid(
         row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -4355,6 +4513,7 @@ def create_BNKT_page():
     # create bin entry
     tk_widgets.BNKT.bin_entry = ctk.CTkEntry(
         tk_widgets.BNKT.input_frame,
+        font=le_font
     )
     tk_widgets.BNKT.bin_entry.grid(
         row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4378,7 +4537,8 @@ def create_BNKT_page():
         text='Browse BIN',
         image=EmojiImage.create('📝'),
         anchor=tk.CENTER,
-        command=binbrowse_cmd
+        command=binbrowse_cmd,
+        font=le_font
     )
     tk_widgets.BNKT.binbrowse_button.grid(
         row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -4505,7 +4665,8 @@ def create_BNKT_page():
         text='Load',
         image=EmojiImage.create('💿'),
         anchor=tk.CENTER,
-        command=load_cmd
+        command=load_cmd,
+        font=le_font
     )
     tk_widgets.BNKT.load_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4518,7 +4679,8 @@ def create_BNKT_page():
         text='Save',
         image=EmojiImage.create('💾'),
         anchor=tk.CENTER,
-        command=save_cmd
+        command=save_cmd,
+        font=le_font
     )
     tk_widgets.BNKT.save_button.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4536,7 +4698,8 @@ def create_BNKT_page():
         text='Clear',
         image=EmojiImage.create('❌'),
         anchor=tk.CENTER,
-        command=clear_cmd
+        command=clear_cmd,
+        font=le_font
     )
     tk_widgets.BNKT.clear_button.grid(
         row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4549,7 +4712,8 @@ def create_BNKT_page():
         text='Extract all wems',
         image=EmojiImage.create('➡️', weird=True),
         anchor=tk.CENTER,
-        command=extract_cmd
+        command=extract_cmd,
+        font=le_font
     )
     tk_widgets.BNKT.extract_button.grid(
         row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4562,7 +4726,8 @@ def create_BNKT_page():
         text='Replace wem data',
         image=EmojiImage.create('🔁'),
         anchor=tk.CENTER,
-        command=replace_cmd
+        command=replace_cmd,
+        font=le_font
     )
     tk_widgets.BNKT.replace_button.grid(
         row=4, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4584,7 +4749,8 @@ def create_BNKT_page():
         text='Play selected',
         image=EmojiImage.create('▶️', weird=True),
         anchor=tk.CENTER,
-        command=play_cmd
+        command=play_cmd,
+        font=le_font
     )
     tk_widgets.BNKT.play_button.grid(
         row=5, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4597,7 +4763,8 @@ def create_BNKT_page():
     tk_widgets.BNKT.autoplay_checkbox = ctk.CTkCheckBox(
         tk_widgets.BNKT.control_frame,
         text='Auto Play',
-        command=autoplay_cmd
+        command=autoplay_cmd,
+        font=le_font
     )
     tk_widgets.BNKT.autoplay_checkbox.grid(
         row=6, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4610,7 +4777,8 @@ def create_BNKT_page():
     tk_widgets.BNKT.volume_label = ctk.CTkLabel(
         tk_widgets.BNKT.control_frame,
         text = 'Volume:',
-        anchor = tk.W
+        anchor = tk.W,
+        font=le_font
     )
     tk_widgets.BNKT.volume_label.grid(
         row=7, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4658,7 +4826,8 @@ def create_DDSM_page():
     tk_widgets.DDSM.dds2png_label = ctk.CTkLabel(
         tk_widgets.DDSM.action_frame,
         text = 'DDS to PNG',
-        anchor=tk.W
+        anchor=tk.W,
+        font=le_font
     )
     tk_widgets.DDSM.dds2png_label.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4704,7 +4873,8 @@ def create_DDSM_page():
         text='Select DDS',
         image=EmojiImage.create('🏞️', weird=True),
         anchor=tk.CENTER,
-        command=lambda: dds2png_cmd(isdir=False)
+        command=lambda: dds2png_cmd(isdir=False),
+        font=le_font
     )
     tk_widgets.DDSM.dds2png_button.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4713,7 +4883,8 @@ def create_DDSM_page():
         text='Select Folder',
         image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
-        command=lambda: dds2png_cmd(isdir=True)
+        command=lambda: dds2png_cmd(isdir=True),
+        font=le_font
     )
     tk_widgets.DDSM.dds2png_dir_button.grid(
         row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -4721,8 +4892,9 @@ def create_DDSM_page():
     # create png2dds label
     tk_widgets.DDSM.png2dds_label = ctk.CTkLabel(
         tk_widgets.DDSM.action_frame,
-        text = 'PNG to DDS',
-        anchor=tk.W
+        text='PNG to DDS',
+        anchor=tk.W,
+        font=le_font
     )
     tk_widgets.DDSM.png2dds_label.grid(
         row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4767,7 +4939,8 @@ def create_DDSM_page():
         text='Select PNG',
         image=EmojiImage.create('🌇'),
         anchor=tk.CENTER,
-        command=lambda: png2dds_cmd(isdir=False)
+        command=lambda: png2dds_cmd(isdir=False),
+        font=le_font
     )
     tk_widgets.DDSM.png2dds_button.grid(
         row=3, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4776,7 +4949,8 @@ def create_DDSM_page():
         text='Select Folder',
         image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
-        command=lambda: png2dds_cmd(isdir=True)
+        command=lambda: png2dds_cmd(isdir=True),
+        font=le_font
     )
     tk_widgets.DDSM.png2dds_dir_button.grid(
         row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -4785,8 +4959,9 @@ def create_DDSM_page():
     # create dds2tex label
     tk_widgets.DDSM.dds2tex_label = ctk.CTkLabel(
         tk_widgets.DDSM.action_frame,
-        text = 'DDS To TEX',
-        anchor=tk.W
+        text = 'DDS to TEX',
+        anchor=tk.W,
+        font=le_font
     )
     tk_widgets.DDSM.dds2tex_label.grid(
         row=4, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4828,7 +5003,8 @@ def create_DDSM_page():
         text='Select DDS',
         image=EmojiImage.create('🏞️', weird=True),
         anchor=tk.CENTER,
-        command=lambda: dds2tex_cmd(isdir=False)
+        command=lambda: dds2tex_cmd(isdir=False),
+        font=le_font
     )
     tk_widgets.DDSM.dds2tex_button.grid(
         row=5, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4837,7 +5013,8 @@ def create_DDSM_page():
         text='Select Folder',
         image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
-        command=lambda: dds2tex_cmd(isdir=True)
+        command=lambda: dds2tex_cmd(isdir=True),
+        font=le_font
     )
     tk_widgets.DDSM.dds2tex_dir_button.grid(
         row=5, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -4847,7 +5024,8 @@ def create_DDSM_page():
     tk_widgets.DDSM.tex2dds_label = ctk.CTkLabel(
         tk_widgets.DDSM.action_frame,
         text = 'TEX to DDS',
-        anchor=tk.W
+        anchor=tk.W,
+        font=le_font
     )
     tk_widgets.DDSM.tex2dds_label.grid(
         row=6, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4889,7 +5067,8 @@ def create_DDSM_page():
         text='Select TEX',
         image=EmojiImage.create('🌌'),
         anchor=tk.CENTER,
-        command=lambda: tex2dds_cmd(isdir=False)
+        command=lambda: tex2dds_cmd(isdir=False),
+        font=le_font
     )
     tk_widgets.DDSM.tex2dds_button.grid(
         row=7, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4898,7 +5077,8 @@ def create_DDSM_page():
         text='Select Folder',
         image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
-        command=lambda: tex2dds_cmd(isdir=True)
+        command=lambda: tex2dds_cmd(isdir=True),
+        font=le_font
     )
     tk_widgets.DDSM.tex2dds_dir_button.grid(
         row=7, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -4908,7 +5088,8 @@ def create_DDSM_page():
     tk_widgets.DDSM.make2x4xdds_label = ctk.CTkLabel(
         tk_widgets.DDSM.action_frame,
         text = 'Make 2x, 4x DDS',
-        anchor=tk.W
+        anchor=tk.W,
+        font=le_font
     )
     tk_widgets.DDSM.make2x4xdds_label.grid(
         row=8, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4970,7 +5151,8 @@ def create_DDSM_page():
         text='Select DDS',
         image=EmojiImage.create('🏞️', weird=True),
         anchor=tk.CENTER,
-        command=lambda: make2x4xdds_cmd(isdir=False)
+        command=lambda: make2x4xdds_cmd(isdir=False),
+        font=le_font
     )
     tk_widgets.DDSM.make2x4xdds_button.grid(
         row=9, column=0, padx=5, pady=5, sticky=tk.NSEW)
@@ -4979,7 +5161,8 @@ def create_DDSM_page():
         text='Select Folder',
         image=EmojiImage.create('📁'),
         anchor=tk.CENTER,
-        command=lambda: make2x4xdds_cmd(isdir=True)
+        command=lambda: make2x4xdds_cmd(isdir=True),
+        font=le_font
     )
     tk_widgets.DDSM.make2x4xdds_dir_button.grid(
         row=9, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -5003,7 +5186,8 @@ def create_ST_page():
     # general label
     tk_widgets.ST.general_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
-        text='General'
+        text='General',
+        font=le_font
     )
     tk_widgets.ST.general_label.grid(
         row=0, column=0, padx=10, pady=5, sticky=tk.NSEW)
@@ -5013,7 +5197,8 @@ def create_ST_page():
         text='Appearance:',
         image=EmojiImage.create('☀️', weird=True),
         compound=tk.LEFT,
-        anchor=tk.W
+        anchor=tk.W,
+        font=le_font
     )
     tk_widgets.ST.appearance_label.grid(
         row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -5029,7 +5214,8 @@ def create_ST_page():
             'dark',
             'system'
         ],
-        command=appearance_cmd
+        command=appearance_cmd,
+        font=le_font
     )
     tk_widgets.ST.appearance_option.set(setting.get('appearance', 'system'))
     tk_widgets.ST.appearance_option.grid(
@@ -5041,7 +5227,8 @@ def create_ST_page():
         text='Style:',
         image=EmojiImage.create('✨'),
         compound=tk.LEFT,
-        anchor=tk.W
+        anchor=tk.W,
+        font=le_font
     )
     tk_widgets.ST.style_label.grid(
         row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -5062,7 +5249,8 @@ def create_ST_page():
             'win7',
             'inverse'
         ],
-        command=style_cmd
+        command=style_cmd,
+        font=le_font
     )
     tk_widgets.ST.style_option.set(setting.get('style', 'system'))
     tk_widgets.ST.style_option.grid(
@@ -5074,7 +5262,8 @@ def create_ST_page():
         text='Theme:',
         image=EmojiImage.create('🖌️', weird=True),
         compound=tk.LEFT,
-        anchor=tk.W
+        anchor=tk.W,
+        font=le_font
     )
     tk_widgets.ST.theme_label.grid(
         row=3, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -5100,7 +5289,8 @@ def create_ST_page():
             'violet',
             'yellow',
         ],
-        command=theme_cmd
+        command=theme_cmd,
+        font=le_font
     )
     tk_widgets.ST.theme_option.set(setting.get('theme', 'blue'))
     tk_widgets.ST.theme_option.grid(
@@ -5112,7 +5302,8 @@ def create_ST_page():
         text='Log Limit Messages:',
         image=EmojiImage.create('🗒️', weird=True),
         compound=tk.LEFT,
-        anchor=tk.W
+        anchor=tk.W,
+        font=le_font
     )
     tk_widgets.ST.loglimit_label.grid(
         row=4, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -5128,7 +5319,8 @@ def create_ST_page():
             '1000',
             '10000'
         ],
-        command=loglimit_cmd
+        command=loglimit_cmd,
+        font=le_font
     )
     tk_widgets.ST.loglimit_option.set(setting.get('Log.limit', '100'))
     tk_widgets.ST.loglimit_option.grid(
@@ -5139,7 +5331,8 @@ def create_ST_page():
         text='Create Desktop Shortcut',
         image=EmojiImage.create('🖥️', weird=True),
         anchor=tk.W,
-        command=winLT.Shortcut.create_desktop
+        command=winLT.Shortcut.create_desktop,
+        font=le_font
     )
     tk_widgets.ST.desktop_button.grid(
         row=5, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -5149,7 +5342,8 @@ def create_ST_page():
         text='Create Explorer Contexts',
         image=EmojiImage.create('💬'),
         anchor=tk.W,
-        command=winLT.Context.create_contexts
+        command=winLT.Context.create_contexts,
+        font=le_font
     )
     tk_widgets.ST.contextadd_button.grid(
         row=6, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -5158,7 +5352,8 @@ def create_ST_page():
         text='Remove Explorer Contexts',
         image=EmojiImage.create('❌'),
         anchor=tk.W,
-        command=winLT.Context.remove_contexts
+        command=winLT.Context.remove_contexts,
+        font=le_font
     )
     tk_widgets.ST.contextrmv_button.grid(
         row=6, column=2, padx=5, pady=5, sticky=tk.NS+tk.W)
@@ -5168,7 +5363,8 @@ def create_ST_page():
         text='Ask Default Folder:',
         image=EmojiImage.create('🌳'),
         compound=tk.LEFT,
-        anchor=tk.W
+        anchor=tk.W,
+        font=le_font
     )
     tk_widgets.ST.defaultdir_label.grid(
         row=7, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -5193,13 +5389,15 @@ def create_ST_page():
         tk_widgets.ST.scroll_frame,
         text='Browse',
         image=EmojiImage.create('📁'),
-        command=defaultdir_cmd
+        command=defaultdir_cmd,
+        font=le_font
     )
     tk_widgets.ST.defaultdir_button.grid(
         row=7, column=2, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.ST.defaultdir_value_label = ctk.CTkLabel(
         tk_widgets.ST.scroll_frame,
-        anchor=tk.W
+        anchor=tk.W,
+        font=le_font
     )
     defaultdir = setting.get('default_dir', None)
     if defaultdir == None:
@@ -5221,7 +5419,8 @@ def create_ST_page():
         text='Restart LtMAO',
         image=EmojiImage.create('🚀'),
         anchor=tk.W,
-        command=restart_cmd
+        command=restart_cmd,
+        font=le_font
     )
     tk_widgets.ST.restart_button.grid(
         row=8, column=1, padx=5, pady=5, sticky=tk.NSEW)
@@ -5283,19 +5482,77 @@ def create_ST_page():
         text='Update LtMAO',
         image=EmojiImage.create('🚨'),
         anchor=tk.W,
-        command=update_cmd
+        command=update_cmd,
+        font=le_font
     )
     tk_widgets.ST.update_button.grid(
         row=9, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
+
+def create_CL_page():
+    tk_widgets.CL.page_frame = ctk.CTkFrame(
+        tk_widgets.mainright_frame,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.CL.page_frame.columnconfigure(0, weight=1)
+    tk_widgets.CL.page_frame.rowconfigure(0, weight=1)
+        
+    # create changelog textbox
+    tk_widgets.CL.changelog_text = ctk.CTkTextbox(
+        tk_widgets.CL.page_frame,
+        state=tk.DISABLED,
+        font=le_font
+    )
+    tk_widgets.CL.changelog_text.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.CL.changelog_text.configure(state=tk.NORMAL)
+    tk_widgets.CL.changelog_text.insert(tk.END, 'Loading...')
+    tk_widgets.CL.changelog_text.configure(state=tk.DISABLED)
+    
+    # get changelog too because 1 time get anyway
+    def get_changelog_cmd():
+        full_changelog_text = ''
+        local_file = './prefs/changelog.txt'
+        try:
+            page = 1
+            while True:
+                url=f'https://api.github.com/repos/tarngaina/ltmao/commits?per_page=100&page={page}'
+                commits=requests.get(url).json()
+                if len(commits) > 0:
+                    for commit in commits:
+                        commit = commit['commit']
+                        
+                        author = commit['author']['name']
+                        date = commit['author']['date']
+                        message = commit['message']
+                        full_changelog_text += f'[{date}] by {author}:\n{message}\n\n'
+                else:
+                    break
+                page+=1
+            with open(local_file, 'w+') as f:
+                f.write(full_changelog_text)
+        except Exception as e:
+            LOG(f'get_changelog: Failed: {e}, switching to local file if exists.')
+            if os.path.exists(local_file):
+                with open(local_file, 'r') as f:
+                    full_changelog_text = f.read()
+            else:
+                full_changelog_text = 'Failed to download changelog and no local changelog to read.'
+        tk_widgets.CL.changelog_text.configure(state=tk.NORMAL)
+        tk_widgets.CL.changelog_text.insert(tk.END, full_changelog_text)
+        tk_widgets.CL.changelog_text.configure(state=tk.DISABLED)
+
+    Thread(target=get_changelog_cmd, daemon=True).start()
+        
 
 def select_right_page(selected):
     # hide all page
     for page in tk_widgets.pages:
         if page.page_frame != None:
             page.page_frame.grid_forget()
-    tk_widgets.ST.page_frame.grid_forget()
     tk_widgets.LOG.page_frame.grid_forget()
+    tk_widgets.ST.page_frame.grid_forget()
+    tk_widgets.CL.page_frame.grid_forget()
     # show selected page
     if selected < 999:
         # tool pages
@@ -5313,9 +5570,13 @@ def select_right_page(selected):
         # log page
         tk_widgets.LOG.page_frame.grid(
             row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
-    else:
+    elif selected == 1000:
         # setting page
         tk_widgets.ST.page_frame.grid(
+            row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
+    else:
+        # changelog page
+        tk_widgets.CL.page_frame.grid(
             row=0, column=0, padx=0, pady=0, sticky=tk.NSEW)
 
 
@@ -5341,6 +5602,11 @@ def create_page_controls():
                 fg_color=tk_widgets.c_nonactive_fg,
                 text_color=tk_widgets.c_nonactive_text
             )
+        if tk_widgets.changelog_control != None:
+            tk_widgets.changelog_control.configure(
+                fg_color=tk_widgets.c_nonactive_fg,
+                text_color=tk_widgets.c_nonactive_text
+            )
         # active selected control
         if page < 999:
             # active selected tool control
@@ -5354,9 +5620,15 @@ def create_page_controls():
                 fg_color=tk_widgets.c_active_fg,
                 text_color=tk_widgets.c_active_text
             )
-        else:
+        elif page == 1000:
             # setting control
             tk_widgets.setting_control.configure(
+                fg_color=tk_widgets.c_active_fg,
+                text_color=tk_widgets.c_active_text
+            )
+        else:
+            # changelog control
+            tk_widgets.changelog_control.configure(
                 fg_color=tk_widgets.c_active_fg,
                 text_color=tk_widgets.c_active_text
             )
@@ -5370,91 +5642,106 @@ def create_page_controls():
             tk_widgets.mainleft_frame,
             text='cslmao',
             image=EmojiImage.create('🕹️', weird=True),
-            command=lambda: control_cmd(0)
+            command=lambda: control_cmd(0),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='leaguefile_inspector',
             image=EmojiImage.create('🔎'),
-            command=lambda: control_cmd(1)
+            command=lambda: control_cmd(1),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='animask_viewer',
             image=EmojiImage.create('🎬'),
-            command=lambda: control_cmd(2)
+            command=lambda: control_cmd(2),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='hash_manager',
             image=EmojiImage.create('📖'),
-            command=lambda: control_cmd(3)
+            command=lambda: control_cmd(3),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='vo_helper',
             image=EmojiImage.create('🗣️', weird=True),
-            command=lambda: control_cmd(4)
+            command=lambda: control_cmd(4),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='no_skin',
             image=EmojiImage.create('🚫'),
-            command=lambda: control_cmd(5)
+            command=lambda: control_cmd(5),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='uvee',
             image=EmojiImage.create('🧱'),
-            command=lambda: control_cmd(6)
+            command=lambda: control_cmd(6),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='shrum',
             image=EmojiImage.create('✏️', weird=True),
-            command=lambda: control_cmd(7)
+            command=lambda: control_cmd(7),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='hapiBin',
             image=EmojiImage.create('🐱'),
-            command=lambda: control_cmd(8)
+            command=lambda: control_cmd(8),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='wad_tool',
             image=EmojiImage.create('📦'),
-            command=lambda: control_cmd(9)
+            command=lambda: control_cmd(9),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='pyntex',
             image=EmojiImage.create('🕵🏻', weird=True),
-            command=lambda: control_cmd(10)
+            command=lambda: control_cmd(10),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='sborf',
             image=EmojiImage.create('🛠️', weird=True),
-            command=lambda: control_cmd(11)
+            command=lambda: control_cmd(11),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='lol2fbx',
             image=EmojiImage.create('💎'),
-            command=lambda: control_cmd(12)
+            command=lambda: control_cmd(12),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='bnk_tool',
             image=EmojiImage.create('🔊'),
-            command=lambda: control_cmd(13)
+            command=lambda: control_cmd(13),
+            font=le_font
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
             text='ddsmart',
             image=EmojiImage.create('🛣️', weird=True),
-            command=lambda: control_cmd(14)
+            command=lambda: control_cmd(14),
+            font=le_font
         )
     ]
     for id, control_button in enumerate(tk_widgets.control_buttons):
@@ -5515,13 +5802,15 @@ def create_page_controls():
     tk_widgets.setting_control = None
     tk_widgets.LOG = Keeper()
     tk_widgets.ST = Keeper()
+    tk_widgets.CL = Keeper()
     create_LOG_page()
     create_ST_page()
-
+    create_CL_page()
 
 def create_bottom_widgets():
     tk_widgets.mainbottom_frame.columnconfigure(0, weight=999)
     tk_widgets.mainbottom_frame.columnconfigure(1, weight=1)
+    tk_widgets.mainbottom_frame.columnconfigure(2, weight=1)
     tk_widgets.mainbottom_frame.rowconfigure(0, weight=1)
     tk_widgets.bottom_widgets = Keeper()
     # create mini log
@@ -5543,11 +5832,25 @@ def create_bottom_widgets():
         text='Setting',
         anchor=tk.CENTER,
         image=EmojiImage.create('⚙️', weird=True),
-        command=lambda: tk_widgets.select_control(1000)
+        command=lambda: tk_widgets.select_control(1000),
+        font=le_font
     )
     tk_widgets.bottom_widgets.setting_button.grid(
         row=0, column=1, padx=0, pady=0, sticky=tk.NSEW)
     tk_widgets.setting_control = tk_widgets.bottom_widgets.setting_button
+
+    # create changelog button
+    tk_widgets.bottom_widgets.changelog_button = ctk.CTkButton(
+        tk_widgets.mainbottom_frame,
+        text='Changelog',
+        anchor=tk.CENTER,
+        image=EmojiImage.create('📑'),
+        command=lambda: tk_widgets.select_control(1001),
+        font=le_font
+    )
+    tk_widgets.bottom_widgets.changelog_button.grid(
+        row=0, column=2, padx=0, pady=0, sticky=tk.NSEW)
+    tk_widgets.changelog_control = tk_widgets.bottom_widgets.changelog_button
 
 
 def check_version():
@@ -5581,6 +5884,7 @@ def start():
     set_style(setting.get('style', 'system'))
     set_theme(setting.get('theme', 'blue'))
     Log.limit = int(setting.get('Log.limit', '100'))
+    
     # create UI
     create_page_controls()
     create_bottom_widgets()

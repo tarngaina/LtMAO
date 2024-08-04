@@ -132,8 +132,10 @@ class SKN:
                         self.vertex_type = SKNVertexType(self.vertex_type)
                         if self.vertex_size == 52 and self.vertex_type == SKNVertexType.BASIC\
                         or self.vertex_size == 56 and self.vertex_type == SKNVertexType.COLOR \
-                        or self.vertex_size == 72 and self.vertex_type == SKNVertexType.TANGENT: pass
-                        else: raise Exception(f'pyRitoFile: Failed: Read SKN {path}: Invalid vertex_type:{self.vertex_type} vertex_size:{self.vertex_size}')
+                        or self.vertex_size == 72 and self.vertex_type == SKNVertexType.TANGENT: 
+                            pass
+                        else: 
+                            raise Exception(f'pyRitoFile: Failed: Read SKN {path}: Invalid vertex_type:{self.vertex_type} vertex_size:{self.vertex_size}')
                     else:
                         raise Exception(f'pyRitoFile: Failed: Read SKN {path}: Invalid vertex_type:{self.vertex_type}')
                     

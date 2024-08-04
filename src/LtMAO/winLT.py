@@ -285,6 +285,7 @@ class Context:
 class Shortcut:
     @staticmethod
     def create_desktop():
+        # need to fix desktop dir
         desktop_dir = os.path.expanduser("~/Desktop").replace('\\', '/')
         desktop_file = f'{desktop_dir}/LtMAO.lnk'
         from win32com.client import Dispatch
@@ -296,7 +297,7 @@ class Shortcut:
         shortcut.IconLocation = os.path.abspath(icon_file)
         shortcut.Description = 'Run LtMAO'
         shortcut.save()
-        LOG('winLT: Done: Create Desktop Shortcut')
+        LOG(f'winLT: Done: Create Desktop Shortcut: {desktop_file}')
 
     @staticmethod
     def create_launch():
@@ -311,7 +312,7 @@ class Shortcut:
             shortcut.IconLocation = os.path.abspath(icon_file)
             shortcut.Description = 'Run LtMAO'
             shortcut.save()
-            LOG('winLT: Done: Create Launch Shortcut')
+            LOG(f'winLT: Done: Create Launch Shortcut: {launch_file}')
 
 
 def prepare(_LOG):

@@ -17,6 +17,7 @@ def block_and_stream_process_output(process, log_message_header=''):
 
 class CSLOL:
     local_file = './resources/ext_tools/mod-tools.exe'
+    diag_file = './resources/ext_tools/cslol-diag.exe'
 
     @staticmethod
     def import_fantome(src, dst, game=None, noTFT=True):
@@ -74,6 +75,18 @@ class CSLOL:
             cmds, creationflags=CREATE_NO_WINDOW,
             stdin=PIPE, stdout=PIPE, stderr=STDOUT
         )
+        return p
+    
+    
+    @staticmethod
+    def diagnose():
+        diag_file = os.path.abspath(CSLOL.diag_file)
+        cmds = [diag_file]
+        p = Popen(
+            cmds, creationflags=CREATE_NO_WINDOW,
+            stdin=PIPE, stdout=PIPE, stderr=STDOUT
+        )
+        block_and_stream_process_output(p, 'cslol-diag: ')
         return p
 
 

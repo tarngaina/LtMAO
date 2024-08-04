@@ -182,6 +182,9 @@ class CSLMAO:
             config=CSLMAO.config_file,
             game=setting.get('game_folder', '')
         )
+    
+    def diagnose():
+        return CSLOL.diagnose()
 
 
 import_fantome = CSLMAO.import_fantome
@@ -195,6 +198,7 @@ get_info = CSLMAO.get_info
 set_info = CSLMAO.set_info
 load_mods = CSLMAO.load_mods
 save_mods = CSLMAO.save_mods
+diagnose = CSLMAO.diagnose
 tk_add_mod = None
 tk_refresh_profile = None
 preparing = False

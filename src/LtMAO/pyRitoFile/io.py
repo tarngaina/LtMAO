@@ -183,3 +183,6 @@ class BinStream:
         if len(value) > length:
             value = value[:length]
         self.stream.write(value.encode('ascii') + b'\x00'*(length-len(value)))
+
+    def write_c_sep_0(self, value, length):
+        self.stream.write(b''.join([bytes([b]) + b'\x00' for b in value.encode('ascii')]))
