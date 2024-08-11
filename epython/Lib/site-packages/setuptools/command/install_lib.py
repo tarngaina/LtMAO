@@ -1,7 +1,9 @@
+from __future__ import annotations
 import os
 import sys
 from itertools import product, starmap
 import distutils.command.install_lib as orig
+from .._path import StrPath
 
 
 class install_lib(orig.install_lib):
@@ -85,13 +87,13 @@ class install_lib(orig.install_lib):
 
     def copy_tree(
         self,
-        infile,
-        outfile,
-        preserve_mode=1,
-        preserve_times=1,
-        preserve_symlinks=0,
+        infile: StrPath,
+        outfile: str,
+        preserve_mode=True,
+        preserve_times=True,
+        preserve_symlinks=False,
         level=1,
-    ):
+    ) -> list[str]:
         assert preserve_mode and preserve_times and not preserve_symlinks
         exclude = self.get_exclusions()
 
@@ -103,9 +105,9 @@ class install_lib(orig.install_lib):
         from setuptools.archive_util import unpack_directory
         from distutils import log
 
-        outfiles = []
+        outfiles: list[str] = []
 
-        def pf(src, dst):
+        def pf(src: str, dst: str):
             if dst in exclude:
                 log.warn("Skipping installation of %s (namespace package)", dst)
                 return False

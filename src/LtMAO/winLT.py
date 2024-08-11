@@ -285,9 +285,15 @@ class Context:
 class Shortcut:
     @staticmethod
     def create_desktop():
-        # need to fix desktop dir
+        # default user/Desktop
         desktop_dir = os.path.expanduser("~/Desktop").replace('\\', '/')
-        desktop_file = f'{desktop_dir}/LtMAO.lnk'
+        # try get desktop path in regedit
+        try: 
+            with winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER, 'Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders') as key:
+                desktop_dir = winreg.QueryValueEx(key, 'Desktop')[0]
+        except:
+            pass
+        desktop_file = f'{desktop_dir}/LtMAO.lnk'.replace('\\','/')
         from win32com.client import Dispatch
         shell = Dispatch('WScript.Shell')
         shortcut = shell.CreateShortCut(desktop_file)
@@ -301,7 +307,7 @@ class Shortcut:
 
     @staticmethod
     def create_launch():
-        launch_file = os.path.abspath('./LtMAO.lnk')
+        launch_file = os.path.abspath('./LtMAO.lnk').replace('\\','/')
         if not os.path.exists(launch_file):
             from win32com.client import Dispatch
             shell = Dispatch('WScript.Shell')

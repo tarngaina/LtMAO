@@ -97,10 +97,16 @@ def read_bnk(path, raw=None):
     bnk.read(path, raw)
     return bnk
 
+def write_bnk(path, bnk, wem_datas):
+    bnk.write(path, wem_datas)
+
 def read_wpk(path, raw=None):
     wpk = WPK()
     wpk.read(path, raw)
     return wpk
+
+def write_wpk(path, wpk, wem_datas):
+    wpk.write(path, wem_datas)
 
 
 def read_tex(path, raw=None):

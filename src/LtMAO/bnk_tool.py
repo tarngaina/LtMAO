@@ -1,4 +1,4 @@
-from .pyRitoFile import BNKObjectType, BINHelper, read_bnk, read_wpk, read_bin
+from .pyRitoFile import BNKObjectType, BINHelper, read_bnk, read_wpk, read_bin, write_wpk, BNK, WPK
 from .pyRitoFile.hash import FNV1
 from .hash_manager import cached_bin_hashes
 from . import ext_tools
@@ -7,7 +7,8 @@ import os
 import os.path
 from natsort import os_sorted
 from shutil import rmtree
-from pydub import utils, AudioSegment, playback
+from pydub import utils, AudioSegment
+from pydub.playback import _play_with_simpleaudio
 from threading import Thread
 
 AudioSegment.converter = os.path.abspath('./resources/ext_tools/ffmpeg/ffmpeg.exe')             
@@ -223,6 +224,7 @@ class BNKParser:
         cached_segments = {}
 
     def __init__(self, audio_path, events_path, bin_path=''):
+        self.playbacks = []
         self.audio_path = audio_path
         # parse audio.bnk or audio.wpk
         self.bnk_audio_parsing = True if audio_path.endswith('.bnk') else False
@@ -244,23 +246,24 @@ class BNKParser:
         # parse audio tree
         self.audio_tree = sort_audio_tree(parse_audio_tree(map_bnk_objects), self.event_names_by_id)
 
+
     def get_wem_offset(self, wem):
         return self.data.start_offset+wem.offset if self.bnk_audio_parsing else wem.offset
 
-    def extract(self, output_dir):
-        # extract bnk
+    def extract(self, output_dir, convert_ogg=False):
+        # extract audio
         os.makedirs(output_dir, exist_ok=True)
         with self.audio.stream(self.audio_path, 'rb') as bs:
             for wem in self.wems:
                 bs.seek(self.get_wem_offset(wem))
                 wem_data = bs.read(wem.size)
                 for event_id in self.audio_tree:
-                    if event_id != INF and event_id != 'No container':
+                    if event_id not in (INF, 'No container'):
                         for container_id in self.audio_tree[event_id]:
                             if wem.id in self.audio_tree[event_id][container_id]:
                                 event_dir = os.path.join(output_dir, str(event_id))
                                 os.makedirs(event_dir, exist_ok=True)
-                                if container_id != INF:
+                                if container_id not in (INF, 'No container'):
                                     container_dir = os.path.join(event_dir, str(container_id))
                                     os.makedirs(container_dir, exist_ok=True)
                                     wem_dir = container_dir
@@ -271,13 +274,23 @@ class BNKParser:
                                     f.write(wem_data)
                                 LOG(
                                     f'bnk_tool: Done: Extracted [{wem.size}bytes] {wem.id} of {event_id}')
+                                if convert_ogg:
+                                    ogg_file = wem_file.replace('.wem', '.ogg')
+                                    if ext_tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
+                                        ext_tools.REVORB.run(ogg_file,silent=True)
                     else:
-                        if wem.id in self.audio_tree[event_id][INF]:
-                            wem_file = os.path.join(output_dir, f'{wem.id}.wem')
-                            with open(wem_file, 'wb') as f:
-                                f.write(wem_data)
-                            LOG(
-                                f'bnk_tool: Done: Extracted [{wem.size}bytes] {wem.id}')
+                        for container_id in self.audio_tree[event_id]:
+                            if container_id in (INF, 'No container'):
+                                if wem.id in self.audio_tree[event_id][container_id]:
+                                    wem_file = os.path.join(output_dir, f'{wem.id}.wem')
+                                    with open(wem_file, 'wb') as f:
+                                        f.write(wem_data)
+                                    if convert_ogg:
+                                            ogg_file = wem_file.replace('.wem', '.ogg')
+                                            if ext_tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
+                                                ext_tools.REVORB.run(ogg_file,silent=True)
+                                    LOG(
+                                        f'bnk_tool: Done: Extracted [{wem.size}bytes] {wem.id}')
 
     def unpack(self, output_dir):
         os.makedirs(output_dir, exist_ok=True)
@@ -301,6 +314,18 @@ class BNKParser:
                         f.write(wem_data)
                     break
 
+    def pack(self, output_file):
+        if self.bnk_audio_parsing:
+            LOG('not yet sp')
+        else:
+            wem_datas = []
+            for wem in self.wems:
+                wem_file = self.get_cache_wem_file(wem.id)
+                with open(wem_file, 'rb') as f:
+                    wem_datas.append(f.read())
+            write_wpk(output_file, self.audio, wem_datas)
+
+
     def get_cache_dir(self):
         return os.path.join(BNKParser.cache_dir, os.path.basename(self.audio_path).replace('.bnk', '') if self.bnk_audio_parsing else os.path.basename(self.audio_path).replace('.wpk', ''))
 
@@ -317,9 +342,13 @@ class BNKParser:
                 if ext_tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
                     ext_tools.REVORB.run(ogg_file,silent=True)
             BNKParser.cached_segments[ogg_file] = AudioSegment.from_ogg(ogg_file)
-            playback.play(BNKParser.cached_segments[ogg_file])
+            self.playbacks.append(_play_with_simpleaudio(BNKParser.cached_segments[ogg_file]))
         
         Thread(target=play_thrd,daemon=True).start()
+
+    def stop(self):
+        for playback in self.playbacks:
+            playback.stop()
         
 
 def prepare(_LOG):

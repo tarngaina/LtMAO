@@ -3,11 +3,11 @@ import operator
 import itertools
 
 from .errors import OptionError
-from .extern.jaraco.text import yield_lines
-from .extern.jaraco.functools import pass_none
+from jaraco.text import yield_lines
+from jaraco.functools import pass_none
 from ._importlib import metadata
 from ._itertools import ensure_unique
-from .extern.more_itertools import consume
+from more_itertools import consume
 
 
 def ensure_valid(ep):
@@ -17,7 +17,8 @@ def ensure_valid(ep):
     """
     try:
         ep.extras
-    except AttributeError as ex:
+    except (AttributeError, AssertionError) as ex:
+        # Why both? See https://github.com/python/importlib_metadata/issues/488
         msg = (
             f"Problems to parse {ep}.\nPlease ensure entry-point follows the spec: "
             "https://packaging.python.org/en/latest/specifications/entry-points/"

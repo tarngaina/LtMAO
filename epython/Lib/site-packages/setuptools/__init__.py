@@ -3,11 +3,16 @@
 import functools
 import os
 import re
+import sys
+from typing import TYPE_CHECKING
+
+sys.path.extend(((vendor_path := os.path.join(os.path.dirname(os.path.dirname(__file__)), 'setuptools', '_vendor')) not in sys.path) * [vendor_path])  # fmt: skip
+# workaround for #4476
+sys.modules.pop('backports', None)
 
 import _distutils_hack.override  # noqa: F401
 import distutils.core
 from distutils.errors import DistutilsOptionError
-from distutils.util import convert_path as _convert_path
 
 from . import logging, monkey
 from . import version as _version_module
@@ -57,9 +62,9 @@ def _install_setup_requires(attrs):
             """Ignore ``pyproject.toml``, they are not related to setup_requires"""
             try:
                 cfg, toml = super()._split_standard_project_metadata(filenames)
-                return cfg, ()
             except Exception:
                 return filenames, ()
+            return cfg, ()
 
         def finalize_options(self):
             """
@@ -105,8 +110,11 @@ def setup(**attrs):
 
 setup.__doc__ = distutils.core.setup.__doc__
 
-
-_Command = monkey.get_unpatched(distutils.core.Command)
+if TYPE_CHECKING:
+    # Work around a mypy issue where type[T] can't be used as a base: https://github.com/python/mypy/issues/10962
+    _Command = distutils.core.Command
+else:
+    _Command = monkey.get_unpatched(distutils.core.Command)
 
 
 class Command(_Command):
@@ -165,8 +173,9 @@ class Command(_Command):
     """
 
     command_consumes_arguments = False
+    distribution: Distribution  # override distutils.dist.Distribution with setuptools.dist.Distribution
 
-    def __init__(self, dist, **kw):
+    def __init__(self, dist: Distribution, **kw):
         """
         Construct the command for dist, updating
         vars(self) with any keyword parameters.
@@ -212,7 +221,7 @@ class Command(_Command):
                     "'%s' must be a list of strings (got %r)" % (option, val)
                 )
 
-    def reinitialize_command(self, command, reinit_subcommands=0, **kw):
+    def reinitialize_command(self, command, reinit_subcommands=False, **kw):
         cmd = _Command.reinitialize_command(self, command, reinit_subcommands)
         vars(cmd).update(kw)
         return cmd
@@ -240,22 +249,6 @@ def findall(dir=os.curdir):
         make_rel = functools.partial(os.path.relpath, start=dir)
         files = map(make_rel, files)
     return list(files)
-
-
-@functools.wraps(_convert_path)
-def convert_path(pathname):
-    SetuptoolsDeprecationWarning.emit(
-        "Access to implementation detail",
-        """
-        The function `convert_path` is not provided by setuptools itself,
-        and therefore not part of the public API.
-
-        Its direct usage by 3rd-party packages is considered improper and the function
-        may be removed in the future.
-        """,
-        due_date=(2023, 12, 13),  # initial deprecation 2022-03-25, see #3201
-    )
-    return _convert_path(pathname)
 
 
 class sic(str):

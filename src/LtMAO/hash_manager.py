@@ -3,7 +3,7 @@ import os
 import os.path
 import json
 from threading import Thread
-from . import pyRitoFile
+from . import pyRitoFile, setting
 
 LOG = print
 BIN_HASHES = (
@@ -48,12 +48,12 @@ def to_human(size): return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) +
         " EB"][max(size.bit_length()-1, 0)//10]
 
 
-class CDTB:
+class CDTBHashes:
     # for syncing CDTB hashes
     local_dir = './prefs/hashes/cdtb_hashes'
 
     def local_file(filename):
-        return f'{CDTB.local_dir}/{filename}'
+        return f'{CDTBHashes.local_dir}/{filename}'
 
     def remote_file(filename):
         # return f'https://raw.githubusercontent.com/CommunityDragon/CDTB/master/cdragontoolbox/{filename}'
@@ -66,17 +66,17 @@ class CDTB:
     def sync_hashes(*filenames):
         for filename in filenames:
             try:
-                local_file = CDTB.local_file(filename)
-                remote_file = CDTB.remote_file(filename)
+                local_file = CDTBHashes.local_file(filename)
+                remote_file = CDTBHashes.remote_file(filename)
                 # GET request
                 get = requests.get(remote_file, stream=True)
                 get.raise_for_status()
                 # get etag and compare, new etag = sync
-                etag_local = CDTB.ETAG.get(filename, None)
+                etag_local = CDTBHashes.ETAG.get(filename, None)
                 etag_remote = get.headers['ETag']
                 if etag_local == None or etag_local != etag_remote or not os.path.exists(local_file):
                     # set etag
-                    CDTB.ETAG[filename] = etag_remote
+                    CDTBHashes.ETAG[filename] = etag_remote
                     # download file
                     bytes_downloaded = 0
                     chunk_size = 1024**2*5
@@ -101,14 +101,14 @@ class CDTB:
     @staticmethod
     def sync_all():
         # read etags
-        CDTB.ETAG = {}
-        if os.path.exists(CDTB.etag_path):
-            with open(CDTB.etag_path, 'r') as f:
-                CDTB.ETAG = json.load(f)
-        CDTB.sync_hashes(*ALL_HASHES)
+        CDTBHashes.ETAG = {}
+        if os.path.exists(CDTBHashes.etag_path):
+            with open(CDTBHashes.etag_path, 'r') as f:
+                CDTBHashes.ETAG = json.load(f)
+        CDTBHashes.sync_hashes(*ALL_HASHES)
         # write etags
-        with open(CDTB.etag_path, 'w+') as f:
-            json.dump(CDTB.ETAG, f, indent=4)
+        with open(CDTBHashes.etag_path, 'w+') as f:
+            json.dump(CDTBHashes.ETAG, f, indent=4)
 
 
 class ExtractedHashes:
@@ -336,7 +336,7 @@ class CustomHashes:
 def combine_custom_hashes(*filenames):
     for filename in filenames:
         hashtable = {}
-        cdtb_file = CDTB.local_file(filename)
+        cdtb_file = CDTBHashes.local_file(filename)
         ex_file = ExtractedHashes.local_file(filename)
         ch_file = CustomHashes.local_file(filename)
         sep = HASH_SEPARATOR(filename)
@@ -368,7 +368,7 @@ def combine_custom_hashes(*filenames):
 
 def reset_custom_hashes(*filenames):
     for filename in filenames:
-        cdtb_file = CDTB.local_file(filename)
+        cdtb_file = CDTBHashes.local_file(filename)
         ch_file = CustomHashes.local_file(filename)
         # copy file from cdtb
         with open(cdtb_file, 'rb') as f:
@@ -380,8 +380,12 @@ def reset_custom_hashes(*filenames):
 def prepare(_LOG):
     global LOG
     LOG = _LOG
+    # load setting first
+    CDTBHashes.local_dir = setting.get('CDTBHashes.local_dir', CDTBHashes.local_dir)
+    ExtractedHashes.local_dir = setting.get('ExtractedHashes.local_dir', ExtractedHashes.local_dir)
+    CustomHashes.local_dir = setting.get('CustomHashes.local_dir', CustomHashes.local_dir)
     # ensure folder
-    os.makedirs(CDTB.local_dir, exist_ok=True)
+    os.makedirs(CDTBHashes.local_dir, exist_ok=True)
     os.makedirs(ExtractedHashes.local_dir, exist_ok=True)
     os.makedirs(CustomHashes.local_dir, exist_ok=True)
-    Thread(target=CDTB.sync_all, daemon=True).start()
+    Thread(target=CDTBHashes.sync_all, daemon=True).start()

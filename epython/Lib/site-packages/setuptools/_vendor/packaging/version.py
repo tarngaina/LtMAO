@@ -7,40 +7,44 @@
     from packaging.version import parse, Version
 """
 
-import collections
+from __future__ import annotations
+
 import itertools
 import re
-from typing import Any, Callable, Optional, SupportsInt, Tuple, Union
+from typing import Any, Callable, NamedTuple, SupportsInt, Tuple, Union
 
 from ._structures import Infinity, InfinityType, NegativeInfinity, NegativeInfinityType
 
 __all__ = ["VERSION_PATTERN", "parse", "Version", "InvalidVersion"]
 
-InfiniteTypes = Union[InfinityType, NegativeInfinityType]
-PrePostDevType = Union[InfiniteTypes, Tuple[str, int]]
-SubLocalType = Union[InfiniteTypes, int, str]
-LocalType = Union[
+LocalType = Tuple[Union[int, str], ...]
+
+CmpPrePostDevType = Union[InfinityType, NegativeInfinityType, Tuple[str, int]]
+CmpLocalType = Union[
     NegativeInfinityType,
-    Tuple[
-        Union[
-            SubLocalType,
-            Tuple[SubLocalType, str],
-            Tuple[NegativeInfinityType, SubLocalType],
-        ],
-        ...,
-    ],
+    Tuple[Union[Tuple[int, str], Tuple[NegativeInfinityType, Union[int, str]]], ...],
 ]
 CmpKey = Tuple[
-    int, Tuple[int, ...], PrePostDevType, PrePostDevType, PrePostDevType, LocalType
+    int,
+    Tuple[int, ...],
+    CmpPrePostDevType,
+    CmpPrePostDevType,
+    CmpPrePostDevType,
+    CmpLocalType,
 ]
 VersionComparisonMethod = Callable[[CmpKey, CmpKey], bool]
 
-_Version = collections.namedtuple(
-    "_Version", ["epoch", "release", "dev", "pre", "post", "local"]
-)
+
+class _Version(NamedTuple):
+    epoch: int
+    release: tuple[int, ...]
+    dev: tuple[str, int] | None
+    pre: tuple[str, int] | None
+    post: tuple[str, int] | None
+    local: LocalType | None
 
 
-def parse(version: str) -> "Version":
+def parse(version: str) -> Version:
     """Parse the given version string.
 
     >>> parse('1.0.dev1')
@@ -63,7 +67,7 @@ class InvalidVersion(ValueError):
 
 
 class _BaseVersion:
-    _key: Tuple[Any, ...]
+    _key: tuple[Any, ...]
 
     def __hash__(self) -> int:
         return hash(self._key)
@@ -71,13 +75,13 @@ class _BaseVersion:
     # Please keep the duplicated `isinstance` check
     # in the six comparisons hereunder
     # unless you find a way to avoid adding overhead function calls.
-    def __lt__(self, other: "_BaseVersion") -> bool:
+    def __lt__(self, other: _BaseVersion) -> bool:
         if not isinstance(other, _BaseVersion):
             return NotImplemented
 
         return self._key < other._key
 
-    def __le__(self, other: "_BaseVersion") -> bool:
+    def __le__(self, other: _BaseVersion) -> bool:
         if not isinstance(other, _BaseVersion):
             return NotImplemented
 
@@ -89,13 +93,13 @@ class _BaseVersion:
 
         return self._key == other._key
 
-    def __ge__(self, other: "_BaseVersion") -> bool:
+    def __ge__(self, other: _BaseVersion) -> bool:
         if not isinstance(other, _BaseVersion):
             return NotImplemented
 
         return self._key >= other._key
 
-    def __gt__(self, other: "_BaseVersion") -> bool:
+    def __gt__(self, other: _BaseVersion) -> bool:
         if not isinstance(other, _BaseVersion):
             return NotImplemented
 
@@ -117,7 +121,7 @@ _VERSION_PATTERN = r"""
         (?P<release>[0-9]+(?:\.[0-9]+)*)                  # release segment
         (?P<pre>                                          # pre-release
             [-_\.]?
-            (?P<pre_l>(a|b|c|rc|alpha|beta|pre|preview))
+            (?P<pre_l>alpha|a|beta|b|preview|pre|c|rc)
             [-_\.]?
             (?P<pre_n>[0-9]+)?
         )?
@@ -269,11 +273,10 @@ class Version(_BaseVersion):
         >>> Version("1!2.0.0").epoch
         1
         """
-        _epoch: int = self._version.epoch
-        return _epoch
+        return self._version.epoch
 
     @property
-    def release(self) -> Tuple[int, ...]:
+    def release(self) -> tuple[int, ...]:
         """The components of the "release" segment of the version.
 
         >>> Version("1.2.3").release
@@ -286,11 +289,10 @@ class Version(_BaseVersion):
         Includes trailing zeroes but not the epoch or any pre-release / development /
         post-release suffixes.
         """
-        _release: Tuple[int, ...] = self._version.release
-        return _release
+        return self._version.release
 
     @property
-    def pre(self) -> Optional[Tuple[str, int]]:
+    def pre(self) -> tuple[str, int] | None:
         """The pre-release segment of the version.
 
         >>> print(Version("1.2.3").pre)
@@ -302,11 +304,10 @@ class Version(_BaseVersion):
         >>> Version("1.2.3rc1").pre
         ('rc', 1)
         """
-        _pre: Optional[Tuple[str, int]] = self._version.pre
-        return _pre
+        return self._version.pre
 
     @property
-    def post(self) -> Optional[int]:
+    def post(self) -> int | None:
         """The post-release number of the version.
 
         >>> print(Version("1.2.3").post)
@@ -317,7 +318,7 @@ class Version(_BaseVersion):
         return self._version.post[1] if self._version.post else None
 
     @property
-    def dev(self) -> Optional[int]:
+    def dev(self) -> int | None:
         """The development number of the version.
 
         >>> print(Version("1.2.3").dev)
@@ -328,7 +329,7 @@ class Version(_BaseVersion):
         return self._version.dev[1] if self._version.dev else None
 
     @property
-    def local(self) -> Optional[str]:
+    def local(self) -> str | None:
         """The local version segment of the version.
 
         >>> print(Version("1.2.3").local)
@@ -451,9 +452,8 @@ class Version(_BaseVersion):
 
 
 def _parse_letter_version(
-    letter: str, number: Union[str, bytes, SupportsInt]
-) -> Optional[Tuple[str, int]]:
-
+    letter: str | None, number: str | bytes | SupportsInt | None
+) -> tuple[str, int] | None:
     if letter:
         # We consider there to be an implicit 0 in a pre-release if there is
         # not a numeral associated with it.
@@ -489,7 +489,7 @@ def _parse_letter_version(
 _local_version_separators = re.compile(r"[\._-]")
 
 
-def _parse_local_version(local: str) -> Optional[LocalType]:
+def _parse_local_version(local: str | None) -> LocalType | None:
     """
     Takes a string like abc.1.twelve and turns it into ("abc", 1, "twelve").
     """
@@ -503,13 +503,12 @@ def _parse_local_version(local: str) -> Optional[LocalType]:
 
 def _cmpkey(
     epoch: int,
-    release: Tuple[int, ...],
-    pre: Optional[Tuple[str, int]],
-    post: Optional[Tuple[str, int]],
-    dev: Optional[Tuple[str, int]],
-    local: Optional[Tuple[SubLocalType]],
+    release: tuple[int, ...],
+    pre: tuple[str, int] | None,
+    post: tuple[str, int] | None,
+    dev: tuple[str, int] | None,
+    local: LocalType | None,
 ) -> CmpKey:
-
     # When we compare a release version, we want to compare it with all of the
     # trailing zeros removed. So we'll use a reverse the list, drop all the now
     # leading zeros until we come to something non zero, then take the rest
@@ -524,7 +523,7 @@ def _cmpkey(
     # if there is not a pre or a post segment. If we have one of those then
     # the normal sorting rules will handle this case correctly.
     if pre is None and post is None and dev is not None:
-        _pre: PrePostDevType = NegativeInfinity
+        _pre: CmpPrePostDevType = NegativeInfinity
     # Versions without a pre-release (except as noted above) should sort after
     # those with one.
     elif pre is None:
@@ -534,21 +533,21 @@ def _cmpkey(
 
     # Versions without a post segment should sort before those with one.
     if post is None:
-        _post: PrePostDevType = NegativeInfinity
+        _post: CmpPrePostDevType = NegativeInfinity
 
     else:
         _post = post
 
     # Versions without a development segment should sort after those with one.
     if dev is None:
-        _dev: PrePostDevType = Infinity
+        _dev: CmpPrePostDevType = Infinity
 
     else:
         _dev = dev
 
     if local is None:
         # Versions without a local segment should sort before those with one.
-        _local: LocalType = NegativeInfinity
+        _local: CmpLocalType = NegativeInfinity
     else:
         # Versions with a local segment need that segment parsed to implement
         # the sorting rules in PEP440.

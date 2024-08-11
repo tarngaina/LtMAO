@@ -1654,22 +1654,55 @@ def create_HM_page():
     )
     tk_widgets.HM.info_frame.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
-    tk_widgets.HM.info_frame.columnconfigure(0, weight=1)
+    tk_widgets.HM.info_frame.columnconfigure(0, weight=699)
     tk_widgets.HM.info_frame.columnconfigure(1, weight=0)
     tk_widgets.HM.info_frame.columnconfigure(2, weight=0)
-    tk_widgets.HM.info_frame.columnconfigure(3, weight=699)
+    tk_widgets.HM.info_frame.columnconfigure(3, weight=0)
     tk_widgets.HM.info_frame.rowconfigure(0, weight=1)
     # create folder labels and folder buttons
     folder_label_text = [
-        f'CDTB: {hash_manager.CDTB.local_dir}',
+        f'CDTB: {hash_manager.CDTBHashes.local_dir}',
         f'Extracted: {hash_manager.ExtractedHashes.local_dir}',
         f'Custom: {hash_manager.CustomHashes.local_dir}'
     ]
 
+    def change_cmd(index, label):
+        dir_path = tkfd.askdirectory(
+                parent=tk_widgets.main_tk,
+                title='Select Folder To Extract',
+                initialdir=setting.get('default_folder', None)
+            )
+        if dir_path != '':
+            full_dir_path = os.path.abspath(dir_path)
+            full_cdtb_path = os.path.abspath(hash_manager.CDTBHashes.local_dir)
+            full_extracted_path = os.path.abspath(hash_manager.ExtractedHashes.local_dir)
+            full_custom_path = os.path.abspath(hash_manager.CustomHashes.local_dir)
+            if index == 0:
+                if full_dir_path in (full_extracted_path, full_custom_path):
+                    raise Exception(f'hash_manager: Failed: Change hashes path: {full_dir_path} is already selected as another hashes path. All 3 hashes paths must be different.')
+                hash_manager.CDTBHashes.local_dir = dir_path
+                setting.set('CDTBHashes.local_dir', dir_path)
+                label.configure(text = f'CDTB: {hash_manager.CDTBHashes.local_dir}')
+                setting.save()
+            elif index == 1:
+                if full_dir_path in (full_cdtb_path, full_custom_path):
+                    raise Exception(f'hash_manager: Failed: Change hashes path: {full_dir_path} is already selected as another hashes path. All 3 hashes paths must be different.')
+                hash_manager.ExtractedHashes.local_dir = dir_path
+                setting.set('ExtractedHashes.local_dir', dir_path)
+                label.configure(text = f'Extracted: {hash_manager.ExtractedHashes.local_dir}')
+                setting.save()
+            else:
+                if full_dir_path in (full_cdtb_path, full_extracted_path):
+                    raise Exception(f'hash_manager: Failed: Change hashes path: {full_dir_path} is already selected as another hashes path. All 3 hashes paths must be different.')
+                hash_manager.CustomHashes.local_dir = dir_path
+                setting.set('CustomHashes.local_dir', dir_path)
+                label.configure(text = f'Custom: {hash_manager.CustomHashes.local_dir}')
+                setting.save()
+
     def folder_cmd(index):
         if index == 0:
             os.startfile(os.path.abspath(
-                hash_manager.CDTB.local_dir))
+                hash_manager.CDTBHashes.local_dir))
         elif index == 1:
             os.startfile(os.path.abspath(
                 hash_manager.ExtractedHashes.local_dir))
@@ -1686,6 +1719,15 @@ def create_HM_page():
         )
         folder_label.grid(row=i, column=0, padx=5,
                           pady=5, sticky=tk.NSEW)
+        change_button = ctk.CTkButton(
+            tk_widgets.HM.info_frame,
+            text='Change',
+            image=EmojiImage.create('🛠️'),
+            command=lambda index=i, label=folder_label: change_cmd(index, label),
+            font=le_font
+        )
+        change_button.grid(row=i, column=1, padx=5,
+                           pady=5, sticky=tk.NSEW)
         folder_button = ctk.CTkButton(
             tk_widgets.HM.info_frame,
             text='Open',
@@ -1693,7 +1735,7 @@ def create_HM_page():
             command=lambda index=i: folder_cmd(index),
             font=le_font
         )
-        folder_button.grid(row=i, column=1, padx=5,
+        folder_button.grid(row=i, column=2, padx=5,
                            pady=5, sticky=tk.NSEW)
 
     def reset_cmd():
@@ -1702,12 +1744,12 @@ def create_HM_page():
     # create reset button
     reset_button = ctk.CTkButton(
         tk_widgets.HM.info_frame,
-        text='Reset to CDTB hashes',
+        text='Reset to CDTB',
         image=EmojiImage.create('❌'),
         command=reset_cmd,
         font=le_font
     )
-    reset_button.grid(row=2, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    reset_button.grid(row=2, column=3, padx=5, pady=5, sticky=tk.NSEW)
 
     # create input frame
     tk_widgets.HM.input_frame = ctk.CTkFrame(
@@ -4430,6 +4472,7 @@ def create_BNKT_page():
 
     # init stuffs
     tk_widgets.BNKT.treeview = None
+    tk_widgets.BNKT.working_thread = None
 
     # create input frame
     tk_widgets.BNKT.input_frame = ctk.CTkFrame(
@@ -4580,7 +4623,8 @@ def create_BNKT_page():
     tk_widgets.BNKT.control_frame.rowconfigure(6, weight=1)
     tk_widgets.BNKT.control_frame.rowconfigure(7, weight=1)
     tk_widgets.BNKT.control_frame.rowconfigure(8, weight=1)
-    tk_widgets.BNKT.control_frame.rowconfigure(9, weight=699)
+    tk_widgets.BNKT.control_frame.rowconfigure(9, weight=1)
+    tk_widgets.BNKT.control_frame.rowconfigure(10, weight=699)
 
     # create load button
     def load_cmd():
@@ -4589,7 +4633,7 @@ def create_BNKT_page():
         
         # read stuffs
         bnk_tool.BNKParser.reset_cache()
-        parser = tk_widgets.BNKT.loaded_parser = bnk_tool.BNKParser(
+        parser = bnk_tool.BNKParser(
             audio_path=tk_widgets.BNKT.audio_entry.get(),
             events_path=tk_widgets.BNKT.event_entry.get(),
             bin_path=tk_widgets.BNKT.bin_entry.get()
@@ -4673,7 +4717,42 @@ def create_BNKT_page():
     
     # create save button
     def save_cmd():
-        LOG('not yet supported this version')
+        def save_thrd():
+            if tk_widgets.BNKT.treeview != None:
+                parser = tk_widgets.BNKT.treeview.parser 
+                if parser.bnk_audio_parsing:
+                    output_file = tkfd.asksaveasfilename(
+                        parent=tk_widgets.main_tk,
+                        title='Chhose Audio BNK path to save',
+                        filetypes=(
+                            ('BNK files', '*.bnk'),
+                            ('All files', '*.*'),
+                        ),
+                        defaultextension='.bnk',
+                        initialdir=setting.get('default_folder', None)
+                    )
+                else:
+                    output_file = tkfd.asksaveasfilename(
+                        parent=tk_widgets.main_tk,
+                        title='Chhose Audio WPK path to save',
+                        filetypes=(
+                            ('WPK files', '*.wpk'),
+                            ('All files', '*.*'),
+                        ),
+                        defaultextension='.wpk',
+                        initialdir=setting.get('default_folder', None)
+                    )
+                if output_file != '':
+                    parser.pack(output_file)
+                    LOG(f'bnk_tool: Done: Save Audio BNK/WPK: {output_file}')
+    
+        if check_thread_safe(tk_widgets.BNKT.working_thread):
+            tk_widgets.BNKT.working_thread = Thread(target=save_thrd, daemon=True)
+            tk_widgets.BNKT.working_thread.start()
+        else:
+            LOG(
+                'bnk_tool: Failed: A thread is already running, wait for it to finished.')
+            
     tk_widgets.BNKT.save_button = ctk.CTkButton(
         tk_widgets.BNKT.control_frame,
         text='Save',
@@ -4706,7 +4785,25 @@ def create_BNKT_page():
     
     # create extract button
     def extract_cmd():
-        LOG('not yet supported this version')
+        def extract_thrd():
+            if tk_widgets.BNKT.treeview != None:
+                output_dir = tkfd.askdirectory(
+                    parent=tk_widgets.main_tk,
+                    title='Select Default Folder',
+                    initialdir=setting.get('default_folder', None)
+                )
+                if output_dir != '':
+                    tree = tk_widgets.BNKT.treeview
+                    tree.parser.extract(output_dir, convert_ogg=False)
+                    LOG(f'bnk_tool: Done: Extract all wems: {output_dir}')
+        
+        if check_thread_safe(tk_widgets.BNKT.working_thread):
+            tk_widgets.BNKT.working_thread = Thread(target=extract_thrd, daemon=True)
+            tk_widgets.BNKT.working_thread.start()
+        else:
+            LOG(
+                'bnk_tool: Failed: A thread is already running, wait for it to finished.')
+            
     tk_widgets.BNKT.extract_button = ctk.CTkButton(
         tk_widgets.BNKT.control_frame,
         text='Extract all wems',
@@ -4734,16 +4831,17 @@ def create_BNKT_page():
     
     # create play button
     def play_cmd():
-        tree = tk_widgets.BNKT.treeview
-        if tree != None:
-            # this part is for replace button
-            selected = [tree.item(item) for item in tree.selection()]
-            wem_selected = [item for item in selected if item['tags'] == 'wem']
-            # play focus item if its a wem
-            focus_item = tree.item(tree.focus())
-            if focus_item['tags'][0] == 'wem':
-                wem_id = int(focus_item['text'])
-                tree.parser.play(wem_id)
+        if tk_widgets.BNKT.treeview != None:
+            tree = tk_widgets.BNKT.treeview
+            if tree != None:
+                # this part is for replace button
+                selected = [tree.item(item) for item in tree.selection()]
+                wem_selected = [item for item in selected if item['tags'] == 'wem']
+                # play focus item if its a wem
+                focus_item = tree.item(tree.focus())
+                if focus_item['tags'][0] == 'wem':
+                    wem_id = int(focus_item['text'])
+                    tree.parser.play(wem_id)
     tk_widgets.BNKT.play_button = ctk.CTkButton(
         tk_widgets.BNKT.control_frame,
         text='Play selected',
@@ -4754,6 +4852,23 @@ def create_BNKT_page():
     )
     tk_widgets.BNKT.play_button.grid(
         row=5, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create stop button
+    def stop_cmd():
+        if tk_widgets.BNKT.treeview != None:
+            tree = tk_widgets.BNKT.treeview
+            if tree != None:
+                tree.parser.stop()
+    tk_widgets.BNKT.stop_button = ctk.CTkButton(
+        tk_widgets.BNKT.control_frame,
+        text='Stop all playing sounds',
+        image=EmojiImage.create('⏹️', weird=True),
+        anchor=tk.CENTER,
+        command=stop_cmd,
+        font=le_font
+    )
+    tk_widgets.BNKT.stop_button.grid(
+        row=6, column=0, padx=5, pady=5, sticky=tk.NSEW)
     
     # create auto play check box
     def autoplay_cmd():
@@ -4767,7 +4882,7 @@ def create_BNKT_page():
         font=le_font
     )
     tk_widgets.BNKT.autoplay_checkbox.grid(
-        row=6, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        row=7, column=0, padx=5, pady=5, sticky=tk.NSEW)
     if setting.get('bnktool.auto_play', 1) == 1:
         tk_widgets.BNKT.autoplay_checkbox.select()
     else:
@@ -4781,14 +4896,14 @@ def create_BNKT_page():
         font=le_font
     )
     tk_widgets.BNKT.volume_label.grid(
-        row=7, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        row=8, column=0, padx=5, pady=5, sticky=tk.NSEW)
     
     # create volume slider
     tk_widgets.BNKT.volume_slider = ctk.CTkSlider(
         tk_widgets.BNKT.control_frame
     )
     tk_widgets.BNKT.volume_slider.grid(
-        row=8, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        row=9, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
 
 def create_DDSM_page():    

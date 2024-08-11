@@ -59,7 +59,7 @@ class WPK:
                 wem.offset, wem.size = bs.read_u32(2)
                 wem.id, = bs.read_c_sep_0(bs.read_u32()[0])
                 wem.id = int(wem.id.replace('.wem', ''))
-            
+
     def write(self, path, wem_datas, raw=None):
         with self.stream(path, 'wb', raw) as bs:
             # magic, version
@@ -68,28 +68,31 @@ class WPK:
             # wems offsets - write later
             wem_count = len(self.wems)
             bs.write_u32(wem_count)
-            wem_info_offset_start = 9 + wem_count*4
-            for wem in self.wems:
-                bs.write_u32(wem_info_offset_start)
-                wem_info_size = 4+4+4+len(str(wem.id)+'.wem')*2
-                wem_info_offset_start+=wem_info_size
+            for i, wem in enumerate(self.wems):
+                bs.pad(4)
             # wem infos
             wem_offsets = []
+            wem_data_offsets = []
             for i, wem in enumerate(self.wems):
-                wem.size = len(wem_datas[i])
                 wem_offsets.append(bs.tell())
+                wem.size = len(wem_datas[i])
+                wem_data_offsets.append(bs.tell())
                 bs.pad(4)
                 bs.write_u32(wem.size)
                 wem_id = str(wem.id) + '.wem'
-                bs.write_u32(len(wem_id)*2)
+                bs.write_u32(len(wem_id))
                 bs.write_c_sep_0(wem_id)
             # wem datas
             for i, wem_data in enumerate(wem_datas):
-                return_offset = bs.tell()
-                bs.seek(wem_offsets[i])
-                bs.write(return_offset)
-                bs.seek(return_offset, 1)
+                data_offset = bs.tell()
+                bs.seek(wem_data_offsets[i])
+                bs.write_u32(data_offset)
+                bs.seek(data_offset)
                 bs.write(wem_data)
+            # wem offsets
+            bs.seek(12)
+            for wem_offset in wem_offsets:
+                bs.write_u32(wem_offset)
 
             return bs.raw() if raw else None 
 
