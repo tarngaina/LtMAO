@@ -62,7 +62,7 @@ def create_main_app_and_frames():
     
     # create main app
     tk_widgets.main_tk = CTkDnD()
-    tk_widgets.main_tk.geometry('1000x620')
+    tk_widgets.main_tk.geometry('1080x660+30+30')
     tk_widgets.main_tk.title('LtMAO')
     if os.path.exists(winLT.icon_file):
         tk_widgets.main_tk.iconbitmap(winLT.icon_file)
@@ -3776,7 +3776,7 @@ def create_LOG_page():
     tk_widgets.LOG.log_textbox = ctk.CTkTextbox(
         tk_widgets.LOG.page_frame,
         corner_radius=0,
-        wrap=tk.NONE,
+        wrap=tk.WORD,
         state=tk.DISABLED,
         border_spacing=10,
         font=le_font
@@ -5616,6 +5616,7 @@ def create_CL_page():
     tk_widgets.CL.changelog_text = ctk.CTkTextbox(
         tk_widgets.CL.page_frame,
         state=tk.DISABLED,
+        wrap=tk.WORD,
         font=le_font
     )
     tk_widgets.CL.changelog_text.grid(
@@ -5654,6 +5655,7 @@ def create_CL_page():
             else:
                 full_changelog_text = 'Failed to download changelog and no local changelog to read.'
         tk_widgets.CL.changelog_text.configure(state=tk.NORMAL)
+        tk_widgets.CL.changelog_text.delete('1.0', tk.END)
         tk_widgets.CL.changelog_text.insert(tk.END, full_changelog_text)
         tk_widgets.CL.changelog_text.configure(state=tk.DISABLED)
 
