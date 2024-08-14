@@ -50,6 +50,66 @@ def set_skips(text):
         raise Exception('Failed: Update SKIPS: Invalid input.')
 
 
+def mini_no_skin(skin0_file, otherskins_files):
+    # rebuild hashes
+    LOG(f'no_skin: Running: Rebuilding hashes')
+    hash_manager.CustomHashes.read_hashes('hashes.binentries.txt')
+    skin0_hashes = {}
+    otherskins_hashes = {}
+    for key, value in hash_manager.HASHTABLES['hashes.binentries.txt'].items():
+        if 'Characters/' in value and '/Skins/' in value:
+            if not '/Root' in value:
+                if '/Skin0' in value:
+                    skin0_hashes[key] = value
+                else:
+                    otherskins_hashes[key] = value
+    hash_manager.CustomHashes.free_hashes('hashes.binentries.txt')
+    # read bins
+    skin0_bin = pyRitoFile.read_bin(skin0_file)
+    otherskins_bins = [pyRitoFile.read_bin(otherskins_file) for otherskins_file in otherskins_files]
+    # skin0 bin
+    base_scdp = None
+    base_rr = None
+    base_mrr = None
+    for entry in skin0_bin.entries:
+        if entry.type == cached_bin_hashes['SkinCharacterDataProperties']:
+            base_scdp = entry
+            for field in entry.data:
+                if field.hash == cached_bin_hashes['mResourceResolver']:
+                    base_mrr = field
+                    break
+        elif entry.type == cached_bin_hashes['ResourceResolver']:
+            base_rr = entry
+    if base_scdp.hash not in skin0_hashes:
+        raise Exception(f'no_skin: Failed: Swap skin: {skin0_file} is not a skin0.bin.')
+    # otherskins bin
+    for i, otherskins_bin in enumerate(otherskins_bins):
+        otherskins_file = otherskins_files[i]
+        skin_scdp_hash = None
+        skin_rr_hash = None
+        for entry in otherskins_bin.entries:
+            if entry.type == cached_bin_hashes['SkinCharacterDataProperties']:
+                skin_scdp_hash = entry.hash
+                for field in entry.data:
+                    if field.hash == cached_bin_hashes['mResourceResolver']:
+                        skin_rr_hash = field.data
+                        break
+                break
+        if not skin_scdp_hash in otherskins_hashes:
+            LOG(f'no_skin: Failed: Swap skin: {otherskins_file} is not a specific skinX.bin.')
+            continue
+        # swapping
+        base_scdp.hash = skin_scdp_hash
+        if base_rr != None:
+            base_rr.hash = skin_rr_hash
+            base_mrr.data = skin_rr_hash
+        # write file
+        
+        pyRitoFile.write_bin(otherskins_file, skin0_bin)
+        LOG(f'no_skin: Done: Swap skin: {otherskins_file}')
+    LOG(f'no_skin: Done: Swap all skinX as skin0.')
+
+
 def parse(champions_dir, output_dir):
     # filter wads
     files = os.listdir(champions_dir)

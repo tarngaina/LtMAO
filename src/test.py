@@ -15,7 +15,7 @@ if __name__ == '__main__':
         stats.sort_stats('tottime').print_stats()
 
     def test():
-        from LtMAO import bnk_tool
+        """from LtMAO import bnk_tool
         from LtMAO import pyRitoFile
         parser = bnk_tool.BNKParser(
             'D:/test/kaisa_base_vo_audio.wpk',
@@ -29,6 +29,8 @@ if __name__ == '__main__':
             'D:/test/t.wpk',
             'D:/test/kaisa_base_vo_events.bnk',
             'D:/test/skin0.bin'
-        ) 
+        ) """
+        from LtMAO import wad_tool
+        wad_tool.pack('D:/test/UI.wad', 'D:/test/UI.wad.client')
     
 test()

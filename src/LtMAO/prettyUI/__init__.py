@@ -2337,13 +2337,34 @@ def create_NS_page():
     )
     tk_widgets.NS.page_frame.columnconfigure(0, weight=1)
     tk_widgets.NS.page_frame.rowconfigure(0, weight=1)
-    tk_widgets.NS.page_frame.rowconfigure(1, weight=1)
-    tk_widgets.NS.page_frame.rowconfigure(2, weight=699)
+
+    # create tab view
+    tk_widgets.NS.tabview = ctk.CTkTabview(
+        tk_widgets.NS.page_frame
+    )
+    tk_widgets.NS.tabview.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create tab1 frame
+    tk_widgets.NS.tab1 = tk_widgets.NS.tabview.add('No skin full')
+    tk_widgets.NS.tab1.columnconfigure(0, weight=1)
+    tk_widgets.NS.tab1.rowconfigure(0, weight=1)
+    tk_widgets.NS.tab1_frame = ctk.CTkFrame(
+        tk_widgets.NS.tab1,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.NS.tab1_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.NS.tab1_frame.columnconfigure(0, weight=1)
+    tk_widgets.NS.tab1_frame.rowconfigure(0, weight=1)
+    tk_widgets.NS.tab1_frame.rowconfigure(1, weight=1)
+    tk_widgets.NS.tab1_frame.rowconfigure(2, weight=699)
+
     # init stuffs
     tk_widgets.NS.working_thread = None
     # create input frame
     tk_widgets.NS.input_frame = ctk.CTkFrame(
-        tk_widgets.NS.page_frame,
+        tk_widgets.NS.tab1_frame,
         fg_color=TRANSPARENT
     )
     tk_widgets.NS.input_frame.grid(
@@ -2383,7 +2404,7 @@ def create_NS_page():
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
     # create action frame
     tk_widgets.NS.action_frame = ctk.CTkFrame(
-        tk_widgets.NS.page_frame, fg_color=TRANSPARENT)
+        tk_widgets.NS.tab1_frame, fg_color=TRANSPARENT)
     tk_widgets.NS.action_frame.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
     tk_widgets.NS.action_frame.columnconfigure(0, weight=1)
@@ -2439,7 +2460,7 @@ def create_NS_page():
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
     # create skips textbox
     tk_widgets.NS.skips_textbox = ctk.CTkTextbox(
-        tk_widgets.NS.page_frame,
+        tk_widgets.NS.tab1_frame,
         wrap=tk.NONE,
         font=le_font
     )
@@ -2453,6 +2474,121 @@ def create_NS_page():
     tk_widgets.NS.skips_textbox.grid(
         row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
+
+    # create tab2 frame
+    tk_widgets.NS.tab2 = tk_widgets.NS.tabview.add('No skin lite')
+    tk_widgets.NS.tab2.columnconfigure(0, weight=1)
+    tk_widgets.NS.tab2.rowconfigure(0, weight=1)
+    tk_widgets.NS.tab2_frame = ctk.CTkFrame(
+        tk_widgets.NS.tab2,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.NS.tab2_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.NS.tab2_frame.columnconfigure(0, weight=699)
+    tk_widgets.NS.tab2_frame.columnconfigure(1, weight=1)
+    tk_widgets.NS.tab2_frame.rowconfigure(0, weight=1)
+    tk_widgets.NS.tab2_frame.rowconfigure(1, weight=699)
+    tk_widgets.NS.tab2_frame.rowconfigure(2, weight=1)
+
+    # create skin0 label
+    tk_widgets.NS.skin0_label = ctk.CTkLabel(
+        tk_widgets.NS.tab2_frame,
+        justify=tk.LEFT,
+        anchor=tk.W,
+        text='',
+        font=le_font
+    )
+    tk_widgets.NS.skin0_label.grid(
+        row=0, column=0, padx=10, pady=5, sticky=tk.NSEW)
+    
+    def skin0_cmd():
+        bin_path = tkfd.askopenfilename(
+            parent=tk_widgets.main_tk,
+            title='Select your Animation BIN file',
+            filetypes=(
+                ('BIN files', '*.bin'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.NS.skin0_label.configure(text=bin_path)
+    # create skin0 button
+    tk_widgets.NS.skin0_button = ctk.CTkButton(
+        tk_widgets.NS.tab2_frame,
+        text='Select Skin0 BIN',
+        image=EmojiImage.create('📝'),
+        command=skin0_cmd,
+        font=le_font
+    )
+    tk_widgets.NS.skin0_button.grid(
+        row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create otherskins text
+    tk_widgets.NS.otherskins_text = ctk.CTkTextbox(
+        tk_widgets.NS.tab2_frame,
+        state=tk.DISABLED,
+        wrap=tk.WORD,
+        fg_color=TRANSPARENT,
+        font=le_font
+    )
+    tk_widgets.NS.otherskins_text.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    
+    def otherskins_cmd():
+        bin_paths = tkfd.askopenfilenames(
+            parent=tk_widgets.main_tk,
+            title='Select your Animation BIN file',
+            filetypes=(
+                ('BIN files', '*.bin'),
+                ('All files', '*.*'),
+            ),
+            initialdir=setting.get('default_folder', None)
+        )
+        tk_widgets.NS.otherskins_text.configure(state=tk.NORMAL)
+        tk_widgets.NS.otherskins_text.delete('1.0', tk.END)
+        tk_widgets.NS.otherskins_text.insert('1.0', '\n'.join(bin_paths))
+        tk_widgets.NS.otherskins_text.configure(state=tk.DISABLED)
+    # create otherskins button
+    tk_widgets.NS.otherskins_button = ctk.CTkButton(
+        tk_widgets.NS.tab2_frame,
+        text='Select Other Skin BINs',
+        image=EmojiImage.create('📝'),
+        command=otherskins_cmd,
+        font=le_font
+    )
+    tk_widgets.NS.otherskins_button.grid(
+        row=1, column=1, padx=5, pady=5, sticky=tk.N+tk.EW)
+    
+    def do_cmd():
+        if check_thread_safe(tk_widgets.NS.working_thread):
+            def working_thrd():
+                try:
+                    no_skin.mini_no_skin(
+                        skin0_file=tk_widgets.NS.skin0_label.cget('text'), 
+                        otherskins_files=tk_widgets.NS.otherskins_text.get('1.0', 'end-1c').split('\n')
+                    )
+                except Exception as e:
+                    LOG(str(e))
+            tk_widgets.NS.working_thread = Thread(
+                target=working_thrd,
+                daemon=True
+            )
+            tk_widgets.NS.working_thread.start()
+        else:
+            LOG(
+                'no_skin: Failed: A thread is already running, wait for it to finished.')
+    # create do button
+    tk_widgets.NS.do_button = ctk.CTkButton(
+        tk_widgets.NS.tab2_frame,
+        text='DEW IT',
+        image=EmojiImage.create('🦭'),
+        command=do_cmd,
+        font=le_font
+    )
+    tk_widgets.NS.do_button.grid(
+        row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
+    
 
 def create_UVEE_page():
     # create page frame
