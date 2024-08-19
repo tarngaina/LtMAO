@@ -1,5 +1,6 @@
 import os
 import os.path
+import traceback
 from . import pyRitoFile, hash_manager
 from .hash_manager import cached_bin_hashes
 import json
@@ -91,6 +92,7 @@ def parse_dir(path):
                     LOG(f'pyntex: Done: Parse {full_file}')
             except Exception as e:
                 LOG(f'pyntex: Failed: Parse {full_file}: {e}')
+                LOG(traceback.format_exc())
     hash_manager.free_bin_hashes()
     # write json out
     json_file = path + '.pyntex.json'
@@ -132,6 +134,7 @@ def parse_wad(path):
                         LOG(f'pyntex: Done: Parse {chunk.hash}')
                 except Exception as e:
                     LOG(f'pyntex: Failed: Parse {chunk.hash}: {e}')
+                    LOG(traceback.format_exc())
             chunk.free_data()
     hash_manager.free_bin_hashes()
     # write json out

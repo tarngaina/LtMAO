@@ -1,5 +1,6 @@
 import os
 import os.path
+import traceback
 from .pyRitoFile import read_skn, read_scb, read_sco
 from PIL import Image, ImageDraw
 
@@ -89,11 +90,13 @@ def uvee_file(path):
             return uvee_skn(path)
         except Exception as e:
             LOG(f'uvee: Failed: Extract UV: {path}: {e}')
+            LOG(traceback.format_exc())
     elif path.endswith('.scb') or path.endswith('.sco'):
         try:
             return uvee_so(path)
         except Exception as e:
             LOG(f'uvee: Failed: Extract UV: {path}: {e}')
+            LOG(traceback.format_exc())
     return None
 
 

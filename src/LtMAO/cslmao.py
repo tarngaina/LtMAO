@@ -107,6 +107,8 @@ class CSLMAO:
                            for id, path, enable, profile in l]
         except Exception as e:
             LOG(f'cslmao: Failed to load: {CSLMAO.mod_file}: {e}')
+            import traceback
+            LOG(traceback.format_exc())
             CSLMAO.MODS = []
             with open(CSLMAO.mod_file, 'w+') as f:
                 json.dump({}, f, indent=4)
@@ -229,8 +231,10 @@ def prepare(_LOG):
                 mgs.append(tk_add_mod(image=image, name=info['Name'], author=info['Author'],
                                       version=info['Version'], description=info['Description'], enable=mod.enable, profile=mod.profile))
             except Exception as e:
-                LOG(f'cslmao: Failed: Load {mod.get_path()}: {e}')
                 CSLMAO.MODS.remove(mod)
+                LOG(f'cslmao: Failed: Load {mod.get_path()}: {e}')
+                import traceback
+                LOG(traceback.format_exc())
 
         # grid all mod frame at one
         for mg in mgs:

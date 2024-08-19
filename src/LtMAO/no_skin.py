@@ -47,7 +47,7 @@ def set_skips(text):
         global SKIPS
         SKIPS = json.loads(text)
     except:
-        raise Exception('Failed: Update SKIPS: Invalid input.')
+        raise Exception('no_skin: Failed: Set SKIPS: Invalid input.')
 
 
 def mini_no_skin(skin0_file, otherskins_files):

@@ -1,21 +1,42 @@
 from datetime import datetime
 from customtkinter import CTkImage
 from PIL import Image, ImageDraw, ImageFont, ImageTk
-
+from traceback import format_exc
+from threading import Thread
 
 class Keeper:
     def __init__(self):
         pass
 
 
-def check_thread_safe(thread):
-    if thread == None:
-        return True
-    else:
-        if not thread.is_alive():
-            return True
-    return False
+class SmartThread:
+    cached = {}
+    log = print
 
+    @staticmethod
+    def check_safe(thread):
+        if thread == None:
+            return True
+        else:
+            if not thread.is_alive():
+                return True
+        return False
+    
+    @staticmethod
+    def start(thread_name, target):
+        if thread_name not in SmartThread.cached:
+            SmartThread.cached[thread_name] = None
+        if SmartThread.check_safe(SmartThread.cached[thread_name]):
+            def cmd():
+                try:
+                    target()
+                except:
+                    SmartThread.log(format_exc())
+            SmartThread.cached[thread_name] = Thread(target=cmd, daemon=True)
+            SmartThread.cached[thread_name].start()
+        else:
+            SmartThread.log(
+                f'{thread_name}: Failed: A thread is already running, wait for it to finished.')
 
 class EmojiImage:
     font_file = './resources/emojifont.ttf'

@@ -15,22 +15,20 @@ if __name__ == '__main__':
         stats.sort_stats('tottime').print_stats()
 
     def test():
-        """from LtMAO import bnk_tool
+        from LtMAO import bnk_tool
         from LtMAO import pyRitoFile
         parser = bnk_tool.BNKParser(
-            'D:/test/kaisa_base_vo_audio.wpk',
-            'D:/test/kaisa_base_vo_events.bnk',
+            'D:/test/kaisa_base_sfx_audio.bnk',
+            'D:/test/kaisa_base_sfx_events.bnk',
             'D:/test/skin0.bin'
         )
         parser.unpack(parser.get_cache_dir())
-        parser.pack('D:/test/t.wpk')
+        parser.pack('D:/test/t.bnk')
 
         parser = bnk_tool.BNKParser(
             'D:/test/t.wpk',
             'D:/test/kaisa_base_vo_events.bnk',
             'D:/test/skin0.bin'
-        ) """
-        from LtMAO import wad_tool
-        wad_tool.pack('D:/test/UI.wad', 'D:/test/UI.wad.client')
+        )
     
 test()

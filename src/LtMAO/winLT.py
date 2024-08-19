@@ -285,15 +285,8 @@ class Context:
 class Shortcut:
     @staticmethod
     def create_desktop():
-        # default user/Desktop
-        desktop_dir = os.path.expanduser("~/Desktop").replace('\\', '/')
-        # try get desktop path in regedit
-        try: 
-            with winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER, 'Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders') as key:
-                desktop_dir = winreg.QueryValueEx(key, 'Desktop')[0]
-        except:
-            pass
-        desktop_file = f'{desktop_dir}/LtMAO.lnk'.replace('\\','/')
+        import userpaths
+        desktop_file = f'{userpaths.get_desktop()}/LtMAO.lnk'.replace('\\','/')
         from win32com.client import Dispatch
         shell = Dispatch('WScript.Shell')
         shortcut = shell.CreateShortCut(desktop_file)

@@ -2,6 +2,7 @@ from .pyRitoFile.io import BinStream
 from .pyRitoFile.hash import Elf
 import os
 import os.path
+import traceback
 from shutil import copytree, copy
 
 LOG = print
@@ -24,7 +25,8 @@ def rename(path, olds, news, backup=True):
                 rename_anm(path, olds, news)
                 LOG('shrum: Done: Rename: {path}')
             except Exception as e:
-                LOG('shrum: Failed: Rename: {path}: {e}')
+                LOG(f'shrum: Failed: Rename: {path}: {e}')
+                LOG(traceback.format_exc())
 
 
 def rename_anm_dir(path, olds, news):
@@ -34,7 +36,8 @@ def rename_anm_dir(path, olds, news):
                 rename_anm(os.path.join(path, file), olds, news)
                 LOG('shrum: Done: Rename: {path}')
             except Exception as e:
-                LOG('shrum: Failed: Rename: {path}: {e}')
+                LOG(f'shrum: Failed: Rename: {path}: {e}')
+                LOG(traceback.format_exc())
 
 
 def rename_anm(path, olds, news):

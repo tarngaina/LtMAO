@@ -7,8 +7,8 @@ import tkinter.ttk as ttk
 import pywinstyles
 import requests
 
-from .. import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin, bnk_tool, sborf, lol2fbx, Ritoddstex
-from ..prettyUI.helper import Keeper, Log, EmojiImage, check_thread_safe
+from .. import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin, bnk_tool, sborf, lemon3d, Ritoddstex
+from ..tkGUI.helper import Keeper, Log, EmojiImage, SmartThread
 
 import os
 import os.path
@@ -24,8 +24,8 @@ tk_widgets = Keeper()
 le_font = None
 
 def set_rce():
+    # redirect tkinter error print
     def rce(self, *args):
-        # redirect tkinter error print
         err = format_exception(*args)
         LOG(err)
         print(''.join(err))
@@ -892,25 +892,28 @@ def create_LFI_page():
     def page_drop_cmd(event):
         def page_drop_thrd():
             paths = dnd_return_handle(event.data)
-            for path in paths:
-                path = path.replace('\\', '/')
-                if os.path.isdir(path):
-                    folderread_lfi(path)
-                else:
-                    fileread_lfi(path)
+            if len(paths) > 0:
+                hash_manager.read_all_hashes()
+                fgs = ()
+                for path in paths:
+                    path = path.replace('\\', '/')
+                    if os.path.isdir(path):
+                        for root, dirs, files in os.walk(path):
+                            for file in files:
+                                file_path = os.path.join(
+                                    root, file).replace('\\', '/')
+                                fgs.append(read_file(
+                                    file_path, hash_manager.HASHTABLES))
+                    else:
+                        fgs.append(read_file(path, hash_manager.HASHTABLES))
+                hash_manager.free_all_hashes()
+                for fg in fgs:
+                    fg()
 
-        if check_thread_safe(tk_widgets.LFI.reading_thread):
-            tk_widgets.LFI.reading_thread = Thread(
-                    target=page_drop_thrd,
-                    daemon=True
-                )
-            tk_widgets.LFI.reading_thread.start()
-        else:
-            LOG('leaguefile_inspector: Failed: A thread is already running, wait for it to finished.')
+        SmartThread.start('leaguefile_inspector', page_drop_thrd)
     tk_widgets.LFI.page_frame.drop_target_register(tkdnd.DND_FILES)
     tk_widgets.LFI.page_frame.dnd_bind('<<Drop>>', page_drop_cmd)
     # init stuffs
-    tk_widgets.LFI.reading_thread = None
     tk_widgets.LFI.loaded_files = []
     tk_widgets.LFI.use_ritobin = True
     # create input frame
@@ -1112,16 +1115,8 @@ def create_LFI_page():
         )
         return lambda id=file_frame_id: file_frame.grid(row=id, column=0, padx=2, pady=5, sticky=tk.NSEW)
     
-    def fileread_lfi(file_paths):
-        hash_manager.read_all_hashes()
-        fgs = [read_file(file_path, hash_manager.HASHTABLES) for file_path in file_paths]
-        hash_manager.free_all_hashes()
-        for fg in fgs:
-            fg()
-        
-
     def fileread_cmd():
-        if check_thread_safe(tk_widgets.LFI.reading_thread):
+        def fileread_thrd():
             file_paths = tkfd.askopenfilenames(
                 parent=tk_widgets.main_tk,
                 title='Select League Files To Read',
@@ -1146,16 +1141,13 @@ def create_LFI_page():
                 initialdir=setting.get('default_folder', None)
             )
             if len(file_paths) > 0:
-                def fileread_thrd():
-                    fileread_lfi(file_paths)
-                tk_widgets.LFI.reading_thread = Thread(
-                    target=fileread_thrd,
-                    daemon=True
-                )
-                tk_widgets.LFI.reading_thread.start()
-        else:
-            LOG(
-                'leaguefile_inspector: Failed: A thread is already running, wait for it to finished.')
+                hash_manager.read_all_hashes()
+                fgs = [read_file(file_path, hash_manager.HASHTABLES) for file_path in file_paths]
+                hash_manager.free_all_hashes()
+                for fg in fgs:
+                    fg()
+
+        SmartThread.start('leaguefile_inspector', fileread_thrd)
     # create file read button
     tk_widgets.LFI.fileread_button = ctk.CTkButton(
         tk_widgets.LFI.input_frame,
@@ -1168,37 +1160,27 @@ def create_LFI_page():
     tk_widgets.LFI.fileread_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
-    def folderread_lfi(dir_path):
-        fgs = []
-        hash_manager.read_all_hashes()
-        for root, dirs, files in os.walk(dir_path):
-            for file in files:
-                file_path = os.path.join(
-                    root, file).replace('\\', '/')
-                fgs.append(read_file(
-                    file_path, hash_manager.HASHTABLES))
-        hash_manager.free_all_hashes()
-        for fg in fgs:
-            fg()
-
     def folderread_cmd():
-        if check_thread_safe(tk_widgets.LFI.reading_thread):
+        def folderread_thrd():
             dir_path = tkfd.askdirectory(
                 parent=tk_widgets.main_tk,
                 title='Select Folder To Read',
                 initialdir=setting.get('default_folder', None)
             )
             if dir_path != '':
-                def folderread_thrd():
-                    folderread_lfi(dir_path)
-                tk_widgets.LFI.reading_thread = Thread(
-                    target=folderread_thrd,
-                    daemon=True
-                )
-                tk_widgets.LFI.reading_thread.start()
-        else:
-            LOG(
-                'leaguefile_inspector: Failed: A thread is already running, wait for it to finished.')
+                fgs = []
+                hash_manager.read_all_hashes()
+                for root, dirs, files in os.walk(dir_path):
+                    for file in files:
+                        file_path = os.path.join(
+                            root, file).replace('\\', '/')
+                        fgs.append(read_file(
+                            file_path, hash_manager.HASHTABLES))
+                hash_manager.free_all_hashes()
+                for fg in fgs:
+                    fg()
+                
+        SmartThread.start('leaguefile_inspector', folderread_thrd)
     # create folder read button
     tk_widgets.LFI.folderread_button = ctk.CTkButton(
         tk_widgets.LFI.input_frame,
@@ -1645,8 +1627,6 @@ def create_HM_page():
     tk_widgets.HM.page_frame.rowconfigure(2, weight=1)
     tk_widgets.HM.page_frame.rowconfigure(3, weight=699)
 
-    tk_widgets.HM.extracting_thread = None
-
     # create info frame
     tk_widgets.HM.info_frame = ctk.CTkFrame(
         tk_widgets.HM.page_frame,
@@ -1764,7 +1744,7 @@ def create_HM_page():
     tk_widgets.HM.input_frame.columnconfigure(2, weight=699)
 
     def fileextract_cmd():
-        if check_thread_safe(tk_widgets.HM.extracting_thread):
+        def fileextract_thrd():
             file_paths = tkfd.askopenfilenames(
                 parent=tk_widgets.main_tk,
                 title='Select WAD/BIN/SKN/SKL File To Extract',
@@ -1782,19 +1762,12 @@ def create_HM_page():
                 initialdir=setting.get('default_folder', None)
             )
             if len(file_paths) > 0:
-                def working_thrd():
-                    Log.tk_cooldown = 5000
-                    hash_manager.ExtractedHashes.extract(*file_paths)
-                    Log.tk_cooldown = 0
-                    LOG('hash_manager: Done: Extract hashes.')
-                tk_widgets.HM.extracting_thread = Thread(
-                    target=working_thrd,
-                    daemon=True
-                )
-                tk_widgets.HM.extracting_thread.start()
-        else:
-            LOG(
-                'hash_manager: Failed: A thread is already running, wait for it to finished.')
+                Log.tk_cooldown = 5000
+                hash_manager.ExtractedHashes.extract(*file_paths)
+                Log.tk_cooldown = 0
+                LOG('hash_manager: Done: Extract hashes.')
+
+        SmartThread.start('hash_manager', fileextract_thrd)
     # create file read button
     tk_widgets.HM.fileread_button = ctk.CTkButton(
         tk_widgets.HM.input_frame,
@@ -1808,7 +1781,7 @@ def create_HM_page():
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
     def folderextract_cmd():
-        if check_thread_safe(tk_widgets.HM.extracting_thread):
+        def folderextract_thrd():
             dir_path = tkfd.askdirectory(
                 parent=tk_widgets.main_tk,
                 title='Select Folder To Extract',
@@ -1821,19 +1794,12 @@ def create_HM_page():
                         file_paths.append(os.path.join(
                             root, file).replace('\\', '/'))
                 if len(file_paths) > 0:
-                    def working_thrd():
-                        Log.tk_cooldown = 5000
-                        hash_manager.ExtractedHashes.extract(*file_paths)
-                        Log.tk_cooldown = 0
-                        LOG('hash_manager: Done: Extract hashes.')
-                    tk_widgets.HM.extracting_thread = Thread(
-                        target=working_thrd,
-                        daemon=True
-                    )
-                    tk_widgets.HM.extracting_thread.start()
-        else:
-            LOG(
-                'hash_manager: Failed: A thread is already running, wait for it to finished.')
+                    Log.tk_cooldown = 5000
+                    hash_manager.ExtractedHashes.extract(*file_paths)
+                    Log.tk_cooldown = 0
+                    LOG('hash_manager: Done: Extract hashes.')
+        
+        SmartThread.start('hash_manager', folderextract_thrd)
     # create folder read button
     tk_widgets.HM.folderread_button = ctk.CTkButton(
         tk_widgets.HM.input_frame,
@@ -2109,7 +2075,6 @@ def create_VH_page():
     tk_widgets.VH.page_frame.drop_target_register(tkdnd.DND_FILES)
     tk_widgets.VH.page_frame.dnd_bind('<<Drop>>', page_drop_cmd)
     # init stuffs
-    tk_widgets.VH.making_thread = None
     tk_widgets.VH.scanned_fantomes = []
     # create input frame
     tk_widgets.VH.input_frame = ctk.CTkFrame(
@@ -2269,12 +2234,7 @@ def create_VH_page():
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
     def target_cmd():
-        if not check_thread_safe(tk_widgets.VH.making_thread):
-            LOG(
-                'vo_helper: Failed: Remake Fantomes: A thread is already running, wait for it to finished.')
-            return
-        
-        def make_thrd():
+        def target_thrd():
             for fantome_path in tk_widgets.VH.scanned_fantomes:
                 fantome_name = os.path.basename(fantome_path)
                 output_dir_path = fantome_path.replace('.fantome', '') + " VO HELPER"
@@ -2283,9 +2243,8 @@ def create_VH_page():
                 info, image, wads = vo_helper.read_fantome(fantome_path)
                 vo_helper.make_fantome(
                     fantome_name, output_dir_path, info, image, wads, [tk_widgets.VH.target_option.get()])
-
-        tk_widgets.VH.making_thread = Thread(target=make_thrd, daemon=True)
-        tk_widgets.VH.making_thread.start()
+                
+        SmartThread.start('vo_helper', target_thrd)
 
     # create target button
     tk_widgets.VH.target_button = ctk.CTkButton(
@@ -2299,11 +2258,6 @@ def create_VH_page():
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def make_cmd():
-        if not check_thread_safe(tk_widgets.VH.making_thread):
-            LOG(
-                'vo_helper: Failed: Remake Fantomes: A thread is already running, wait for it to finished.')
-            return
-        
         def make_thrd():
             for fantome_path in tk_widgets.VH.scanned_fantomes:
                 fantome_name = os.path.basename(fantome_path)
@@ -2314,8 +2268,7 @@ def create_VH_page():
                 vo_helper.make_fantome(
                     fantome_name, output_dir_path, info, image, wads, vo_helper.LANGS)
 
-        tk_widgets.VH.making_thread = Thread(target=make_thrd, daemon=True)
-        tk_widgets.VH.making_thread.start()
+        SmartThread.start('vo_helper', make_thrd)
 
     # create make all button
     tk_widgets.VH.make_button = ctk.CTkButton(
@@ -2360,8 +2313,6 @@ def create_NS_page():
     tk_widgets.NS.tab1_frame.rowconfigure(1, weight=1)
     tk_widgets.NS.tab1_frame.rowconfigure(2, weight=699)
 
-    # init stuffs
-    tk_widgets.NS.working_thread = None
     # create input frame
     tk_widgets.NS.input_frame = ctk.CTkFrame(
         tk_widgets.NS.tab1_frame,
@@ -2428,26 +2379,19 @@ def create_NS_page():
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
     def start_cmd():
-        if check_thread_safe(tk_widgets.NS.working_thread):
+        def start_thrd():
             dir_path = tkfd.askdirectory(
                 parent=tk_widgets.main_tk,
                 title='Select Output Folder',
                 initialdir=setting.get('default_folder', None)
             )
             if dir_path != '':
-                def working_thrd():
-                    Log.tk_cooldown = 5000
-                    no_skin.parse(tk_widgets.NS.cfolder_entry.get(), dir_path)
-                    Log.tk_cooldown = 0
-                    LOG(f'no_skin: Done: Created {dir_path}')
-                tk_widgets.NS.working_thread = Thread(
-                    target=working_thrd,
-                    daemon=True
-                )
-                tk_widgets.NS.working_thread.start()
-        else:
-            LOG(
-                'no_skin: Failed: A thread is already running, wait for it to finished.')
+                Log.tk_cooldown = 5000
+                no_skin.parse(tk_widgets.NS.cfolder_entry.get(), dir_path)
+                Log.tk_cooldown = 0
+                LOG(f'no_skin: Done: Created {dir_path}')
+        
+        SmartThread.start('no_skin', start_thrd)
     # create start button
     tk_widgets.NS.start_button = ctk.CTkButton(
         tk_widgets.NS.action_frame,
@@ -2561,23 +2505,13 @@ def create_NS_page():
         row=1, column=1, padx=5, pady=5, sticky=tk.N+tk.EW)
     
     def do_cmd():
-        if check_thread_safe(tk_widgets.NS.working_thread):
-            def working_thrd():
-                try:
-                    no_skin.mini_no_skin(
-                        skin0_file=tk_widgets.NS.skin0_label.cget('text'), 
-                        otherskins_files=tk_widgets.NS.otherskins_text.get('1.0', 'end-1c').split('\n')
-                    )
-                except Exception as e:
-                    LOG(str(e))
-            tk_widgets.NS.working_thread = Thread(
-                target=working_thrd,
-                daemon=True
+        def do_thrd():
+            no_skin.mini_no_skin(
+                skin0_file=tk_widgets.NS.skin0_label.cget('text'), 
+                otherskins_files=tk_widgets.NS.otherskins_text.get('1.0', 'end-1c').split('\n')
             )
-            tk_widgets.NS.working_thread.start()
-        else:
-            LOG(
-                'no_skin: Failed: A thread is already running, wait for it to finished.')
+        
+        SmartThread.start('no_skin', do_thrd)
     # create do button
     tk_widgets.NS.do_button = ctk.CTkButton(
         tk_widgets.NS.tab2_frame,
@@ -2862,8 +2796,6 @@ def create_SHR_page():
     tk_widgets.SHR.page_frame.rowconfigure(0, weight=1)
     tk_widgets.SHR.page_frame.rowconfigure(1, weight=699)
     tk_widgets.SHR.page_frame.rowconfigure(2, weight=1)
-    # init stuffs
-    tk_widgets.SHR.working_thread = None
     # create input frame
     tk_widgets.SHR.input_frame = ctk.CTkFrame(
         tk_widgets.SHR.page_frame,
@@ -3017,21 +2949,16 @@ def create_SHR_page():
     tk_widgets.SHR.action_frame.columnconfigure(2, weight=1)
 
     def rename_cmd():
-        if check_thread_safe(tk_widgets.SHR.working_thread):
-            def rename_thrd():
-                olds = tk_widgets.SHR.old_text.get('1.0', 'end-1c').split('\n')
-                news = tk_widgets.SHR.new_text.get('1.0', 'end-1c').split('\n')
-                length = min(len(olds), len(news))
-                path = tk_widgets.SHR.input_entry.get()
-                if length > 0 and path != '':
-                    shrum.rename(path,
-                                 olds[:length], news[:length], setting.get('Shrum.backup', 1))
-            tk_widgets.SHR.working_thread = Thread(
-                target=rename_thrd, daemon=True)
-            tk_widgets.SHR.working_thread.start()
-        else:
-            LOG(
-                'shrum: Failed: Rename: A thread is already running, wait for it to finished.')
+        def rename_thrd():
+            olds = tk_widgets.SHR.old_text.get('1.0', 'end-1c').split('\n')
+            news = tk_widgets.SHR.new_text.get('1.0', 'end-1c').split('\n')
+            length = min(len(olds), len(news))
+            path = tk_widgets.SHR.input_entry.get()
+            if length > 0 and path != '':
+                shrum.rename(path,
+                                olds[:length], news[:length], setting.get('Shrum.backup', 1))
+            
+        SmartThread.start('shrum', rename_thrd)
 
     # create rename button
     tk_widgets.SHR.rename_button = ctk.CTkButton(
@@ -3072,8 +2999,6 @@ def create_HP_page():
     tk_widgets.HP.page_frame.rowconfigure(1, weight=1)
     tk_widgets.HP.page_frame.rowconfigure(2, weight=1)
     tk_widgets.HP.page_frame.rowconfigure(3, weight=699)
-    # init stuffs
-    tk_widgets.HP.working_thread = None
 
     # create action frame
     tk_widgets.HP.action_frame = ctk.CTkFrame(
@@ -3301,22 +3226,16 @@ def create_HP_page():
     tk_widgets.HP.func_frame.columnconfigure(0, weight=1)
 
     def run_hp_command(hp_command, require_dst):
-        if check_thread_safe(tk_widgets.HP.working_thread):
-            def working_thrd():
-                hapiBin.HPHelper.main(
-                    src=tk_widgets.HP.source_entry.get(), 
-                    dst=tk_widgets.HP.target_entry.get(),
-                    hp_command=hp_command, 
-                    require_dst=require_dst, 
-                    backup=setting.get('hapiBin.backup', 1)
-                )
-            tk_widgets.HP.working_thread = Thread(
-                target=working_thrd, daemon=True
+        def run_hp_thrd():
+            hapiBin.HPHelper.main(
+                src=tk_widgets.HP.source_entry.get(), 
+                dst=tk_widgets.HP.target_entry.get(),
+                hp_command=hp_command, 
+                require_dst=require_dst, 
+                backup=setting.get('hapiBin.backup', 1)
             )
-            tk_widgets.HP.working_thread.start()
-        else:
-            LOG(
-                'hapiBin: Failed: A thread is already running, wait for it to finished.')
+        
+        SmartThread.start('hapiBin', run_hp_thrd)
 
     # create hp funcs
     for func_id, (label, descritpion, icon, hp_command, require_dst) in enumerate(hapiBin.tk_widgets_data):
@@ -3397,18 +3316,10 @@ def create_WT_page():
                         f'wad_tool: Done: Unpack {src}')
             hash_manager.free_wad_hashes()   
 
-        if check_thread_safe(tk_widgets.WT.working_thread):
-            tk_widgets.WT.working_thread = Thread(
-                target=page_drop_thrd,
-                daemon=True
-            )
-            tk_widgets.WT.working_thread.start()
-        else:
-            LOG('wad_tool: Failed: A thread is already running, wait for it to finished.')
+        SmartThread.start('wad_tool', page_drop_thrd)
     tk_widgets.WT.page_frame.drop_target_register(tkdnd.DND_FILES)
     tk_widgets.WT.page_frame.dnd_bind('<<Drop>>', page_drop_cmd)
     # init stuffs
-    tk_widgets.WT.working_thread = None
     tk_widgets.WT.loaded_wads = []
     tk_widgets.WT.loaded_wad_paths = []
     tk_widgets.WT.loaded_chunk_hashes = []
@@ -3425,7 +3336,7 @@ def create_WT_page():
     tk_widgets.WT.action_frame.columnconfigure(2, weight=699)
 
     def wad2dir_cmd():
-        if check_thread_safe(tk_widgets.WT.working_thread):
+        def wad2dir_thrd():
             file_paths = tkfd.askopenfilenames(
                 parent=tk_widgets.main_tk,
                 title='Select WADs To Unpack',
@@ -3436,25 +3347,18 @@ def create_WT_page():
                 initialdir=setting.get('default_folder', None)
             )
             if len(file_paths) > 0:
-                def working_thrd():
-                    hash_manager.read_wad_hashes()
-                    Log.tk_cooldown = 5000
-                    for file_path in file_paths:
-                        src = file_path
-                        dst = src.replace('.wad.client', '.wad')
-                        wad_tool.unpack(src, dst, hash_manager.HASHTABLES)
-                        LOG(
-                            f'wad_tool: Done: Unpack {src}')
-                    Log.tk_cooldown = 0
-                    hash_manager.free_wad_hashes()
-                tk_widgets.WT.working_thread = Thread(
-                    target=working_thrd,
-                    daemon=True
-                )
-                tk_widgets.WT.working_thread.start()
-        else:
-            LOG(
-                'wad_tool: Failed: A thread is already running, wait for it to finished.')
+                hash_manager.read_wad_hashes()
+                Log.tk_cooldown = 5000
+                for file_path in file_paths:
+                    src = file_path
+                    dst = src.replace('.wad.client', '.wad')
+                    wad_tool.unpack(src, dst, hash_manager.HASHTABLES)
+                    LOG(
+                        f'wad_tool: Done: Unpack {src}')
+                Log.tk_cooldown = 0
+                hash_manager.free_wad_hashes()
+            
+        SmartThread.start('wad_tool', wad2dir_thrd)
     # create wad to folder button
     tk_widgets.WT.wad2dir_button = ctk.CTkButton(
         tk_widgets.WT.action_frame,
@@ -3468,34 +3372,27 @@ def create_WT_page():
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
     def dir2wad_cmd():
-        if check_thread_safe(tk_widgets.WT.working_thread):
+        def dir2wad_thrd():
             dir_path = tkfd.askdirectory(
                 parent=tk_widgets.main_tk,
                 title='Select Folder To Pack',
                 initialdir=setting.get('default_folder', None)
             )
             if dir_path != '':
-                def working_thrd():
-                    src = dir_path
-                    dst = src
-                    if dst.endswith('.wad'):
-                        dst += '.client'
-                    else:
-                        if not dst.endswith('.wad.client'):
-                            dst += '.wad.client'
-                    Log.tk_cooldown = 5000
-                    wad_tool.pack(src, dst)
-                    Log.tk_cooldown = 0
-                    LOG(
-                        f'wad_tool: Done: Pack {src}')
-                tk_widgets.WT.working_thread = Thread(
-                    target=working_thrd,
-                    daemon=True
-                )
-                tk_widgets.WT.working_thread.start()
-        else:
-            LOG(
-                'wad_tool: Failed: A thread is already running, wait for it to finished.')
+                src = dir_path
+                dst = src
+                if dst.endswith('.wad'):
+                    dst += '.client'
+                else:
+                    if not dst.endswith('.wad.client'):
+                        dst += '.wad.client'
+                Log.tk_cooldown = 5000
+                wad_tool.pack(src, dst)
+                Log.tk_cooldown = 0
+                LOG(
+                    f'wad_tool: Done: Pack {src}')
+        
+        SmartThread.start('wad_tool', dir2wad_thrd)
     # create folder to wad button
     tk_widgets.WT.dir2wad_button = ctk.CTkButton(
         tk_widgets.WT.action_frame,
@@ -3566,12 +3463,7 @@ def create_WT_page():
                 tk.END, '\n'.join(tk_widgets.WT.loaded_chunk_hashes) + '\n')
             tk_widgets.WT.chunk_text.configure(state=tk.DISABLED)
 
-        if check_thread_safe(tk_widgets.WT.working_thread):
-            tk_widgets.WT.working_thread = Thread(target=add_thrd, daemon=True)
-            tk_widgets.WT.working_thread.start()
-        else:
-            LOG(
-                'wad_tool: Failed: A thread is already running, wait for it to finished.')
+        SmartThread.start('wad_tool', add_thrd)
 
     def addfile_cmd():
         file_paths = tkfd.askopenfilenames(
@@ -3752,7 +3644,7 @@ def create_WT_page():
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     def bulk_cmd():
-        if check_thread_safe(tk_widgets.WT.working_thread):
+        def bulk_thrd():
             dir_path = tkfd.askdirectory(
                 parent=tk_widgets.main_tk,
                 title='Select Output Folder',
@@ -3776,12 +3668,8 @@ def create_WT_page():
                         Log.tk_cooldown = 0
                         hash_manager.free_wad_hashes()
                         LOG(f'wad_tool: Done: Unpack to {dir_path}')
-                    tk_widgets.WT.working_thread = Thread(
-                        target=working_thrd, daemon=True)
-                    tk_widgets.WT.working_thread.start()
-        else:
-            LOG(
-                'wad_tool: Failed: A thread is already running, wait for it to finished.')
+
+        SmartThread.start('wad_tool', bulk_thrd)
     # create bulk button
     tk_widgets.WT.bulk_button = ctk.CTkButton(
         tk_widgets.WT.action2_frame,
@@ -3810,18 +3698,10 @@ def create_PT_page():
             for path in paths:
                 path = path.replace('\\', '/')
                 pyntex.parse(path)
-        if check_thread_safe(tk_widgets.PT.working_thread):
-            tk_widgets.PT.working_thread = Thread(
-                target=page_drop_thrd,
-                daemon=True
-            )
-            tk_widgets.PT.working_thread.start()
-        else:
-            LOG('wad_tool: Failed: A thread is already running, wait for it to finished.')
+
+        SmartThread.start('pyntex', page_drop_thrd)
     tk_widgets.PT.page_frame.drop_target_register(tkdnd.DND_FILES)
     tk_widgets.PT.page_frame.dnd_bind('<<Drop>>', page_drop_cmd)
-    # init stuffs
-    tk_widgets.PT.working_thread = None
     # create action frame
     tk_widgets.PT.action_frame = ctk.CTkFrame(
         tk_widgets.PT.page_frame,
@@ -3835,7 +3715,7 @@ def create_PT_page():
     tk_widgets.PT.action_frame.columnconfigure(2, weight=699)
 
     def parsewad_cmd():
-        if check_thread_safe(tk_widgets.PT.working_thread):
+        def parsewad_thrd():
             file_paths = tkfd.askopenfilenames(
                 parent=tk_widgets.main_tk,
                 title='Select WADs',
@@ -3846,17 +3726,10 @@ def create_PT_page():
                 initialdir=setting.get('default_folder', None)
             )
             if len(file_paths) > 0:
-                def working_thrd():
-                    for file_path in file_paths:
-                        pyntex.parse(file_path)
-                tk_widgets.PT.working_thread = Thread(
-                    target=working_thrd,
-                    daemon=True
-                )
-                tk_widgets.PT.working_thread.start()
-        else:
-            LOG(
-                'pyntex: Failed: A thread is already running, wait for it to finished.')
+                for file_path in file_paths:
+                    pyntex.parse(file_path)
+            
+        SmartThread.start('pyntex', parsewad_thrd)
     # create parse wad button
     tk_widgets.PT.parsewad_button = ctk.CTkButton(
         tk_widgets.PT.action_frame,
@@ -3870,23 +3743,16 @@ def create_PT_page():
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
     def parsedir_cmd():
-        if check_thread_safe(tk_widgets.PT.working_thread):
+        def parsedir_thrd():
             dir_path = tkfd.askdirectory(
                 parent=tk_widgets.main_tk,
                 title='Select Folder',
                 initialdir=setting.get('default_folder', None)
             )
             if dir_path != '':
-                def working_thrd():
-                    pyntex.parse(dir_path)
-                tk_widgets.PT.working_thread = Thread(
-                    target=working_thrd,
-                    daemon=True
-                )
-                tk_widgets.PT.working_thread.start()
-        else:
-            LOG(
-                'pyntex: Failed: A thread is already running, wait for it to finished.')
+                pyntex.parse(dir_path)
+            
+        SmartThread.start('pyntex', parsedir_thrd)
     # create parse folder button
     tk_widgets.PT.parsedir_button = ctk.CTkButton(
         tk_widgets.PT.action_frame,
@@ -4329,14 +4195,34 @@ def create_SBORF_page():
         row=5, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
 
-def create_LOLFBX_page():
-    tk_widgets.LOLFBX.page_frame = ctk.CTkFrame(
+def create_LM_page():
+    tk_widgets.LM.page_frame = ctk.CTkFrame(
         tk_widgets.mainright_frame,
         fg_color=TRANSPARENT,
     )
-    tk_widgets.LOLFBX.page_frame.columnconfigure(0, weight=1)
-    tk_widgets.LOLFBX.page_frame.rowconfigure(0, weight=1)
-    tk_widgets.LOLFBX.page_frame.rowconfigure(1, weight=999)
+    tk_widgets.LM.page_frame.columnconfigure(0, weight=1)
+    tk_widgets.LM.page_frame.rowconfigure(0, weight=1)
+    tk_widgets.LM.page_frame.rowconfigure(1, weight=999)
+
+    # create tab view
+    tk_widgets.LM.tabview = ctk.CTkTabview(
+        tk_widgets.LM.page_frame
+    )
+    tk_widgets.LM.tabview.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create tab1 frame
+    tk_widgets.LM.tab1 = tk_widgets.LM.tabview.add('fbx')
+    tk_widgets.LM.tab1.columnconfigure(0, weight=1)
+    tk_widgets.LM.tab1.rowconfigure(0, weight=1)
+    tk_widgets.LM.tab1_frame = ctk.CTkFrame(
+        tk_widgets.LM.tab1,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.LM.tab1_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.LM.tab1_frame.columnconfigure(0, weight=1)
+    tk_widgets.LM.tab1_frame.rowconfigure(0, weight=1)
 
     def page_drop_cmd(event):
         path = dnd_return_handle(event.data)[0]
@@ -4344,84 +4230,84 @@ def create_LOLFBX_page():
             skl_path = path
             skn_path = path.replace('.skl', '.skn')
             fbx_path = path.replace('.skl', '.fbx')
-            tk_widgets.LOLFBX.skl_entry.delete(0, tk.END)
-            tk_widgets.LOLFBX.skl_entry.insert(tk.END, skl_path)
-            if tk_widgets.LOLFBX.skn_entry.get() == '':
-                tk_widgets.LOLFBX.skn_entry.delete(0, tk.END)
-                tk_widgets.LOLFBX.skn_entry.insert(tk.END, skn_path)
-            if tk_widgets.LOLFBX.fbx_entry.get() == '':
-                tk_widgets.LOLFBX.fbx_entry.delete(0, tk.END)
-                tk_widgets.LOLFBX.fbx_entry.insert(tk.END, fbx_path)
+            tk_widgets.LM.skl_entry.delete(0, tk.END)
+            tk_widgets.LM.skl_entry.insert(tk.END, skl_path)
+            if tk_widgets.LM.skn_entry.get() == '':
+                tk_widgets.LM.skn_entry.delete(0, tk.END)
+                tk_widgets.LM.skn_entry.insert(tk.END, skn_path)
+            if tk_widgets.LM.fbx_entry.get() == '':
+                tk_widgets.LM.fbx_entry.delete(0, tk.END)
+                tk_widgets.LM.fbx_entry.insert(tk.END, fbx_path)
         elif path.endswith('.skn'):
             skn_path = path
             skl_path = path.replace('.skn', '.skl')
             fbx_path = path.replace('.skn', '.fbx')
-            tk_widgets.LOLFBX.skn_entry.delete(0, tk.END)
-            tk_widgets.LOLFBX.skn_entry.insert(tk.END, skn_path)
-            if tk_widgets.LOLFBX.skl_entry.get() == '':
-                tk_widgets.LOLFBX.skl_entry.delete(0, tk.END)
-                tk_widgets.LOLFBX.skl_entry.insert(tk.END, skl_path)
-            if tk_widgets.LOLFBX.fbx_entry.get() == '':
-                tk_widgets.LOLFBX.fbx_entry.delete(0, tk.END)
-                tk_widgets.LOLFBX.fbx_entry.insert(tk.END, fbx_path)
+            tk_widgets.LM.skn_entry.delete(0, tk.END)
+            tk_widgets.LM.skn_entry.insert(tk.END, skn_path)
+            if tk_widgets.LM.skl_entry.get() == '':
+                tk_widgets.LM.skl_entry.delete(0, tk.END)
+                tk_widgets.LM.skl_entry.insert(tk.END, skl_path)
+            if tk_widgets.LM.fbx_entry.get() == '':
+                tk_widgets.LM.fbx_entry.delete(0, tk.END)
+                tk_widgets.LM.fbx_entry.insert(tk.END, fbx_path)
         elif path.endswith('.fbx'):
             fbx_path = path
             skn_path = path.replace('.fbx', '.skn')
             skl_path = path.replace('.fbx', '.skl')
-            tk_widgets.LOLFBX.fbx_entry.delete(0, tk.END)
-            tk_widgets.LOLFBX.fbx_entry.insert(tk.END, fbx_path)
-            if tk_widgets.LOLFBX.skn_entry.get() == '':
-                tk_widgets.LOLFBX.skn_entry.delete(0, tk.END)
-                tk_widgets.LOLFBX.skn_entry.insert(tk.END, skn_path)
-            if tk_widgets.LOLFBX.skl_entry.get() == '':
-                tk_widgets.LOLFBX.skl_entry.delete(0, tk.END)
-                tk_widgets.LOLFBX.skl_entry.insert(tk.END, skl_path)
+            tk_widgets.LM.fbx_entry.delete(0, tk.END)
+            tk_widgets.LM.fbx_entry.insert(tk.END, fbx_path)
+            if tk_widgets.LM.skn_entry.get() == '':
+                tk_widgets.LM.skn_entry.delete(0, tk.END)
+                tk_widgets.LM.skn_entry.insert(tk.END, skn_path)
+            if tk_widgets.LM.skl_entry.get() == '':
+                tk_widgets.LM.skl_entry.delete(0, tk.END)
+                tk_widgets.LM.skl_entry.insert(tk.END, skl_path)
 
-    tk_widgets.LOLFBX.page_frame.drop_target_register(
+    tk_widgets.LM.tab1_frame.drop_target_register(
         tkdnd.DND_FILES)
-    tk_widgets.LOLFBX.page_frame.dnd_bind(
+    tk_widgets.LM.tab1_frame.dnd_bind(
         '<<Drop>>', page_drop_cmd)
 
     # create skin frame
-    tk_widgets.LOLFBX.skin_frame = ctk.CTkFrame(
-        tk_widgets.LOLFBX.page_frame,
+    tk_widgets.LM.skin_frame = ctk.CTkFrame(
+        tk_widgets.LM.tab1_frame,
         fg_color=TRANSPARENT
     )
-    tk_widgets.LOLFBX.skin_frame.grid(
+    tk_widgets.LM.skin_frame.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
-    tk_widgets.LOLFBX.skin_frame.rowconfigure(0, weight=2)
-    tk_widgets.LOLFBX.skin_frame.rowconfigure(1, weight=8)
-    tk_widgets.LOLFBX.skin_frame.rowconfigure(2, weight=2)
-    tk_widgets.LOLFBX.skin_frame.columnconfigure(0, weight=1)
+    tk_widgets.LM.skin_frame.rowconfigure(0, weight=2)
+    tk_widgets.LM.skin_frame.rowconfigure(1, weight=8)
+    tk_widgets.LM.skin_frame.rowconfigure(2, weight=2)
+    tk_widgets.LM.skin_frame.columnconfigure(0, weight=1)
     # create tool label 1
-    tk_widgets.LOLFBX.tool_label1 = ctk.CTkLabel(
-        tk_widgets.LOLFBX.skin_frame,
+    tk_widgets.LM.tool_label1 = ctk.CTkLabel(
+        tk_widgets.LM.skin_frame,
         text = 'FBX <-> SKIN',
         font=le_font
     )
-    tk_widgets.LOLFBX.tool_label1.grid(
+    tk_widgets.LM.tool_label1.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
     # create browse frame
-    tk_widgets.LOLFBX.browse_frame = ctk.CTkFrame(
-        tk_widgets.LOLFBX.skin_frame,
+    tk_widgets.LM.browse_frame = ctk.CTkFrame(
+        tk_widgets.LM.skin_frame,
         fg_color=TRANSPARENT
     )
-    tk_widgets.LOLFBX.browse_frame.grid(
+    tk_widgets.LM.browse_frame.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
-    tk_widgets.LOLFBX.browse_frame.rowconfigure(0, weight=1)
-    tk_widgets.LOLFBX.browse_frame.rowconfigure(1, weight=1)
-    tk_widgets.LOLFBX.browse_frame.rowconfigure(2, weight=1)
-    tk_widgets.LOLFBX.browse_frame.rowconfigure(3, weight=999)
-    tk_widgets.LOLFBX.browse_frame.columnconfigure(0, weight=9)
-    tk_widgets.LOLFBX.browse_frame.columnconfigure(1, weight=1)
+    tk_widgets.LM.browse_frame.rowconfigure(0, weight=1)
+    tk_widgets.LM.browse_frame.rowconfigure(1, weight=1)
+    tk_widgets.LM.browse_frame.rowconfigure(2, weight=1)
+    tk_widgets.LM.browse_frame.rowconfigure(3, weight=999)
+    tk_widgets.LM.browse_frame.columnconfigure(0, weight=9)
+    tk_widgets.LM.browse_frame.columnconfigure(1, weight=1)
 
     # create fbx entry
-    tk_widgets.LOLFBX.fbx_entry = ctk.CTkEntry(
-        tk_widgets.LOLFBX.browse_frame,
+    tk_widgets.LM.fbx_entry = ctk.CTkEntry(
+        tk_widgets.LM.browse_frame,
         font=le_font
     )
-    tk_widgets.LOLFBX.fbx_entry.grid(
+    tk_widgets.LM.fbx_entry.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
     def fbxbrowse_cmd():
         fbx_path = tkfd.askopenfilename(
@@ -4433,34 +4319,34 @@ def create_LOLFBX_page():
             ),
             initialdir=setting.get('default_folder', None)
         )
-        tk_widgets.LOLFBX.fbx_entry.delete(0, tk.END)
-        tk_widgets.LOLFBX.fbx_entry.insert(tk.END, fbx_path)
+        tk_widgets.LM.fbx_entry.delete(0, tk.END)
+        tk_widgets.LM.fbx_entry.insert(tk.END, fbx_path)
         skn_path = fbx_path.replace('.fbx', '.skn')
-        if tk_widgets.LOLFBX.skn_entry.get() == '':
-            tk_widgets.LOLFBX.skn_entry.delete(0, tk.END)
-            tk_widgets.LOLFBX.skn_entry.insert(tk.END, skn_path)
+        if tk_widgets.LM.skn_entry.get() == '':
+            tk_widgets.LM.skn_entry.delete(0, tk.END)
+            tk_widgets.LM.skn_entry.insert(tk.END, skn_path)
         skl_path = fbx_path.replace('.fbx', '.skl')
-        if tk_widgets.LOLFBX.skl_entry.get() == '':
-            tk_widgets.LOLFBX.skl_entry.delete(0, tk.END)
-            tk_widgets.LOLFBX.skl_entry.insert(tk.END, skl_path)
+        if tk_widgets.LM.skl_entry.get() == '':
+            tk_widgets.LM.skl_entry.delete(0, tk.END)
+            tk_widgets.LM.skl_entry.insert(tk.END, skl_path)
     # create fbx browse button
-    tk_widgets.LOLFBX.fbxbrowse_button = ctk.CTkButton(
-        tk_widgets.LOLFBX.browse_frame,
+    tk_widgets.LM.fbxbrowse_button = ctk.CTkButton(
+        tk_widgets.LM.browse_frame,
         text='Browse FBX',
         image=EmojiImage.create('🌄'),
         anchor=tk.CENTER,
         command=fbxbrowse_cmd,
         font=le_font
     )
-    tk_widgets.LOLFBX.fbxbrowse_button.grid(
+    tk_widgets.LM.fbxbrowse_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     # create skl entry
-    tk_widgets.LOLFBX.skl_entry = ctk.CTkEntry(
-        tk_widgets.LOLFBX.browse_frame,
+    tk_widgets.LM.skl_entry = ctk.CTkEntry(
+        tk_widgets.LM.browse_frame,
         font=le_font
     )
-    tk_widgets.LOLFBX.skl_entry.grid(
+    tk_widgets.LM.skl_entry.grid(
         row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
     def sklbrowse_cmd():
         skl_path = tkfd.askopenfilename(
@@ -4472,35 +4358,35 @@ def create_LOLFBX_page():
             ),
             initialdir=setting.get('default_folder', None)
         )
-        tk_widgets.LOLFBX.skl_entry.delete(0, tk.END)
-        tk_widgets.LOLFBX.skl_entry.insert(tk.END, skl_path)
+        tk_widgets.LM.skl_entry.delete(0, tk.END)
+        tk_widgets.LM.skl_entry.insert(tk.END, skl_path)
         fbx_path = skl_path.replace('.skl', '.fbx')
-        if tk_widgets.LOLFBX.fbx_entry.get() == '':
-            tk_widgets.LOLFBX.fbx_entry.delete(0, tk.END)
-            tk_widgets.LOLFBX.fbx_entry.insert(tk.END, fbx_path)
+        if tk_widgets.LM.fbx_entry.get() == '':
+            tk_widgets.LM.fbx_entry.delete(0, tk.END)
+            tk_widgets.LM.fbx_entry.insert(tk.END, fbx_path)
         skn_path = skl_path.replace('.skl', '.skn')
-        if tk_widgets.LOLFBX.skn_entry.get() == '':
-            tk_widgets.LOLFBX.skn_entry.delete(0, tk.END)
-            tk_widgets.LOLFBX.skn_entry.insert(tk.END, skn_path)
+        if tk_widgets.LM.skn_entry.get() == '':
+            tk_widgets.LM.skn_entry.delete(0, tk.END)
+            tk_widgets.LM.skn_entry.insert(tk.END, skn_path)
         
     # create skl browse button
-    tk_widgets.LOLFBX.sklbrowse_button = ctk.CTkButton(
-        tk_widgets.LOLFBX.browse_frame,
+    tk_widgets.LM.sklbrowse_button = ctk.CTkButton(
+        tk_widgets.LM.browse_frame,
         text='Browse SKL',
         image=EmojiImage.create('🦴'),
         anchor=tk.CENTER,
         command=sklbrowse_cmd,
         font=le_font
     )
-    tk_widgets.LOLFBX.sklbrowse_button.grid(
+    tk_widgets.LM.sklbrowse_button.grid(
         row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
     # create skn entry
-    tk_widgets.LOLFBX.skn_entry = ctk.CTkEntry(
-        tk_widgets.LOLFBX.browse_frame,
+    tk_widgets.LM.skn_entry = ctk.CTkEntry(
+        tk_widgets.LM.browse_frame,
         font=le_font
     )
-    tk_widgets.LOLFBX.skn_entry.grid(
+    tk_widgets.LM.skn_entry.grid(
         row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
     def sknbrowse_cmd():
         skn_path = tkfd.askopenfilename(
@@ -4512,77 +4398,124 @@ def create_LOLFBX_page():
             ),
             initialdir=setting.get('default_folder', None)
         )
-        tk_widgets.LOLFBX.skn_entry.delete(0, tk.END)
-        tk_widgets.LOLFBX.skn_entry.insert(tk.END, skn_path)
+        tk_widgets.LM.skn_entry.delete(0, tk.END)
+        tk_widgets.LM.skn_entry.insert(tk.END, skn_path)
         fbx_path = skn_path.replace('.skn', '.fbx')
-        if tk_widgets.LOLFBX.fbx_entry.get() == '':
-            tk_widgets.LOLFBX.fbx_entry.delete(0, tk.END)
-            tk_widgets.LOLFBX.fbx_entry.insert(tk.END, fbx_path)
+        if tk_widgets.LM.fbx_entry.get() == '':
+            tk_widgets.LM.fbx_entry.delete(0, tk.END)
+            tk_widgets.LM.fbx_entry.insert(tk.END, fbx_path)
         skl_path = skn_path.replace('.skn', '.skl')
-        if tk_widgets.LOLFBX.skl_entry.get() == '':
-            tk_widgets.LOLFBX.skl_entry.delete(0, tk.END)
-            tk_widgets.LOLFBX.skl_entry.insert(tk.END, skl_path)
+        if tk_widgets.LM.skl_entry.get() == '':
+            tk_widgets.LM.skl_entry.delete(0, tk.END)
+            tk_widgets.LM.skl_entry.insert(tk.END, skl_path)
     # create fbx browse button
-    tk_widgets.LOLFBX.sknbrowse_button = ctk.CTkButton(
-        tk_widgets.LOLFBX.browse_frame,
+    tk_widgets.LM.sknbrowse_button = ctk.CTkButton(
+        tk_widgets.LM.browse_frame,
         text='Browse SKN',
         image=EmojiImage.create('🧊'),
         anchor=tk.CENTER,
         command=sknbrowse_cmd,
         font=le_font
     )
-    tk_widgets.LOLFBX.sknbrowse_button.grid(
+    tk_widgets.LM.sknbrowse_button.grid(
         row=2, column=1, padx=5, pady=5, sticky=tk.NSEW)
     
     # create action frame
-    tk_widgets.LOLFBX.action_frame = ctk.CTkFrame(
-        tk_widgets.LOLFBX.skin_frame,
+    tk_widgets.LM.action_frame = ctk.CTkFrame(
+        tk_widgets.LM.skin_frame,
         fg_color=TRANSPARENT
     )
-    tk_widgets.LOLFBX.action_frame.grid(
+    tk_widgets.LM.action_frame.grid(
         row=2, column=0, padx=5, pady=5, sticky=tk.NSEW)
-    tk_widgets.LOLFBX.action_frame.rowconfigure(0, weight=0)
-    tk_widgets.LOLFBX.action_frame.columnconfigure(0, weight=2)
-    tk_widgets.LOLFBX.action_frame.columnconfigure(1, weight=6)
-    tk_widgets.LOLFBX.action_frame.columnconfigure(2, weight=2)
+    tk_widgets.LM.action_frame.rowconfigure(0, weight=0)
+    tk_widgets.LM.action_frame.columnconfigure(0, weight=2)
+    tk_widgets.LM.action_frame.columnconfigure(1, weight=6)
+    tk_widgets.LM.action_frame.columnconfigure(2, weight=2)
 
     def fbx2skin_cmd():
-        lol2fbx.fbx_to_skin(
-            fbx_path=tk_widgets.LOLFBX.fbx_entry.get(),
-            skl_path=tk_widgets.LOLFBX.skl_entry.get(),
-            skn_path=tk_widgets.LOLFBX.skn_entry.get()
+        lemon3d.lemon_fbx.fbx_to_skin(
+            fbx_path=tk_widgets.LM.fbx_entry.get(),
+            skl_path=tk_widgets.LM.skl_entry.get(),
+            skn_path=tk_widgets.LM.skn_entry.get()
         )
 
     # create fbx2skin button
-    tk_widgets.LOLFBX.fbx2skin_button = ctk.CTkButton(
-        tk_widgets.LOLFBX.action_frame,
+    tk_widgets.LM.fbx2skin_button = ctk.CTkButton(
+        tk_widgets.LM.action_frame,
         text='FBX -> SKIN',
         image=EmojiImage.create('🛸'),
         anchor=tk.CENTER,
         command=fbx2skin_cmd,
         font=le_font
     )
-    tk_widgets.LOLFBX.fbx2skin_button.grid(
+    tk_widgets.LM.fbx2skin_button.grid(
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
     
     def skin2fbx_cmd():
-        lol2fbx.skin_to_fbx(
-            skl_path=tk_widgets.LOLFBX.skl_entry.get(),
-            skn_path=tk_widgets.LOLFBX.skn_entry.get(),
-            fbx_path=tk_widgets.LOLFBX.fbx_entry.get()
+        lemon3d.lemon_fbx.skin_to_fbx(
+            skl_path=tk_widgets.LM.skl_entry.get(),
+            skn_path=tk_widgets.LM.skn_entry.get(),
+            fbx_path=tk_widgets.LM.fbx_entry.get()
         )
 
     # create skin2fbx button
-    tk_widgets.LOLFBX.skin2fbx_button = ctk.CTkButton(
-        tk_widgets.LOLFBX.action_frame,
+    tk_widgets.LM.skin2fbx_button = ctk.CTkButton(
+        tk_widgets.LM.action_frame,
         text='SKIN -> FBX',
         image=EmojiImage.create('👽'),
         anchor=tk.CENTER,
         command=skin2fbx_cmd,
         font=le_font
     )
-    tk_widgets.LOLFBX.skin2fbx_button.grid(
+    tk_widgets.LM.skin2fbx_button.grid(
         row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
+    
+    # create tab2 frame
+    tk_widgets.LM.tab2 = tk_widgets.LM.tabview.add('maya')
+    tk_widgets.LM.tab2.columnconfigure(0, weight=1)
+    tk_widgets.LM.tab2.rowconfigure(0, weight=1)
+    tk_widgets.LM.tab2_frame = ctk.CTkFrame(
+        tk_widgets.LM.tab2,
+        fg_color=TRANSPARENT,
+    )
+    tk_widgets.LM.tab2_frame.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    tk_widgets.LM.tab2_frame.columnconfigure(0, weight=1)
+    tk_widgets.LM.tab2_frame.rowconfigure(0, weight=0)
+    tk_widgets.LM.tab2_frame.rowconfigure(1, weight=0)
+
+    # create desc label
+    tk_widgets.LM.desc_label = ctk.CTkLabel(
+        tk_widgets.LM.tab2_frame,
+        text='Maya support version: 2022+\nPlease close Maya before installing.',
+        anchor=tk.W,
+        justify=tk.LEFT,
+        font=le_font
+    )
+    tk_widgets.LM.desc_label.grid(
+        row=0, column=0, padx=5, pady=5, sticky=tk.NS+tk.W)
+
+    def mayainstall_cmd():
+        maya_pref_dir = tkfd.askdirectory(
+            parent=tk_widgets.main_tk,
+            title='Select Documents/maya/<version>(recommend 2022+) Folder',
+            initialdir=setting.get('default_folder', None)
+        )
+        if maya_pref_dir != '':
+            lemon3d.lemon_maya.install_plugin(maya_pref_dir.replace('\\', '/'))
+     # create mayainstall button
+    tk_widgets.LM.mayainstall_button = ctk.CTkButton(
+        tk_widgets.LM.tab2_frame,
+        text='Install lemon3d for maya',
+        image=EmojiImage.create('🔌'),
+        anchor=tk.CENTER,
+        command=mayainstall_cmd,
+        font=le_font
+    )
+    tk_widgets.LM.mayainstall_button.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NS+tk.W)
+
+
 
 def create_BNKT_page():
     # apply style to ttk treeview
@@ -4608,7 +4541,6 @@ def create_BNKT_page():
 
     # init stuffs
     tk_widgets.BNKT.treeview = None
-    tk_widgets.BNKT.working_thread = None
 
     # create input frame
     tk_widgets.BNKT.input_frame = ctk.CTkFrame(
@@ -4759,8 +4691,7 @@ def create_BNKT_page():
     tk_widgets.BNKT.control_frame.rowconfigure(6, weight=1)
     tk_widgets.BNKT.control_frame.rowconfigure(7, weight=1)
     tk_widgets.BNKT.control_frame.rowconfigure(8, weight=1)
-    tk_widgets.BNKT.control_frame.rowconfigure(9, weight=1)
-    tk_widgets.BNKT.control_frame.rowconfigure(10, weight=699)
+    tk_widgets.BNKT.control_frame.rowconfigure(9, weight=699)
 
     # create load button
     def load_cmd():
@@ -4828,9 +4759,6 @@ def create_BNKT_page():
         # treeview event 
         def wem_selected(event):
             tree = event.widget
-            # this part is for replace button
-            selected = [tree.item(item) for item in tree.selection()]
-            wem_selected = [item for item in selected if item['tags'] == 'wem']
             # play focus item if its a wem
             if setting.get('bnktool.auto_play', 1) == 1:
                 focus_item = tree.item(tree.focus())
@@ -4881,13 +4809,9 @@ def create_BNKT_page():
                 if output_file != '':
                     parser.pack(output_file)
                     LOG(f'bnk_tool: Done: Save Audio BNK/WPK: {output_file}')
-    
-        if check_thread_safe(tk_widgets.BNKT.working_thread):
-            tk_widgets.BNKT.working_thread = Thread(target=save_thrd, daemon=True)
-            tk_widgets.BNKT.working_thread.start()
-        else:
-            LOG(
-                'bnk_tool: Failed: A thread is already running, wait for it to finished.')
+        
+        SmartThread.start('bnk_tool', save_thrd)
+
             
     tk_widgets.BNKT.save_button = ctk.CTkButton(
         tk_widgets.BNKT.control_frame,
@@ -4930,15 +4854,10 @@ def create_BNKT_page():
                 )
                 if output_dir != '':
                     tree = tk_widgets.BNKT.treeview
-                    tree.parser.extract(output_dir, convert_ogg=False)
+                    tree.parser.extract(output_dir, convert_ogg=setting.get('bnktool.extract_ogg', 1))
                     LOG(f'bnk_tool: Done: Extract all wems: {output_dir}')
         
-        if check_thread_safe(tk_widgets.BNKT.working_thread):
-            tk_widgets.BNKT.working_thread = Thread(target=extract_thrd, daemon=True)
-            tk_widgets.BNKT.working_thread.start()
-        else:
-            LOG(
-                'bnk_tool: Failed: A thread is already running, wait for it to finished.')
+        SmartThread.start('bnk_tool', extract_thrd)
             
     tk_widgets.BNKT.extract_button = ctk.CTkButton(
         tk_widgets.BNKT.control_frame,
@@ -4953,7 +4872,38 @@ def create_BNKT_page():
     
     # create replace button
     def replace_cmd():
-        LOG('not yet supported this version')
+        def replace_thrd():
+            if tk_widgets.BNKT.treeview != None:
+                tree = tk_widgets.BNKT.treeview
+                if tree != None:
+                    selected = [tree.item(item) for item in tree.selection()]
+                    wem_selecteds = [item for item in selected if item['tags'][0] == 'wem']
+                    unique_wem_selecteds = []
+                    unique_wem_id = []
+                    for item in wem_selecteds:
+                        if item['text'] not in unique_wem_id:
+                            unique_wem_selecteds.append(item)
+                            unique_wem_id.append(item['text'])
+                    wem_paths = tkfd.askopenfilenames(
+                        title='Select WEMs',
+                        parent=tk_widgets.main_tk,
+                        filetypes=(('WEM file', '*.wem'),),
+                        initialdir=setting.get('default_folder', None)
+                    )
+                    if len(wem_paths) > 0:
+                        parser = tree.parser
+                        wem_path_id = 0
+                        wem_path_count = len(wem_paths)
+                        for item in unique_wem_selecteds:
+                            wem_id = int(item['text'])
+                            parser.replace_wem(wem_id, wem_paths[wem_path_id])
+                            wem_path_id += 1
+                            if wem_path_id == wem_path_count:
+                                wem_path_id = 0
+                        LOG(f'Done: bnk_tool: Replace wems: Successfully replace {len(unique_wem_selecteds)} selected wems with {wem_path_count} WEM files.')
+        
+        SmartThread.start('bnk_tool', replace_thrd)
+
     tk_widgets.BNKT.replace_button = ctk.CTkButton(
         tk_widgets.BNKT.control_frame,
         text='Replace wem data',
@@ -4970,9 +4920,6 @@ def create_BNKT_page():
         if tk_widgets.BNKT.treeview != None:
             tree = tk_widgets.BNKT.treeview
             if tree != None:
-                # this part is for replace button
-                selected = [tree.item(item) for item in tree.selection()]
-                wem_selected = [item for item in selected if item['tags'] == 'wem']
                 # play focus item if its a wem
                 focus_item = tree.item(tree.focus())
                 if focus_item['tags'][0] == 'wem':
@@ -5024,22 +4971,23 @@ def create_BNKT_page():
     else:
         tk_widgets.BNKT.autoplay_checkbox.deselect()
 
-    # create volume label
-    tk_widgets.BNKT.volume_label = ctk.CTkLabel(
+    # create extract ogg check box
+    def autoplay_cmd():
+        setting.set('bnktool.extract_ogg',
+                    tk_widgets.BNKT.extractogg_checkbox.get())
+        setting.save()
+    tk_widgets.BNKT.extractogg_checkbox = ctk.CTkCheckBox(
         tk_widgets.BNKT.control_frame,
-        text = 'Volume:',
-        anchor = tk.W,
+        text='Extract OGG along WEM',
+        command=autoplay_cmd,
         font=le_font
     )
-    tk_widgets.BNKT.volume_label.grid(
+    tk_widgets.BNKT.extractogg_checkbox.grid(
         row=8, column=0, padx=5, pady=5, sticky=tk.NSEW)
-    
-    # create volume slider
-    tk_widgets.BNKT.volume_slider = ctk.CTkSlider(
-        tk_widgets.BNKT.control_frame
-    )
-    tk_widgets.BNKT.volume_slider.grid(
-        row=9, column=0, padx=5, pady=5, sticky=tk.NSEW)
+    if setting.get('bnktool.extract_ogg', 1) == 1:
+        tk_widgets.BNKT.extractogg_checkbox.select()
+    else:
+        tk_widgets.BNKT.extractogg_checkbox.deselect()
 
 
 def create_DDSM_page():    
@@ -5049,8 +4997,6 @@ def create_DDSM_page():
     )
     tk_widgets.DDSM.page_frame.columnconfigure(0, weight=1)
     tk_widgets.DDSM.page_frame.rowconfigure(0, weight=1)
-    # init stuffs
-    tk_widgets.DDSM.working_thread = None
     # create action frame
     tk_widgets.DDSM.action_frame = ctk.CTkFrame(
         tk_widgets.DDSM.page_frame,
@@ -5112,12 +5058,7 @@ def create_DDSM_page():
                     )
                 LOG(f'ddsmart: Done: dds2png: {len(dds_paths)} items.')
         
-        if check_thread_safe(tk_widgets.DDSM.working_thread):
-            tk_widgets.DDSM.working_thread = Thread(target=dds2png_thrd, daemon=True)
-            tk_widgets.DDSM.working_thread.start()
-        else:
-            LOG(
-                'ddsmart: Failed: A thread is already running, wait for it to finished.')
+        SmartThread.start('ddsmart', dds2png_thrd)
         
     tk_widgets.DDSM.dds2png_button = ctk.CTkButton(
         tk_widgets.DDSM.action_frame,
@@ -5179,12 +5120,7 @@ def create_DDSM_page():
                     )
                 LOG(f'ddsmart: Done: png2dds: {len(png_paths)} items.')
         
-        if check_thread_safe(tk_widgets.DDSM.working_thread):
-            tk_widgets.DDSM.working_thread = Thread(target=png2dds_thrd, daemon=True)
-            tk_widgets.DDSM.working_thread.start()
-        else:
-            LOG(
-                'ddsmart: Failed: A thread is already running, wait for it to finished.')
+        SmartThread.start('ddsmart', png2dds_thrd)
     tk_widgets.DDSM.png2dds_button = ctk.CTkButton(
         tk_widgets.DDSM.action_frame,
         text='Select PNG',
@@ -5243,12 +5179,7 @@ def create_DDSM_page():
                     Ritoddstex.dds2tex(dds_path)
                 LOG(f'ddsmart: Done: dds2tex: {len(dds_paths)} items.')
         
-        if check_thread_safe(tk_widgets.DDSM.working_thread):
-            tk_widgets.DDSM.working_thread = Thread(target=dds2tex_thrd, daemon=True)
-            tk_widgets.DDSM.working_thread.start()
-        else:
-            LOG(
-                'ddsmart: Failed: A thread is already running, wait for it to finished.')
+        SmartThread.start('ddsmart', dds2tex_thrd)
     tk_widgets.DDSM.dds2tex_button = ctk.CTkButton(
         tk_widgets.DDSM.action_frame,
         text='Select DDS',
@@ -5307,12 +5238,7 @@ def create_DDSM_page():
                     Ritoddstex.tex2dds(tex_path)
                 LOG(f'ddsmart: Done: tex2dds: {len(tex_paths)} items.')
         
-        if check_thread_safe(tk_widgets.DDSM.working_thread):
-            tk_widgets.DDSM.working_thread = Thread(target=tex2dds_thrd, daemon=True)
-            tk_widgets.DDSM.working_thread.start()
-        else:
-            LOG(
-                'ddsmart: Failed: A thread is already running, wait for it to finished.')
+        SmartThread.start('ddsmart', tex2dds_thrd)
     tk_widgets.DDSM.tex2dds_button = ctk.CTkButton(
         tk_widgets.DDSM.action_frame,
         text='Select TEX',
@@ -5391,12 +5317,7 @@ def create_DDSM_page():
                         )
                 LOG(f'ddsmart: Done: make2x4xdds: {len(dds_paths)} items.')
         
-        if check_thread_safe(tk_widgets.DDSM.working_thread):
-            tk_widgets.DDSM.working_thread = Thread(target=make2x4xdds_thrd, daemon=True)
-            tk_widgets.DDSM.working_thread.start()
-        else:
-            LOG(
-                'ddsmart: Failed: A thread is already running, wait for it to finished.')
+        SmartThread.start('ddsmart', make2x4xdds_thrd)
     tk_widgets.DDSM.make2x4xdds_button = ctk.CTkButton(
         tk_widgets.DDSM.action_frame,
         text='Select DDS',
@@ -5682,7 +5603,7 @@ def create_ST_page():
             def to_human(size): 
                 return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) + ["", " KB", " MB", " GB", " TB", " PB", " EB"][max(size.bit_length()-1, 0)//10]
             
-            check_version()
+            check_version_thrd()
             
             if VERSION == NEW_VERSION:
                 LOG('update: Failed: Current version {VERSION} is the latest version.')
@@ -5705,7 +5626,7 @@ def create_ST_page():
                         bytes_downloaded_log += chunk_length
                         if bytes_downloaded_log > bytes_downloaded_log_limit:
                             LOG(
-                                f'update: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
+                                f'update_ltmao: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
                             bytes_downloaded_log = 0
                 LOG(f'update: Done: Downloaded: {local_file}')
                 # extract update
@@ -5716,7 +5637,7 @@ def create_ST_page():
                         try:
                             zip.extract(zipinfo, '.')
                         except Exception as e:
-                            LOG(f'update: Failed but Ignored: Extract: {zipinfo.filename}: {e}')
+                            LOG(f'update_ltmao: Failed but ignored: Extract: {zipinfo.filename}: {e}')
                 # remove update file
                 os.remove(local_file)
                 # restat ltmao
@@ -5726,7 +5647,7 @@ def create_ST_page():
                 tk_widgets.main_tk.destroy()
                 sys.exit(0)
 
-        Thread(target=update_thrd, daemon=True).start()
+        SmartThread.start('update_ltmao', update_thrd)
 
     tk_widgets.ST.update_button = ctk.CTkButton(
         tk_widgets.ST.scroll_frame,
@@ -5738,6 +5659,21 @@ def create_ST_page():
     )
     tk_widgets.ST.update_button.grid(
         row=9, column=1, padx=5, pady=5, sticky=tk.NSEW)
+
+    # create support button
+    def support_cmd():
+        import webbrowser
+        webbrowser.open('https://paypal.me/tarngaina')
+    tk_widgets.ST.support_button = ctk.CTkButton(
+        tk_widgets.ST.scroll_frame,
+        text='Support me',
+        image=EmojiImage.create('🙏'),
+        anchor=tk.W,
+        command=support_cmd,
+        font=le_font
+    )
+    tk_widgets.ST.support_button.grid(
+        row=10, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
 
 def create_CL_page():
@@ -5762,7 +5698,7 @@ def create_CL_page():
     tk_widgets.CL.changelog_text.configure(state=tk.DISABLED)
     
     # get changelog too because 1 time get anyway
-    def get_changelog_cmd():
+    def get_changelog_thrd():
         full_changelog_text = ''
         local_file = './prefs/changelog.txt'
         try:
@@ -5795,7 +5731,7 @@ def create_CL_page():
         tk_widgets.CL.changelog_text.insert(tk.END, full_changelog_text)
         tk_widgets.CL.changelog_text.configure(state=tk.DISABLED)
 
-    Thread(target=get_changelog_cmd, daemon=True).start()
+    SmartThread.start('get_changelog', get_changelog_thrd)
         
 
 def select_right_page(selected):
@@ -5977,8 +5913,8 @@ def create_page_controls():
         ),
         ctk.CTkButton(
             tk_widgets.mainleft_frame,
-            text='lol2fbx',
-            image=EmojiImage.create('💎'),
+            text='lemon3d',
+            image=EmojiImage.create('🍋'),
             command=lambda: control_cmd(12),
             font=le_font
         ),
@@ -6029,7 +5965,7 @@ def create_page_controls():
     tk_widgets.WT = tk_widgets.pages[9]
     tk_widgets.PT = tk_widgets.pages[10]
     tk_widgets.SBORF = tk_widgets.pages[11]
-    tk_widgets.LOLFBX = tk_widgets.pages[12]
+    tk_widgets.LM = tk_widgets.pages[12]
     tk_widgets.BNKT = tk_widgets.pages[13]
     tk_widgets.DDSM = tk_widgets.pages[14]
     # create right pages
@@ -6046,7 +5982,7 @@ def create_page_controls():
         create_WT_page,
         create_PT_page,
         create_SBORF_page,
-        create_LOLFBX_page,
+        create_LM_page,
         create_BNKT_page,
         create_DDSM_page
     ]
@@ -6105,8 +6041,7 @@ def create_bottom_widgets():
         row=0, column=2, padx=0, pady=0, sticky=tk.NSEW)
     tk_widgets.changelog_control = tk_widgets.bottom_widgets.changelog_button
 
-
-def check_version():
+def check_version_thrd():
     # read offline
     try:
         local_file = './version'
@@ -6125,11 +6060,11 @@ def check_version():
             title += f' - A new version has been out: {NEW_VERSION}, please redownload LtMAO to update it.'
         tk_widgets.main_tk.title(title) 
     except Exception as e:
-        LOG(f'check_version: Failed: {e}')
-    
-    
+        LOG(f'check_version: Failed: {str(e)}')
+
 def start():
     set_rce()
+    SmartThread.log = LOG
     create_main_app_and_frames()
     # load settings first
     setting.prepare(LOG)
@@ -6147,7 +6082,7 @@ def start():
     cslmao.prepare(LOG)
     winLT.prepare(LOG)
     hash_manager.prepare(LOG)
-    Thread(target=check_version, daemon=True).start()
+    SmartThread.start('check_version', check_version_thrd)
     wad_tool.prepare(LOG)
     ext_tools.prepare(LOG)
     leaguefile_inspector.prepare(LOG)
@@ -6159,6 +6094,7 @@ def start():
     pyntex.prepare(LOG)
     bnk_tool.prepare(LOG)
     sborf.prepare(LOG)
-    lol2fbx.prepare(LOG)
+    lemon3d.lemon_fbx.prepare(LOG)
+    lemon3d.lemon_maya.prepare(LOG)
     # loop the UI
     tk_widgets.main_tk.mainloop()

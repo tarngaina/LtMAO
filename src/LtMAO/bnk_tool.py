@@ -1,4 +1,4 @@
-from .pyRitoFile import BNKObjectType, BINHelper, read_bnk, read_wpk, read_bin, write_wpk, BNK, WPK
+from .pyRitoFile import BNKObjectType, BINHelper, read_bnk, read_wpk, read_bin, write_bnk, write_wpk, BNK, WPK
 from .pyRitoFile.hash import FNV1
 from .hash_manager import cached_bin_hashes
 from . import ext_tools
@@ -221,7 +221,7 @@ class BNKParser:
     def reset_cache():
         rmtree(BNKParser.cache_dir, ignore_errors=True)
         os.makedirs(BNKParser.cache_dir, exist_ok=True)
-        cached_segments = {}
+        BNKParser.cached_segments = {}
 
     def __init__(self, audio_path, events_path, bin_path=''):
         self.playbacks = []
@@ -246,9 +246,23 @@ class BNKParser:
         # parse audio tree
         self.audio_tree = sort_audio_tree(parse_audio_tree(map_bnk_objects), self.event_names_by_id)
 
-
     def get_wem_offset(self, wem):
         return self.data.start_offset+wem.offset if self.bnk_audio_parsing else wem.offset
+
+    def replace_wem(self, wem_id, wem_file):
+        for wem in self.wems:
+            if wem.id == wem_id:
+                with open(wem_file, 'rb') as f:
+                    wem_data = f.read()
+                wem.size = len(wem_data)
+                cache_wem_file = self.get_cache_wem_file(wem_id)
+                with open(cache_wem_file, 'wb+') as f:
+                    f.write(wem_data)
+                ogg_file = cache_wem_file.replace('.wem', '.ogg')
+                if os.path.exists(ogg_file):
+                    os.remove(ogg_file)
+                if ogg_file in BNKParser.cached_segments:
+                    BNKParser.cached_segments.pop(ogg_file)
 
     def extract(self, output_dir, convert_ogg=False):
         # extract audio
@@ -316,7 +330,12 @@ class BNKParser:
 
     def pack(self, output_file):
         if self.bnk_audio_parsing:
-            LOG('not yet sp')
+            wem_datas = []
+            for wem in self.wems:
+                wem_file = self.get_cache_wem_file(wem.id)
+                with open(wem_file, 'rb') as f:
+                    wem_datas.append(f.read())
+            write_bnk(output_file, self.audio, wem_datas) 
         else:
             wem_datas = []
             for wem in self.wems:
@@ -324,7 +343,6 @@ class BNKParser:
                 with open(wem_file, 'rb') as f:
                     wem_datas.append(f.read())
             write_wpk(output_file, self.audio, wem_datas)
-
 
     def get_cache_dir(self):
         return os.path.join(BNKParser.cache_dir, os.path.basename(self.audio_path).replace('.bnk', '') if self.bnk_audio_parsing else os.path.basename(self.audio_path).replace('.wpk', ''))
@@ -341,7 +359,8 @@ class BNKParser:
             if not os.path.exists(ogg_file):
                 if ext_tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
                     ext_tools.REVORB.run(ogg_file,silent=True)
-            BNKParser.cached_segments[ogg_file] = AudioSegment.from_ogg(ogg_file)
+            if ogg_file not in BNKParser.cached_segments:
+                BNKParser.cached_segments[ogg_file] = AudioSegment.from_ogg(ogg_file)
             self.playbacks.append(_play_with_simpleaudio(BNKParser.cached_segments[ogg_file]))
         
         Thread(target=play_thrd,daemon=True).start()

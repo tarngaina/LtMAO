@@ -299,3 +299,38 @@ class BNK:
                     # unknown sections to read
                     section.data = bs.read(section.size)
                     self.unknown_sections.append(section)
+
+
+    def write(self, path, wem_datas, raw=None):
+        with self.stream(path, 'wb', raw) as bs:
+            # write bkhd
+            # signature, size, version, id, unknown 24 bytes
+            bs.write_a('BKHD')
+            bs.write_u32(32, 134, 0)
+            bs.write(b'>]p\x17\x00\x00\x00\x00\xfa\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00') 
+
+            # write didx
+            # signature, size
+            wem_data_offsets = []
+            bs.write_a('DIDX')
+            bs.write_u32(len(self.didx.wems)*12)
+            # write wem infos
+            for i, wem in enumerate(self.didx.wems):
+                wem_data_offsets.append(bs.tell()+4)
+                wem.size = len(wem_datas[i])
+                bs.write_u32(wem.id, 0, wem.size)
+
+            # write data
+            # signature, size
+            bs.write_a('DATA')
+            bs.write_u32(sum(wem.size for wem in self.didx.wems))
+            # wem data - need to minus start offset
+            start_offset = bs.tell()
+            for i, wem_data in enumerate(wem_datas):
+                data_offset = bs.tell()
+                bs.seek(wem_data_offsets[i])
+                bs.write_u32(data_offset-start_offset)
+                bs.seek(data_offset)
+                bs.write(wem_data)
+
+

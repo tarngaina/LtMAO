@@ -174,7 +174,6 @@ class SKL:
             bs.write_u32(0, 0x22FD4FC3, 0)
 
             joint_count = len(self.joints)
-            influence_count = len(self.influences)
             bs.write_u16(0)  # flags
             bs.write_u16(joint_count)
             bs.write_u32(joint_count)

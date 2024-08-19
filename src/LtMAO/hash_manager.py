@@ -3,6 +3,7 @@ import os
 import os.path
 import json
 from threading import Thread
+import traceback
 from . import pyRitoFile, setting
 
 LOG = print
@@ -95,6 +96,7 @@ class CDTBHashes:
                 LOG(f'hash_manager: Done: Sync hash: {local_file}')
             except Exception as e:
                 LOG(f'hash_manager: Failed: Sync hash: {filename}: {e}')
+                LOG(traceback.format_exc())
             combine_custom_hashes(filename)
         LOG(f'hash_manager: Done: Sync all hashes.')
 
@@ -136,6 +138,7 @@ class ExtractedHashes:
                 LOG(f'hash_manager: Done: Extract Hashes: {file_path}')
             except Exception as e:
                 LOG(f'hash_manager: Failed: Extract Hashes: {file_path}: {e}')
+                LOG(traceback.format_exc())
 
         def extract_skl(file_path, raw=None):
             try:
@@ -149,6 +152,7 @@ class ExtractedHashes:
                 LOG(f'hash_manager: Done: Extract Hashes: {file_path}')
             except Exception as e:
                 LOG(f'hash_manager: Failed: Extract Hashes: {file_path}: {e}')
+                LOG(traceback.format_exc())
 
         def extract_bin(file_path, raw=None):
             def extract_file_value(value, value_type):
@@ -220,6 +224,7 @@ class ExtractedHashes:
                 LOG(f'hash_manager: Done: Extract Hashes: {file_path}')
             except Exception as e:
                 LOG(f'hash_manager: Failed: Extract Hashes: {file_path}: {e}')
+                LOG(traceback.format_exc())
 
         def extract_wad(file_path):
             try:
@@ -240,6 +245,7 @@ class ExtractedHashes:
                 LOG(f'hash_manager: Done: Extract Hashes: {file_path}')
             except Exception as e:
                 LOG(f'hash_manager: Failed: Extract Hashes: {file_path}: {e}')
+                LOG(traceback.format_exc())
 
         # extract hashes base on file types
         for file_path in file_paths:
