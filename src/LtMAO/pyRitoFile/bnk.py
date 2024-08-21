@@ -115,11 +115,11 @@ class BNKObject:
         'id', 'type', 'size', 'data'
     )
 
-    def __init__(self):
-        self.id = None
-        self.type = None
-        self.size = None
-        self.data = None
+    def __init__(self, id=None, type=None, size=None, data=None):
+        self.id = id
+        self.type = type
+        self.size = size
+        self.data = data
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -131,10 +131,10 @@ class BNKWem:
         'id', 'offset', 'size'
     )
 
-    def __init__(self):
-        self.id = None
-        self.offset = None
-        self.size = None
+    def __init__(self, id=None, offset=None, size=None):
+        self.id = id
+        self.offset = offset
+        self.size = size
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -153,10 +153,10 @@ class BNKSection:
         'signature', 'size', 'data'
     )
 
-    def __init__(self):
-        self.signature = None
-        self.size = None
-        self.data = None
+    def __init__(self, signature=None, size=None, data=None):
+        self.signature = signature
+        self.size = size
+        self.data = data
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -165,12 +165,12 @@ class BNKSection:
 class BNK:
     __slots__ = ('bkhd', 'didx', 'data', 'hirc', 'unknown_sections')
 
-    def __init__(self):
-        self.bkhd = None
-        self.didx = None
-        self.data = None
-        self.hirc = None
-        self.unknown_sections = []
+    def __init__(self, bkhd=None, didx=None, data=None, hirc=None, unknown_sections=[]):
+        self.bkhd = bkhd
+        self.didx = didx
+        self.data = data
+        self.hirc = hirc
+        self.unknown_sections = unknown_sections
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}

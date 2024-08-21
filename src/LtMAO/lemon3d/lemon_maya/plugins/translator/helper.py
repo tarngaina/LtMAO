@@ -1,4 +1,8 @@
 from maya.OpenMaya import *
+from maya import cmds
+
+from random import choice
+from ..... import pyRitoFile
 from .....pyRitoFile.structs import Vector, Quaternion
 
 def ensure_path_extension(path, ext):
@@ -37,21 +41,20 @@ def mirrorX(skn=None, skl=None, anm=None, so=None, mapgeo=None):
         if so.pivot != None:
             so.pivot.x = -so.pivot.x
 
-
-
-class MayaTransform:
-
+# compose and decompose transformation matrix
+class MayaTransformMatrix:
+    
     @staticmethod
-    def decompose(transform, space):
+    def decompose(matrix, space):
         # get translation, scale and rotation (quaternion) out of transformation matrix
-        translate = transform.getTranslation(space)
+        translate = matrix.getTranslation(space)
 
-        rotate = transform.rotation()
+        rotate = matrix.rotation()
 
         util = MScriptUtil()
         util.createFromDouble(0.0, 0.0, 0.0)
         ptr = util.asDoublePtr()
-        transform.getScale(ptr, space)
+        matrix.getScale(ptr, space)
 
         return (
             Vector(
@@ -73,20 +76,101 @@ class MayaTransform:
     @staticmethod
     def compose(translate, rotate, scale, space):
         # set translation, scale and rotation (quaternion) into a transformation matrix
-        transform = MTransformationMatrix()
+        matrix = MTransformationMatrix()
 
         # translation
-        transform.setTranslation(
+        matrix.setTranslation(
             MVector(translate.x, translate.y, translate.z), space)
         
         # easy rotation (quaternion)
-        transform.setRotationQuaternion(
+        matrix.setRotationQuaternion(
             rotate.x, rotate.y, rotate.z, rotate.w, space)
 
         # cursed scale
         util = MScriptUtil()
         util.createFromDouble(scale.x, scale.y, scale.z)
         ptr = util.asDoublePtr()
-        transform.setScale(ptr, space)
+        matrix.setScale(ptr, space)
 
-        return transform
+        return matrix
+
+# get all joints, meshes of a selected group node
+class MIterator:
+    cached_result = []
+
+    @staticmethod
+    def reset():
+        MIterator.cached_result = []
+
+    @staticmethod
+    def iter_node(node, type):
+        for i in range(node.childCount()):
+            child = node.child(i)
+            if child.apiType() == type:
+                MIterator.cached_result.append(child)
+                child_dagpath = MDagPath()
+                MDagPath.getAPathTo(child, child_dagpath)
+                MIterator.iter_node(child_dagpath, type)
+
+    @staticmethod
+    def list_all_joints(group):
+        MIterator.reset()
+        MIterator.iter_node(group, MFn.kJoint)
+        return MIterator.cached_result
+    
+    @staticmethod
+    def list_all_meshes(group):
+        result = []
+        for i in range(group.childCount()):
+            child = group.child(i)
+            if child.apiType() == MFn.kTransform:
+                transform = MFnTransform(child)
+                if transform.childCount() > 0:
+                    grandchild = transform.child(0)
+                    if grandchild.apiType() == MFn.kMesh:
+                        result.append(grandchild)
+        return result
+
+# error dialog
+class FunnyError(Exception):
+
+    def __init__(self, text):
+        self.show(text)
+
+    def show(self, text):
+        temp = text.split(':')
+        title = temp[0]
+        message = ':'.join(temp[1:])
+        button = choice([
+            'UwU', '<(\")', 'ok boomer', 'funny man', 'jesus', 'bruh', 'bro', 'please', 'man',
+            'stop', 'get some help', 'haha', 'lmao', 'ay yo', 'SUS', 'sOcIEtY.', 'yeah', 'whatever',
+            'gurl', 'fck', 'im ded', '(~`u`)~', 't(^u^t)', '(>w<)', 'xdd', 'cluegi', 'kappachungusdeluxe'
+        ])
+        cmds.confirmDialog(
+            title=title,
+            message=message,
+            button=button,
+            icon='critical',
+            defaultButton=button
+        )
+
+# inheritance pyRitoFile classes to set custom attribute
+class LemonSKLJoint(pyRitoFile.SKLJoint):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dagpath = None
+
+class LemonSKNVertex(pyRitoFile.SKNVertex):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.uv_index = None
+        self.new_index = None
+
+class LemonSKNSubmesh(pyRitoFile.SKNSubmesh):
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.indices = []
+        self.vertices = []

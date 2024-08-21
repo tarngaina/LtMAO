@@ -40,9 +40,9 @@ class ANMErrorMetric:
         'margin', 'discontinuity_threshold'
     )
 
-    def __init__(self):
-        self.margin = None
-        self.discontinuity_threshold = None
+    def __init__(self, margin=None, discontinuity_threshold=None):
+        self.margin = margin
+        self.discontinuity_threshold = discontinuity_threshold
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -53,11 +53,11 @@ class ANMPose:
         'time', 'translate', 'scale', 'rotate'
     )
 
-    def __init__(self):
-        self.time = None
-        self.translate = None
-        self.scale = None
-        self.rotate = None
+    def __init__(self, time=None, translate=None, rotate=None, scale=None):
+        self.time = time
+        self.translate = translate
+        self.rotate = rotate
+        self.scale = scale
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -68,9 +68,9 @@ class ANMTrack:
         'joint_hash', 'poses'
     )
 
-    def __init__(self):
-        self.joint_hash = None
-        self.poses = []
+    def __init__(self, joint_hash=None, poses=[]):
+        self.joint_hash = joint_hash
+        self.poses = poses
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -82,17 +82,17 @@ class ANM:
         'duration', 'fps', 'error_metrics', 'tracks'
     )
 
-    def __init__(self):
-        self.signature = None
-        self.version = None
-        self.file_size = None
-        self.format_token = None
-        self.flags1 = None
-        self.flags2 = None
-        self.duration = None
-        self.fps = None
-        self.error_metrics = None
-        self.tracks = []
+    def __init__(self, signature=None, version=None, file_size=None, format_token=None, flags1=None, flags2=None, duration=None, fps=None, error_metrics=None, tracks=[]):
+        self.signature = signature
+        self.version = version
+        self.file_size = file_size
+        self.format_token = format_token
+        self.flags1 = flags1
+        self.flags2 = flags2
+        self.duration = duration
+        self.fps = fps
+        self.error_metrics = error_metrics
+        self.tracks = tracks
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}

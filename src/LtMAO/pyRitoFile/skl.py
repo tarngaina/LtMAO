@@ -15,20 +15,20 @@ class SKLJoint:
         'ibind_translate', 'ibind_rotate', 'ibind_scale'
     )
 
-    def __init__(self):
-        self.id = None
-        self.name = None
-        self.bin_hash = None
-        self.parent = None
-        self.hash = None
-        self.radius = None
-        self.flags = None
-        self.local_translate = None
-        self.local_rotate = None
-        self.local_scale = None
-        self.ibind_translate = None
-        self.ibind_rotate = None
-        self.ibind_scale = None
+    def __init__(self, id=None, name=None, bin_hash=None, parent=None, hash=None, radius=None, flags=None, local_translate=None, local_rotate=None, local_scale=None, ibind_translate=None, ibind_rotate=None, ibind_scale=None):
+        self.id = id
+        self.name = name
+        self.bin_hash = bin_hash
+        self.parent = parent
+        self.hash = hash
+        self.radius = radius
+        self.flags = flags
+        self.local_translate = local_translate
+        self.local_rotate = local_rotate
+        self.local_scale = local_scale
+        self.ibind_translate = ibind_translate
+        self.ibind_rotate = ibind_rotate
+        self.ibind_scale = ibind_scale
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -40,15 +40,15 @@ class SKL:
         'name', 'asset', 'joints', 'influences'
     )
 
-    def __init__(self):
-        self.file_size = None
-        self.signature = None
-        self.version = None
-        self.flags = None
-        self.name = None
-        self.asset = None
-        self.joints = []
-        self.influences = []
+    def __init__(self, file_size=None, signature=None, version=None, flags=None, name=None, asset=None, joints=[], influences=[]):
+        self.file_size = file_size
+        self.signature = signature
+        self.version = version
+        self.flags = flags
+        self.name = name
+        self.asset = asset
+        self.joints = joints
+        self.influences = influences
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}

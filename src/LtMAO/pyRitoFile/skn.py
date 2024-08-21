@@ -22,14 +22,14 @@ class SKNVertex:
         'color', 'tangent'
     )
 
-    def __init__(self):
-        self.position = None
-        self.influences = None
-        self.weights = None
-        self.normal = None
-        self.uv = None
-        self.color = None
-        self.tangent = None
+    def __init__(self, position=None, influences=None, weights=None, normal=None, uv=None, color=None, tangent=None):
+        self.position = position
+        self.influences = influences
+        self.weights = weights
+        self.normal = normal
+        self.uv = uv
+        self.color = color
+        self.tangent = tangent
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -41,13 +41,13 @@ class SKNSubmesh:
         'vertex_start', 'vertex_count', 'index_start', 'index_count'
     )
 
-    def __init__(self):
-        self.name = None
-        self.bin_hash = None
-        self.vertex_start = None
-        self.vertex_count = None
-        self.index_start = None
-        self.index_count = None
+    def __init__(self, name=None, bin_hash=None, vertex_start=None, vertex_count=None, index_start=None, index_count=None):
+        self.name = name
+        self.bin_hash = bin_hash
+        self.vertex_start = vertex_start
+        self.vertex_count = vertex_count
+        self.index_start = index_start
+        self.index_count = index_count
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -60,17 +60,17 @@ class SKN:
         'submeshes', 'indices', 'vertices'
     )
 
-    def __init__(self):
-        self.signature = None
-        self.version = None
-        self.flags = None
-        self.bounding_box = None
-        self.bounding_sphere = None
-        self.vertex_type = None
-        self.vertex_size = None
-        self.submeshes = []
-        self.indices = []
-        self.vertices = []
+    def __init__(self, signature=None, version=None, flags=None, bounding_box=None, bounding_sphere=None, vertex_type=None, vertex_size=None, submeshes=[], indices=[], vertices=[]):
+        self.signature = signature
+        self.version = version
+        self.flags = flags
+        self.bounding_box = bounding_box
+        self.bounding_sphere = bounding_sphere
+        self.vertex_type = vertex_type
+        self.vertex_size = vertex_size
+        self.submeshes = submeshes
+        self.indices = indices
+        self.vertices = vertices
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}

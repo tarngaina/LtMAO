@@ -10,20 +10,20 @@ class SO:
         'indices', 'positions', 'uvs', 'colors'
     )
 
-    def __init__(self):
-        self.signature = None
-        self.version = None
-        self.flags = None
-        self.name = None
-        self.central = None
-        self.pivot = None
-        self.bounding_box = None
-        self.material = None
-        self.vertex_type = None
-        self.indices = []
-        self.positions = []
-        self.uvs = []
-        self.colors = []
+    def __init__(self, signature=None, version=None, flags=None, name=None, central=None, pivot=None, bounding_box=None, material=None, vertex_type=None, indices=[], positions=[], uvs=[], colors=[]):
+        self.signature = signature
+        self.version = version
+        self.flags = flags
+        self.name = name
+        self.central = central
+        self.pivot = pivot
+        self.bounding_box = bounding_box
+        self.material = material
+        self.vertex_type = vertex_type
+        self.indices = indices
+        self.positions = positions
+        self.uvs = uvs
+        self.colors = colors
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}

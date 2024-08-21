@@ -1,0 +1,7 @@
+global proc change_import_playback_options_to_override() 
+{
+    fo_changeImportOverrideEmpty false;
+    fo_changeImportFramerateRadioBtn 1;
+    fo_changeImportAnimRangeRadioBtn 2;
+}
+evalDeferred "change_import_playback_options_to_override";

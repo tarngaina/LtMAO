@@ -360,13 +360,13 @@ class BINType(Enum):
 class BINField:
     __slots__ = ('hash', 'type', 'hash_type', 'key_type', 'value_type', 'data')
 
-    def __init__(self):
-        self.hash = None
-        self.type = None
-        self.hash_type = None
-        self.key_type = None
-        self.value_type = None
-        self.data = []
+    def __init__(self, hash=None, type=None, hash_type=None, key_type=None, value_type=None, data=[]):
+        self.hash = hash
+        self.type = type
+        self.hash_type = hash_type
+        self.key_type = key_type
+        self.value_type = value_type
+        self.data = data
 
     def __json__(self):
         dic = {key: getattr(self, key) for key in self.__slots__}
@@ -388,11 +388,11 @@ class BINField:
 class BINPatch:
     __slots__ = ('hash', 'path', 'type', 'data')
 
-    def __init__(self):
-        self.hash = None
-        self.path = None
-        self.type = None
-        self.data = None
+    def __init__(self, hash=None, path=None, type=None, data=None):
+        self.hash = hash
+        self.path = path
+        self.type = type
+        self.data = data
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -401,10 +401,10 @@ class BINPatch:
 class BINEntry:
     __slots__ = ('hash', 'type', 'data')
 
-    def __init__(self):
-        self.hash = None
-        self.type = None
-        self.data = []
+    def __init__(self, hash=None, type=None, data=[]):
+        self.hash = hash
+        self.type = type
+        self.data = data
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -416,13 +416,13 @@ class BIN:
         'links', 'entries', 'patches'
     )
 
-    def __init__(self):
-        self.signature = None
-        self.version = None
-        self.is_patch = False
-        self.links = []
-        self.entries = []
-        self.patches = []
+    def __init__(self, signature=None, version=None, is_patch=False, links=[], entries=[], patches=[]):
+        self.signature = signature
+        self.version = version
+        self.is_patch = is_patch
+        self.links = links
+        self.entries = entries
+        self.patches = patches
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}

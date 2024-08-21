@@ -23,15 +23,15 @@ class TEX:
         'data'
     )
 
-    def __init__(self):
-        self.signature = None
-        self.width = None
-        self.height = None
-        self.format = None
-        self.unknown1 = None
-        self.unknown2 = None
-        self.mipmaps = False
-        self.data = []
+    def __init__(self, signature=None, width=None, height=None, format=None, unknown1=None, unknown2=None, mipmaps=False, data=[]):
+        self.signature = signature
+        self.width = width
+        self.height = height
+        self.format = format
+        self.unknown1 = unknown1
+        self.unknown2 = unknown2
+        self.mipmaps = mipmaps
+        self.data = data
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}

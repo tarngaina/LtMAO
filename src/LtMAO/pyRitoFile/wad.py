@@ -99,19 +99,19 @@ class WADChunk:
         'checksum', 'data', 'extension'
     )
 
-    def __init__(self):
-        self.id = None
-        self.hash = None
-        self.offset = None
-        self.compressed_size = None
-        self.decompressed_size = None
-        self.compression_type = None
-        self.duplicated = None
-        self.subchunk_start = None
-        self.subchunk_count = None
-        self.checksum = None
-        self.data = None
-        self.extension = None
+    def __init__(self, id=None, hash=None, offset=None, compressed_size=None, decompressed_size=None, compression_type=None, duplicated=None, subchunk_start=None, subchunk_count=None, checksum=None, data=None, extension=None):
+        self.id = id
+        self.hash = hash
+        self.offset = offset
+        self.compressed_size = compressed_size
+        self.decompressed_size = decompressed_size
+        self.compression_type = compression_type
+        self.duplicated = duplicated
+        self.subchunk_start = subchunk_start
+        self.subchunk_count = subchunk_count
+        self.checksum = checksum
+        self.data = data
+        self.extension = extension
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__ if key != 'data'}
@@ -212,10 +212,10 @@ class WADChunk:
 class WAD:
     __slots__ = ('signature', 'version', 'chunks')
 
-    def __init__(self):
-        self.signature = None
-        self.version = None
-        self.chunks = []
+    def __init__(self, signature=None, version=None, chunks=[]):
+        self.signature = signature
+        self.version = version
+        self.chunks = chunks
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__ if key != 'IO'}

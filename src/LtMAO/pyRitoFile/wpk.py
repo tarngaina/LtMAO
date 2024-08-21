@@ -7,10 +7,10 @@ class WPKWem:
         'id', 'offset', 'size'
     )
 
-    def __init__(self):
-        self.id = None
-        self.offset = None
-        self.size = None
+    def __init__(self, id=None, offset=None, size=None):
+        self.id = id
+        self.offset = offset
+        self.size = size
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -19,10 +19,10 @@ class WPKWem:
 class WPK:
     __slots__ = ('signature', 'version', 'wems')
 
-    def __init__(self):
-        self.signature = None
-        self.version = None
-        self.wems = None
+    def __init__(self, signature=None, version=None, wems=[]):
+        self.signature = signature
+        self.version = version
+        self.wems = wems
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}

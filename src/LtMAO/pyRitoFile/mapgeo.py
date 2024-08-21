@@ -9,10 +9,10 @@ class MAPGEOPlanarReflector:
         'transform', 'plane', 'normal'
     )
 
-    def __init__(self):
-        self.transform = None
-        self.plane = None
-        self.normal = None
+    def __init__(self, transform=None, plane=None, normal=None):
+        self.transform = transform
+        self.plane = plane
+        self.normal = normal
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -30,13 +30,13 @@ class MAPGEOBucket:
         'inside_face_count', 'sticking_out_face_count'
     )
 
-    def __init__(self):
-        self.max_stickout_x = None
-        self.max_stickout_z = None
-        self.start_index = None
-        self.base_vertex = None
-        self.inside_face_count = None
-        self.sticking_out_face_count = None
+    def __init__(self, max_stickout_x=None, max_stickout_z=None, start_index=None, base_vertex=None, inside_face_count=None, sticking_out_face_count=None):
+        self.max_stickout_x = max_stickout_x
+        self.max_stickout_z = max_stickout_z
+        self.start_index = start_index
+        self.base_vertex = base_vertex
+        self.inside_face_count = inside_face_count
+        self.sticking_out_face_count = sticking_out_face_count
     
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -51,22 +51,22 @@ class MAPGEOBucketGrid:
         'face_layers'
     )
 
-    def __init__(self):
-        self.hash = None
-        self.min_x = None
-        self.min_z = None
-        self.max_x = None
-        self.max_z = None
-        self.max_stickout_x = None
-        self.max_stickout_z = None
-        self.bucket_size_x = None
-        self.bucket_size_z = None
-        self.is_disabled = None
-        self.bucket_grid_flags = None
-        self.buckets = []
-        self.vertices = []
-        self.indices = []
-        self.face_layers = []
+    def __init__(self, hash=None, min_x=None, min_z=None, max_x=None, max_z=None, max_stickout_x=None, max_stickout_z=None, bucket_size_x=None, bucket_size_z=None, is_disabled=None, bucket_grid_flags=None, buckets=[], vertices=[], indices=[], face_layers=[]):
+        self.hash = hash
+        self.min_x = min_x
+        self.min_z = min_z
+        self.max_x = max_x
+        self.max_z = max_z
+        self.max_stickout_x = max_stickout_x
+        self.max_stickout_z = max_stickout_z
+        self.bucket_size_x = bucket_size_x
+        self.bucket_size_z = bucket_size_z
+        self.is_disabled = is_disabled
+        self.bucket_grid_flags = bucket_grid_flags
+        self.buckets = buckets
+        self.vertices = vertices
+        self.indices = indices
+        self.face_layers = face_layers
     
     def __json__(self):
         dic = {key: getattr(self, key) for key in self.__slots__}
@@ -77,10 +77,10 @@ class MAPGEOBucketGrid:
 class MAPGEOChannel:
     __slots__ = ('path', 'scale', 'offset')
 
-    def __init__(self):
-        self.path = None
-        self.scale = None
-        self.offset = None
+    def __init__(self, path=None, scale=None, offset=None):
+        self.path = path
+        self.scale = scale
+        self.offset = offset
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -124,13 +124,13 @@ class MAPGEOSubmesh:
         'min_vertex', 'max_vertex'
     )
 
-    def __init__(self):
-        self.name = None
-        self.hash = None
-        self.index_start = None
-        self.index_count = None
-        self.min_vertex = None
-        self.max_vertex = None
+    def __init__(self, name=None, hash=None, index_start=None, index_count=None, min_vertex=None, max_vertex=None):
+        self.name = name
+        self.hash = hash
+        self.index_start = index_start
+        self.index_count = index_count
+        self.min_vertex = min_vertex
+        self.max_vertex = max_vertex
     
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -138,8 +138,8 @@ class MAPGEOSubmesh:
 class MAPGEOVertex:
     __slots__ = ('value')
 
-    def __init__(self):
-        self.value = {}
+    def __init__(self, value={}):
+        self.value = value
 
     def __json__(self):
         return self.value
@@ -155,30 +155,30 @@ class MAPGEOModel:
         'baked_light', 'stationary_light', 'baked_paint'
     )
 
-    def __init__(self):
-        self.name = None
-        self.vertex_buffer_count = None
-        self.vertex_description_id = None
-        self.vertex_buffer_ids = None
-        self.vertex_count = None
-        self.vertices = []
-        self.index_buffer_id = None
-        self.index_count = None
-        self.indices = []
-        self.layer = None
-        self.quality = None
-        self.disable_backface_culling = None
-        self.is_bush = None
-        self.render = None
-        self.point_light = None
-        self.light_probe = None
-        self.bucket_grid_hash = None
-        self.submeshes = None
-        self.bounding_box = None
-        self.matrix = None
-        self.baked_light = None
-        self.stationary_light = None
-        self.baked_paint = None
+    def __init__(self, name=None, vertex_buffer_count=None, vertex_description_id=None, vertex_buffer_ids=None, vertex_count=None, vertices=[], index_buffer_id=None, index_count=None, indices=[], layer=None, quality=None, disable_backface_culling=None, is_bush=None, render=None, point_light=None, light_probe=None, bucket_grid_hash=None, submeshes=None, bounding_box=None, matrix=None, baked_light=None, stationary_light=None, baked_paint=None):
+        self.name = name
+        self.vertex_buffer_count = vertex_buffer_count
+        self.vertex_description_id = vertex_description_id
+        self.vertex_buffer_ids = vertex_buffer_ids
+        self.vertex_count = vertex_count
+        self.vertices = vertices
+        self.index_buffer_id = index_buffer_id
+        self.index_count = index_count
+        self.indices = indices
+        self.layer = layer
+        self.quality = quality
+        self.disable_backface_culling = disable_backface_culling
+        self.is_bush = is_bush
+        self.render = render
+        self.point_light = point_light
+        self.light_probe = light_probe
+        self.bucket_grid_hash = bucket_grid_hash
+        self.submeshes = submeshes
+        self.bounding_box = bounding_box
+        self.matrix = matrix
+        self.baked_light = baked_light
+        self.stationary_light = stationary_light
+        self.baked_paint = baked_paint
 
     def __json__(self):
         dic = {key: getattr(self, key) for key in self.__slots__}
