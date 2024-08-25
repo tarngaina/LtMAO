@@ -1,4 +1,4 @@
-from math import sqrt
+from math import sqrt, isclose
 from io import BytesIO
 from ..pyRitoFile.io import BinStream
 from ..pyRitoFile.structs import Quaternion, Vector
@@ -25,6 +25,37 @@ def decompress_quat(bytes):
         return Quaternion(a, b, d, c)
     else:
         return Quaternion(a, b, c, d)
+    
+def compress_quat(quat):
+    sqrt_2 = 1.41421356237
+    max_index = 3
+    abs_x, abs_y, abs_z, abs_w = abs(quat.x), abs(quat.y), abs(quat.z), abs(quat.w)
+    if abs_x >= abs_w and abs_x >= abs_y and abs_x >= abs_z:
+        max_index = 0
+        if quat.x < 0:
+            quat *= -1
+    elif abs_y >= abs_w and abs_y >= abs_x and abs_y >= abs_z:
+        max_index = 1
+        if quat.y < 0:
+            quat *= -1
+    elif abs_z >= abs_w and abs_z >= abs_x and abs_z >= abs_y:
+        max_index = 2
+        if quat.z < 0:
+            quat *= -1
+    elif quat.w < 0:
+        quat *= -1
+    bits = max_index << 45
+    quatvalues = (quat.x, quat.y, quat.z, quat.w)
+    compressed_index = 0
+    for i in range(4):
+        if i == max_index:
+            continue
+        temp = round(16383.5 * (sqrt_2 * quatvalues[i] + 1.0))
+        bits |= (temp & 32767) << (30 - 15 * compressed_index)
+        compressed_index += 1
+    compressed = [(bits >> (8 * i)) & 255 for i in range(6)]
+    return bytes(compressed)
+
 
 
 def decompress_vec3(min, max, bytes):
@@ -33,6 +64,7 @@ def decompress_vec3(min, max, bytes):
         (max.y - min.y) / 65535.0 * (bytes[2] | bytes[3] << 8) + min.y,
         (max.z - min.z) / 65535.0 * (bytes[4] | bytes[5] << 8) + min.z
     )
+    
 
 
 class ANMErrorMetric:
@@ -50,11 +82,10 @@ class ANMErrorMetric:
 
 class ANMPose:
     __slots__ = (
-        'time', 'translate', 'scale', 'rotate'
+        'translate', 'scale', 'rotate'
     )
 
-    def __init__(self, time=None, translate=None, rotate=None, scale=None):
-        self.time = time
+    def __init__(self, translate=None, rotate=None, scale=None):
         self.translate = translate
         self.rotate = rotate
         self.scale = scale
@@ -68,9 +99,9 @@ class ANMTrack:
         'joint_hash', 'poses'
     )
 
-    def __init__(self, joint_hash=None, poses=[]):
+    def __init__(self, joint_hash=None, poses={}):
         self.joint_hash = joint_hash
-        self.poses = poses
+        self.poses = poses # poses[time] = pose at time
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
@@ -114,7 +145,7 @@ class ANM:
                 # compressed
                 # read header
                 self.file_size, self.format_token, self.flags1 = bs.read_u32(3)
-                joint_count, frame_count = bs.read_u32(2)
+                track_count, frame_count = bs.read_u32(2)
                 bs.pad(4)  # jump cache count
                 max_time, self.fps = bs.read_f32(2)
                 self.duration = (max_time + 1) * self.fps
@@ -141,9 +172,9 @@ class ANM:
                     )
                 # read joint hashes
                 bs.seek(joint_hashes_offset + 12)
-                joint_hashes = bs.read_u32(joint_count)
+                joint_hashes = bs.read_u32(track_count)
                 # create tracks
-                self.tracks = [ANMTrack() for i in range(joint_count)]
+                self.tracks = [ANMTrack() for i in range(track_count)]
                 for track_id, track in enumerate(self.tracks):
                     track.joint_hash = joint_hashes[track_id]
                 # read frames
@@ -164,17 +195,11 @@ class ANM:
                     # parse pose
                     time = (compressed_time / 65535.0 *
                             max_time) * self.fps
-                    match_pose = None
-                    for pose in match_track.poses:
-                        if pose.time == time:
-                            match_pose = pose
-                            break
-                    if match_pose == None:
-                        pose = ANMPose()
-                        pose.time = time
-                        track.poses.append(pose)
+                    if time in match_track.poses:
+                        pose = match_track.poses[time]
                     else:
-                        pose = match_pose
+                        pose = ANMPose()
+                        match_track.poses[time] = pose
                     # decompress pose data
                     transform_type = bits >> 14
                     if transform_type == 0:
@@ -233,18 +258,16 @@ class ANM:
                     uni_quats = [decompress_quat(
                         bs.read(6)) for i in range(quat_count)]
                     # parse tracks
-                    self.tracks = [ANMTrack() for i in range(joint_count)]
+                    self.tracks = [ANMTrack() for i in range(track_count)]
                     for track_id, track in enumerate(self.tracks):
                         track.joint_hash = joint_hashes[track_id]
                     # read frames
                     bs.seek(frames_offset + 12)
-                    for track in self.tracks:
-                        for f in range(frame_count):
-                            translate_index, scale_index, rotate_index = bs.read_u16(
-                                3)
+                    for f in range(frame_count):
+                        for track in self.tracks:
+                            translate_index, scale_index, rotate_index = bs.read_u16(3)
                             # parse pose
                             pose = ANMPose()
-                            pose.time = f
                             translate = uni_vecs[translate_index]
                             pose.translate = Vector(
                                 translate.x, translate.y, translate.z)
@@ -253,7 +276,8 @@ class ANM:
                             rotate = uni_quats[rotate_index]
                             pose.rotate = Quaternion(
                                 rotate.x, rotate.y, rotate.z, rotate.w)
-                            track.poses.append(pose)
+                            track.poses[f] = pose
+                    
                 elif self.version == 4:
                     # v4
                     # read headers
@@ -287,35 +311,33 @@ class ANM:
                     uni_quats = bs.read_quat(quat_count)
                     # read frames
                     bs.seek(frames_offset + 12)
-                    for i in range(frame_count * track_count):
-                        # parse track
-                        joint_hash = bs.read_u32()
-                        match_track = None
-                        for track in self.tracks:
-                            if track.joint_hash == joint_hash:
-                                match_track = track
-                                break
-                        if match_track == None:
-                            track = ANMTrack()
-                            track.joint_hash = joint_hash
-                            self.tracks.append(track)
-                        else:
-                            track = match_track
-                        translate_index, scale_index, rotate_index = bs.read_u16(
-                            3)
-                        bs.pad(2)
-                        # parse pose
-                        pose = ANMPose()
-                        pose.time = len(track.poses)
-                        translate = uni_vecs[translate_index]
-                        pose.translate = Vector(
-                            translate.x, translate.y, translate.z)
-                        scale = uni_vecs[scale_index]
-                        pose.scale = Vector(scale.x, scale.y, scale.z)
-                        rotate = uni_quats[rotate_index]
-                        pose.rotate = Quaternion(
-                            rotate.x, rotate.y, rotate.z, rotate.w)
-                        track.poses.append(pose)
+                    for f in range(frame_count):
+                        for t in range(track_count):
+                            joint_hash, = bs.read_u32()
+                            translate_index, scale_index, rotate_index = bs.read_u16(3)
+                            bs.pad(2)
+                            match_track = None
+                            for track in self.tracks:
+                                if track.joint_hash == joint_hash:
+                                    match_track = track
+                                    break
+                            if match_track == None:
+                                track = ANMTrack()
+                                track.joint_hash = joint_hash
+                                self.tracks.append(track)
+                            else:
+                                track = match_track
+                            # parse pose
+                            pose = ANMPose()
+                            translate = uni_vecs[translate_index]
+                            pose.translate = Vector(
+                                translate.x, translate.y, translate.z)
+                            scale = uni_vecs[scale_index]
+                            pose.scale = Vector(scale.x, scale.y, scale.z)
+                            rotate = uni_quats[rotate_index]
+                            pose.rotate = Quaternion(
+                                rotate.x, rotate.y, rotate.z, rotate.w)
+                            track.poses[len(track.poses)] = pose
                 elif self.version == 3:
                     # legacy
                     # read headers
@@ -331,20 +353,105 @@ class ANM:
                         # parse pose
                         for f in range(frame_count):
                             pose = ANMPose()
-                            pose.time = f
-                            pose.rotate = bs.read_quat()
-                            pose.translate = bs.read_vec3()
+                            pose.rotate, = bs.read_quat()
+                            pose.translate, = bs.read_vec3()
                             # legacy not support scaling
                             pose.scale = Vector(1.0, 1.0, 1.0)
-                            track.poses.append(pose)
+                            track.poses[f] = pose
                 else:
                     raise Exception(
                         f'pyRitoFile: Failed: Read ANM: Unsupported file version: {self.version}')
             else:
                 raise Exception(
                     f'pyRitoFile: Failed: Read ANM: Wrong signature file: {hex(self.signature)}')
-            # sort pose by time
-            if len(self.tracks) > 0:
-                for track in self.tracks:
-                    if len(track.poses) > 0:
-                        track.poses.sort(key=lambda pose: pose.time)
+
+
+    def write(self, path, raw=None):
+        with self.stream(path, 'wb', raw) as bs:
+            # build frame data
+            uni_vecs = []
+            uni_quats = []
+            vec_tol, quat_tol = 0.001, 0.001
+            track_count = len(self.tracks)
+            frames = [None] * self.duration * track_count
+            for t, track in enumerate(self.tracks):
+                for f in range(self.duration):
+                    translate, rotate, scale = track.poses[f].translate, track.poses[f].rotate, track.poses[f].scale
+                    # translate and scale index
+                    translate_index = -1
+                    scale_index = -1
+                    for vec_index, vec in enumerate(uni_vecs):
+                        if translate_index != -1 and scale_index != -1:
+                            break
+                        if isclose(translate.x, vec.x, rel_tol=vec_tol) and isclose(translate.y, vec.y, rel_tol=vec_tol) and isclose(translate.z, vec.z, rel_tol=vec_tol):
+                            translate_index = vec_index
+                        if isclose(scale.x, vec.x, rel_tol=vec_tol) and isclose(scale.y, vec.y, rel_tol=vec_tol) and isclose(scale.z, vec.z, rel_tol=vec_tol):
+                            scale_index = vec_index
+                    if translate_index == -1:
+                        uni_vecs.append(translate)
+                        translate_index = len(uni_vecs)-1
+                    if scale_index == -1:
+                        if isclose(translate.x, scale.x, rel_tol=vec_tol) and isclose(translate.y, scale.y, rel_tol=vec_tol) and isclose(translate.z, scale.z, rel_tol=vec_tol):
+                            scale_index = translate_index
+                        else:
+                            uni_vecs.append(scale)
+                            scale_index = len(uni_vecs)-1
+                    # rotate index
+                    rotate_index = -1
+                    for quat_index, quat in enumerate(uni_quats):
+                        if rotate_index != -1:
+                            break
+                        if isclose(rotate.x, quat.x, rel_tol=quat_tol) and isclose(rotate.y, quat.y, rel_tol=quat_tol) and isclose(rotate.z, quat.z, rel_tol=quat_tol) and isclose(rotate.w, quat.w, rel_tol=quat_tol):
+                            rotate_index = quat_index
+                    if rotate_index == -1:
+                        uni_quats.append(rotate)
+                        rotate_index = len(uni_quats)-1
+                    # add to frame
+                    frames[f * track_count + t] = (translate_index, scale_index, rotate_index)
+
+            # start write anm
+            bs.write_a('r3d2anmd') # signature
+            bs.write_u32(
+                5, # version
+                0, # file_size
+                0, # format token
+                0, # flags1
+                0, # flags2
+            )
+            bs.write_u32(
+                len(self.tracks), # track_count
+                self.duration # frame_count
+            )
+            bs.write_f32(1 / self.fps) # fps
+            bs.write_u32(
+                0, # joint_hashes_offset
+                0,
+                0,
+                0, # vecs_offset
+                0, # quats_offset
+                0 # frames_offset
+            )
+            bs.write_u32(0, 0, 0) # pad 12 bytes
+            # write data 
+            # must in order: vecs -> quats -> joint_hashses -> frames
+            # vec
+            vecs_offset = bs.tell()
+            bs.write_vec3(*uni_vecs)
+            # quat
+            quat_offsets = bs.tell()
+            bs.write(b''.join(compress_quat(quat) for quat in uni_quats))
+            # joint_hash
+            joint_hashes_offset = bs.tell()
+            bs.write_u32(*[track.joint_hash for track in self.tracks])
+            # frame
+            frames_offset = bs.tell()
+            for translate_index, rotate_index, scale_index in frames:
+                bs.write_u16(translate_index, rotate_index, scale_index)
+            # write offsets
+            bs.seek(12) 
+            bs.write_u32(bs.end()) # file_size
+            bs.seek(40)
+            bs.write_u32(joint_hashes_offset-12)
+            bs.seek(52)
+            bs.write_u32(vecs_offset-12, quat_offsets-12, frames_offset-12)
+            return bs.raw() if raw else None

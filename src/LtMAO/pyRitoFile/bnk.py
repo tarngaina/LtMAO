@@ -332,5 +332,6 @@ class BNK:
                 bs.write_u32(data_offset-start_offset)
                 bs.seek(data_offset)
                 bs.write(wem_data)
-
+                
+            return bs.raw() if raw else None
 

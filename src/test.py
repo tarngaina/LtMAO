@@ -15,20 +15,9 @@ if __name__ == '__main__':
         stats.sort_stats('tottime').print_stats()
 
     def test():
-        from LtMAO import bnk_tool
         from LtMAO import pyRitoFile
-        parser = bnk_tool.BNKParser(
-            'D:/test/kaisa_base_sfx_audio.bnk',
-            'D:/test/kaisa_base_sfx_events.bnk',
-            'D:/test/skin0.bin'
-        )
-        parser.unpack(parser.get_cache_dir())
-        parser.pack('D:/test/t.bnk')
+        d =  pyRitoFile.read_anm('D:/test/kaisa_spell1.anm')
+        pyRitoFile.write_anm('D:/test/t.anm', d )
+        pyRitoFile.read_anm('D:/test/t.anm')
 
-        parser = bnk_tool.BNKParser(
-            'D:/test/t.wpk',
-            'D:/test/kaisa_base_vo_events.bnk',
-            'D:/test/skin0.bin'
-        )
-    
 test()

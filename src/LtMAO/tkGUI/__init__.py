@@ -6094,6 +6094,7 @@ def start():
     pyntex.prepare(LOG)
     bnk_tool.prepare(LOG)
     sborf.prepare(LOG)
+    Ritoddstex.prepare(LOG)
     lemon3d.lemon_fbx.prepare(LOG)
     lemon3d.lemon_maya.prepare(LOG)
     # loop the UI

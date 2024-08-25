@@ -6,7 +6,7 @@ LOG = print
 def dds2tex(dds_path, tex_path=None):
     # prepare path
     if tex_path == None:
-        tex_path = dds_path.split('.dds')[0] + '.tex'
+        tex_path = dds_path.replace('.dds', '.tex')
     LOG(
         f'Ritoddstex: Running: dds2tex: Convert {dds_path} to {tex_path}')
     # read dds header
@@ -82,6 +82,7 @@ def dds2tex(dds_path, tex_path=None):
             bytes_per_block = 4
         mipmap_count = dds_header['dwMipMapCount']
         current_offset = 0
+        tex.data = []
         for i in range(mipmap_count):
             current_width = max(tex.width // (1 << i), 1)
             current_height = max(tex.height // (1 << i), 1)
@@ -90,13 +91,14 @@ def dds2tex(dds_path, tex_path=None):
             block_height = (current_height +
                             block_size - 1) // block_size
             current_size = bytes_per_block * block_width * block_height
-            tex.data.append(
-                dds_data[current_offset:current_offset+current_size])
+            data = dds_data[current_offset:current_offset+current_size]
+            tex.data.append(data)
             current_offset += current_size
         # mipmap in dds file is reversed to tex file
-        tex.data = tex.data[::-1]
+        tex.data.reverse()
     else:
         tex.data = [dds_data]
+        
     # write tex file
     tex.write(tex_path)
     LOG(
@@ -196,3 +198,8 @@ def tex2dds(tex_path, dds_path=None):
             bs.write(tex.data[0])
     LOG(
         f'Ritoddstex: Done: tex2dds: Write {dds_path}')
+
+
+def prepare(_LOG):
+    global LOG
+    LOG = _LOG

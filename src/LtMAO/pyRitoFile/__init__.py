@@ -75,6 +75,10 @@ def read_anm(path, raw=None):
     anm.read(path, raw)
     return anm
 
+def write_anm(path, anm):
+    anm.write(path)
+
+
 
 def read_mapgeo(path, raw=None):
     mg = MAPGEO()

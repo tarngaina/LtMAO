@@ -45,6 +45,15 @@ class Quaternion:
         yield self.z
         yield self.w
 
+
+    def __mul__(self, other):
+        if type(other) in (float, int):
+            self.x *= other
+            self.y *= other
+            self.z *= other
+            self.w *= other
+        return self
+
     def __str__(self):
         return f'{self.x:.4f} {self.y:.4f} {self.z:.4f} {self.w:.4f}'
 
