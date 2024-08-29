@@ -40,7 +40,7 @@ class SKL:
         'name', 'asset', 'joints', 'influences'
     )
 
-    def __init__(self, file_size=None, signature=None, version=None, flags=None, name=None, asset=None, joints=[], influences=[]):
+    def __init__(self, file_size=None, signature=None, version=None, flags=None, name=None, asset=None, joints=None, influences=None):
         self.file_size = file_size
         self.signature = signature
         self.version = version

@@ -60,7 +60,7 @@ class SKN:
         'submeshes', 'indices', 'vertices'
     )
 
-    def __init__(self, signature=None, version=None, flags=None, bounding_box=None, bounding_sphere=None, vertex_type=None, vertex_size=None, submeshes=[], indices=[], vertices=[]):
+    def __init__(self, signature=None, version=None, flags=None, bounding_box=None, bounding_sphere=None, vertex_type=None, vertex_size=None, submeshes=None, indices=None, vertices=None):
         self.signature = signature
         self.version = version
         self.flags = flags
@@ -123,7 +123,6 @@ class SKN:
                     self.flags, = bs.read_u32()
 
                 index_count, vertex_count = bs.read_u32(2)
-                # pad all this, cause we dont need
                 if major == 4:
                     self.vertex_size, = bs.read_u32()
                     self.vertex_type, = bs.read_u32()
@@ -142,9 +141,13 @@ class SKN:
                     self.bounding_box = (bs.read_vec3()[0], bs.read_vec3()[0])
                     self.bounding_sphere = (
                         bs.read_vec3()[0], bs.read_f32()[0])
+                    
+            if index_count % 3 > 0:
+                raise Exception(f'pyRitoFile: Failed: Read SKN {path}: Bad indices data: {index_count}')
 
             # read unique indices
             indices = bs.read_u16(index_count)
+            self.indices = []
             for i in range(0, index_count, 3):
                 if indices[i] == indices[i+1] or indices[i+1] == indices[i+2] or indices[i+2] == indices[i]:
                     continue

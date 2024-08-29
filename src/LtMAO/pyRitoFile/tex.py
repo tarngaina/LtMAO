@@ -23,7 +23,7 @@ class TEX:
         'data'
     )
 
-    def __init__(self, signature=None, width=None, height=None, format=None, unknown1=None, unknown2=None, mipmaps=False, data=[]):
+    def __init__(self, signature=None, width=None, height=None, format=None, unknown1=None, unknown2=None, mipmaps=False, data=None):
         self.signature = signature
         self.width = width
         self.height = height
@@ -70,6 +70,7 @@ class TEX:
                 mipmap_count = 32 - \
                     len(f'{max(self.width, self.height):032b}'.split(
                         '1', 1)[0])
+                self.data = []
                 for i in reversed(range(mipmap_count)):
                     current_width = max(self.width // (1 << i), 1)
                     current_height = max(self.height // (1 << i), 1)

@@ -1,9 +1,19 @@
 from maya.OpenMaya import *
 from maya import cmds
 
+import os.path
 from random import choice
 from ..... import pyRitoFile
 from .....pyRitoFile.structs import Vector, Quaternion
+
+def get_option_key_name(key):
+    return 'lemon3d_'+key
+
+def get_name_from_path(path):
+    name = os.path.basename(path).split('.')[0]
+    if name[0] in '0123456789': # does not allow name start with number
+        name = 'lemon_' + name
+    return name
 
 def ensure_path_extension(path, ext):
     if not path.endswith(ext):
@@ -29,11 +39,11 @@ def mirrorX(skn=None, skl=None, anm=None, so=None, mapgeo=None):
         for track in anm.tracks:
             for time in track.poses:
                 pose = track.poses[time]
-                if pose.translation != None:
-                    pose.translation.x = -pose.translation.x
-                if pose.rotation != None:
-                    pose.rotation.y = -pose.rotation.y
-                    pose.rotation.z = -pose.rotation.z
+                if pose.translate != None:
+                    pose.translate.x = -pose.translate.x
+                if pose.rotate != None:
+                    pose.rotate.y = -pose.rotate.y
+                    pose.rotate.z = -pose.rotate.z
     if so != None:
         for vertex in so.vertices:
             vertex.x = -vertex.x
@@ -94,43 +104,6 @@ class MayaTransformMatrix:
 
         return matrix
 
-# get all joints, meshes of a selected group node
-class MIterator:
-    cached_result = []
-
-    @staticmethod
-    def reset():
-        MIterator.cached_result = []
-
-    @staticmethod
-    def iter_node(node, type):
-        for i in range(node.childCount()):
-            child = node.child(i)
-            if child.apiType() == type:
-                MIterator.cached_result.append(child)
-                child_dagpath = MDagPath()
-                MDagPath.getAPathTo(child, child_dagpath)
-                MIterator.iter_node(child_dagpath, type)
-
-    @staticmethod
-    def list_all_joints(group):
-        MIterator.reset()
-        MIterator.iter_node(group, MFn.kJoint)
-        return MIterator.cached_result
-    
-    @staticmethod
-    def list_all_meshes(group):
-        result = []
-        for i in range(group.childCount()):
-            child = group.child(i)
-            if child.apiType() == MFn.kTransform:
-                transform = MFnTransform(child)
-                if transform.childCount() > 0:
-                    grandchild = transform.child(0)
-                    if grandchild.apiType() == MFn.kMesh:
-                        result.append(grandchild)
-        return result
-
 # error dialog
 class FunnyError(Exception):
 
@@ -154,7 +127,10 @@ class FunnyError(Exception):
             defaultButton=button
         )
 
-# inheritance pyRitoFile classes to set custom attribute
+# pyRitoFile -> Lemon
+def convert_pyRitoFile_objects_to_Lemon(pyritofile_objects, lemon_class):
+    return [lemon_class(**{key: getattr(pyritofile_object, key) for key in pyritofile_object.__slots__}) for pyritofile_object in pyritofile_objects]
+
 class LemonSKLJoint(pyRitoFile.SKLJoint):
 
     def __init__(self, *args, **kwargs):
@@ -174,3 +150,12 @@ class LemonSKNSubmesh(pyRitoFile.SKNSubmesh):
         super().__init__(*args, **kwargs)
         self.indices = []
         self.vertices = []
+
+class LemonANMTrack(pyRitoFile.ANMTrack):
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.joint_name = None
+        self.ik_joint = None
+        self.curve_times = {}
+        self.curve_values = {}

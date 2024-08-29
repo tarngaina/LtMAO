@@ -1,6 +1,7 @@
 from maya.OpenMaya import *
 from maya.OpenMayaMPx import *
 from LtMAO.lemon3d.lemon_maya.plugins.translator.skin import SKNTranslator, SKLTranslator, SkinTranslator
+from LtMAO.lemon3d.lemon_maya.plugins.translator.anm import ANMTranslator
 
 AUTHOR = 'tarngaina'
 VERSION = '5.0.0'
@@ -26,9 +27,11 @@ def initializePlugin(obj):
     register_file_translator(plugin, SKNTranslator.name, SKNTranslator.creator)
     register_file_translator(plugin, SKLTranslator.name, SKLTranslator.creator)
     register_file_translator(plugin, SkinTranslator.name, SkinTranslator.creator)
+    register_file_translator(plugin, ANMTranslator.name, ANMTranslator.creator)
     
 def uninitializePlugin(obj):
     plugin = MFnPlugin(obj)
     plugin.deregisterFileTranslator(SKNTranslator.name)
     plugin.deregisterFileTranslator(SKLTranslator.name)
     plugin.deregisterFileTranslator(SkinTranslator.name)
+    plugin.deregisterFileTranslator(ANMTranslator.name)

@@ -38,30 +38,25 @@ class SKNTranslator(MPxFileTranslator):
 
     def reader(self, file, option, access):
         # import options
-        skn_path = helper.ensure_path_extension(file.expandedFullName(), 'skn')
+        skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
         dismiss, import_options = SKN.create_ui_skn_import_options(skn_path)
         if dismiss != 'Import': 
             return False
         # read skn
         skn = pyRitoFile.read_skn(skn_path)
-        # fix skn name if need
-        skn_name = skn_path.split('/')[-1].split('.')[0]
-        if skn_name in '0123456789':
-            skn_name = 'nf_'+self.name
+        skn_name = helper.get_name_from_path(skn_path)
         # load skeleton first if need
-        group_transform = None
         skl = None
         if import_options['import_skeleton']:
             skl_path = import_options['skl_path']
             skl = pyRitoFile.read_skl(skl_path)
-            skl.joints = [helper.LemonSKLJoint(**{key: getattr(joint, key) for key in joint.__slots__}) for joint in skl.joints]
+            skl.joints = helper.convert_pyRitoFile_objects_to_Lemon(skl.joints, helper.LemonSKLJoint)
             helper.mirrorX(skl=skl)
-            group_transform = SKL.scene_load(skl, { 'skl_name': skn_name })
+            SKL.scene_load(skl, {})
         # load skn
         helper.mirrorX(skn=skn)
         load_options = {
             'skn_name': skn_name,
-            'group_transform': group_transform,
             'separated_mesh': import_options['import_separated_mesh'],
             'skl': skl
         }
@@ -95,13 +90,10 @@ class SKLTranslator(MPxFileTranslator):
 
     def reader(self, file, option, access):
         # read skl
-        skl_path = helper.ensure_path_extension(file.expandedFullName(), 'skl')
+        skl_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
         skl = pyRitoFile.read_skl(skl_path)
-        skl.joints = [helper.LemonSKLJoint(**{key: getattr(joint, key) for key in joint.__slots__}) for joint in skl.joints]
-        # fix skn name if need
-        skl_name = skl_path.split('/')[-1].split('.')[0]
-        if skl_name in '0123456789':
-            skl_name = 'nf_'+self.name
+        skl.joints = helper.convert_pyRitoFile_objects_to_Lemon(skl.joints, helper.LemonSKLJoint)
+        skl_name = helper.get_name_from_path(skl_path)
         # load skl
         helper.mirrorX(skl=skl)
         load_options = {
@@ -140,29 +132,30 @@ class SkinTranslator(MPxFileTranslator):
         selections = MSelectionList()
         MGlobal.getActiveSelectionList(selections)
         if selections.isEmpty():
-            raise helper.FunnyError('SKN Exporter: Please select a group of skinned meshes and joints.')
-        if selections.length() > 1:
-            raise helper.FunnyError('SKN Exporter: Too many selections.')
-        selected_dagpath = MDagPath()
-        selections.getDagPath(0, selected_dagpath)
-        if selected_dagpath.apiType() != MFn.kTransform:
-            raise helper.FunnyError('SKN Exporter: Selected object is not a group.')
-        selected_group = MFnTransform(selected_dagpath)
-        if selected_group.childCount() == 0:
-            raise helper.FunnyError('SKN Exporter: Selected group is empty.')
+            raise helper.FunnyError('SKN Exporter: Please select meshes to export.')
+        selected_meshes = []
+        for i in range(selections.length()):
+            selected_dagpath = MDagPath()
+            selections.getDagPath(i, selected_dagpath)
+            if selected_dagpath.apiType() == MFn.kTransform:
+                selected_transform = MFnTransform(selected_dagpath)
+                first_child = selected_transform.child(0)
+                if first_child.apiType() == MFn.kMesh:
+                    selected_meshes.append(MFnMesh(first_child))
+        if len(selected_meshes) == 0:
+            raise helper.FunnyError('SKN Exporter: Please select meshes to export.')
         # export options
-        skn_path = helper.ensure_path_extension(file.expandedFullName(), 'skn')
+        skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
         skl_path = skn_path.replace('.skn', '.skl')
         dismiss, skn_export_options = SKN.create_ui_skn_export_options(skn_path, skl_path)
         if dismiss != 'Export':
             return False
-        #  dump_skl
+        #  dump skl
         riot_skl = None
         riot_skl_path = skn_export_options['riot_skl_path']
         if riot_skl_path != '':
             riot_skl = pyRitoFile.read_skl(riot_skl_path)
         dump_options = {
-            'selected_group': selected_group,
             'riot_skl': riot_skl
         }
         skl = pyRitoFile.SKL()
@@ -176,7 +169,7 @@ class SkinTranslator(MPxFileTranslator):
         skn = pyRitoFile.SKN()
         dump_options = {
             'skl': skl,
-            'selected_group': selected_group,
+            'selected_meshes': selected_meshes,
             'riot_skn': riot_skn
         }
         SKN.scene_dump(skn, dump_options)
@@ -198,6 +191,12 @@ class SKN:
             'import_separated_mesh': True,
             'skl_path': skl_path
         }
+        def set_value_cmd(key, value):
+            skn_import_options[key] = value
+        # load optionVar
+        for key in ('import_skeleton', 'import_separated_mesh'):
+            if cmds.optionVar(exists=helper.get_option_key_name(key)):
+                skn_import_options[key] = cmds.optionVar(query=helper.get_option_key_name(key))
         def ui_cmd():
             cmds.columnLayout()
 
@@ -225,8 +224,6 @@ class SKN:
             cmds.setParent('..')
 
             cmds.rowLayout(numberOfColumns=1)
-            def set_value_cmd(key, value):
-                skn_import_options[key] = value
             cmds.checkBoxGrp(
                 vertical=True, 
                 numberOfCheckBoxes=2, 
@@ -240,10 +237,14 @@ class SKN:
             )
             cmds.setParent('..')
 
-
             cmds.rowLayout(numberOfColumns=2)
             cmds.text(label='', w=700)
-            cmds.button(label='Import', width=100, command=lambda e: cmds.layoutDialog(dismiss='Import'))
+            def dismiss(result):
+                # save optionVar
+                for key in ('import_skeleton', 'import_separated_mesh'):
+                    cmds.optionVar(intValue=(helper.get_option_key_name(key), skn_import_options[key]))
+                cmds.layoutDialog(dismiss=result)
+            cmds.button(label='Import', width=100, command=lambda e: dismiss('Import'))
 
         return cmds.layoutDialog(title='SKN Import Options', ui=ui_cmd), skn_import_options
     
@@ -320,7 +321,9 @@ class SKN:
 
             cmds.rowLayout(numberOfColumns=2)
             cmds.text(label='', w=700)
-            cmds.button(label='Export', width=100, command=lambda e: cmds.layoutDialog(dismiss='Export'))
+            def dismiss(result):
+                cmds.layoutDialog(dismiss=result)
+            cmds.button(label='Export', width=100, command=lambda e: dismiss('Export'))
         
         return cmds.layoutDialog(title='SKN Export Options', ui=ui_cmd), skn_export_options
 
@@ -367,13 +370,6 @@ class SKN:
             mesh_name = mesh.name()
             mesh_transform = MFnTransform(mesh.parent(0))
             mesh_transform.setName(f'mesh_{skn_name}')
-            # add to group
-            group_transform = load_options['group_transform']
-            if group_transform == None:
-                group_transform = MFnTransform()
-                group_transform.create()
-                group_transform.setName(f'group_{skn_name}')
-            group_transform.addChild(mesh_transform.object())
             # materials
             skl = load_options['skl']
             for submesh in skn.submeshes:
@@ -475,14 +471,6 @@ class SKN:
             mesh.updateSurface()
 
         def load_separated():
-            # create group
-            skn_name = load_options['skn_name']
-            group_transform = load_options['group_transform']
-            if group_transform == None:
-                group_transform = MFnTransform()
-                group_transform.create()
-                group_transform.setName(f'group_{skn_name}')
-
             # init seperated meshes data
             shader_count = len(skn.submeshes)
             shader_vertices = {}
@@ -539,14 +527,12 @@ class SKN:
 
                 # name
                 submesh = skn.submeshes[shader_index]
+                skn_name = load_options['skn_name']
                 mesh.setName(f'{skn_name}_{submesh.name}Shape')
                 mesh_name = mesh.name()
                 mesh_transform = MFnTransform(mesh.parent(0))
                 mesh_transform.setName(
                     f'mesh_{submesh.name}')
-
-                # add mesh to group
-                group_transform.addChild(mesh_transform.object())
 
                 # check duplicate name node
                 if skl != None:
@@ -951,10 +937,8 @@ class SKN:
         
         # dump all mesh of selected group
         submeshes = []
-        selected_group = dump_options['selected_group']
-        scene_meshes = helper.MIterator.list_all_meshes(selected_group)
-        for scene_mesh in scene_meshes:
-            submeshes += dump_mesh(MFnMesh(scene_mesh))
+        for scene_mesh in dump_options['selected_meshes']:
+            submeshes += dump_mesh(scene_mesh)
 
         # map submeshes by name
         map_submeshes = {}
@@ -964,6 +948,9 @@ class SKN:
             map_submeshes[submesh.name].append(submesh)
         # combine all submesh that has same name
         # save to SKN submeshes
+        skn.submeshes = []
+        skn.indices = []
+        skn.vertices = []
         for submesh_name in map_submeshes:
             # check submesh name's length
             if len(submesh_name) > 64:
@@ -1065,12 +1052,6 @@ class SKN:
 class SKL:
     @staticmethod
     def scene_load(skl, load_options):
-        # group of meshes
-        skl_name = load_options['skl_name']
-        group_transform = MFnTransform()
-        group_transform.create()
-        group_transform.setName(f'group_{skl_name}')
-
         # find joint existed in scene
         iterator = MItDag(MItDag.kDepthFirst, MFn.kJoint)
         while not iterator.isDone():
@@ -1117,8 +1098,7 @@ class SKL:
             ik_joint.set(helper.MayaTransformMatrix.compose(
                 joint.local_translate, joint.local_rotate, joint.local_scale, MSpace.kWorld
             ))
-            # add to group
-            group_transform.addChild(ik_joint.object())
+            
 
         # link parent
         for joint in skl.joints:
@@ -1128,18 +1108,17 @@ class SKL:
                 if not parent_node.isParentOf(child_node.object()):
                     parent_node.addChild(child_node.object())
         
-        return group_transform
-    
     @staticmethod
     def scene_dump(skl, dump_options):
-        selected_group = dump_options['selected_group']
-        scene_joints = helper.MIterator.list_all_joints(selected_group)
-        for scene_joint in scene_joints:
+        skl.joints = []
+        iterator = MItDag(MItDag.kDepthFirst, MFn.kJoint)
+        while not iterator.isDone():
             joint = helper.LemonSKLJoint()
-            ik_joint = MFnIkJoint(scene_joint)
+            
             # dagpath, name, transform
             joint.dagpath = MDagPath()
-            ik_joint.getPath(joint.dagpath)
+            iterator.getPath(joint.dagpath)
+            ik_joint = MFnIkJoint(joint.dagpath)
             joint.name = ik_joint.name()
             joint.hash = Elf(joint.name)
             joint.radius = 2.1
@@ -1152,6 +1131,7 @@ class SKL:
                 MSpace.kWorld
             )
             skl.joints.append(joint)
+            iterator.next()
 
         # riot skl
         riot_skl = dump_options['riot_skl']

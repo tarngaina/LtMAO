@@ -1,4 +1,4 @@
-from math import sqrt
+from math import sqrt, acos, sin
 
 
 class Vector:
@@ -28,6 +28,13 @@ class Vector:
 
     def __json__(self):
         return [v for v in self]
+    
+    def lerp(vec1, vec2, weight):        
+        return Vector(
+            vec1.x + (vec2.x - vec1.x) * weight,
+            vec1.y + (vec2.y - vec1.y) * weight,
+            vec1.z + (vec2.z - vec1.z) * weight
+        )
 
 
 class Quaternion:
@@ -59,6 +66,28 @@ class Quaternion:
 
     def __json__(self):
         return [v for v in self]
+    
+    def slerp(quat1, quat2, weight):
+        epsilon = 1e-6
+        cos_omega = quat1.x * quat2.x + quat1.y * quat2.y + quat1.z * quat2.z + quat1.w * quat2.w
+        flip = False
+        if cos_omega < 0.0:
+            flip = True
+            cos_omega = -cos_omega
+        if cos_omega > (1.0 - epsilon):
+            s1 = 1.0 - weight
+            s2 = -weight if flip else weight
+        else:
+            omega = acos(cos_omega)
+            inv_sin_omega = 1 / sin(omega)
+            s1 = sin((1.0 - weight) * omega) * inv_sin_omega
+            s2 = -sin(weight * omega) * inv_sin_omega if flip else sin(weight * omega) * inv_sin_omega
+        return Quaternion(
+            s1 * quat1.x + s2 * quat2.x,
+            s1 * quat1.y + s2 * quat2.y,
+            s1 * quat1.z + s2 * quat2.z,
+            s1 * quat1.w + s2 * quat2.w,
+        )        
 
 
 class Matrix4:

@@ -82,7 +82,7 @@ class ANMErrorMetric:
 
 class ANMPose:
     __slots__ = (
-        'translate', 'scale', 'rotate'
+        'translate', 'rotate', 'scale'
     )
 
     def __init__(self, translate=None, rotate=None, scale=None):
@@ -99,7 +99,7 @@ class ANMTrack:
         'joint_hash', 'poses'
     )
 
-    def __init__(self, joint_hash=None, poses={}):
+    def __init__(self, joint_hash=None, poses=None):
         self.joint_hash = joint_hash
         self.poses = poses # poses[time] = pose at time
 
@@ -113,7 +113,7 @@ class ANM:
         'duration', 'fps', 'error_metrics', 'tracks'
     )
 
-    def __init__(self, signature=None, version=None, file_size=None, format_token=None, flags1=None, flags2=None, duration=None, fps=None, error_metrics=None, tracks=[]):
+    def __init__(self, signature=None, version=None, file_size=None, format_token=None, flags1=None, flags2=None, duration=None, fps=None, error_metrics=None, tracks=None):
         self.signature = signature
         self.version = version
         self.file_size = file_size
@@ -177,6 +177,7 @@ class ANM:
                 self.tracks = [ANMTrack() for i in range(track_count)]
                 for track_id, track in enumerate(self.tracks):
                     track.joint_hash = joint_hashes[track_id]
+                    track.poses = {}
                 # read frames
                 bs.seek(frames_offset + 12)
                 for i in range(frame_count):
@@ -257,10 +258,11 @@ class ANM:
                     bs.seek(quats_offset + 12)
                     uni_quats = [decompress_quat(
                         bs.read(6)) for i in range(quat_count)]
-                    # parse tracks
+                    # prepare tracks
                     self.tracks = [ANMTrack() for i in range(track_count)]
                     for track_id, track in enumerate(self.tracks):
                         track.joint_hash = joint_hashes[track_id]
+                        track.poses = {}
                     # read frames
                     bs.seek(frames_offset + 12)
                     for f in range(frame_count):
@@ -309,6 +311,10 @@ class ANM:
                     # read uni quats
                     bs.seek(quats_offset + 12)
                     uni_quats = bs.read_quat(quat_count)
+                    # prepare tracks
+                    self.tracks = [ANMTrack() for i in range(track_count)]
+                    for track in self.tracks:
+                        track.poses = {}
                     # read frames
                     bs.seek(frames_offset + 12)
                     for f in range(frame_count):
@@ -316,17 +322,22 @@ class ANM:
                             joint_hash, = bs.read_u32()
                             translate_index, scale_index, rotate_index = bs.read_u16(3)
                             bs.pad(2)
-                            match_track = None
-                            for track in self.tracks:
-                                if track.joint_hash == joint_hash:
-                                    match_track = track
-                                    break
-                            if match_track == None:
-                                track = ANMTrack()
+                            track = self.tracks[t]
+                            if track.joint_hash == None:
+                                # if track t is new
                                 track.joint_hash = joint_hash
-                                self.tracks.append(track)
                             else:
-                                track = match_track
+                                # if track t is not new
+                                if track.joint_hash != joint_hash:
+                                    # track t is wrong for this joint hash, find another track
+                                    match_track = None
+                                    for track in self.tracks:
+                                        if track.joint_hash == joint_hash:
+                                            match_track = track
+                                            break
+                                    if match_track == None:
+                                        # no track found???
+                                        continue
                             # parse pose
                             pose = ANMPose()
                             translate = uni_vecs[translate_index]
@@ -345,12 +356,13 @@ class ANM:
                     track_count, frame_count = bs.read_u32(2)
                     self.fps, = bs.read_u32()
                     self.duration = frame_count
-                    # parse tracks
+                    # prepare tracks
                     self.tracks = [ANMTrack() for i in range(track_count)]
                     for track in self.tracks:
                         track.joint_hash = Elf(bs.read_a_padded(32)[0])
                         bs.pad(4)  # flags
-                        # parse pose
+                        # read pose
+                        track.poses = {}
                         for f in range(frame_count):
                             pose = ANMPose()
                             pose.rotate, = bs.read_quat()
@@ -365,10 +377,91 @@ class ANM:
                 raise Exception(
                     f'pyRitoFile: Failed: Read ANM: Wrong signature file: {hex(self.signature)}')
 
-
     def write(self, path, raw=None):
         with self.stream(path, 'wb', raw) as bs:
-            # build frame data
+            # evaluate frames - this part is for compressed anm
+            self.duration = int(self.duration)
+            for track in self.tracks:
+                track.poses = dict(sorted(track.poses.items()))
+                for frame in range(self.duration):
+                    # find left right translate, rotate, scale frames
+                    left_translate = None
+                    right_translate = None
+                    left_scale = None
+                    right_scale = None
+                    left_rotate = None
+                    right_rotate = None
+                    for time in track.poses.keys():
+                        if time <= frame:
+                            if track.poses[time].translate != None:
+                                left_translate = time
+                            if track.poses[time].scale != None:
+                                left_scale = time
+                            if track.poses[time].rotate != None:
+                                left_rotate = time
+                        if time >= frame:
+                            if track.poses[time].translate != None and right_translate == None:
+                                right_translate = time
+                            if track.poses[time].scale != None and right_scale == None:
+                                right_scale = time
+                            if track.poses[time].rotate != None and right_rotate == None:
+                                right_rotate = time
+                        if left_translate != None and right_translate != None and left_scale != None and right_scale != None and left_rotate != None and right_rotate != None:
+                            break
+                    # create pose if empty
+                    if frame not in track.poses:
+                        track.poses[frame] = pose = ANMPose()
+                    # evaluate translate if need
+                    if frame != left_translate and frame != right_translate:
+                        if left_translate == None or right_translate == None:
+                            if left_translate == None and right_translate == None:
+                                raise Exception(
+                                    f'pyRitoFile: Failed: Write ANM: Evaluate translate: left: {left_translate}, right: {right_translate}.')
+                            elif left_translate == None:
+                                pose.translate = track.poses[right_translate].translate
+                            elif right_translate == None:
+                                pose.translate = track.poses[left_translate].translate
+                        else:
+                            pose.translate = Vector.lerp(
+                                track.poses[left_translate].translate, 
+                                track.poses[right_translate].translate,
+                                (frame - left_translate) / (right_translate - left_translate)
+                            )
+                    # evaluate scale if need
+                    if frame != left_scale and frame != right_scale:
+                        if left_scale == None or right_scale == None:
+                            if left_scale == None and right_scale == None:
+                                raise Exception(
+                                    f'pyRitoFile: Failed: Write ANM: Evaluate scale: left: {left_scale}, right: {right_scale}.')
+                            elif left_scale == None:
+                                pose.scale = track.poses[right_scale].scale
+                            elif right_scale == None:
+                                pose.scale = track.poses[left_scale].scale
+                        else:
+                            pose.scale = Vector.lerp(
+                                track.poses[left_scale].scale, 
+                                track.poses[right_scale].scale,
+                                (frame - left_scale) / (right_scale - left_scale)
+                            )
+                    # evaluate rotate if need
+                    if frame != left_rotate and frame != right_rotate:
+                        if left_rotate == None or right_rotate == None:
+                            if left_rotate == None and right_rotate == None:
+                                raise Exception(
+                                    f'pyRitoFile: Failed: Write ANM: Evaluate rotate: left: {left_rotate}, right: {right_rotate}.')
+                            elif left_rotate == None:
+                                pose.rotate = track.poses[right_rotate].rotate
+                            elif right_rotate == None:
+                                pose.rotate = track.poses[left_rotate].rotate
+                        else:
+                            pose.rotate = Quaternion.slerp(
+                                track.poses[left_rotate].rotate, 
+                                track.poses[right_rotate].rotate,
+                                (frame - left_rotate) / (right_rotate - left_rotate)
+                            )
+           
+            # build uni vecs, uni quats, frame data
+            # very slow after evaluate compressed anm because of isclose
             uni_vecs = []
             uni_quats = []
             vec_tol, quat_tol = 0.001, 0.001

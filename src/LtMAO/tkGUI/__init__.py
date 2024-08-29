@@ -4484,10 +4484,16 @@ def create_LM_page():
     tk_widgets.LM.tab2_frame.rowconfigure(0, weight=0)
     tk_widgets.LM.tab2_frame.rowconfigure(1, weight=0)
 
-    # create desc label
+    # create desc text
     tk_widgets.LM.desc_label = ctk.CTkLabel(
         tk_widgets.LM.tab2_frame,
-        text='Maya support version: 2022+\nPlease close Maya before installing.',
+        text=(
+            'Maya support version: 2022+\n'
+            'Please close Maya before installing.\n'
+            'After installed, on Maya toolbar select Windows -> Settings/Preferences -> Plug-in Manager\n'
+            'and tick Loaded/Auto load on lemon3d.py to enable lemon3d.\n'
+            'lemon3d is a part of LtMAO so do not delete LtMAO while using lemon3d.'
+        ),
         anchor=tk.W,
         justify=tk.LEFT,
         font=le_font

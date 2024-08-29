@@ -16,8 +16,8 @@ if __name__ == '__main__':
 
     def test():
         from LtMAO import pyRitoFile
-        d =  pyRitoFile.read_anm('D:/test/kaisa_spell1.anm')
-        pyRitoFile.write_anm('D:/test/t.anm', d )
-        pyRitoFile.read_anm('D:/test/t.anm')
+        from LtMAO.pyRitoFile.structs import Vector, Quaternion
+        d =  pyRitoFile.read_anm(r'D:\test\kaisa_spell1.anm')
+        pyRitoFile.write_anm('D:/test/t.anm', d)
 
 test()

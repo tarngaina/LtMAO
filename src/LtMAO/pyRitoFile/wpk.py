@@ -19,7 +19,7 @@ class WPKWem:
 class WPK:
     __slots__ = ('signature', 'version', 'wems')
 
-    def __init__(self, signature=None, version=None, wems=[]):
+    def __init__(self, signature=None, version=None, wems=None):
         self.signature = signature
         self.version = version
         self.wems = wems

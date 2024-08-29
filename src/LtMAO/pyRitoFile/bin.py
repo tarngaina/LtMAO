@@ -360,7 +360,7 @@ class BINType(Enum):
 class BINField:
     __slots__ = ('hash', 'type', 'hash_type', 'key_type', 'value_type', 'data')
 
-    def __init__(self, hash=None, type=None, hash_type=None, key_type=None, value_type=None, data=[]):
+    def __init__(self, hash=None, type=None, hash_type=None, key_type=None, value_type=None, data=None):
         self.hash = hash
         self.type = type
         self.hash_type = hash_type
@@ -401,7 +401,7 @@ class BINPatch:
 class BINEntry:
     __slots__ = ('hash', 'type', 'data')
 
-    def __init__(self, hash=None, type=None, data=[]):
+    def __init__(self, hash=None, type=None, data=None):
         self.hash = hash
         self.type = type
         self.data = data
@@ -416,7 +416,7 @@ class BIN:
         'links', 'entries', 'patches'
     )
 
-    def __init__(self, signature=None, version=None, is_patch=False, links=[], entries=[], patches=[]):
+    def __init__(self, signature=None, version=None, is_patch=False, links=None, entries=None, patches=None):
         self.signature = signature
         self.version = version
         self.is_patch = is_patch

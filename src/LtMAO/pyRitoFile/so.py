@@ -10,7 +10,7 @@ class SO:
         'indices', 'positions', 'uvs', 'colors'
     )
 
-    def __init__(self, signature=None, version=None, flags=None, name=None, central=None, pivot=None, bounding_box=None, material=None, vertex_type=None, indices=[], positions=[], uvs=[], colors=[]):
+    def __init__(self, signature=None, version=None, flags=None, name=None, central=None, pivot=None, bounding_box=None, material=None, vertex_type=None, indices=None, positions=None, uvs=None, colors=None):
         self.signature = signature
         self.version = version
         self.flags = flags
@@ -64,6 +64,9 @@ class SO:
 
             index = 1  # skip magic
             len1234 = len(lines)
+            self.indices = []
+            self.positions = []
+            self.uvs = []
             while index < len1234:
                 inp = lines[index].split()
                 if len(inp) == 0:  # cant split, definitely not voldemort
@@ -143,6 +146,8 @@ class SO:
                     self.colors = [bs.read_u8(4) for i in range(vertex_count)]
 
             self.central, = bs.read_vec3()
+            self.indices = []
+            self.uvs = []
             for i in range(face_count):
                 face = bs.read_u32(3)
                 if face[0] == face[1] or face[1] == face[2] or face[2] == face[0]:

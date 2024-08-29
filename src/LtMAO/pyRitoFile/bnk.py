@@ -165,7 +165,7 @@ class BNKSection:
 class BNK:
     __slots__ = ('bkhd', 'didx', 'data', 'hirc', 'unknown_sections')
 
-    def __init__(self, bkhd=None, didx=None, data=None, hirc=None, unknown_sections=[]):
+    def __init__(self, bkhd=None, didx=None, data=None, hirc=None, unknown_sections=None):
         self.bkhd = bkhd
         self.didx = didx
         self.data = data
@@ -185,6 +185,7 @@ class BNK:
 
     def read(self, path, raw=None):
         with self.stream(path, 'rb', raw) as bs:
+            self.unknown_sections = []
             while bs.tell() < bs.end():
                 section = BNKSection()
                 section.signature, = bs.read_a(4)

@@ -212,7 +212,7 @@ class WADChunk:
 class WAD:
     __slots__ = ('signature', 'version', 'chunks')
 
-    def __init__(self, signature=None, version=None, chunks=[]):
+    def __init__(self, signature=None, version=None, chunks=None):
         self.signature = signature
         self.version = version
         self.chunks = chunks

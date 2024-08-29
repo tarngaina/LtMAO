@@ -51,7 +51,7 @@ class MAPGEOBucketGrid:
         'face_layers'
     )
 
-    def __init__(self, hash=None, min_x=None, min_z=None, max_x=None, max_z=None, max_stickout_x=None, max_stickout_z=None, bucket_size_x=None, bucket_size_z=None, is_disabled=None, bucket_grid_flags=None, buckets=[], vertices=[], indices=[], face_layers=[]):
+    def __init__(self, hash=None, min_x=None, min_z=None, max_x=None, max_z=None, max_stickout_x=None, max_stickout_z=None, bucket_size_x=None, bucket_size_z=None, is_disabled=None, bucket_grid_flags=None, buckets=None, vertices=None, indices=None, face_layers=None):
         self.hash = hash
         self.min_x = min_x
         self.min_z = min_z
@@ -138,7 +138,7 @@ class MAPGEOSubmesh:
 class MAPGEOVertex:
     __slots__ = ('value')
 
-    def __init__(self, value={}):
+    def __init__(self, value=None):
         self.value = value
 
     def __json__(self):
@@ -155,7 +155,7 @@ class MAPGEOModel:
         'baked_light', 'stationary_light', 'baked_paint'
     )
 
-    def __init__(self, name=None, vertex_buffer_count=None, vertex_description_id=None, vertex_buffer_ids=None, vertex_count=None, vertices=[], index_buffer_id=None, index_count=None, indices=[], layer=None, quality=None, disable_backface_culling=None, is_bush=None, render=None, point_light=None, light_probe=None, bucket_grid_hash=None, submeshes=None, bounding_box=None, matrix=None, baked_light=None, stationary_light=None, baked_paint=None):
+    def __init__(self, name=None, vertex_buffer_count=None, vertex_description_id=None, vertex_buffer_ids=None, vertex_count=None, vertices=None, index_buffer_id=None, index_count=None, indices=None, layer=None, quality=None, disable_backface_culling=None, is_bush=None, render=None, point_light=None, light_probe=None, bucket_grid_hash=None, submeshes=None, bounding_box=None, matrix=None, baked_light=None, stationary_light=None, baked_paint=None):
         self.name = name
         self.vertex_buffer_count = vertex_buffer_count
         self.vertex_description_id = vertex_description_id
@@ -393,6 +393,7 @@ class MAPGEO:
                     unpacked_vb = unpacked_vbs[vertex_buffer_id]
                     current_index = 0
                     for vertex in model.vertices:
+                        vertex.value = {}
                         for element in vertex_description.elements:
                             _, _, unpacked_item_size, unpacked_type = MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[element.format]
                             unpacked_item_value = (unpacked_vb[current_index+i] for i in range(unpacked_item_size))
