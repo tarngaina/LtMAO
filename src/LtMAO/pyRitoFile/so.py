@@ -1,6 +1,14 @@
 from io import BytesIO, StringIO
 from ..pyRitoFile.io import BinStream
 from ..pyRitoFile.structs import Vector
+from enum import Enum
+
+class SOFlag(Enum):
+    HasVcp = 1
+    HasLocalOriginLocatorAndPivot = 2
+
+    def __json__(self):
+        return self.name
 
 
 class SO:
@@ -118,6 +126,39 @@ class SO:
 
                 index += 1
 
+    def write_sco(self, path, raw=None):
+        with self.stream_sco(path, 'w', raw) as f:
+            f.write('[ObjectBegin]\n')  # magic
+            f.write(f'Name= {self.name}\n') # name
+            # central
+            f.write(
+                f'CentralPoint= {self.central.x:.4f} {self.central.y:.4f} {self.central.z:.4f}\n') \
+            # pivot
+            if self.pivot != None:
+                f.write(
+                    f'PivotPoint= {self.pivot.x:.4f} {self.pivot.y:.4f} {self.pivot.z:.4f}\n')
+            # positions
+            f.write(f'Verts= {len(self.positions)}\n')
+            for position in self.positions:
+                f.write(f'{position.x:.4f} {position.y:.4f} {position.z:.4f}\n')
+            # faces
+            face_count = len(self.indices) // 3
+            f.write(f'Faces= {face_count}\n')
+            for i in range(face_count):
+                index = i * 3
+                f.write('3\t')
+                f.write(f' {self.indices[index]:>5}')
+                f.write(f' {self.indices[index+1]:>5}')
+                f.write(f' {self.indices[index+2]:>5}')
+                f.write(f'\t{self.material:>20}\t')
+                f.write(f'{self.uvs[index].x:.12f} {self.uvs[index].y:.12f} ')
+                f.write(
+                    f'{self.uvs[index+1].x:.12f} {self.uvs[index+1].y:.12f} ')
+                f.write(
+                    f'{self.uvs[index+2].x:.12f} {self.uvs[index+2].y:.12f}\n')
+            f.write('[ObjectEnd]')
+            return f.getvalue() if raw else None
+
     def read_scb(self, path, raw=None):
         with self.stream_scb(path, 'rb', raw) as bs:
             self.signature, = bs.read_a(8)
@@ -133,6 +174,7 @@ class SO:
 
             self.name, = bs.read_a_padded(128)
             vertex_count, face_count, self.flags = bs.read_u32(3)
+            self.flags = SOFlag(self.flags)
 
             # bouding box
             self.bounding_box = (bs.read_vec3()[0], bs.read_vec3()[0])
@@ -162,3 +204,51 @@ class SO:
                 self.uvs.append(Vector(uvs[0], uvs[3]))
                 self.uvs.append(Vector(uvs[1], uvs[4]))
                 self.uvs.append(Vector(uvs[2], uvs[5]))
+
+    def write_scb(self, path, raw=None):
+        def get_bounding_box():
+            min = Vector(float("inf"), float("inf"), float("inf"))
+            max = Vector(float("-inf"), float("-inf"), float("-inf"))
+            for position in self.positions:
+                if min.x > position.x:
+                    min.x = position.x
+                if min.y > position.y:
+                    min.y = position.y
+                if min.z > position.z:
+                    min.z = position.z
+                if max.x < position.x:
+                    max.x = position.x
+                if max.y < position.y:
+                    max.y = position.y
+                if max.z < position.z:
+                    max.z = position.z
+            return min, max
+        
+        with self.stream_scb(path, 'wb', raw) as bs:
+            # signature, version
+            bs.write_a('r3d2Mesh')  
+            bs.write_u16(3, 2)  
+            # name but nothing is fine
+            bs.write_a_padded('', 128)  
+            # position count, face count, flags
+            face_count = len(self.indices) // 3
+            bs.write_u32(len(self.positions), face_count, self.flags.value)
+            bs.write_vec3(*get_bounding_box()) # bounding box
+            bs.write_u32(0)  # vertex color
+            # positions
+            bs.write_vec3(*self.positions)
+            # central
+            bs.write_vec3(self.central)
+            # faces 
+            for i in range(face_count):
+                index = i * 3
+                bs.write_u32(
+                    self.indices[index], self.indices[index+1], self.indices[index+2])
+
+                bs.write_a_padded(self.material, 64)
+                # u u u, v v v
+                bs.write_f32(
+                    self.uvs[index].x, self.uvs[index +
+                                                1].x, self.uvs[index+2].x,
+                    self.uvs[index].y, self.uvs[index+1].y, self.uvs[index+2].y
+                )

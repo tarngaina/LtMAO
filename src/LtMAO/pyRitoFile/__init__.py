@@ -1,6 +1,6 @@
 from ..pyRitoFile.skl import SKL, SKLJoint
 from ..pyRitoFile.skn import SKN, SKNVertex, SKNSubmesh
-from ..pyRitoFile.so import SO
+from ..pyRitoFile.so import SO, SOFlag
 from ..pyRitoFile.anm import ANM, ANMPose, ANMTrack, ANMErrorMetric
 from ..pyRitoFile.mapgeo import MAPGEO
 from ..pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINHelper, name_to_hex as bin_hash
@@ -63,11 +63,16 @@ def read_sco(path, raw=None):
     so.read_sco(path, raw)
     return so
 
+def write_sco(path, so):
+    so.write_sco(path)
 
 def read_scb(path, raw=None):
     so = SO()
     so.read_scb(path, raw)
     return so
+
+def write_scb(path, so):
+    so.write_scb(path)
 
 
 def read_anm(path, raw=None):

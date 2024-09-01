@@ -3,7 +3,6 @@ from maya.OpenMayaMPx import *
 from maya.OpenMayaAnim import *
 from maya import cmds
 
-import os.path
 from . import helper
 from ..... import pyRitoFile
 from .....pyRitoFile.hash import Elf
@@ -59,7 +58,7 @@ class ANMTranslator(MPxFileTranslator):
     def writer(self, file, option, access):
         # export options
         anm_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        dismiss, anm_export_options = ANM.create_ui_anm_export_options()
+        dismiss, anm_export_options = ANM.create_ui_anm_export_options(anm_path)
         if dismiss != 'Export':
             return False
         anm = pyRitoFile.ANM()
@@ -116,7 +115,7 @@ class ANM:
         return cmds.layoutDialog(title='ANM Import Options', ui=ui_cmd), anm_import_options
     
     @staticmethod
-    def create_ui_anm_export_options():
+    def create_ui_anm_export_options(anm_path):
         anm_export_options = {
             'export_start_time': int(MAnimControl.animationStartTime().value()),
             'export_end_time': int(MAnimControl.animationEndTime().value())
@@ -126,6 +125,11 @@ class ANM:
 
         def ui_cmd():
             cmds.columnLayout()
+
+            cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
+            cmds.text(label='ANM Path:')
+            cmds.text(label=anm_path, align='left', width=600)
+            cmds.setParent('..')
 
             cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
             cmds.text(label='Export start time:')

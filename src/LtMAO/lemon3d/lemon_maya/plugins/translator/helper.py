@@ -45,8 +45,8 @@ def mirrorX(skn=None, skl=None, anm=None, so=None, mapgeo=None):
                     pose.rotate.y = -pose.rotate.y
                     pose.rotate.z = -pose.rotate.z
     if so != None:
-        for vertex in so.vertices:
-            vertex.x = -vertex.x
+        for position in so.positions:
+            position.x = -position.x
         so.central.x = -so.central.x
         if so.pivot != None:
             so.pivot.x = -so.pivot.x

@@ -13,7 +13,7 @@ class SKNVertexType(Enum):
     TANGENT = 2
 
     def __json__(self):
-        return self.value
+        return self.name
 
 
 class SKNVertex:

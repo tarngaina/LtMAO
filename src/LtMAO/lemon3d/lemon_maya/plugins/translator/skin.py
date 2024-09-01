@@ -283,6 +283,16 @@ class SKN:
         def ui_cmd():
             cmds.columnLayout()
 
+            cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
+            cmds.text(label='SKN Path:')
+            cmds.text(label=skn_path, align='left', width=600)
+            cmds.setParent('..')
+
+            cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
+            cmds.text(label='SKL Path:')
+            cmds.text(label=skl_path, align='left', width=600)
+            cmds.setParent('..')
+
             cmds.rowLayout(numberOfColumns=3, adjustableColumn=2)
             cmds.text(label='Riot SKN Path:')
             skn_text = cmds.text(label=riot_skn_path, align='left', width=600)
