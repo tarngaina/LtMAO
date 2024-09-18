@@ -29,8 +29,8 @@ global proc shelf_lemon3d_General () {
         -imageOverlayLabel "IMP" 
         -overlayLabelColor 0.8 0.8 0.8 
         -overlayLabelBackColor 0 0 0 1 
-        -image "D:/LtMAO/src/LtMAO/lemon3d/lemon_maya/prefs/icons/lemon3d/import.png" 
-        -image1 "D:/LtMAO/src/LtMAO/lemon3d/lemon_maya/prefs/icons/lemon3d/import.png" 
+        -image "lemon3d/import.png" 
+        -image1 "lemon3d/import.png" 
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1

@@ -16,7 +16,10 @@ if __name__ == '__main__':
 
     def test():
         from LtMAO import pyRitoFile
-        pyRitoFile.write_sco('D:/test/t.sco', pyRitoFile.read_sco('D:/test/test.sco'))
-        pyRitoFile.write_scb('D:/test/t.scb', pyRitoFile.read_scb('D:/test/test.scb'))
+        a = pyRitoFile.read_mapgeo('D:/test/base_srx.mapgeo')
+        pyRitoFile.write_mapgeo('D:/test/t.mapgeo', a, 17)
+        
+        b = pyRitoFile.read_mapgeo('D:/test/t.mapgeo')
+        print('Done')
 
 test()

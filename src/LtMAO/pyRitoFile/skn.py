@@ -1,13 +1,13 @@
 from io import BytesIO
 from ..pyRitoFile.io import BinStream
 from ..pyRitoFile.hash import FNV1a
-from enum import Enum
+from enum import IntEnum
 
 def bin_hash(name):
     return f'{FNV1a(name):08x}'
 
 
-class SKNVertexType(Enum):
+class SKNVertexType(IntEnum):
     BASIC = 0
     COLOR = 1
     TANGENT = 2

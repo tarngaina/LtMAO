@@ -1,6 +1,6 @@
 from io import BytesIO
 from ..pyRitoFile.io import BinStream
-from enum import Enum
+from enum import IntEnum
 
 class BNKHelper:
     @staticmethod
@@ -76,7 +76,7 @@ class BNKHelper:
             bs.pad(12 * bs.read_u32()[0])
     
 
-class BNKObjectType(Enum):
+class BNKObjectType(IntEnum):
     Settings = 1
     Sound = 2
     Action = 3

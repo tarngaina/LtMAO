@@ -10,7 +10,7 @@
 # Updates
 1. LtMAO always check for latest version when you open the app. If there is a newer version, the app will display update message in title bar.
 2. To fully update: re-download the whole app from github and extract it to same location.
-3. To lazily update LtMAO: press "Update LtMAO" button from setting page. This is not recommended because but if it works, it works.
+3. To lazily update LtMAO: press "Update LtMAO" button from setting page. This is not recommended but if it works, it works.
 
 # Documentation
 ## Shortcut & How to Run as Admin
@@ -66,9 +66,10 @@ Edit MaskData's weights inside animation BINs.
 
 Also has generate wad & bin hash function. Those generated hashes can be added to Custom Hashes with `->` buttons.
 ## vo_helper
-Make fantome work on all langs by cloning it.
+**Important**: Starting from patch 14.4, rito decided to use `en_us` for all clients/regions, so this tool is not needed anymore except for updating old mods before 14.4.
 
-**Important**: The audio inside fantome must also come with events file to make it work on other langs.
+Make fantome work on all langs by cloning it.
+The audio inside fantome must also come with events file to make it work on other langs.
 
 ![](https://i.imgur.com/fhXoShs.png)
 
@@ -113,8 +114,10 @@ Can bulk unpack multiple WADs into same output.
 
 
 ## pyntex
-[Hacksaw/bintex](https://github.com/TheMartynasXS/Hacksaw) but rewritten.
+[Hacksaw/bintex](https://github.com/TheMartynasXS/Hacksaw) but stolen.
 Print out mentioned & missing files in all BINs inside a WAD or a Folder.
+
+**Important**: Need to update hashes/extract hashes before using pyntex.
 
 ![](https://i.imgur.com/Tj5GPV6.png)
 

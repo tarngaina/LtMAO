@@ -1,9 +1,9 @@
 from io import BytesIO
 from ..pyRitoFile.io import BinStream
-from enum import Enum
+from enum import IntEnum
 
 
-class TEXFormat(Enum):
+class TEXFormat(IntEnum):
     ETC1 = 1
     ETC2 = 2
     ETC2_EAC = 3

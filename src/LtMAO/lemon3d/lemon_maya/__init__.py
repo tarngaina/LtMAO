@@ -23,7 +23,7 @@ def install_plugin(maya_pref_dir):
             maya_env[key] = value
     lemon_maya_dir = os.path.abspath('./src/LtMAO/lemon3d/lemon_maya').replace('\\', '/')
     # add lemon3d to maya env  
-    ltmao_dir = os.path.abspath('.') 
+    ltmao_dir = os.path.abspath('.').replace('\\','/')
     maya_paths = {
         'MAYA_PLUG_IN_PATH': f'{lemon_maya_dir}/plugins;',
         'MAYA_SHELF_PATH': f'{lemon_maya_dir}/prefs/shelves;',

@@ -1,7 +1,7 @@
 from io import BytesIO
 from ..pyRitoFile.io import BinStream
 from ..pyRitoFile.hash import FNV1a
-from enum import Enum
+from enum import IntEnum
 
 
 def hash_to_hex(hash):
@@ -322,7 +322,7 @@ class BINHelper:
         return field_size
 
 
-class BINType(Enum):
+class BINType(IntEnum):
     # basic
     Empty = 0
     Bool = 1
@@ -456,8 +456,7 @@ class BIN:
             # links
             if self.version >= 2:
                 link_count, = bs.read_u32()
-                self.links = [
-                    bs.read_a(bs.read_i16()[0])[0] for i in range(link_count)]
+                self.links = [bs.read_a_sized16()[0] for i in range(link_count)]
             # entry_types + entries
             entry_count, = bs.read_u32()
             entry_types = bs.read_u32(entry_count)
@@ -478,7 +477,7 @@ class BIN:
                     patch.hash = hash_to_hex(bs.read_u32()[0])
                     bs.pad(4)  # size
                     patch.type = BINHelper.fix_type(bs.read_u8()[0])
-                    patch.path, = bs.read_a(bs.read_u16()[0])
+                    patch.path, = bs.read_a_sized16()
                     patch.data = BINHelper.read_value(bs, patch.type)
 
     def write(self, path, raw=None):
@@ -492,8 +491,7 @@ class BIN:
             # links
             bs.write_u32(len(self.links))
             for link in self.links:
-                bs.write_u16(len(link))
-                bs.write_a(link)
+                bs.write_a_sized16(link)
             # entry_types + entries
             bs.write_u32(len(self.entries))
             for entry in self.entries:
@@ -522,8 +520,7 @@ class BIN:
                     patch_size = 1 + 2 + len(patch.path)
 
                     bs.write_u8(patch.type.value)
-                    bs.write_u16(len(patch.path))
-                    bs.write_a(patch.path)
+                    bs.write_a_sized16(patch.path)
                     patch_size += BINHelper.write_value(
                         bs, patch.type, header_size=False)
                     BINHelper.size_offsets.append(

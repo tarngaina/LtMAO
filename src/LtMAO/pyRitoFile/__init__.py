@@ -90,6 +90,9 @@ def read_mapgeo(path, raw=None):
     mg.read(path, raw)
     return mg
 
+def write_mapgeo(path, mg, version):
+    mg.write(path, version)
+
 
 def read_bin(path, raw=None):
     bin = BIN()

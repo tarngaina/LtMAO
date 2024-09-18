@@ -3690,7 +3690,8 @@ def create_PT_page():
     )
     tk_widgets.PT.page_frame.columnconfigure(0, weight=1)
     tk_widgets.PT.page_frame.rowconfigure(0, weight=1)
-    tk_widgets.PT.page_frame.rowconfigure(1, weight=699)
+    tk_widgets.PT.page_frame.rowconfigure(1, weight=1)
+    tk_widgets.PT.page_frame.rowconfigure(2, weight=699)
     # handle drop in PT
     def page_drop_cmd(event):
         def page_drop_thrd():
@@ -3765,6 +3766,16 @@ def create_PT_page():
     tk_widgets.PT.parsedir_button.grid(
         row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
+    # create info label
+    tk_widgets.PT.info_label = ctk.CTkLabel(
+        tk_widgets.PT.page_frame,
+        text='Important: Need to update hashes/extract hashes before using pyntex.',
+        anchor=tk.W,
+        justify=tk.LEFT,
+        font=le_font
+    )
+    tk_widgets.PT.info_label.grid(
+        row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
 def create_LOG_page():
     tk_widgets.LOG.page_frame = ctk.CTkFrame(
@@ -4488,11 +4499,13 @@ def create_LM_page():
     tk_widgets.LM.desc_label = ctk.CTkLabel(
         tk_widgets.LM.tab2_frame,
         text=(
-            'Maya support version: 2022+\n'
+            'Maya support version: 2023+\n'
             'Please close Maya before installing.\n'
+            'Click Install button, select Document/maya/<version> folder to install lemon3d.\n'
             'After installed, on Maya toolbar select Windows -> Settings/Preferences -> Plug-in Manager\n'
-            'and tick Loaded/Auto load on lemon3d.py to enable lemon3d.\n'
-            'lemon3d is a part of LtMAO so do not delete LtMAO while using lemon3d.'
+            'and tick Loaded/Auto load on lemon3d.py\n'
+            'lemon3d is a part of LtMAO so do not delete/move LtMAO while using lemon3d\n'
+            'otherwise, lemon3d need to be reinstalled.'
         ),
         anchor=tk.W,
         justify=tk.LEFT,

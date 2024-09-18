@@ -1,6 +1,6 @@
 from io import BytesIO
 from ..pyRitoFile.io import BinStream
-from enum import Enum
+from enum import IntEnum
 import gzip
 import pyzstd
 from xxhash import xxh64, xxh3_64
@@ -80,7 +80,7 @@ def name_or_hex_to_hash(value):
         return name_to_hash(value)
 
 
-class WADCompressionType(Enum):
+class WADCompressionType(IntEnum):
     Raw = 0
     Gzip = 1
     Satellite = 2

@@ -94,13 +94,19 @@ class BinStream:
         return [Quaternion(floats[i], floats[i+1], floats[i+2], floats[i+3]) for i in range(0, len(floats), 4)]
 
     def read_mtx4(self):
-        return Matrix4(*Struct(f'16f').unpack(self.stream.read(64))),
+        return Matrix4(*Struct('16f').unpack(self.stream.read(64))),
 
     def read_a(self, length):
         return self.stream.read(length).decode('ascii'),
 
     def read_a_padded(self, length):
         return bytes(b for b in self.stream.read(length) if b != 0).decode('ascii'),
+
+    def read_a_sized16(self):
+        return self.stream.read(Struct('H').unpack(self.stream.read(2))[0]).decode('ascii'),
+
+    def read_a_sized32(self):
+        return self.stream.read(Struct('I').unpack(self.stream.read(4))[0]).decode('ascii'),
 
     def read_c_until0(self):
         s = ''
@@ -183,6 +189,14 @@ class BinStream:
         if len(value) > length:
             value = value[:length]
         self.stream.write(value.encode('ascii') + b'\x00'*(length-len(value)))
+
+    def write_a_sized16(self, value):
+        self.stream.write(Struct('H').pack(len(value)))
+        self.stream.write(value.encode('ascii'))
+
+    def write_a_sized32(self, value):
+        self.stream.write(Struct('I').pack(len(value)))
+        self.stream.write(value.encode('ascii'))
 
     def write_c_sep_0(self, value):
         s = b''

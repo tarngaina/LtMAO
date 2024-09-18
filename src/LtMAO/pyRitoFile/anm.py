@@ -56,8 +56,6 @@ def compress_quat(quat):
     compressed = [(bits >> (8 * i)) & 255 for i in range(6)]
     return bytes(compressed)
 
-
-
 def decompress_vec3(min, max, bytes):
     return Vector(
         (max.x - min.x) / 65535.0 * (bytes[0] | bytes[1] << 8) + min.x,
@@ -65,8 +63,6 @@ def decompress_vec3(min, max, bytes):
         (max.z - min.z) / 65535.0 * (bytes[4] | bytes[5] << 8) + min.z
     )
     
-
-
 class ANMErrorMetric:
     __slots__ = (
         'margin', 'discontinuity_threshold'
@@ -375,7 +371,7 @@ class ANM:
                         f'pyRitoFile: Failed: Read ANM: Unsupported file version: {self.version}')
             else:
                 raise Exception(
-                    f'pyRitoFile: Failed: Read ANM: Wrong signature file: {hex(self.signature)}')
+                    f'pyRitoFile: Failed: Read ANM: Wrong signature file: {hex(self.signature)}') 
 
     def write(self, path, raw=None):
         with self.stream(path, 'wb', raw) as bs:

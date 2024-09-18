@@ -76,19 +76,19 @@ def parse_dir(path):
         for file in files:
             full_files.append(os.path.join(root, file).replace('\\', '/'))
     full_files.sort()
-    rel_files = [os.path.relpath(file_path, path).replace(
+    existing_files = [os.path.relpath(file_path, path).replace(
         '\\', '/') for file_path in full_files]
     # parsing
     LOG(f'pyntex: Running: Read bin hashes')
     hash_manager.read_bin_hashes()
-    for id, full_file in enumerate(full_files):
+    for i, full_file in enumerate(full_files):
         if full_file.endswith('.bin'):
             try:
                 bin = pyRitoFile.read_bin(full_file)
                 bin.un_hash(hash_manager.HASHTABLES)
-                result = parse_bin(bin, existing_files=rel_files)
+                result = parse_bin(bin, existing_files=existing_files)
                 if len(result) > 0:
-                    res[rel_files[id]] = result
+                    res[existing_files[i]] = result
                     LOG(f'pyntex: Done: Parse {full_file}')
             except Exception as e:
                 LOG(f'pyntex: Failed: Parse {full_file}: {e}')
