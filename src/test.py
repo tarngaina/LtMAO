@@ -15,11 +15,15 @@ if __name__ == '__main__':
         stats.sort_stats('tottime').print_stats()
 
     def test():
-        from LtMAO import pyRitoFile
-        a = pyRitoFile.read_mapgeo('D:/test/base_srx.mapgeo')
-        pyRitoFile.write_mapgeo('D:/test/t.mapgeo', a, 17)
-        
-        b = pyRitoFile.read_mapgeo('D:/test/t.mapgeo')
-        print('Done')
+        from LtMAO.pyRitoFile.skn import SKN
+        from requests import get
+
+        skn = SKN()
+        skn_bytes = get('https://raw.communitydragon.org/latest/game/assets/characters/akali/skins/base/akali.skn').content
+        skn.read(path='', raw=skn_bytes)
+        output_bytes: bytes = skn.write('akali2.skn', raw=True)
+        output_bytes = output_bytes + b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+        print(skn_bytes == output_bytes)  # True yay :D
+        print(len(skn_bytes), len(output_bytes))
 
 test()

@@ -96,7 +96,7 @@ class SKN:
             if major not in (0, 2, 4) and minor != 1:
                 raise Exception(
                     f'pyRitoFile: Failed: Read SKN {path}: Unsupported file version: {major}.{minor}')
-
+            
             if major == 0:
                 # version 0 doesn't have submesh data
                 index_count, vertex_count = bs.read_u32(2)
@@ -108,7 +108,7 @@ class SKN:
                 submesh.vertex_count = vertex_count
                 submesh.index_start = 0
                 submesh.index_count = index_count
-                self.submeshes.append(submesh)
+                self.submeshes = [submesh]
             else:
                 # read submeshes
                 submesh_count, = bs.read_u32()
@@ -126,18 +126,9 @@ class SKN:
                 if major == 4:
                     self.vertex_size, = bs.read_u32()
                     self.vertex_type, = bs.read_u32()
-
-                    if self.vertex_type in (0, 1, 2):
-                        self.vertex_type = SKNVertexType(self.vertex_type)
-                        if self.vertex_size == 52 and self.vertex_type == SKNVertexType.BASIC\
-                        or self.vertex_size == 56 and self.vertex_type == SKNVertexType.COLOR \
-                        or self.vertex_size == 72 and self.vertex_type == SKNVertexType.TANGENT: 
-                            pass
-                        else: 
-                            raise Exception(f'pyRitoFile: Failed: Read SKN {path}: Invalid vertex_type:{self.vertex_type} vertex_size:{self.vertex_size}')
-                    else:
-                        raise Exception(f'pyRitoFile: Failed: Read SKN {path}: Invalid vertex_type:{self.vertex_type}')
-                    
+                    if not self.vertex_type in (0, 1, 2):
+                        raise Exception(f'pyRitoFile: Failed: Read SKN {path}: Invalid vertex_type: {self.vertex_type}')
+                    self.vertex_type = SKNVertexType(self.vertex_type)
                     self.bounding_box = (bs.read_vec3()[0], bs.read_vec3()[0])
                     self.bounding_sphere = (
                         bs.read_vec3()[0], bs.read_f32()[0])
@@ -162,25 +153,35 @@ class SKN:
                 vertex.weights = bs.read_f32(4)
                 vertex.normal, = bs.read_vec3()
                 vertex.uv, = bs.read_vec2()
-                if self.vertex_type != None:
-                    if self.vertex_type in (SKNVertexType.COLOR, SKNVertexType.TANGENT):
-                        vertex.color = bs.read_u8(4)
-                        if self.vertex_type == SKNVertexType.TANGENT:
-                            vertex.tangent, = bs.read_vec4()
+                if self.vertex_type in (SKNVertexType.COLOR, SKNVertexType.TANGENT):
+                    vertex.color = bs.read_u8(4)
+                    if self.vertex_type == SKNVertexType.TANGENT:
+                        vertex.tangent, = bs.read_vec4()
 
     def write(self, path, raw=None):
         with self.stream(path, 'wb', raw) as bs:
             # magic, version
             bs.write_u32(0x00112233)
-            bs.write_u16(1, 1)
+            if self.version >= 4:
+                bs.write_u16(4, 1)
+            else:
+                bs.write_u16(1, 1)
             # submesh
             bs.write_u32(len(self.submeshes))
             for submesh in self.submeshes:
                 bs.write_a_padded(submesh.name, 64)
                 bs.write_u32(
                     submesh.vertex_start, submesh.vertex_count, submesh.index_start, submesh.index_count)
-            # indices vertices
+            if self.version >= 4:
+                bs.write_u32(self.flags)
+            # stuffs
             bs.write_u32(len(self.indices), len(self.vertices))
+            if self.version >= 4:
+                bs.write_u32(self.vertex_size, self.vertex_type.value)
+                bs.write_vec3(*self.bounding_box)
+                bs.write_vec3(self.bounding_sphere[0])
+                bs.write_f32(self.bounding_sphere[1])
+             # indices vertices
             bs.write_u16(*self.indices)
             for vertex in self.vertices:
                 bs.write_vec3(vertex.position)
@@ -188,4 +189,9 @@ class SKN:
                 bs.write_f32(*vertex.weights)
                 bs.write_vec3(vertex.normal)
                 bs.write_vec2(vertex.uv)
+                if self.vertex_type in (SKNVertexType.COLOR, SKNVertexType.TANGENT):
+                    bs.write_u8(*vertex.color)
+                    if self.vertex_type == SKNVertexType.TANGENT:
+                        bs.write_vec4(vertex.tangent)
+
             return bs.raw() if raw else None

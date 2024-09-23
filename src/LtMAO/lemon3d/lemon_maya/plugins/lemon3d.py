@@ -1,3 +1,16 @@
+# pythonpath can be overrided by windows environment variable
+# in that case maya.env's pythonpath will be completely ignored
+# so this part manually add ltmao to python paths 
+import inspect
+import sys
+lemon3d_file = inspect.getfile(inspect.currentframe()).replace('\\', '/')
+ltmao_dir = lemon3d_file.replace('/src/LtMAO/lemon3d/lemon_maya/plugins/lemon3d.py', '')
+pythonpaths = [f'{ltmao_dir}/src', f'{ltmao_dir}/epython/Lib/site-packages']
+for pythonpath in pythonpaths:
+    if pythonpath not in sys.path:
+        sys.path.append(pythonpath)
+
+
 from maya.OpenMaya import *
 from maya.OpenMayaMPx import *
 from LtMAO.lemon3d.lemon_maya.plugins.translator.skin import SKNTranslator, SKLTranslator, SkinTranslator

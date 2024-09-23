@@ -1,13 +1,9 @@
-
-
 LOG = print
-
 
 
 def install_plugin(maya_pref_dir):
     import os, os.path
 
-    
     # get maya.env path
     maya_env_file = f'{maya_pref_dir}/Maya.env'
     maya_env = {}

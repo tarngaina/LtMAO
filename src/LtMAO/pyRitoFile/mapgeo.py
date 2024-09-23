@@ -268,7 +268,7 @@ class MAPGEOVertexDescription:
         return {key: getattr(self, key) for key in self.__slots__}
 
 class MAPGEOHelper:
-    MAPGEO_FORMAT_TO_PYTHON_VALUES = {
+    MGVertexFormatToPyValues = {
         # mapgeo vertex format: (python struct format, bytes size, unpacked items size, unpacked type)
         MAPGEOVertexElementFormat.X_Float32: ('f', 4, 1, float),  
         MAPGEOVertexElementFormat.XY_Float32: ('2f', 8, 2, Vector),  
@@ -344,8 +344,8 @@ class MAPGEO:
                         self.texture_overrides.append(texture_override)
 
             # vertex descriptions
-            vd_count, = bs.read_u32()
-            self.vertex_descriptions = [MAPGEOVertexDescription() for i in range(vd_count)]
+            vertex_description_count, = bs.read_u32()
+            self.vertex_descriptions = [MAPGEOVertexDescription() for i in range(vertex_description_count)]
             for vertex_description in self.vertex_descriptions:
                 vertex_description.usage = MAPGEOVertexUsage(bs.read_u32()[0])
                 element_count, = bs.read_u32()
@@ -360,26 +360,26 @@ class MAPGEO:
             # -> can not read now because need vertex descriptions 
             # -> read vertex buffer's offset instead
             vertex_buffer_count, = bs.read_u32()
-            vbos = [None]*vertex_buffer_count
+            vertex_buffer_offsets = [None]*vertex_buffer_count
             for i in range(vertex_buffer_count):
                 if self.version >= 13:
                     bs.pad(1)  # layer 
-                vb_size, = bs.read_u32()
-                vbos[i] = bs.tell()
-                bs.pad(vb_size)
+                vertex_buffer_size, = bs.read_u32() # size = byte count
+                vertex_buffer_offsets[i] = bs.tell()
+                bs.pad(vertex_buffer_size)
         
             # index buffers
             # -> can straight read because its just int array
             index_buffer_count, = bs.read_u32()
-            ibs = [None]*index_buffer_count
+            index_buffers = [None]*index_buffer_count
             for i in range(index_buffer_count):
                 if self.version >= 13:
                     bs.pad(1)  # layer
-                ib_size, = bs.read_u32()
-                ibs[i] = bs.read_u16(ib_size // 2)
+                index_buffer_size, = bs.read_u32() # size = byte count
+                index_buffers[i] = bs.read_u16(index_buffer_size // 2)
 
             # read models
-            unpacked_vbs = [None]*vertex_buffer_count # for skip reading same vertex buffer
+            unpacked_vertex_buffers = [None]*vertex_buffer_count # for skip reading same vertex buffer
             model_count, = bs.read_u32()
             self.models = [MAPGEOModel() for i in range(model_count)]
             for model_id, model in enumerate(self.models):
@@ -397,23 +397,23 @@ class MAPGEO:
                 for i, vertex_buffer_id in enumerate(model.vertex_buffer_ids):
                     vertex_description = self.vertex_descriptions[model.vertex_description_id+i]
                     # skip unpacked vertex buffers
-                    if unpacked_vbs[vertex_buffer_id] != None:
+                    if unpacked_vertex_buffers[vertex_buffer_id] != None:
                         continue
-                    unpacked_vbs[vertex_buffer_id] = []
+                    unpacked_vertex_buffers[vertex_buffer_id] = []
                     # vertex python format & size through vertex descriptions of single vertex (yes only 1)
                     vertex_python_format = ''
                     vertex_byte_size = 0
                     for element in vertex_description.elements:
-                        python_format, byte_size, _, _ = MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[element.format]
+                        python_format, byte_size, _, _ = MAPGEOHelper.MGVertexFormatToPyValues[element.format]
                         vertex_python_format += python_format
                         vertex_byte_size += byte_size
                     # save the current offset (we are in middle of model reading)
                     # jump to vertex buffers place through saved vertex buffer offset
                     return_offset = bs.tell()
-                    bs.seek(vbos[vertex_buffer_id])
+                    bs.seek(vertex_buffer_offsets[vertex_buffer_id])
                     # read whole vertex buffers with vertex format & size
                     # every vertex use same format so just multiply with vertex count
-                    unpacked_vbs[vertex_buffer_id] = bs.read_fmt(
+                    unpacked_vertex_buffers[vertex_buffer_id] = bs.read_fmt(
                         fmt = vertex_python_format*model.vertex_count,
                         fmt_size = vertex_byte_size*model.vertex_count
                     )
@@ -423,19 +423,19 @@ class MAPGEO:
                 model.vertices = [MAPGEOVertex() for i in range(model.vertex_count)]
                 for i, vertex_buffer_id in enumerate(model.vertex_buffer_ids):
                     vertex_description = self.vertex_descriptions[model.vertex_description_id+i]
-                    unpacked_vb = unpacked_vbs[vertex_buffer_id]
+                    unpacked_vb = unpacked_vertex_buffers[vertex_buffer_id]
                     current_index = 0
                     for vertex in model.vertices:
                         vertex.value = {}
                         for element in vertex_description.elements:
-                            _, _, unpacked_item_size, unpacked_type = MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[element.format]
+                            _, _, unpacked_item_size, unpacked_type = MAPGEOHelper.MGVertexFormatToPyValues[element.format]
                             unpacked_item_value = unpacked_vb[current_index:current_index+unpacked_item_size]
                             vertex.value[element.name.name] = unpacked_type(*unpacked_item_value) if unpacked_type is not tuple else unpacked_type(unpacked_item_value)
                             current_index += unpacked_item_size
 
                 # model indices
                 model.index_count, model.index_buffer_id = bs.read_u32(2)
-                model.indices = ibs[model.index_buffer_id]
+                model.indices = index_buffers[model.index_buffer_id]
 
                 # layer - above or version 13
                 if self.version >= 13:
@@ -560,77 +560,20 @@ class MAPGEO:
 
 
     def write(self, path, version, raw=None):
-        with self.stream(path, 'wb', raw) as bs:
-            self.version = version
+        if version not in (13, 17):
+            raise Exception(
+                f'pyRitoFile: Failed: Write MAPGEO {path}: Unsupported file version: {version}')
+        self.version = version
 
-            # prepare vertex descriptions, vertex buffers, index buffers
+        with self.stream(path, 'wb', raw) as bs:
+            # prepare stuffs
             self.vertex_descriptions = []
             vertex_buffers = []
             index_buffers = []
             for model in self.models:
+                # vertex descriptions
                 vertex_formats = ''
                 vertex_size = 0
-                vertex_values = []
-                min = Vector(float("inf"), float("inf"), float("inf"))
-                max = Vector(float("-inf"), float("-inf"), float("-inf"))
-                for vertex in model.vertices:
-                    # calculate vertex python format 
-                    position = None
-                    if MAPGEOVertexElementName.Position.name in vertex.value:
-                        position = vertex.value[MAPGEOVertexElementName.Position.name]
-                        vertex_formats += MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[MAPGEOVertexElementFormat.XYZ_Float32][0]
-                        vertex_size += MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[MAPGEOVertexElementFormat.XYZ_Float32][1]
-                        vertex_values.extend((
-                            position.x, position.y, position.z))
-                        # find bounding box
-                        if min.x > position.x:
-                            min.x = position.x
-                        if min.y > position.y:
-                            min.y = position.y
-                        if min.z > position.z:
-                            min.z = position.z
-                        if max.x < position.x:
-                            max.x = position.x
-                        if max.y < position.y:
-                            max.y = position.y
-                        if max.z < position.z:
-                            max.z = position.z
-                    if MAPGEOVertexElementName.Normal.name in vertex.value:
-                        normal = vertex.value[MAPGEOVertexElementName.Normal.name]
-                        vertex_formats += MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[MAPGEOVertexElementFormat.XYZ_Float32][0]
-                        vertex_size += MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[MAPGEOVertexElementFormat.XYZ_Float32][1]
-                        vertex_values.extend((
-                            normal.x, normal.y, normal.z))
-                    if MAPGEOVertexElementName.PrimaryColor.name in vertex.value:
-                        color = vertex.value[MAPGEOVertexElementName.PrimaryColor.name]
-                        vertex_formats += MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[MAPGEOVertexElementFormat.BGRA_Packed8888][0]
-                        vertex_size += MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[MAPGEOVertexElementFormat.BGRA_Packed8888][1]
-                        vertex_values.extend(color)
-                    if MAPGEOVertexElementName.Texcoord0.name in vertex.value:
-                        texcoord0 = vertex.value[MAPGEOVertexElementName.Texcoord0.name]
-                        vertex_formats += MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[MAPGEOVertexElementFormat.XY_Float32][0]
-                        vertex_size += MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[MAPGEOVertexElementFormat.XY_Float32][1]
-                        vertex_values.extend((
-                            texcoord0.x, texcoord0.y))
-                    if position != None and model.is_bush:
-                        position = vertex.value[MAPGEOVertexElementName.Position.name]
-                        vertex_formats += MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[MAPGEOVertexElementFormat.XYZ_Float32][0]
-                        vertex_size += MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[MAPGEOVertexElementFormat.XYZ_Float32][1]
-                        if self.version > 13:
-                            x = uniform(-0.005, 0.005) * position.x + position.x
-                            y = uniform(-0.005, 0.005) * position.y + position.y
-                            z = uniform(-0.005, 0.005) * position.z + position.z
-                            vertex_values.extend((x, y, z))
-                        else:
-                            vertex_values.extend((position.x, position.y, position.z))
-                    if MAPGEOVertexElementName.Texcoord7.name in vertex.value:
-                        texcoord7 = vertex.value[MAPGEOVertexElementName.Texcoord7.name]
-                        vertex_formats += MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[MAPGEOVertexElementFormat.XY_Float32][0]
-                        vertex_size += MAPGEOHelper.MAPGEO_FORMAT_TO_PYTHON_VALUES[MAPGEOVertexElementFormat.XY_Float32][1]
-                        vertex_values.extend((
-                            texcoord7.x, texcoord7.y))
-
-                # vertex descriptions
                 vertex_description = MAPGEOVertexDescription()
                 vertex_description.usage = MAPGEOVertexUsage.Static
                 vertex_description.elements = []
@@ -640,33 +583,72 @@ class MAPGEO:
                     element.name = MAPGEOVertexElementName.Position
                     element.format = MAPGEOVertexElementFormat.XYZ_Float32
                     vertex_description.elements.append(element)
+                    vertex_formats += MAPGEOHelper.MGVertexFormatToPyValues[MAPGEOVertexElementFormat.XYZ_Float32][0]
+                    vertex_size += MAPGEOHelper.MGVertexFormatToPyValues[MAPGEOVertexElementFormat.XYZ_Float32][1]
                 if MAPGEOVertexElementName.Normal.name in vertex.value:
                     element = MAPGEOVertexElement()
                     element.name = MAPGEOVertexElementName.Normal
                     element.format = MAPGEOVertexElementFormat.XYZ_Float32
                     vertex_description.elements.append(element)
+                    vertex_formats += MAPGEOHelper.MGVertexFormatToPyValues[MAPGEOVertexElementFormat.XYZ_Float32][0]
+                    vertex_size += MAPGEOHelper.MGVertexFormatToPyValues[MAPGEOVertexElementFormat.XYZ_Float32][1]
                 if MAPGEOVertexElementName.PrimaryColor.name in vertex.value:
                     element = MAPGEOVertexElement()
                     element.name = MAPGEOVertexElementName.PrimaryColor
                     element.format = MAPGEOVertexElementFormat.BGRA_Packed8888
                     vertex_description.elements.append(element)
+                    vertex_formats += MAPGEOHelper.MGVertexFormatToPyValues[MAPGEOVertexElementFormat.BGRA_Packed8888][0]
+                    vertex_size += MAPGEOHelper.MGVertexFormatToPyValues[MAPGEOVertexElementFormat.BGRA_Packed8888][1]
                 if MAPGEOVertexElementName.Texcoord0.name in vertex.value:
                     element = MAPGEOVertexElement()
                     element.name = MAPGEOVertexElementName.Texcoord0
                     element.format = MAPGEOVertexElementFormat.XY_Float32
                     vertex_description.elements.append(element)
-                if model.is_bush:
+                    vertex_formats += MAPGEOHelper.MGVertexFormatToPyValues[MAPGEOVertexElementFormat.XY_Float32][0]
+                    vertex_size += MAPGEOHelper.MGVertexFormatToPyValues[MAPGEOVertexElementFormat.XY_Float32][1]
+                if self.version > 13 and model.is_bush:
                     element = MAPGEOVertexElement()
                     element.name = MAPGEOVertexElementName.Texcoord5
                     element.format = MAPGEOVertexElementFormat.XYZ_Float32
                     vertex_description.elements.append(element)
+                    vertex_formats += MAPGEOHelper.MGVertexFormatToPyValues[MAPGEOVertexElementFormat.XYZ_Float32][0]
+                    vertex_size += MAPGEOHelper.MGVertexFormatToPyValues[MAPGEOVertexElementFormat.XYZ_Float32][1]
                 if MAPGEOVertexElementName.Texcoord7.name in vertex.value:
                     element = MAPGEOVertexElement()
                     element.name = MAPGEOVertexElementName.Texcoord7
                     element.format = MAPGEOVertexElementFormat.XY_Float32
                     vertex_description.elements.append(element)
+                    vertex_formats += MAPGEOHelper.MGVertexFormatToPyValues[MAPGEOVertexElementFormat.XY_Float32][0]
+                    vertex_size += MAPGEOHelper.MGVertexFormatToPyValues[MAPGEOVertexElementFormat.XY_Float32][1]
                 self.vertex_descriptions.append(vertex_description)
-
+                vertex_formats = vertex_formats * len(model.vertices)
+                vertex_size = vertex_size * len(model.vertices)
+                # vertex values
+                vertex_values = []
+                boudingbox_min = Vector(float("inf"), float("inf"), float("inf"))
+                boudingbox_max = Vector(float("-inf"), float("-inf"), float("-inf"))
+                for vertex in model.vertices:
+                    for element in vertex_description.elements:
+                        vertex_value = vertex.value[element.name]
+                        vertex_values.extend(
+                            value for value in vertex_value
+                        )
+                        if element.name == MAPGEOVertexElementName.Position.name:
+                            # find bounding box
+                            position = vertex_value
+                            if boudingbox_min.x > position.x:
+                                boudingbox_min.x = position.x
+                            if boudingbox_min.y > position.y:
+                                boudingbox_min.y = position.y
+                            if boudingbox_min.z > position.z:
+                                boudingbox_min.z = position.z
+                            if boudingbox_max.x < position.x:
+                                boudingbox_max.x = position.x
+                            if boudingbox_max.y < position.y:
+                                boudingbox_max.y = position.y
+                            if boudingbox_max.z < position.z:
+                                boudingbox_max.z = position.z
+                                
                 # vertex buffers
                 vertex_buffers.append((
                     model.layer,
@@ -674,14 +656,13 @@ class MAPGEO:
                     vertex_formats,
                     vertex_values
                 ))
-
                 # index buffers
                 index_buffers.append((
                     model.layer,
                     model.indices
                 ))
                 # bounding box
-                model.bounding_box = (min, max)
+                model.bounding_box = (boudingbox_min, boudingbox_min)
 
             # start to write mapgeo
             # signature, version
@@ -736,7 +717,7 @@ class MAPGEO:
                 bs.write_u8(model.layer.value)
 
                 # bucket grid hash
-                if version > 13:
+                if self.version > 13:
                     bs.write_u32(model.bucket_grid_hash)
                 
                 # submeshes
@@ -777,7 +758,7 @@ class MAPGEO:
                 bs.write_u32(0)
                 bs.write_f32(0.0, 0.0, 0.0, 0.0)
                 # texture override
-                if version > 13:
+                if self.version > 13:
                     bs.write_u32(len(model.texture_overrides))
                     for texture_override in model.texture_overrides:
                         bs.write_u32(texture_override.index)
@@ -790,10 +771,10 @@ class MAPGEO:
             # bucket grid
             bucket_grid_count = len(self.bucket_grids)
             if bucket_grid_count > 0:
-                if version > 13:
+                if self.version > 13:
                     bs.write_u32(bucket_grid_count)
                 for bucket_grid in self.bucket_grids:
-                    if version > 13:
+                    if self.version > 13:
                         bs.write_u32(bucket_grid.hash)
                     bs.write_f32(
                         bucket_grid.min_x, 
@@ -818,7 +799,6 @@ class MAPGEO:
                                 bs.write_f32(bucket.max_stickout_x, bucket.max_stickout_z)
                                 bs.write_u32(bucket.start_index, bucket.base_vertex)
                                 bs.write_u16(bucket.inside_face_count, bucket.sticking_out_face_count)
-            
                         if MAPGEOBUcketGridFlag.HasFaceVisibilityFlags in bucket_grid.bucket_grid_flags:
                             bs.write_u8(*[face_layer.value for face_layer in bucket_grid.face_layers])
 
