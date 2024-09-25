@@ -7,7 +7,8 @@ import tkinter.ttk as ttk
 import pywinstyles
 import requests
 
-from .. import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin, bnk_tool, sborf, lemon3d, Ritoddstex
+from .. import setting, pyRitoFile, winLT, wad_tool, hash_manager, cslmao, leaguefile_inspector, animask_viewer, no_skin, vo_helper, uvee, ext_tools, shrum, pyntex, hapiBin, bnk_tool, sborf, Ritoddstex
+from ..lemon3d import lemon_fbx, lemon_maya
 from ..tkGUI.helper import Keeper, Log, EmojiImage, SmartThread
 
 import os
@@ -4444,7 +4445,7 @@ def create_LM_page():
     tk_widgets.LM.action_frame.columnconfigure(2, weight=2)
 
     def fbx2skin_cmd():
-        lemon3d.lemon_fbx.fbx_to_skin(
+        lemon_fbx.fbx_to_skin(
             fbx_path=tk_widgets.LM.fbx_entry.get(),
             skl_path=tk_widgets.LM.skl_entry.get(),
             skn_path=tk_widgets.LM.skn_entry.get()
@@ -4463,7 +4464,7 @@ def create_LM_page():
         row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
     
     def skin2fbx_cmd():
-        lemon3d.lemon_fbx.skin_to_fbx(
+        lemon_fbx.skin_to_fbx(
             skl_path=tk_widgets.LM.skl_entry.get(),
             skn_path=tk_widgets.LM.skn_entry.get(),
             fbx_path=tk_widgets.LM.fbx_entry.get()
@@ -4521,7 +4522,7 @@ def create_LM_page():
             initialdir=setting.get('default_folder', None)
         )
         if maya_pref_dir != '':
-            lemon3d.lemon_maya.install_plugin(maya_pref_dir.replace('\\', '/'))
+            lemon_maya.install_plugin(maya_pref_dir.replace('\\', '/'))
      # create mayainstall button
     tk_widgets.LM.mayainstall_button = ctk.CTkButton(
         tk_widgets.LM.tab2_frame,
@@ -6114,7 +6115,7 @@ def start():
     bnk_tool.prepare(LOG)
     sborf.prepare(LOG)
     Ritoddstex.prepare(LOG)
-    lemon3d.lemon_fbx.prepare(LOG)
-    lemon3d.lemon_maya.prepare(LOG)
+    lemon_fbx.prepare(LOG)
+    lemon_maya.prepare(LOG)
     # loop the UI
     tk_widgets.main_tk.mainloop()

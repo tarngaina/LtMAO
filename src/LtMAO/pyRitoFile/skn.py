@@ -162,7 +162,7 @@ class SKN:
         with self.stream(path, 'wb', raw) as bs:
             # magic, version
             bs.write_u32(0x00112233)
-            if self.version >= 4:
+            if self.version != None and self.version >= 4:
                 bs.write_u16(4, 1)
             else:
                 bs.write_u16(1, 1)
