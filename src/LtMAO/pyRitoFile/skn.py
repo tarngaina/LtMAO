@@ -166,6 +166,7 @@ class SKN:
                 bs.write_u16(4, 1)
             else:
                 bs.write_u16(1, 1)
+                self.version = 1.1
             # submesh
             bs.write_u32(len(self.submeshes))
             for submesh in self.submeshes:
