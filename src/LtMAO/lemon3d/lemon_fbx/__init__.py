@@ -94,7 +94,7 @@ def dump_skl(fbx_joints):
     return skl, blender_armature_node_name, blender_armature_node_local_matrix
 
 
-def dump_skn(fbx_meshes, materials, skl, blender_armature_node_name, blender_armature_node_local_matrix):
+def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_local_matrix):
     def dump_mesh(mesh_name, fbx_mesh):
         LOG(f'lemon_fbx: Running: Read {mesh_name}')   
 
@@ -117,12 +117,15 @@ def dump_skn(fbx_meshes, materials, skl, blender_armature_node_name, blender_arm
         #-> check shared vertex 
         #-> dump indices into each submesh
         #-> normalize submesh indices
-        submesh_indices = [[] for i in range(material_count)]
+        fbx_node = fbx_mesh.GetNode()
+        material_count = fbx_node.GetMaterialCount()
+        submesh_names = [GetName(fbx_node.GetMaterial(i)) for i in range(material_count)]
+        submesh_indices = {submesh_name: [] for submesh_name in submesh_names}
         flag, material_faces = fbx_mesh.GetMaterialIndices()
         if not flag:
             raise Exception(f'lemon_fbx: Failed: {mesh_name}: GetMaterialIndices()')
         if material_faces.GetCount() == 1:
-            material_faces = [material_faces[0] for i in range(face_count)]
+            material_faces = [material_faces[0]] * face_count
         else:
             material_faces = [material_faces[i] for i in range(face_count)]
         parsed_material_faces = {material_id: [] for material_id in range(material_count)}
@@ -145,17 +148,17 @@ def dump_skn(fbx_meshes, materials, skl, blender_armature_node_name, blender_arm
                 indices.extend((index1, index2, index3))
                 old_index_by_sorted_index.extend((temp_index_count, temp_index_count+1, temp_index_count+2))
                 temp_index_count+=3
-        material_vertices = [-1 for i in range(vertex_count)]
+        material_vertices = [-1] * vertex_count
         for face_id, material_id in enumerate(material_faces):
             for i in range(3):
                 vertex = indices[face_id*3+i]
                 if material_vertices[vertex] not in (-1, material_id):
                     raise Exception(f'lemon_fbx: Failed: {mesh_name} contains vertices shared by multiple material.')
                 material_vertices[vertex] = material_id
-                submesh_indices[material_id].append(vertex)
-        for material_id in range(material_count):
-            min_index = min(submesh_indices[material_id]) 
-            submesh_indices[material_id] = [index - min_index for index in submesh_indices[material_id]]
+                submesh_indices[submesh_names[material_id]].append(vertex)
+        for submesh_name in submesh_names:
+            min_index = min(submesh_indices[submesh_name]) 
+            submesh_indices[submesh_name] = [index - min_index for index in submesh_indices[submesh_name]]
 
         # positions -> transform to world position if blender armature node found
         vertex_positions = fbx_mesh.GetControlPoints()
@@ -242,7 +245,7 @@ def dump_skn(fbx_meshes, materials, skl, blender_armature_node_name, blender_arm
         material_start_index = [0 for i in range(material_count)]
         for material_id in range(1, material_count):
             material_start_index[material_id] = material_start_index[material_id-1] + len(submesh_indices[material_id-1])
-        submesh_vertices = [[] for i in range(len(materials))]
+        submesh_vertices = {submesh_name: [] for submesh_name in submesh_names}
         for i in range(vertex_count):
             material_id = material_vertices[i]
             seen_uv_indices = []
@@ -261,50 +264,57 @@ def dump_skn(fbx_meshes, materials, skl, blender_armature_node_name, blender_arm
                     vertex.weights = vertex_weights[i]
                     # uvs
                     vertex.uv = Vector(uvs[uv_index][0], 1-uvs[uv_index][1])
-                    new_index = len(submesh_vertices[material_id]) 
+                    new_index = len(submesh_vertices[submesh_names[material_id]]) 
                     new_index_at_uv_index[uv_index] = new_index
-                    submesh_indices[material_id][index_id] = new_index
-                    submesh_vertices[material_id].append(vertex)
+                    submesh_indices[submesh_names[material_id]][index_id] = new_index
+                    submesh_vertices[submesh_names[material_id]].append(vertex)
                 else:
-                    submesh_indices[material_id][index_id] = new_index_at_uv_index[uv_index]
+                    submesh_indices[submesh_names[material_id]][index_id] = new_index_at_uv_index[uv_index]
         
-        return submesh_indices, submesh_vertices
+        return submesh_indices, submesh_vertices, submesh_names
+    
     # meshes
-    # dump each mesh -> combine indices, vertices
-    material_count = len(materials)
-    combined_submesh_indices = [[] for i in range(material_count)]
-    combined_submesh_vertices = [[] for i in range(material_count)]
-    material_count = len(materials)               
+    # dump each mesh 
+    # -> combine same submesh name first
+    # -> combine into whole skn
+    combined_submesh_indices = {}
+    combined_submesh_vertices = {}
+    combined_submesh_names = []
     for mesh_name, fbx_mesh in fbx_meshes.items():
-        submesh_indices, submesh_vertices = dump_mesh(mesh_name, fbx_mesh)
-        for material_id in range(material_count):
-            max_index = max(combined_submesh_indices[material_id], default=-1)+1
-            combined_submesh_indices[material_id].extend(
-                index+max_index for index in submesh_indices[material_id]
-            )
-            combined_submesh_vertices[material_id].extend(submesh_vertices[material_id])
+        submesh_indices, submesh_vertices, submesh_names = dump_mesh(mesh_name, fbx_mesh)
+        for submesh_name in submesh_names:
+            if submesh_name not in combined_submesh_indices:
+                combined_submesh_indices[submesh_name] = submesh_indices[submesh_name]
+                combined_submesh_vertices[submesh_name] = submesh_vertices[submesh_name]
+            else:
+                max_index = max(combined_submesh_indices[submesh_name])+1
+                combined_submesh_indices[submesh_name].extend(index+max_index for index in submesh_indices[submesh_name])
+                combined_submesh_vertices[submesh_name].extend(submesh_vertices[submesh_name])
+            if submesh_name not in combined_submesh_names:
+                combined_submesh_names.append(submesh_name)
 
     # skn
     skn = SKN()
-    skn.indices = combined_submesh_indices[0]
-    skn.vertices = combined_submesh_vertices[0]
-    skn.submeshes = [SKNSubmesh() for i in range(material_count)]
-    skn.submeshes[0].name = GetName(materials[0])
+    skn.indices = combined_submesh_indices[combined_submesh_names[0]]
+    skn.vertices = combined_submesh_vertices[combined_submesh_names[0]]
+    submesh_count = len(combined_submesh_names)
+    skn.submeshes = [SKNSubmesh() for i in range(submesh_count)]
+    skn.submeshes[0].name = combined_submesh_names[0]
     skn.submeshes[0].index_start = 0
-    skn.submeshes[0].index_count = len(combined_submesh_indices[0])
+    skn.submeshes[0].index_count = len(combined_submesh_indices[combined_submesh_names[0]])
     skn.submeshes[0].vertex_start = 0
-    skn.submeshes[0].vertex_count = len(combined_submesh_vertices[0])
-    for material_id in range(1, material_count):
+    skn.submeshes[0].vertex_count = len(combined_submesh_vertices[combined_submesh_names[0]])
+    for submesh_id in range(1, submesh_count):
         max_index = max(skn.indices)+1
-        skn.indices += [max_index + index for index in combined_submesh_indices[material_id]]
-        skn.vertices += combined_submesh_vertices[material_id]
-        submesh = skn.submeshes[material_id]
-        previous_submesh = skn.submeshes[material_id-1]
-        submesh.name = GetName(materials[material_id])
+        skn.indices += [max_index + index for index in combined_submesh_indices[combined_submesh_names[submesh_id]]]
+        skn.vertices += combined_submesh_vertices[combined_submesh_names[submesh_id]]
+        submesh = skn.submeshes[submesh_id]
+        previous_submesh = skn.submeshes[submesh_id-1]
+        submesh.name = combined_submesh_names[submesh_id]
         submesh.index_start = previous_submesh.index_start + previous_submesh.index_count
-        submesh.index_count = len(combined_submesh_indices[material_id])
+        submesh.index_count = len(combined_submesh_indices[combined_submesh_names[submesh_id]])
         submesh.vertex_start = previous_submesh.vertex_start + previous_submesh.vertex_count
-        submesh.vertex_count = len(combined_submesh_vertices[material_id])
+        submesh.vertex_count = len(combined_submesh_vertices[combined_submesh_names[submesh_id]])
     
     if len(skn.vertices) > 65535:
         raise Exception(f'lemon_fbx: Failed Too many vertices found: {len(skn.vertices)}, max allowed: 65535 vertices. (base on UVs)')
@@ -340,9 +350,7 @@ def fbx_to_skin(fbx_path, skl_path='', skn_path=''):
     LOG(f'lemon_fbx: Joints: {joint_count}, Meshes: {mesh_count}')
 
     skl, blender_armature_node_name, blender_armature_node_local_matrix = dump_skl(fbx_joints)
-    materials = [fbx_scene.GetMaterial(i) for i in range(fbx_scene.GetMaterialCount())]
-    LOG(f'lemon_fbx: Scene materials: {len(materials)}')
-    skn = dump_skn(fbx_meshes, materials, skl, blender_armature_node_name, blender_armature_node_local_matrix)
+    skn = dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_local_matrix)
 
     # mirror X before write
     mirrorX(skl, skn)
@@ -385,75 +393,84 @@ def load_skl(fbx_root_node, fbx_scene, skl):
     return fbx_joint_nodes
 
 
-def load_skn(fbx_root_node, fbx_scene, mesh_name, skn, skl, fbx_joint_nodes):
-    # create mesh
-    fbx_mesh_node = FbxNode.Create(fbx_scene, f'mesh_{mesh_name}')
-    fbx_mesh = FbxMesh.Create(fbx_scene, f'shape_{mesh_name}')
-    fbx_mesh_node.SetNodeAttribute(fbx_mesh)
-    fbx_root_node.AddChild(fbx_mesh_node)
-    
-    # set vertex position
-    vertex_count = len(skn.vertices)
-    fbx_mesh.InitControlPoints(vertex_count)
-    for vertex_id, vertex in enumerate(skn.vertices):
-        fbx_mesh.SetControlPointAt(FbxVector4(vertex.position.x, vertex.position.y, vertex.position.z), vertex_id)
-   
-    # create materials
-    fbx_material = fbx_mesh.CreateElementMaterial()
-    fbx_material.SetMappingMode(FbxLayerElement.EMappingMode.eByPolygon)
-    fbx_material.SetReferenceMode(FbxLayerElement.EReferenceMode.eIndexToDirect)
+def load_skn(fbx_root_node, fbx_scene, skn, skl, fbx_joint_nodes):
+    fbx_lamberts = {}
     for submesh in skn.submeshes:
-        fbx_lambert = FbxSurfaceLambert.Create(fbx_scene, submesh.name)
-        fbx_mesh_node.AddMaterial(fbx_lambert)
+        fbx_lamberts[submesh.name] = FbxSurfaceLambert.Create(fbx_scene, submesh.name)
+    for submesh_id, submesh in enumerate(skn.submeshes): 
+        submesh_vertices = skn.vertices[submesh.vertex_start:submesh.vertex_start+submesh.vertex_count]
+        submesh_indices = skn.indices[submesh.index_start:submesh.index_start+submesh.index_count]
+        min_index = min(submesh_indices)
+        submesh_indices = [index-min_index for index in submesh_indices]
+
+        # create mesh
+        fbx_mesh_node = FbxNode.Create(fbx_scene, f'mesh_{submesh.name}')
+        fbx_mesh = FbxMesh.Create(fbx_scene, f'shape_{submesh.name}')
+        fbx_mesh_node.SetNodeAttribute(fbx_mesh)
+        fbx_root_node.AddChild(fbx_mesh_node)
     
-    # create faces on each material
-    for submesh_id, submesh in enumerate(skn.submeshes):
-        for index in range(submesh.index_start, submesh.index_start+submesh.index_count, 3):
-            fbx_mesh.BeginPolygon(submesh_id)
-            fbx_mesh.AddPolygon(skn.indices[index])
-            fbx_mesh.AddPolygon(skn.indices[index+1])
-            fbx_mesh.AddPolygon(skn.indices[index+2])
+        # set vertex position
+        vertex_count = len(submesh_vertices)
+        fbx_mesh.InitControlPoints(vertex_count)
+        for vertex_id, vertex in enumerate(submesh_vertices):
+            fbx_mesh.SetControlPointAt(FbxVector4(vertex.position.x, vertex.position.y, vertex.position.z), vertex_id)
+   
+        # create materials
+        fbx_material = fbx_mesh.CreateElementMaterial()
+        fbx_material.SetMappingMode(FbxLayerElement.EMappingMode.eByPolygon)
+        fbx_material.SetReferenceMode(FbxLayerElement.EReferenceMode.eIndexToDirect)
+        fbx_mesh_node.AddMaterial(fbx_lamberts[submesh.name])
+    
+        # create faces on each material
+        index_count = len(submesh_indices)
+        for index in range(0, index_count, 3):
+            fbx_mesh.BeginPolygon(0)
+            fbx_mesh.AddPolygon(submesh_indices[index])
+            fbx_mesh.AddPolygon(submesh_indices[index+1])
+            fbx_mesh.AddPolygon(submesh_indices[index+2])
             fbx_mesh.EndPolygon()   
-    
-    # set uvs
-    fbx_diffuse_uv = fbx_mesh.CreateElementUV('DiffuseUV')
-    fbx_diffuse_uv.SetMappingMode(FbxLayerElement.EMappingMode.eByControlPoint)
-    fbx_diffuse_uv.SetReferenceMode(FbxLayerElement.EReferenceMode.eDirect)
-    uvs = fbx_diffuse_uv.GetDirectArray()
-    for vertex in skn.vertices:
-        uvs.Add(FbxVector2(vertex.uv.x, 1-vertex.uv.y))
-    # set normals - doesnt work?
-    fbx_normal = fbx_mesh.CreateElementNormal()
-    fbx_normal.SetMappingMode(FbxLayerElement.EMappingMode.eByControlPoint)
-    fbx_normal.SetReferenceMode(FbxLayerElement.EReferenceMode.eDirect)
-    normals = fbx_normal.GetDirectArray()
-    for vertex in skn.vertices:
-        normals.Add(FbxVector4(vertex.normal.x, vertex.normal.y, vertex.normal.z))  
-    
-    # set weights 
-    # -> create skin 
-    # -> create cluster 
-    # -> set cluster weights, and transform link matrix (why?)
-    fbx_skin = FbxSkin.Create(fbx_scene, 'skinned_mesh')
-    fbx_skin.SetSkinningType(FbxSkin.EType.eBlend)
-    fbx_mesh.AddDeformer(fbx_skin)
-    weight_vertices = {influence: [] for influence in skl.influences}
-    weight_values =  {influence: [] for influence in skl.influences}
-    for vertex_id, vertex in enumerate(skn.vertices):
-        for i in range(4):
-            influence_id = vertex.influences[i]
-            weight = vertex.weights[i]
-            weight_vertices[skl.influences[influence_id]].append(vertex_id)
-            weight_values[skl.influences[influence_id]].append(weight)
-    for influence in skl.influences:
-        fbx_cluster = FbxCluster.Create(fbx_scene, f'cluster_{influence}')
-        fbx_cluster.SetLink(fbx_joint_nodes[influence])
-        fbx_cluster.SetLinkMode(FbxCluster.ELinkMode.eTotalOne)
-        weight_vertex_value_count = len(weight_vertices[influence]) 
-        for i in range(weight_vertex_value_count):
-            fbx_cluster.AddControlPointIndex(weight_vertices[influence][i], weight_values[influence][i])
-        fbx_cluster.SetTransformLinkMatrix(fbx_joint_nodes[influence].EvaluateGlobalTransform())
-        fbx_skin.AddCluster(fbx_cluster)
+        # set uvs
+        fbx_diffuse_uv = fbx_mesh.CreateElementUV('DiffuseUV')
+        fbx_diffuse_uv.SetMappingMode(FbxLayerElement.EMappingMode.eByControlPoint)
+        fbx_diffuse_uv.SetReferenceMode(FbxLayerElement.EReferenceMode.eDirect)
+        uvs = fbx_diffuse_uv.GetDirectArray()
+        for vertex in submesh_vertices:
+            uvs.Add(FbxVector2(vertex.uv.x, 1-vertex.uv.y))
+        # set normals - doesnt work?
+        fbx_normal = fbx_mesh.CreateElementNormal()
+        fbx_normal.SetMappingMode(FbxLayerElement.EMappingMode.eByControlPoint)
+        fbx_normal.SetReferenceMode(FbxLayerElement.EReferenceMode.eDirect)
+        normals = fbx_normal.GetDirectArray()
+        for vertex in submesh_vertices:
+            normals.Add(FbxVector4(vertex.normal.x, vertex.normal.y, vertex.normal.z))  
+        
+        # set weights 
+        # -> create skin 
+        # -> create cluster 
+        # -> set cluster weights, and transform link matrix (why?)
+        fbx_skin = FbxSkin.Create(fbx_scene, 'skinned_mesh')
+        fbx_skin.SetSkinningType(FbxSkin.EType.eBlend)
+        fbx_mesh.AddDeformer(fbx_skin)
+        weight_vertices = {influence: [] for influence in skl.influences}
+        weight_values =  {influence: [] for influence in skl.influences}
+        for vertex_id, vertex in enumerate(submesh_vertices):
+            for i in range(4):
+                influence_id = vertex.influences[i]
+                weight = vertex.weights[i]
+                if weight > 0.0:
+                    weight_vertices[skl.influences[influence_id]].append(vertex_id)
+                    weight_values[skl.influences[influence_id]].append(weight)
+        for influence in skl.influences:
+            fbx_cluster = FbxCluster.Create(fbx_scene, f'cluster_{influence}')
+            fbx_cluster.SetLink(fbx_joint_nodes[influence])
+            fbx_cluster.SetLinkMode(FbxCluster.ELinkMode.eTotalOne)
+            weight_vertex_value_count = len(weight_vertices[influence]) 
+            for i in range(weight_vertex_value_count):
+                fbx_cluster.AddControlPointIndex(weight_vertices[influence][i], weight_values[influence][i])
+            fbx_cluster.SetTransformLinkMatrix(fbx_joint_nodes[influence].EvaluateGlobalTransform())
+            fbx_skin.AddCluster(fbx_cluster)
+        
+        LOG(f'lemon_fbx: Done: Load submesh: {submesh.name}, Indices: {len(submesh_indices)}, Vertices: {len(submesh_vertices)}')
     LOG(f'lemon_fbx: Done: Load SKN.')
 
 
@@ -480,8 +497,7 @@ def skin_to_fbx(skl_path, skn_path, fbx_path=''):
 
     # build mesh
     LOG(f'lemon_fbx: Indices: {len(skn.indices)}, Vertices: {len(skn.vertices)}, Submeshes: {len(skn.submeshes)}')
-    mesh_name = os.path.basename(skn_path).split('.')[0]
-    load_skn(fbx_root_node, fbx_scene, mesh_name, skn, skl, fbx_joint_nodes)
+    load_skn(fbx_root_node, fbx_scene, skn, skl, fbx_joint_nodes)
     
     # io & save scene
     if fbx_path == '':

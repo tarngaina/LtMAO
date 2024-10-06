@@ -1246,7 +1246,7 @@ class SKL:
             # add good joints first
             new_joints = [joint for joint in riot_joints if joint != None]
             # add new/bad joints at the end
-            new_joints.extend(joint for joint in other_joints)
+            new_joints.extend(other_joints)
             skl.joints = new_joints
 
         # link parent

@@ -97,10 +97,11 @@ class Log:
             messages = messages[:-1]
         # add message to Log.messages
         timed_messages = [
-            f'[{str(datetime.now()).split(" ")[1][:-3]}] {msg}' for msg in messages]
+            f'[{datetime.now().time()}] {msg}' for msg in messages]
         Log.messages.extend(timed_messages)
-        while len(Log.messages) > Log.limit:
-            Log.messages.pop(0)
+        over_limit = len(Log.messages) - Log.limit
+        if over_limit > 0:
+            Log.messages = Log.messages[over_limit:]
         # handle tkinter relate stuff
         if Log.tk_cooldown == 0:
             # realtime mode -> drag perfomance down

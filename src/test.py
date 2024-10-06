@@ -1,29 +1,40 @@
-if __name__ == '__main__':
-    
-    # profile
-    def db(func):
-        from cProfile import Profile
-        from pstats import Stats
+from cProfile import Profile
+from pstats import Stats
 
-        pr = Profile()
+def profiler(func):
+    with Profile() as pr:
         pr.enable()
-
         func()
-
         pr.disable()
         stats = Stats(pr)
         stats.sort_stats('tottime').print_stats()
 
-    def test():
-        from LtMAO.pyRitoFile.skn import SKN
-        from requests import get
+def find_all_listcomps():
+    import ast, os, os.path, sys
+    with open('./find_all_listcomps.txt', 'w', encoding='utf-8') as sys.stdout:
+        for root, dirs, files in os.walk('./src'):
+            for file in files:
+                if file.endswith('.py'):
+                    file = os.path.join(root, file).replace('\\', '/')
+                    with open(file, 'r', encoding='utf-8') as f:
+                        lines = f.readlines()
+                    print(file)
+                    last_lineno = 0
+                    for node in ast.walk(ast.parse(''.join(lines))):
+                        if isinstance(node, ast.ListComp):
+                            for lineno in range(node.lineno, node.end_lineno + 1):
+                                if lineno > last_lineno:
+                                    print(lineno, lines[lineno - 1], sep='\t', end='')
+                                    last_lineno = lineno
+                            print()
 
-        skn = SKN()
-        skn_bytes = get('https://raw.communitydragon.org/latest/game/assets/characters/akali/skins/base/akali.skn').content
-        skn.read(path='', raw=skn_bytes)
-        output_bytes: bytes = skn.write('akali2.skn', raw=True)
-        output_bytes = output_bytes + b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
-        print(skn_bytes == output_bytes)  # True yay :D
-        print(len(skn_bytes), len(output_bytes))
+def lol2fbx_mesh_test():
+    from LtMAO.lemon3d import lemon_fbx
+    lemon_fbx.fbx_to_skin('D:/test/briar_base.fbx')
 
-test()
+def main():
+    lol2fbx_mesh_test()
+
+
+if __name__ == '__main__':
+    main()

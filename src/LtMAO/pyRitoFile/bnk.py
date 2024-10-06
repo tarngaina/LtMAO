@@ -276,7 +276,7 @@ class BNK:
                             track.track_count, = bs.read_u32()
                             bs.pad(0 - 4 - playlist_count * 44)
                             
-                            track.wem_ids = [0 for i in range(track.track_count)]
+                            track.wem_ids = [0] * track.track_count
                             for i in range(playlist_count):
                                 track_index, wem_id, event_id = bs.read_u32(3)
                                 play_at, begin_strim_offset, end_trim_offset, source_duration = bs.read_f64(4)
