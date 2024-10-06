@@ -32,8 +32,12 @@ def lol2fbx_mesh_test():
     from LtMAO.lemon3d import lemon_fbx
     lemon_fbx.fbx_to_skin('D:/test/briar_base.fbx')
 
+def read_bin_test():
+    from LtMAO import pyRitoFile
+    pyRitoFile.read_bin('D:/test/skin0.bin')
+
 def main():
-    lol2fbx_mesh_test()
+    read_bin_test()
 
 
 if __name__ == '__main__':

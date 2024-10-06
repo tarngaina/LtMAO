@@ -30,13 +30,47 @@ def name_or_hex_to_hash(value):
     except:
         return name_to_hash(value)
 
+class BINType(IntEnum):
+    # basic
+    Empty = 0
+    Bool = 1
+    I8 = 2
+    U8 = 3
+    I16 = 4
+    U16 = 5
+    I32 = 6
+    U32 = 7
+    I64 = 8
+    U64 = 9
+    F32 = 10
+    Vec2 = 11
+    Vec3 = 12
+    Vec4 = 13
+    Mtx4 = 14
+    RGBA = 15
+    String = 16
+    Hash = 17
+    File = 18
+    # complex
+    List = 128
+    List2 = 129
+    Pointer = 130
+    Embed = 131
+    Link = 132
+    Option = 133
+    Map = 134
+    Flag = 135
+
+    def __json__(self):
+        return self.name
 
 class BINHelper:
     size_offsets = []
+    legacy_read = False
 
     @staticmethod
-    def fix_type(bin_type, legacy=False):
-        if legacy:
+    def fix_type(bin_type):
+        if BINHelper.legacy_read:
             if bin_type >= 129:
                 bin_type += 1
         return BINType(bin_type)
@@ -51,112 +85,109 @@ class BINHelper:
                     else:
                         return item
         return None
+    
+    read_value_dict = {
+        BINType.Empty:      lambda bs: bs.read_u16(3),
+        BINType.Bool:       lambda bs: bs.read_b()[0],
+        BINType.I8:         lambda bs: bs.read_i8()[0],
+        BINType.U8:         lambda bs: bs.read_u8()[0],
+        BINType.I16:        lambda bs: bs.read_i16()[0],
+        BINType.U16:        lambda bs: bs.read_u16()[0],
+        BINType.I32:        lambda bs: bs.read_i32()[0],
+        BINType.U32:        lambda bs: bs.read_u32()[0],
+        BINType.I64:        lambda bs: bs.read_i64()[0],
+        BINType.U64:        lambda bs: bs.read_u64()[0],
+        BINType.F32:        lambda bs: bs.read_f32()[0],
+        BINType.Vec2:       lambda bs: bs.read_vec2()[0],
+        BINType.Vec3:       lambda bs: bs.read_vec3()[0],
+        BINType.Vec4:       lambda bs: bs.read_vec4()[0],
+        BINType.Mtx4:       lambda bs: bs.read_mtx4()[0],
+        BINType.RGBA:       lambda bs: bs.read_u8(4),
+        BINType.String:     lambda bs: bs.read_a_sized16()[0],
+        BINType.Hash:       lambda bs: hash_to_hex(bs.read_u32()[0]),
+        BINType.File:       lambda bs: bs.read_u64()[0],
+        BINType.Pointer:    lambda bs: BINHelper.read_pointer_or_embed(bs, BINField(type=BINType.Pointer)),
+        BINType.Embed:      lambda bs: BINHelper.read_pointer_or_embed(bs, BINField(type=BINType.Embed)),
+        BINType.Link:       lambda bs: hash_to_hex(bs.read_u32()[0]),
+        BINType.Flag:       lambda bs: bs.read_u8()[0],
+    }
 
     @staticmethod
     def read_value(bs, value_type):
-        value = None
-        if value_type == BINType.Empty:
-            value = bs.read_u16(3)
-        elif value_type == BINType.Bool:
-            value = bs.read_b()[0]
-        elif value_type == BINType.I8:
-            value = bs.read_i8()[0]
-        elif value_type == BINType.U8:
-            value = bs.read_u8()[0]
-        elif value_type == BINType.I16:
-            value = bs.read_i16()[0]
-        elif value_type == BINType.U16:
-            value = bs.read_u16()[0]
-        elif value_type == BINType.I32:
-            value = bs.read_i32()[0]
-        elif value_type == BINType.U32:
-            value = bs.read_u32()[0]
-        elif value_type == BINType.I64:
-            value = bs.read_i64()[0]
-        elif value_type == BINType.U64:
-            value = bs.read_u64()[0]
-        elif value_type == BINType.F32:
-            value = bs.read_f32()[0]
-        elif value_type == BINType.Vec2:
-            value = bs.read_vec2()[0]
-        elif value_type == BINType.Vec3:
-            value = bs.read_vec3()[0]
-        elif value_type == BINType.Vec4:
-            value = bs.read_vec4()[0]
-        elif value_type == BINType.Mtx4:
-            value = bs.read_mtx4()[0]
-        elif value_type == BINType.RGBA:
-            value = bs.read_u8(4)
-        elif value_type == BINType.String:
-            size, = bs.read_u16()
-            value = bs.read_a(size)[0]
-        elif value_type == BINType.Hash:
-            value = hash_to_hex(bs.read_u32()[0])
-        elif value_type == BINType.File:
-            value = bs.read_u64()[0]
-        elif value_type == BINType.Pointer or value_type == BINType.Embed:
-            field = BINField()
-            field.hash_type = hash_to_hex(bs.read_u32()[0])
-            if field.hash_type != '00000000':
-                field.type = value_type
-                bs.pad(4)  # size
-                count, = bs.read_u16()
-                field.data = [
-                    BINHelper.read_field(bs)
-                    for i in range(count)
-                ]
-            else:
-                field.data = None
-            value = field
-        elif value_type == BINType.Link:
-            value = hash_to_hex(bs.read_u32()[0])
-        elif value_type == BINType.Flag:
-            value = bs.read_u8()[0]
-        return value
+        return BINHelper.read_value_dict[value_type](bs)
+
+    @staticmethod
+    def read_basic_field(bs, field):
+        field.data = BINHelper.read_value(bs, field.type)
+        return field
+
+    @staticmethod
+    def read_list_or_list2(bs, field):
+        field.value_type = BINHelper.fix_type(bs.read_u8()[0])
+        bs.pad(4)  # size
+        count, = bs.read_u32()
+        field.data = [
+            BINHelper.read_value(bs, field.value_type)
+            for i in range(count)
+        ]
+        return field
+        
+    @staticmethod
+    def read_pointer_or_embed(bs, field):
+        field.hash_type = hash_to_hex(bs.read_u32()[0])
+        if field.hash_type != '00000000':
+            bs.pad(4)  # size
+            count, = bs.read_u16()
+            field.data = [
+                BINHelper.read_field(bs)
+                for i in range(count)
+            ]
+        else:
+            field.data = None
+        return field
+    
+    @staticmethod
+    def read_option(bs, field):
+        field.value_type = BINHelper.fix_type(bs.read_u8()[0])
+        count, = bs.read_u8()
+        if count != 0:
+            field.data = BINHelper.read_value(bs, field.value_type)
+        else:
+            field.data = None
+        return field
+
+    @staticmethod
+    def read_map(bs, field):
+        field.key_type = BINHelper.fix_type(bs.read_u8()[0])
+        field.value_type = BINHelper.fix_type(bs.read_u8()[0])
+        bs.pad(4)  # size
+        count, = bs.read_u32()
+        field.data = {
+            BINHelper.read_value(bs, field.key_type): BINHelper.read_value(bs, field.value_type)
+            for i in range(count)
+        }
+        return field
+    
+    read_field_dict = {
+        field_type:         lambda bs, field: BINHelper.read_basic_field(bs, field) 
+        for field_type in read_value_dict
+    }
+    read_field_dict.update({
+        BINType.List:       lambda bs, field: BINHelper.read_list_or_list2(bs, field),
+        BINType.List2:      lambda bs, field: BINHelper.read_list_or_list2(bs, field),
+        BINType.Pointer:    lambda bs, field: BINHelper.read_pointer_or_embed(bs, field),
+        BINType.Embed:      lambda bs, field: BINHelper.read_pointer_or_embed(bs, field),
+        BINType.Option:     lambda bs, field: BINHelper.read_option(bs, field),
+        BINType.Map:        lambda bs, field: BINHelper.read_map(bs, field)
+    })
 
     @staticmethod
     def read_field(bs):
-        field = BINField()
-        field.hash = hash_to_hex(bs.read_u32()[0])
-        field.type = BINHelper.fix_type(bs.read_u8()[0])
-        if field.type == BINType.List or field.type == BINType.List2:
-            field.value_type = BINHelper.fix_type(bs.read_u8()[0])
-            bs.pad(4)  # size
-            count, = bs.read_u32()
-            field.data = [
-                BINHelper.read_value(bs, field.value_type)
-                for i in range(count)
-            ]
-        elif field.type == BINType.Pointer or field.type == BINType.Embed:
-            field.hash_type = hash_to_hex(bs.read_u32()[0])
-            if field.hash_type != '00000000':
-                bs.pad(4)  # size
-                count, = bs.read_u16()
-                field.data = [
-                    BINHelper.read_field(bs)
-                    for i in range(count)
-                ]
-            else:
-                field.data = None
-        elif field.type == BINType.Option:
-            field.value_type = BINHelper.fix_type(bs.read_u8()[0])
-            count, = bs.read_u8()
-            if count != 0:
-                field.data = BINHelper.read_value(bs, field.value_type)
-            else:
-                field.data = None
-        elif field.type == BINType.Map:
-            field.key_type = BINHelper.fix_type(bs.read_u8()[0])
-            field.value_type = BINHelper.fix_type(bs.read_u8()[0])
-            bs.pad(4)  # size
-            count, = bs.read_u32()
-            field.data = {
-                BINHelper.read_value(bs, field.key_type): BINHelper.read_value(bs, field.value_type)
-                for i in range(count)
-            }
-        else:
-            field.data = BINHelper.read_value(bs, field.type)
-        return field
+        field = BINField(
+            hash=hash_to_hex(bs.read_u32()[0]),
+            type=BINHelper.fix_type(bs.read_u8()[0])
+        )
+        return BINHelper.read_field_dict[field.type](bs, field)
 
     @staticmethod
     def write_value(bs, value, value_type, header_size):
@@ -322,41 +353,6 @@ class BINHelper:
         return field_size
 
 
-class BINType(IntEnum):
-    # basic
-    Empty = 0
-    Bool = 1
-    I8 = 2
-    U8 = 3
-    I16 = 4
-    U16 = 5
-    I32 = 6
-    U32 = 7
-    I64 = 8
-    U64 = 9
-    F32 = 10
-    Vec2 = 11
-    Vec3 = 12
-    Vec4 = 13
-    Mtx4 = 14
-    RGBA = 15
-    String = 16
-    Hash = 17
-    File = 18
-    # complex
-    List = 128
-    List2 = 129
-    Pointer = 130
-    Embed = 131
-    Link = 132
-    Option = 133
-    Map = 134
-    Flag = 135
-
-    def __json__(self):
-        return self.name
-
-
 class BINField:
     __slots__ = ('hash', 'type', 'hash_type', 'key_type', 'value_type', 'data')
 
@@ -460,15 +456,33 @@ class BIN:
             # entry_types + entries
             entry_count, = bs.read_u32()
             entry_types = bs.read_u32(entry_count)
-            self.entries = [BINEntry() for i in range(entry_count)]
-            for entry_id, entry in enumerate(self.entries):
-                entry.type = hash_to_hex(entry_types[entry_id])
-                bs.pad(4)  # size
-                entry.hash = hash_to_hex(bs.read_u32()[0])
-
-                field_count, = bs.read_u16()
-                entry.data = [BINHelper.read_field(
-                    bs) for i in range(field_count)]
+            entry_offset = bs.tell()
+            try:
+                # read as new bin
+                self.entries = [BINEntry() for i in range(entry_count)]
+                for entry_id, entry in enumerate(self.entries):
+                    entry.type = hash_to_hex(entry_types[entry_id])
+                    bs.pad(4)  # size
+                    entry.hash = hash_to_hex(bs.read_u32()[0])
+                    field_count, = bs.read_u16()
+                    entry.data = [BINHelper.read_field(
+                        bs) for i in range(field_count)]
+            except ValueError:
+                # legacy bin, fall back
+                bs.seek(entry_offset)
+                BINHelper.legacy_read = True
+                self.entries = [BINEntry() for i in range(entry_count)]
+                for entry_id, entry in enumerate(self.entries):
+                    entry.type = hash_to_hex(entry_types[entry_id])
+                    bs.pad(4)  # size
+                    entry.hash = hash_to_hex(bs.read_u32()[0])
+                    field_count, = bs.read_u16()
+                    entry.data = [BINHelper.read_field(
+                        bs) for i in range(field_count)]
+                BINHelper.legacy_read = False
+            except Exception as e:
+                # raise any other errors
+                raise e
             # patches
             if self.is_patch and self.version >= 3:
                 patch_count, = bs.read_u32()
