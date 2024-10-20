@@ -1,5 +1,5 @@
 from struct import Struct
-from ..pyRitoFile.structs import Vector, Quaternion, Matrix4
+from .structs import Vector, Quaternion, Matrix4
 
 
 class BinStream:

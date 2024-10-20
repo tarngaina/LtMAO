@@ -1,68 +1,204 @@
-from math import sqrt, isclose
+from math import sqrt
 from io import BytesIO
-from ..pyRitoFile.io import BinStream
+from .stream import BinStream
 from ..pyRitoFile.structs import Quaternion, Vector
 from ..pyRitoFile.hash import Elf
 
 
-def decompress_quat(bytes):
-    first = bytes[0] | (bytes[1] << 8)
-    second = bytes[2] | (bytes[3] << 8)
-    third = bytes[4] | (bytes[5] << 8)
-    bits = first | second << 16 | third << 32
-    max_index = (bits >> 45) & 3
-    one_div_sqrt2 = 0.70710678118
-    sqrt2_div_32767 = 0.00004315969
-    a = ((bits >> 30) & 32767) * sqrt2_div_32767 - one_div_sqrt2
-    b = ((bits >> 15) & 32767) * sqrt2_div_32767 - one_div_sqrt2
-    c = (bits & 32767) * sqrt2_div_32767 - one_div_sqrt2
-    d = sqrt(max(0.0, 1.0 - (a * a + b * b + c * c)))
-    if max_index == 0:
-        return Quaternion(d, a, b, c)
-    elif max_index == 1:
-        return Quaternion(a, d, b, c)
-    elif max_index == 2:
-        return Quaternion(a, b, d, c)
-    else:
-        return Quaternion(a, b, c, d)
-    
-def compress_quat(quat):
-    sqrt_2 = 1.41421356237
-    max_index = 3
-    abs_x, abs_y, abs_z, abs_w = abs(quat.x), abs(quat.y), abs(quat.z), abs(quat.w)
-    if abs_x >= abs_w and abs_x >= abs_y and abs_x >= abs_z:
-        max_index = 0
-        if quat.x < 0:
+class ANMHepler:
+    @staticmethod
+    def decompress_quat(bytes):
+        first = bytes[0] | (bytes[1] << 8)
+        second = bytes[2] | (bytes[3] << 8)
+        third = bytes[4] | (bytes[5] << 8)
+        bits = first | second << 16 | third << 32
+        max_index = (bits >> 45) & 3
+        one_div_sqrt2 = 0.70710678118
+        sqrt2_div_32767 = 0.00004315969
+        a = ((bits >> 30) & 32767) * sqrt2_div_32767 - one_div_sqrt2
+        b = ((bits >> 15) & 32767) * sqrt2_div_32767 - one_div_sqrt2
+        c = (bits & 32767) * sqrt2_div_32767 - one_div_sqrt2
+        d = sqrt(max(0.0, 1.0 - (a * a + b * b + c * c)))
+        if max_index == 0:
+            return Quaternion(d, a, b, c)
+        elif max_index == 1:
+            return Quaternion(a, d, b, c)
+        elif max_index == 2:
+            return Quaternion(a, b, d, c)
+        else:
+            return Quaternion(a, b, c, d)
+        
+    @staticmethod
+    def compress_quat(quat):
+        sqrt_2 = 1.41421356237
+        max_index = 3
+        abs_x, abs_y, abs_z, abs_w = abs(quat.x), abs(quat.y), abs(quat.z), abs(quat.w)
+        if abs_x >= abs_w and abs_x >= abs_y and abs_x >= abs_z:
+            max_index = 0
+            if quat.x < 0:
+                quat *= -1
+        elif abs_y >= abs_w and abs_y >= abs_x and abs_y >= abs_z:
+            max_index = 1
+            if quat.y < 0:
+                quat *= -1
+        elif abs_z >= abs_w and abs_z >= abs_x and abs_z >= abs_y:
+            max_index = 2
+            if quat.z < 0:
+                quat *= -1
+        elif quat.w < 0:
             quat *= -1
-    elif abs_y >= abs_w and abs_y >= abs_x and abs_y >= abs_z:
-        max_index = 1
-        if quat.y < 0:
-            quat *= -1
-    elif abs_z >= abs_w and abs_z >= abs_x and abs_z >= abs_y:
-        max_index = 2
-        if quat.z < 0:
-            quat *= -1
-    elif quat.w < 0:
-        quat *= -1
-    bits = max_index << 45
-    quatvalues = (quat.x, quat.y, quat.z, quat.w)
-    compressed_index = 0
-    for i in range(4):
-        if i == max_index:
-            continue
-        temp = round(16383.5 * (sqrt_2 * quatvalues[i] + 1.0))
-        bits |= (temp & 32767) << (30 - 15 * compressed_index)
-        compressed_index += 1
-    compressed = [(bits >> (8 * i)) & 255 for i in range(6)]
-    return bytes(compressed)
+        bits = max_index << 45
+        quatvalues = (quat.x, quat.y, quat.z, quat.w)
+        compressed_index = 0
+        for i in range(4):
+            if i == max_index:
+                continue
+            temp = round(16383.5 * (sqrt_2 * quatvalues[i] + 1.0))
+            bits |= (temp & 32767) << (30 - 15 * compressed_index)
+            compressed_index += 1
+        compressed = [(bits >> (8 * i)) & 255 for i in range(6)]
+        return bytes(compressed)
 
-def decompress_vec3(min, max, bytes):
-    return Vector(
-        (max.x - min.x) / 65535.0 * (bytes[0] | bytes[1] << 8) + min.x,
-        (max.y - min.y) / 65535.0 * (bytes[2] | bytes[3] << 8) + min.y,
-        (max.z - min.z) / 65535.0 * (bytes[4] | bytes[5] << 8) + min.z
-    )
-    
+    @staticmethod
+    def decompress_vec3(min, max, bytes):
+        return Vector(
+            (max.x - min.x) / 65535.0 * (bytes[0] | bytes[1] << 8) + min.x,
+            (max.y - min.y) / 65535.0 * (bytes[2] | bytes[3] << 8) + min.y,
+            (max.z - min.z) / 65535.0 * (bytes[4] | bytes[5] << 8) + min.z
+        )
+        
+    @staticmethod
+    def evaluate_all_frames(anm):
+        # compressed anm need this
+        for track in anm.tracks:
+            track.poses = dict(sorted(track.poses.items()))
+            for frame in range(anm.duration):
+                # find left right translate, rotate, scale frames
+                left_translate = None
+                right_translate = None
+                left_scale = None
+                right_scale = None
+                left_rotate = None
+                right_rotate = None
+                for time in track.poses.keys():
+                    if time <= frame:
+                        if track.poses[time].translate != None:
+                            left_translate = time
+                        if track.poses[time].scale != None:
+                            left_scale = time
+                        if track.poses[time].rotate != None:
+                            left_rotate = time
+                    if time >= frame:
+                        if track.poses[time].translate != None and right_translate == None:
+                            right_translate = time
+                        if track.poses[time].scale != None and right_scale == None:
+                            right_scale = time
+                        if track.poses[time].rotate != None and right_rotate == None:
+                            right_rotate = time
+                    if left_translate != None and right_translate != None and left_scale != None and right_scale != None and left_rotate != None and right_rotate != None:
+                        break
+                # create pose if empty
+                if frame not in track.poses:
+                    track.poses[frame] = pose = ANMPose()
+                # evaluate translate if need
+                if frame != left_translate and frame != right_translate:
+                    if left_translate == None or right_translate == None:
+                        if left_translate == None and right_translate == None:
+                            raise Exception(
+                                f'pyRitoFile: Failed: Write ANM: Evaluate translate: left: {left_translate}, right: {right_translate}.')
+                        elif left_translate == None:
+                            pose.translate = track.poses[right_translate].translate
+                        elif right_translate == None:
+                            pose.translate = track.poses[left_translate].translate
+                    else:
+                        pose.translate = Vector.lerp(
+                            track.poses[left_translate].translate, 
+                            track.poses[right_translate].translate,
+                            (frame - left_translate) / (right_translate - left_translate)
+                        )
+                # evaluate scale if need
+                if frame != left_scale and frame != right_scale:
+                    if left_scale == None or right_scale == None:
+                        if left_scale == None and right_scale == None:
+                            raise Exception(
+                                f'pyRitoFile: Failed: Write ANM: Evaluate scale: left: {left_scale}, right: {right_scale}.')
+                        elif left_scale == None:
+                            pose.scale = track.poses[right_scale].scale
+                        elif right_scale == None:
+                            pose.scale = track.poses[left_scale].scale
+                    else:
+                        pose.scale = Vector.lerp(
+                            track.poses[left_scale].scale, 
+                            track.poses[right_scale].scale,
+                            (frame - left_scale) / (right_scale - left_scale)
+                        )
+                # evaluate rotate if need
+                if frame != left_rotate and frame != right_rotate:
+                    if left_rotate == None or right_rotate == None:
+                        if left_rotate == None and right_rotate == None:
+                            raise Exception(
+                                f'pyRitoFile: Failed: Write ANM: Evaluate rotate: left: {left_rotate}, right: {right_rotate}.')
+                        elif left_rotate == None:
+                            pose.rotate = track.poses[right_rotate].rotate
+                        elif right_rotate == None:
+                            pose.rotate = track.poses[left_rotate].rotate
+                    else:
+                        pose.rotate = Quaternion.slerp(
+                            track.poses[left_rotate].rotate, 
+                            track.poses[right_rotate].rotate,
+                            (frame - left_rotate) / (right_rotate - left_rotate)
+                        )
+        
+    @staticmethod
+    def build_uni_vecs_quats_frames(anm):
+        # build uni vecs, uni quats, frame data
+        uni_vecs = []
+        uni_vec_count = 0
+        uni_quats = []
+        uni_quat_count = 0
+        track_count = len(anm.tracks)
+        frames = [None] * anm.duration * track_count
+        vec_tol_right = 0.05
+        vec_tol_left = -vec_tol_right
+        quat_tol_right = 0.005
+        quat_tol_left = -quat_tol_right
+        for t, track in enumerate(anm.tracks):
+            for f in range(anm.duration):
+                translate, rotate, scale = track.poses[f].translate, track.poses[f].rotate, track.poses[f].scale
+                # translate check
+                translate_index = -1
+                for vec_index, vec in enumerate(uni_vecs):
+                    if vec_tol_left < translate.x-vec.x < vec_tol_right and vec_tol_left < translate.y-vec.y < vec_tol_right and vec_tol_left < translate.z-vec.z < vec_tol_right:
+                        translate_index = vec_index
+                        break
+                if translate_index == -1:
+                    uni_vecs.append(translate)
+                    translate_index = uni_vec_count
+                    uni_vec_count += 1
+                # scale check
+                scale_index = -1
+                for vec_index, vec in enumerate(uni_vecs):
+                    if vec_tol_left < scale.x-vec.x < vec_tol_right and vec_tol_left < scale.y-vec.y < vec_tol_right and vec_tol_left < scale.z-vec.z < vec_tol_right:
+                        scale_index = vec_index
+                        break
+                if scale_index == -1:
+                    uni_vecs.append(scale)
+                    scale_index = uni_vec_count
+                    uni_vec_count += 1
+                # rotate check
+                rotate_index = -1
+                for quat_index, quat in enumerate(uni_quats):
+                    if quat_tol_left < rotate.x-quat.x < quat_tol_right and quat_tol_left < rotate.y-quat.y < quat_tol_right and quat_tol_left < rotate.z-quat.z < quat_tol_right and quat_tol_left < rotate.w-quat.w < quat_tol_right:
+                        rotate_index = quat_index
+                        break 
+                if rotate_index == -1:
+                    uni_quats.append(rotate)
+                    rotate_index = uni_quat_count
+                    uni_quat_count += 1
+                # add to frame
+                frames[f * track_count + t] = (translate_index, scale_index, rotate_index)
+        return uni_vecs, uni_quats, frames
+
 class ANMErrorMetric:
     __slots__ = (
         'margin', 'discontinuity_threshold'
@@ -200,13 +336,13 @@ class ANM:
                     # decompress pose data
                     transform_type = bits >> 14
                     if transform_type == 0:
-                        pose.rotate = decompress_quat(
+                        pose.rotate = ANMHepler.decompress_quat(
                             compressed_transform)
                     elif transform_type == 1:
-                        pose.translate = decompress_vec3(
+                        pose.translate = ANMHepler.decompress_vec3(
                             translate_min, translate_max, compressed_transform)
                     elif transform_type == 2:
-                        pose.scale = decompress_vec3(
+                        pose.scale = ANMHepler.decompress_vec3(
                             scale_min, scale_max, compressed_transform)
                     else:
                         raise Exception(
@@ -252,7 +388,7 @@ class ANM:
                     uni_vecs = bs.read_vec3(vec_count)
                     # read quats
                     bs.seek(quats_offset + 12)
-                    uni_quats = [decompress_quat(
+                    uni_quats = [ANMHepler.decompress_quat(
                         bs.read(6)) for i in range(quat_count)]
                     # prepare tracks
                     self.tracks = [ANMTrack() for i in range(track_count)]
@@ -375,129 +511,9 @@ class ANM:
 
     def write(self, path, raw=None):
         with self.stream(path, 'wb', raw) as bs:
-            # evaluate frames - this part is for compressed anm
             self.duration = int(self.duration)
-            for track in self.tracks:
-                track.poses = dict(sorted(track.poses.items()))
-                for frame in range(self.duration):
-                    # find left right translate, rotate, scale frames
-                    left_translate = None
-                    right_translate = None
-                    left_scale = None
-                    right_scale = None
-                    left_rotate = None
-                    right_rotate = None
-                    for time in track.poses.keys():
-                        if time <= frame:
-                            if track.poses[time].translate != None:
-                                left_translate = time
-                            if track.poses[time].scale != None:
-                                left_scale = time
-                            if track.poses[time].rotate != None:
-                                left_rotate = time
-                        if time >= frame:
-                            if track.poses[time].translate != None and right_translate == None:
-                                right_translate = time
-                            if track.poses[time].scale != None and right_scale == None:
-                                right_scale = time
-                            if track.poses[time].rotate != None and right_rotate == None:
-                                right_rotate = time
-                        if left_translate != None and right_translate != None and left_scale != None and right_scale != None and left_rotate != None and right_rotate != None:
-                            break
-                    # create pose if empty
-                    if frame not in track.poses:
-                        track.poses[frame] = pose = ANMPose()
-                    # evaluate translate if need
-                    if frame != left_translate and frame != right_translate:
-                        if left_translate == None or right_translate == None:
-                            if left_translate == None and right_translate == None:
-                                raise Exception(
-                                    f'pyRitoFile: Failed: Write ANM: Evaluate translate: left: {left_translate}, right: {right_translate}.')
-                            elif left_translate == None:
-                                pose.translate = track.poses[right_translate].translate
-                            elif right_translate == None:
-                                pose.translate = track.poses[left_translate].translate
-                        else:
-                            pose.translate = Vector.lerp(
-                                track.poses[left_translate].translate, 
-                                track.poses[right_translate].translate,
-                                (frame - left_translate) / (right_translate - left_translate)
-                            )
-                    # evaluate scale if need
-                    if frame != left_scale and frame != right_scale:
-                        if left_scale == None or right_scale == None:
-                            if left_scale == None and right_scale == None:
-                                raise Exception(
-                                    f'pyRitoFile: Failed: Write ANM: Evaluate scale: left: {left_scale}, right: {right_scale}.')
-                            elif left_scale == None:
-                                pose.scale = track.poses[right_scale].scale
-                            elif right_scale == None:
-                                pose.scale = track.poses[left_scale].scale
-                        else:
-                            pose.scale = Vector.lerp(
-                                track.poses[left_scale].scale, 
-                                track.poses[right_scale].scale,
-                                (frame - left_scale) / (right_scale - left_scale)
-                            )
-                    # evaluate rotate if need
-                    if frame != left_rotate and frame != right_rotate:
-                        if left_rotate == None or right_rotate == None:
-                            if left_rotate == None and right_rotate == None:
-                                raise Exception(
-                                    f'pyRitoFile: Failed: Write ANM: Evaluate rotate: left: {left_rotate}, right: {right_rotate}.')
-                            elif left_rotate == None:
-                                pose.rotate = track.poses[right_rotate].rotate
-                            elif right_rotate == None:
-                                pose.rotate = track.poses[left_rotate].rotate
-                        else:
-                            pose.rotate = Quaternion.slerp(
-                                track.poses[left_rotate].rotate, 
-                                track.poses[right_rotate].rotate,
-                                (frame - left_rotate) / (right_rotate - left_rotate)
-                            )
-           
-            # build uni vecs, uni quats, frame data
-            # very slow after evaluate compressed anm because of isclose
-            uni_vecs = []
-            uni_quats = []
-            vec_tol, quat_tol = 0.001, 0.001
-            track_count = len(self.tracks)
-            frames = [None] * self.duration * track_count
-            for t, track in enumerate(self.tracks):
-                for f in range(self.duration):
-                    translate, rotate, scale = track.poses[f].translate, track.poses[f].rotate, track.poses[f].scale
-                    # translate and scale index
-                    translate_index = -1
-                    scale_index = -1
-                    for vec_index, vec in enumerate(uni_vecs):
-                        if translate_index != -1 and scale_index != -1:
-                            break
-                        if isclose(translate.x, vec.x, rel_tol=vec_tol) and isclose(translate.y, vec.y, rel_tol=vec_tol) and isclose(translate.z, vec.z, rel_tol=vec_tol):
-                            translate_index = vec_index
-                        if isclose(scale.x, vec.x, rel_tol=vec_tol) and isclose(scale.y, vec.y, rel_tol=vec_tol) and isclose(scale.z, vec.z, rel_tol=vec_tol):
-                            scale_index = vec_index
-                    if translate_index == -1:
-                        uni_vecs.append(translate)
-                        translate_index = len(uni_vecs)-1
-                    if scale_index == -1:
-                        if isclose(translate.x, scale.x, rel_tol=vec_tol) and isclose(translate.y, scale.y, rel_tol=vec_tol) and isclose(translate.z, scale.z, rel_tol=vec_tol):
-                            scale_index = translate_index
-                        else:
-                            uni_vecs.append(scale)
-                            scale_index = len(uni_vecs)-1
-                    # rotate index
-                    rotate_index = -1
-                    for quat_index, quat in enumerate(uni_quats):
-                        if rotate_index != -1:
-                            break
-                        if isclose(rotate.x, quat.x, rel_tol=quat_tol) and isclose(rotate.y, quat.y, rel_tol=quat_tol) and isclose(rotate.z, quat.z, rel_tol=quat_tol) and isclose(rotate.w, quat.w, rel_tol=quat_tol):
-                            rotate_index = quat_index
-                    if rotate_index == -1:
-                        uni_quats.append(rotate)
-                        rotate_index = len(uni_quats)-1
-                    # add to frame
-                    frames[f * track_count + t] = (translate_index, scale_index, rotate_index)
-
+            ANMHepler.evaluate_all_frames(self)
+            uni_vecs, uni_quats, frames = ANMHepler.build_uni_vecs_quats_frames(self)
             # start write anm
             bs.write_a('r3d2anmd') # signature
             bs.write_u32(
@@ -528,7 +544,7 @@ class ANM:
             bs.write_vec3(*uni_vecs)
             # quat
             quat_offsets = bs.tell()
-            bs.write(b''.join(compress_quat(quat) for quat in uni_quats))
+            bs.write(b''.join(ANMHepler.compress_quat(quat) for quat in uni_quats))
             # joint_hash
             joint_hashes_offset = bs.tell()
             bs.write_u32(*[track.joint_hash for track in self.tracks])

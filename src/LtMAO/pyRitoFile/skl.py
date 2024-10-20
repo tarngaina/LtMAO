@@ -1,5 +1,5 @@
 from io import BytesIO
-from ..pyRitoFile.io import BinStream
+from .stream import BinStream
 from ..pyRitoFile.structs import Matrix4
 from ..pyRitoFile.hash import Elf, FNV1a
 

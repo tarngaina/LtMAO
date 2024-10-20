@@ -1,5 +1,5 @@
 from io import BytesIO
-from ..pyRitoFile.io import BinStream
+from .stream import BinStream
 from ..pyRitoFile.hash import FNV1a
 from enum import IntEnum
 
@@ -86,6 +86,7 @@ class BINHelper:
                         return item
         return None
     
+    # read related stuffs
     read_value_dict = {
         BINType.Empty:      lambda bs: bs.read_u16(3),
         BINType.Bool:       lambda bs: bs.read_b()[0],
@@ -117,7 +118,7 @@ class BINHelper:
         return BINHelper.read_value_dict[value_type](bs)
 
     @staticmethod
-    def read_basic_field(bs, field):
+    def read_basic(bs, field):
         field.data = BINHelper.read_value(bs, field.type)
         return field
 
@@ -169,7 +170,7 @@ class BINHelper:
         return field
     
     read_field_dict = {
-        field_type:         lambda bs, field: BINHelper.read_basic_field(bs, field) 
+        field_type:         lambda bs, field: BINHelper.read_basic(bs, field) 
         for field_type in read_value_dict
     }
     read_field_dict.update({
@@ -189,168 +190,139 @@ class BINHelper:
         )
         return BINHelper.read_field_dict[field.type](bs, field)
 
+    # write related stuffs
+    write_value_dict = {
+        BINType.Empty:          lambda bs, value: (bs.write_u16(*value), 0),
+        BINType.Bool:           lambda bs, value: (bs.write_b(value), 1),
+        BINType.I8:             lambda bs, value: (bs.write_i8(value), 1),
+        BINType.U8:             lambda bs, value: (bs.write_u8(value), 1),
+        BINType.I16:            lambda bs, value: (bs.write_i16(value), 2),
+        BINType.U16:            lambda bs, value: (bs.write_u16(value), 2),
+        BINType.I32:            lambda bs, value: (bs.write_i32(value), 4),
+        BINType.U32:            lambda bs, value: (bs.write_u32(value), 4),
+        BINType.I64:            lambda bs, value: (bs.write_i64(value), 8),
+        BINType.U64:            lambda bs, value: (bs.write_u64(value), 8),
+        BINType.F32:            lambda bs, value: (bs.write_f32(value), 4),
+        BINType.Vec2:           lambda bs, value: (bs.write_vec2(value), 8),
+        BINType.Vec3:           lambda bs, value: (bs.write_vec3(value), 12),
+        BINType.Vec4:           lambda bs, value: (bs.write_vec4(value), 16),
+        BINType.Mtx4:           lambda bs, value: (bs.write_mtx4(value), 64),
+        BINType.RGBA:           lambda bs, value: (bs.write_u8(*value), 4),
+        BINType.String:         lambda bs, value: (bs.write_a_sized16(value), len(value)+2),
+        BINType.Hash:           lambda bs, value: (bs.write_u32(name_or_hex_to_hash(value)), 4),
+        BINType.File:           lambda bs, value: (bs.write_u64(value), 8),
+        BINType.Pointer:        lambda bs, value: BINHelper.write_pointer_or_embed(bs, value),
+        BINType.Embed:          lambda bs, value: BINHelper.write_pointer_or_embed(bs, value),
+        BINType.Link:           lambda bs, value: (bs.write_u32(name_or_hex_to_hash(value)), 4),
+        BINType.Flag:           lambda bs, value: (bs.write_u8(value), 1),
+    }
+
     @staticmethod
     def write_value(bs, value, value_type, header_size):
-        value_size = 5 if header_size else 0
-        if value_type == BINType.Empty:
-            bs.write_u16(*value)
-        elif value_type == BINType.Bool:
-            bs.write_b(value)
-            value_size += 1
-        elif value_type == BINType.I8:
-            bs.write_i8(value)
-            value_size += 1
-        elif value_type == BINType.U8:
-            bs.write_u8(value)
-            value_size += 1
-        elif value_type == BINType.I16:
-            bs.write_i16(value)
-            value_size += 2
-        elif value_type == BINType.U16:
-            bs.write_u16(value)
-            value_size += 2
-        elif value_type == BINType.I32:
-            bs.write_i32(value)
-            value_size += 4
-        elif value_type == BINType.U32:
-            bs.write_u32(value)
-            value_size += 4
-        elif value_type == BINType.I64:
-            bs.write_i64(value)
-            value_size += 8
-        elif value_type == BINType.U64:
-            bs.write_u64(value)
-            value_size += 8
-        elif value_type == BINType.F32:
-            bs.write_f32(value)
-            value_size += 4
-        elif value_type == BINType.Vec2:
-            bs.write_vec2(value)
-            value_size += 8
-        elif value_type == BINType.Vec3:
-            bs.write_vec3(value)
-            value_size += 12
-        elif value_type == BINType.Vec4:
-            bs.write_vec4(value)
-            value_size += 16
-        elif value_type == BINType.Mtx4:
-            bs.write_mtx4(value)
-            value_size += 64
-        elif value_type == BINType.RGBA:
-            bs.write_u8(*value)
-            value_size += 4
-        elif value_type == BINType.String:
-            size = len(value)
-            bs.write_u16(size)
-            bs.write_a(value)
-            value_size += size + 2
-        elif value_type == BINType.Hash:
-            bs.write_u32(name_or_hex_to_hash(value))
-            value_size += 4
-        elif value_type == BINType.File:
-            bs.write_u64(value)
-            value_size += 8
-        elif value_type == BINType.Pointer or value_type == BINType.Embed:
-            field = value  # treat the value as BINField
-            if field.hash_type == '00000000':
-                bs.write_u32(0)
-                value_size += 4
-            else:
-                bs.write_u32(name_or_hex_to_hash(field.hash_type))
-                value_size += 4
-
-                return_offset = bs.tell()
-                bs.write_u32(0)  # size
-                value_size += 4
-
-                content_size = 2
-                bs.write_u16(len(field.data))
-                for value in field.data:
-                    content_size += BINHelper.write_field(
-                        bs, value, header_size=True)
-                BINHelper.size_offsets.append((return_offset, content_size))
-
-                value_size += content_size
-        elif value_type == BINType.Link:
-            bs.write_u32(name_or_hex_to_hash(value))
-            value_size += 4
-        elif value_type == BINType.Flag:
-            bs.write_u8(value)
-            value_size += 1
-        return value_size
+        size = BINHelper.write_value_dict[value_type](bs, value)[1]
+        return size+5 if header_size else size
+    
+    @staticmethod
+    def write_basic(bs, field):
+        return None, BINHelper.write_value(bs, field.data, field.type, header_size=False)
 
     @staticmethod
-    def write_field(bs, field, header_size):
-        field_size = 5 if header_size else 0
-        bs.write_u32(name_or_hex_to_hash(field.hash))
-        bs.write_u8(field.type.value)
-        if field.type == BINType.List or field.type == BINType.List2:
-            bs.write_u8(field.value_type.value)
+    def write_list_or_list2(bs, field):
+        size = 0
+        bs.write_u8(field.value_type.value)
 
-            return_offset = bs.tell()
-            bs.write_u32(0)  # values size
-            field_size += 1 + 4
+        return_offset = bs.tell()
+        bs.write_u32(0)  # values size
+        size += 1 + 4
 
-            content_size = 4
-            bs.write_u32(len(field.data))
-            for value in field.data:
-                content_size += BINHelper.write_value(bs,
-                                                      value, field.value_type, header_size=False)
-            BINHelper.size_offsets.append((return_offset, content_size))
+        content_size = 4
+        bs.write_u32(len(field.data))
+        for value in field.data:
+            content_size += BINHelper.write_value(bs,
+                                                    value, field.value_type, header_size=False)
+        BINHelper.size_offsets.append((return_offset, content_size))
 
-            field_size += content_size
-        elif field.type == BINType.Pointer or field.type == BINType.Embed:
-            if field.hash_type == '00000000':
-                bs.write_u32(0)  # hash_type
-                field_size += 4
-            else:
-                bs.write_u32(name_or_hex_to_hash(field.hash_type))
-                field_size += 4
+        size += content_size
+        return None, size
 
-                return_offset = bs.tell()
-                bs.write_u32(0)  # values size
-                field_size += 4
-
-                content_size = 2
-                bs.write_u16(len(field.data))
-                for value in field.data:
-                    content_size += BINHelper.write_field(
-                        bs, value, header_size=True)
-                BINHelper.size_offsets.append((return_offset, content_size))
-
-                field_size += content_size
-        elif field.type == BINType.Option:
-            bs.write_u8(field.value_type.value)
-            count = 0 if field.data == None else 1
-            bs.write_u8(count)
-            field_size += 1 + 1
-            if count != 0:
-                field_size += BINHelper.write_value(bs,
-                                                    field.data, field.value_type, header_size=False)
-        elif field.type == BINType.Map:
-            bs.write_u8(
-                field.key_type.value,
-                field.value_type.value
-            )
+    @staticmethod
+    def write_pointer_or_embed(bs, field):
+        size = 0
+        if field.hash_type == '00000000':
+            bs.write_u32(0)
+            size += 4
+        else:
+            bs.write_u32(name_or_hex_to_hash(field.hash_type))
+            size += 4
 
             return_offset = bs.tell()
             bs.write_u32(0)  # size
-            field_size += 1+1+4
+            size += 4
 
-            content_size = 4
-            bs.write_u32(len(field.data))
-            for key, value in field.data.items():
-                content_size += BINHelper.write_value(bs,
-                                                      key, field.key_type, header_size=False)
-                content_size += BINHelper.write_value(bs,
-                                                      value, field.value_type, header_size=False)
+            content_size = 2
+            bs.write_u16(len(field.data))
+            for value in field.data:
+                content_size += BINHelper.write_field(
+                    bs, value, header_size=True)
             BINHelper.size_offsets.append((return_offset, content_size))
 
-            field_size += content_size
-        else:
-            field_size += BINHelper.write_value(bs,
-                                                field.data, field.type, header_size=False)
-        return field_size
+            size += content_size
+        return None, size
+    
+    @staticmethod
+    def write_option(bs, field):
+        size = 0
+        bs.write_u8(field.value_type.value)
+        count = 0 if field.data == None else 1
+        bs.write_u8(count)
+        size += 1 + 1
+        if count != 0:
+            size += BINHelper.write_value(bs, field.data, field.value_type, header_size=False)
+        return None, size
+    
+    @staticmethod
+    def write_map(bs, field):
+        size = 0
+        bs.write_u8(
+            field.key_type.value,
+            field.value_type.value
+        )
+
+        return_offset = bs.tell()
+        bs.write_u32(0)  # size
+        size += 1+1+4
+
+        content_size = 4
+        bs.write_u32(len(field.data))
+        for key, value in field.data.items():
+            content_size += BINHelper.write_value(bs,
+                                                    key, field.key_type, header_size=False)
+            content_size += BINHelper.write_value(bs,
+                                                    value, field.value_type, header_size=False)
+        BINHelper.size_offsets.append((return_offset, content_size))
+
+        size += content_size
+        return None, size
+    
+    write_field_dict = {
+        field_type:         lambda bs, field: BINHelper.write_basic(bs, field) 
+        for field_type in write_value_dict
+    }
+    write_field_dict.update({
+        BINType.List:       lambda bs, field: BINHelper.write_list_or_list2(bs, field),
+        BINType.List2:      lambda bs, field: BINHelper.write_list_or_list2(bs, field),
+        BINType.Pointer:    lambda bs, field: BINHelper.write_pointer_or_embed(bs, field),
+        BINType.Embed:      lambda bs, field: BINHelper.write_pointer_or_embed(bs, field),
+        BINType.Option:     lambda bs, field: BINHelper.write_option(bs, field),
+        BINType.Map:        lambda bs, field: BINHelper.write_map(bs, field)
+    })
+
+    @staticmethod
+    def write_field(bs, field, header_size):
+        bs.write_u32(name_or_hex_to_hash(field.hash))
+        bs.write_u8(field.type.value)
+        size = BINHelper.write_field_dict[field.type](bs, field)[1]
+        return size+5 if header_size else size
 
 
 class BINField:

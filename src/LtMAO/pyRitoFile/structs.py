@@ -29,13 +29,16 @@ class Vector:
     def __json__(self):
         return [v for v in self]
     
-    def lerp(vec1, vec2, weight):        
+    def lerp(vec1, vec2, weight):  
+        if weight < 0.005:
+            return vec1
+        if weight > 0.995:
+            return vec2      
         return Vector(
             vec1.x + (vec2.x - vec1.x) * weight,
             vec1.y + (vec2.y - vec1.y) * weight,
             vec1.z + (vec2.z - vec1.z) * weight
         )
-
 
 class Quaternion:
     __slots__ = ('x', 'y', 'z', 'w')
@@ -68,6 +71,10 @@ class Quaternion:
         return [v for v in self]
     
     def slerp(quat1, quat2, weight):
+        if weight < 0.005:
+            return quat1
+        if weight > 0.995:
+            return quat2    
         epsilon = 1e-6
         cos_omega = quat1.x * quat2.x + quat1.y * quat2.y + quat1.z * quat2.z + quat1.w * quat2.w
         flip = False
@@ -88,7 +95,6 @@ class Quaternion:
             s1 * quat1.z + s2 * quat2.z,
             s1 * quat1.w + s2 * quat2.w,
         )        
-
 
 class Matrix4:
     __slots__ = (

@@ -1,5 +1,5 @@
 from io import BytesIO
-from ..pyRitoFile.io import BinStream
+from .stream import BinStream
 
 
 class WPKWem:

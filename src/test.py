@@ -7,7 +7,7 @@ def profiler(func):
         func()
         pr.disable()
         stats = Stats(pr)
-        stats.sort_stats('tottime').print_stats()
+        stats.sort_stats('tottime').print_stats(5)
 
 def find_all_listcomps():
     import ast, os, os.path, sys
@@ -34,10 +34,16 @@ def lol2fbx_mesh_test():
 
 def read_bin_test():
     from LtMAO import pyRitoFile
-    pyRitoFile.read_bin('D:/test/skin0.bin')
+    
+    pyRitoFile.write_bin('D:/test/base_srx2.materials.bin', pyRitoFile.read_bin('D:/test/base_srx.materials.bin'))
+
+def read_write_anm_test():
+    from LtMAO import pyRitoFile
+    
+    pyRitoFile.write_anm('D:/test/rRecall_legacy.SKINS_Aatrox_Skin33.anm', pyRitoFile.read_anm('D:/test/Recall_legacy.SKINS_Aatrox_Skin33.anm'))
 
 def main():
-    read_bin_test()
+    profiler(read_bin_test)
 
 
 if __name__ == '__main__':

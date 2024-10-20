@@ -9,7 +9,7 @@ from ..pyRitoFile.wpk import WPK
 from ..pyRitoFile.tex import TEX, TEXFormat
 from ..pyRitoFile.wad import WAD, WADChunk, WADCompressionType, name_to_hex as wad_hash, guess_extension
 from ..pyRitoFile import hash
-from ..pyRitoFile import io
+from . import stream
 from json import dump, dumps, JSONEncoder
 
 

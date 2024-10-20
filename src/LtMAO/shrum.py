@@ -1,4 +1,4 @@
-from .pyRitoFile.io import BinStream
+from .pyRitoFile.stream import BinStream
 from .pyRitoFile.hash import Elf
 import os
 import os.path
