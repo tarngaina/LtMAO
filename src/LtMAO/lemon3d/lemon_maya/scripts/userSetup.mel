@@ -1,7 +1,0 @@
-global proc lemon_prepare_anm_scene() 
-{
-    fo_changeImportOverrideEmpty false;
-    fo_changeImportFramerateRadioBtn 1;
-    fo_changeImportAnimRangeRadioBtn 2;
-}
-evalDeferred "lemon_prepare_anm_scene";

@@ -3,3 +3,6 @@ __pycache__/
 /prefs
 /.vscode
 LtMAO.lnk
+PySide6
+PySide6_*
+PySide6-*
