@@ -42,8 +42,13 @@ def read_write_anm_test():
     
     pyRitoFile.write_anm('D:/test/rRecall_legacy.SKINS_Aatrox_Skin33.anm', pyRitoFile.read_anm('D:/test/Recall_legacy.SKINS_Aatrox_Skin33.anm'))
 
+def test_fbx_to_skin():
+    from LtMAO.lemon3d import lemon_fbx
+
+    lemon_fbx.fbx_to_skin('D:/test/savior.fbx')
+
 def main():
-    profiler(read_bin_test)
+    test_fbx_to_skin()
 
 
 if __name__ == '__main__':

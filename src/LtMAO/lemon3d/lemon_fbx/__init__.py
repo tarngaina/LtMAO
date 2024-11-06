@@ -242,9 +242,9 @@ def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_
         # -> start dump each vertex with its uv indices
         # -> create new vertex if multiple uv index
         # -> replace indices of newly created vertex
-        material_start_index = [0 for i in range(material_count)]
+        material_start_index = [0] * material_count
         for material_id in range(1, material_count):
-            material_start_index[material_id] = material_start_index[material_id-1] + len(submesh_indices[material_id-1])
+            material_start_index[material_id] = material_start_index[material_id-1] + len(submesh_indices[submesh_names[material_id-1]])
         submesh_vertices = {submesh_name: [] for submesh_name in submesh_names}
         for i in range(vertex_count):
             material_id = material_vertices[i]
