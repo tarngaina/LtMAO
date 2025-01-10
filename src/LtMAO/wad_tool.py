@@ -69,7 +69,13 @@ def pack(raw_dir, wad_file):
             # check hashed files
             # by remove extension: 6bff35087d62f95d.bin -> 6bff35087d62f95d
             basename = os.path.basename(file).split('.')[0]
-            if check_hashed_name(basename):
+
+            # not r'/assets/' in file_path
+            # Ignoring the check for hashes inside of assets
+            # For example that thing would think that a file assets/.../.../face.tex is a hash
+            # Since "face" is indeed a valid hash
+            # Also, never saw hashed files inside of assets path unless u really cooked
+            if check_hashed_name(basename) and not r'/assets/' in file_path:
                 file_path = basename
                 chunk_hashes.append(file_path)
             else:
