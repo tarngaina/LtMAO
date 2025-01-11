@@ -66,17 +66,14 @@ def pack(raw_dir, wad_file):
             # prepare chunk datas
             file_path = os.path.join(root, file).replace('\\', '/')
             chunk_datas.append(file_path)
-            # check hashed files
-            # by remove extension: 6bff35087d62f95d.bin -> 6bff35087d62f95d
-            basename = os.path.basename(file).split('.')[0]
 
-            # not r'/assets/' in file_path
-            # Ignoring the check for hashes inside of assets
-            # For example that thing would think that a file assets/.../.../face.tex is a hash
-            # Since "face" is indeed a valid hash
-            # Also, never saw hashed files inside of assets path unless u really cooked
-            if check_hashed_name(basename) and not r'/assets/' in file_path:
-                file_path = basename
+            # check hashed files
+            # hashed files are in root of the directory
+            # and also be a valid hexadecimal int file name
+            basename = os.path.basename(file)
+            relative_path = os.path.relpath(file_path, raw_dir)
+            if check_hashed_name(basename.split('.')[0]) and relative_path == basename:
+                file_path = basename.split('.')[0]
                 chunk_hashes.append(file_path)
             else:
                 chunk_hashes.append(os.path.relpath(
