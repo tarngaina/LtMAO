@@ -270,7 +270,7 @@ class ANM:
 
     def read(self, path, raw=None):
         with self.stream(path, 'rb', raw) as bs:
-            self.signature, = bs.read_a(8)
+            self.signature, = bs.read_s(8)
             self.version, = bs.read_u32()
 
             if self.signature == 'r3d2canm':
@@ -491,7 +491,7 @@ class ANM:
                     # prepare tracks
                     self.tracks = [ANMTrack() for i in range(track_count)]
                     for track in self.tracks:
-                        track.joint_hash = Elf(bs.read_a_padded(32)[0])
+                        track.joint_hash = Elf(bs.read_s_padded(32)[0])
                         bs.pad(4)  # flags
                         # read pose
                         track.poses = {}
@@ -515,7 +515,7 @@ class ANM:
             ANMHepler.evaluate_all_frames(self)
             uni_vecs, uni_quats, frames = ANMHepler.build_uni_vecs_quats_frames(self)
             # start write anm
-            bs.write_a('r3d2anmd') # signature
+            bs.write_s('r3d2anmd') # signature
             bs.write_u32(
                 5, # version
                 0, # file_size

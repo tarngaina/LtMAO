@@ -96,17 +96,29 @@ class BinStream:
     def read_mtx4(self):
         return Matrix4(*Struct('16f').unpack(self.stream.read(64))),
 
-    def read_a(self, length):
-        return self.stream.read(length).decode('ascii'),
+    def read_utf8(self, length):
+        return self.stream.read(length).decode('utf-8'),
 
-    def read_a_padded(self, length):
-        return bytes(b for b in self.stream.read(length) if b != 0).decode('ascii'),
+    def read_utf8_padded(self, length):
+        return bytes(b for b in self.stream.read(length) if b != 0).decode('utf-8'),
 
-    def read_a_sized16(self):
-        return self.stream.read(Struct('H').unpack(self.stream.read(2))[0]).decode('ascii'),
+    def read_utf8_sized16(self):
+        return self.stream.read(Struct('H').unpack(self.stream.read(2))[0]).decode('utf-8'),
 
-    def read_a_sized32(self):
-        return self.stream.read(Struct('I').unpack(self.stream.read(4))[0]).decode('ascii'),
+    def read_utf8_sized32(self):
+        return self.stream.read(Struct('I').unpack(self.stream.read(4))[0]).decode('utf-8'),
+
+    def read_s(self, length, encoding='ascii'):
+        return self.stream.read(length).decode(encoding),
+
+    def read_s_padded(self, length, encoding='ascii'):
+        return bytes(b for b in self.stream.read(length) if b != 0).decode(encoding),
+
+    def read_s_sized16(self, encoding='ascii'):
+        return self.stream.read(Struct('H').unpack(self.stream.read(2))[0]).decode(encoding),
+
+    def read_s_sized32(self, encoding='ascii'):
+        return self.stream.read(Struct('I').unpack(self.stream.read(4))[0]).decode(encoding),
 
     def read_c_until0(self):
         s = ''
@@ -181,26 +193,30 @@ class BinStream:
     def write_mtx4(self, mtx4):
         floats = [f for f in mtx4]
         self.stream.write(Struct('16f').pack(*floats))
+    
+    def write_s(self, value, encoding='ascii'):
+        self.stream.write(value.encode(encoding))
 
-    def write_a(self, value):
-        self.stream.write(value.encode('ascii'))
-
-    def write_a_padded(self, value, length):
+    def write_s_padded(self, value, length, encoding='ascii'):
         if len(value) > length:
             value = value[:length]
-        self.stream.write(value.encode('ascii') + b'\x00'*(length-len(value)))
+        
+        _temp_v = value.encode(encoding)
+        self.stream.write(_temp_v + b'\x00'*(length-len(_temp_v)))
 
-    def write_a_sized16(self, value):
-        self.stream.write(Struct('H').pack(len(value)))
-        self.stream.write(value.encode('ascii'))
+    def write_s_sized16(self, value, encoding='ascii'):
+        _temp_v = value.encode(encoding)
+        self.stream.write(Struct('H').pack(len(_temp_v)))
+        self.stream.write(_temp_v)
 
-    def write_a_sized32(self, value):
-        self.stream.write(Struct('I').pack(len(value)))
-        self.stream.write(value.encode('ascii'))
+    def write_s_sized32(self, value, encoding='ascii'):
+        _temp_v = value.encode(encoding)
+        self.stream.write(Struct('I').pack(len(_temp_v)))
+        self.stream.write(_temp_v)
 
-    def write_c_sep_0(self, value):
+    def write_c_sep_0(self, value, encoding='ascii'):
         s = b''
-        for c in value.encode('ascii'):
+        for c in value.encode(encoding):
             s += bytes([c])
             s += b'\x00'
         self.stream.write(s)

@@ -46,7 +46,7 @@ def rename_anm(path, olds, news):
     news_hashes = [Elf(new) for new in news]
     count = 0
     with BinStream(open(path, 'rb+')) as bs:
-        magic, = bs.read_a(8)
+        magic, = bs.read_s(8)
         version, = bs.read_u32()
         if magic == 'r3d2canm':
             bs.pad(12)
@@ -128,7 +128,7 @@ def rename_anm(path, olds, news):
                 bs.pad(4)
                 for i in range(track_count):
                     offset = bs.tell()
-                    joint_name, = bs.read_a_padded(32)
+                    joint_name, = bs.read_s_padded(32)
                     joint_id = None
                     for id, old in enumerate(olds):
                         if old == joint_name:
@@ -136,7 +136,7 @@ def rename_anm(path, olds, news):
                             break
                     if joint_id != None:
                         bs.seek(offset)
-                        bs.write_a_padded(news[joint_id], 32)
+                        bs.write_s_padded(news[joint_id], 32)
                         count += 1
                     bs.pad(4+frame_count*28)
         else:

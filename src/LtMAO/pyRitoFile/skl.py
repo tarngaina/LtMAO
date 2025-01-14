@@ -122,7 +122,7 @@ class SKL:
                 if asset_offset > 0:
                     self.asset, = bs.read_c_until0()
             else:
-                self.signature, = bs.read_a(8)
+                self.signature, = bs.read_s(8)
                 if self.signature != 'r3d2sklt':
                     raise Exception(
                         f'pyRitoFile: Failed: Read SKL {path}: Wrong file signature: {self.signature}')
@@ -139,7 +139,7 @@ class SKL:
                 self.joints = [SKLJoint() for i in range(joint_count)]
                 old_matrices = [None] * joint_count
                 for joint_id, joint in enumerate(self.joints):
-                    joint.name, = bs.read_a_padded(32)
+                    joint.name, = bs.read_s_padded(32)
                     joint.bin_hash = bin_hash(joint.name)
                     joint.id = joint_id
                     joint.hash = Elf(joint.name)
@@ -199,7 +199,7 @@ class SKL:
             bs.seek(joint_names_offset)
             for i in range(joint_count):
                 joint_offset[i] = bs.tell()
-                bs.write_a(self.joints[i].name)
+                bs.write_s(self.joints[i].name)
                 bs.write_b(0)
 
             bs.seek(joints_offset)

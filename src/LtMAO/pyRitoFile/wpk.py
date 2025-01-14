@@ -37,7 +37,7 @@ class WPK:
 
     def read(self, path, raw=None):
         with self.stream(path, 'rb', raw) as bs:
-            self.signature, = bs.read_a(4)
+            self.signature, = bs.read_s(4)
             if self.signature != 'r3d2':
                 raise Exception(
                     f'pyRitoFile: Failed: Read WPK {path}: Wrong signature file: {hex(self.signature)}')
@@ -63,7 +63,7 @@ class WPK:
     def write(self, path, wem_datas, raw=None):
         with self.stream(path, 'wb', raw) as bs:
             # magic, version
-            bs.write_a('r3d2')
+            bs.write_s('r3d2')
             bs.write_u32(1)
             # wems offsets - write later
             wem_count = len(self.wems)

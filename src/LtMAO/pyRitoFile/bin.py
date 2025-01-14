@@ -104,7 +104,7 @@ class BINHelper:
         BINType.Vec4:       lambda bs: bs.read_vec4()[0],
         BINType.Mtx4:       lambda bs: bs.read_mtx4()[0],
         BINType.RGBA:       lambda bs: bs.read_u8(4),
-        BINType.String:     lambda bs: bs.read_a_sized16()[0],
+        BINType.String:     lambda bs: bs.read_s_sized16(encoding='utf-8')[0],
         BINType.Hash:       lambda bs: hash_to_hex(bs.read_u32()[0]),
         BINType.File:       lambda bs: bs.read_u64()[0],
         BINType.Pointer:    lambda bs: BINHelper.read_pointer_or_embed(bs, BINField(type=BINType.Pointer)),
@@ -208,7 +208,7 @@ class BINHelper:
         BINType.Vec4:           lambda bs, value: (bs.write_vec4(value), 16),
         BINType.Mtx4:           lambda bs, value: (bs.write_mtx4(value), 64),
         BINType.RGBA:           lambda bs, value: (bs.write_u8(*value), 4),
-        BINType.String:         lambda bs, value: (bs.write_a_sized16(value), len(value)+2),
+        BINType.String:         lambda bs, value: (bs.write_s_sized16(value, encoding='utf-8'), len(value.encode('utf-8'))+2),
         BINType.Hash:           lambda bs, value: (bs.write_u32(name_or_hex_to_hash(value)), 4),
         BINType.File:           lambda bs, value: (bs.write_u64(value), 8),
         BINType.Pointer:        lambda bs, value: BINHelper.write_pointer_or_embed(bs, value),
@@ -406,14 +406,14 @@ class BIN:
     def read(self, path, raw=None):
         with self.stream(path, 'rb', raw) as bs:
             # header
-            self.signature, = bs.read_a(4)
+            self.signature, = bs.read_s(4, encoding='utf-8')
             if self.signature not in ('PROP', 'PTCH'):
                 raise Exception(
                     f'pyRitoFile: Failed: Read BIN {path}: Wrong file signature: {self.signature}')
             if self.signature == 'PTCH':
                 self.is_patch = True
                 bs.pad(8)  # patch header
-                magic, = bs.read_a(4)
+                magic, = bs.read_s(4, encoding='utf-8')
                 if magic != 'PROP':
                     raise Exception(
                         f'pyRitoFile: Failed: Read BIN {path}: Missing PROP after PTCH signature.')
@@ -424,7 +424,7 @@ class BIN:
             # links
             if self.version >= 2:
                 link_count, = bs.read_u32()
-                self.links = [bs.read_a_sized16()[0] for i in range(link_count)]
+                self.links = [bs.read_s_sized16(encoding='utf-8')[0] for _ in range(link_count)]
             # entry_types + entries
             entry_count, = bs.read_u32()
             entry_types = bs.read_u32(entry_count)
@@ -463,21 +463,21 @@ class BIN:
                     patch.hash = hash_to_hex(bs.read_u32()[0])
                     bs.pad(4)  # size
                     patch.type = BINHelper.fix_type(bs.read_u8()[0])
-                    patch.path, = bs.read_a_sized16()
+                    patch.path, = bs.read_s_sized16(encoding='utf-8')
                     patch.data = BINHelper.read_value(bs, patch.type)
 
     def write(self, path, raw=None):
         with self.stream(path, 'wb', raw) as bs:
             # header
             if self.is_patch:
-                bs.write_a('PTCH')
+                bs.write_s('PTCH', encoding='utf-8')
                 bs.write_u32(1, 0)  # patch header
-            bs.write_a('PROP')
+            bs.write_s('PROP', encoding='utf-8')
             bs.write_u32(3)  # version
             # links
             bs.write_u32(len(self.links))
             for link in self.links:
-                bs.write_a_sized16(link)
+                bs.write_s_sized16(link, encoding='utf-8')
             # entry_types + entries
             bs.write_u32(len(self.entries))
             for entry in self.entries:
@@ -506,7 +506,7 @@ class BIN:
                     patch_size = 1 + 2 + len(patch.path)
 
                     bs.write_u8(patch.type.value)
-                    bs.write_a_sized16(patch.path)
+                    bs.write_s_sized16(patch.path, encoding='utf-8')
                     patch_size += BINHelper.write_value(
                         bs, patch.type, header_size=False)
                     BINHelper.size_offsets.append(

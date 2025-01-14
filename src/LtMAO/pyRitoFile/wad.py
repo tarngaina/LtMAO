@@ -231,7 +231,7 @@ class WAD:
     def read(self, path, raw=None):
         with self.stream(path, 'rb', raw) as bs:
             # read header
-            self.signature, = bs.read_a(2)
+            self.signature, = bs.read_s(2)
             if self.signature != 'RW':
                 raise Exception(
                     f'pyRitoFile: Failed: Read WAD {path}: Wrong file signature: {self.signature}')
@@ -269,7 +269,7 @@ class WAD:
     def write(self, path, raw=None):
         with self.stream(path, 'wb', raw) as bs:
             # write header
-            bs.write_a('RW')  # signature
+            bs.write_s('RW')  # signature
             bs.write_u8(3, 3)  # version
             bs.write(b'\x00' * 256)  # pad 256 bytes
             bs.write_u64(0)  # wad checksum

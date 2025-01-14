@@ -35,7 +35,7 @@ def lol2fbx_mesh_test():
 def read_bin_test():
     from LtMAO import pyRitoFile
     
-    pyRitoFile.write_bin('D:/test/base_srx2.materials.bin', pyRitoFile.read_bin('D:/test/base_srx.materials.bin'))
+    pyRitoFile.write_bin(r'C:\Users\GuiSai\Desktop\output.bin', pyRitoFile.read_bin(r'C:\Users\GuiSai\Desktop\globals.cdtb.bin'))
 
 def read_write_anm_test():
     from LtMAO import pyRitoFile
@@ -48,7 +48,7 @@ def test_fbx_to_skin():
     lemon_fbx.fbx_to_skin('D:/test/savior.fbx')
 
 def main():
-    test_fbx_to_skin()
+    read_bin_test()
 
 
 if __name__ == '__main__':
