@@ -95,19 +95,7 @@ class BinStream:
 
     def read_mtx4(self):
         return Matrix4(*Struct('16f').unpack(self.stream.read(64))),
-
-    def read_utf8(self, length):
-        return self.stream.read(length).decode('utf-8'),
-
-    def read_utf8_padded(self, length):
-        return bytes(b for b in self.stream.read(length) if b != 0).decode('utf-8'),
-
-    def read_utf8_sized16(self):
-        return self.stream.read(Struct('H').unpack(self.stream.read(2))[0]).decode('utf-8'),
-
-    def read_utf8_sized32(self):
-        return self.stream.read(Struct('I').unpack(self.stream.read(4))[0]).decode('utf-8'),
-
+        
     def read_s(self, length, encoding='ascii'):
         return self.stream.read(length).decode(encoding),
 
@@ -201,22 +189,22 @@ class BinStream:
         if len(value) > length:
             value = value[:length]
         
-        _temp_v = value.encode(encoding)
-        self.stream.write(_temp_v + b'\x00'*(length-len(_temp_v)))
+        v = value.encode(encoding)
+        self.stream.write(v + b'\x00'*(length-len(v)))
 
     def write_s_sized16(self, value, encoding='ascii'):
-        _temp_v = value.encode(encoding)
-        self.stream.write(Struct('H').pack(len(_temp_v)))
-        self.stream.write(_temp_v)
+        v = value.encode(encoding)
+        self.stream.write(Struct('H').pack(len(v)))
+        self.stream.write(v)
 
     def write_s_sized32(self, value, encoding='ascii'):
-        _temp_v = value.encode(encoding)
-        self.stream.write(Struct('I').pack(len(_temp_v)))
-        self.stream.write(_temp_v)
+        v = value.encode(encoding)
+        self.stream.write(Struct('I').pack(len(v)))
+        self.stream.write(v)
 
-    def write_c_sep_0(self, value, encoding='ascii'):
+    def write_c_sep_0(self, value):
         s = b''
-        for c in value.encode(encoding):
+        for c in value.encode('ascii'):
             s += bytes([c])
             s += b'\x00'
         self.stream.write(s)
