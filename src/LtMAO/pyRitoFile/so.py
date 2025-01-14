@@ -161,7 +161,7 @@ class SO:
 
     def read_scb(self, path, raw=None):
         with self.stream_scb(path, 'rb', raw) as bs:
-            self.signature, = bs.read_a(8)
+            self.signature, = bs.read_s(8)
             if self.signature != 'r3d2Mesh':
                 raise Exception(
                     f'pyRitoFile: Failed: Read SCB {path}: Wrong file signature: {self.signature}')
@@ -172,7 +172,7 @@ class SO:
                 raise Exception(
                     f'pyRitoFile: Failed: Read SCB {path}: Unsupported file version: {major}.{minor}')
 
-            self.name, = bs.read_a_padded(128)
+            self.name, = bs.read_s_padded(128)
             vertex_count, face_count, self.flags = bs.read_u32(3)
             self.flags = SOFlag(self.flags)
 
@@ -196,7 +196,7 @@ class SO:
                     continue
                 self.indices.extend(face)
 
-                self.material, = bs.read_a_padded(64)
+                self.material, = bs.read_s_padded(64)
 
                 uvs = bs.read_f32(6)
 
@@ -226,10 +226,10 @@ class SO:
         
         with self.stream_scb(path, 'wb', raw) as bs:
             # signature, version
-            bs.write_a('r3d2Mesh')  
+            bs.write_s('r3d2Mesh')  
             bs.write_u16(3, 2)  
             # name but nothing is fine
-            bs.write_a_padded('', 128)  
+            bs.write_s_padded('', 128)  
             # position count, face count, flags
             face_count = len(self.indices) // 3
             bs.write_u32(len(self.positions), face_count, self.flags.value)
@@ -245,7 +245,7 @@ class SO:
                 bs.write_u32(
                     self.indices[index], self.indices[index+1], self.indices[index+2])
 
-                bs.write_a_padded(self.material, 64)
+                bs.write_s_padded(self.material, 64)
                 # u u u, v v v
                 bs.write_f32(
                     self.uvs[index].x, self.uvs[index +

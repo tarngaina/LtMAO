@@ -188,7 +188,7 @@ class BNK:
             self.unknown_sections = []
             while bs.tell() < bs.end():
                 section = BNKSection()
-                section.signature, = bs.read_a(4)
+                section.signature, = bs.read_s(4)
                 section.size, = bs.read_u32()
                 section.data = BNKSectionData()
                 if section.signature == 'BKHD':
@@ -306,14 +306,14 @@ class BNK:
         with self.stream(path, 'wb', raw) as bs:
             # write bkhd
             # signature, size, version, id, unknown 24 bytes
-            bs.write_a('BKHD')
+            bs.write_s('BKHD')
             bs.write_u32(32, 134, 0)
             bs.write(b'>]p\x17\x00\x00\x00\x00\xfa\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00') 
 
             # write didx
             # signature, size
             wem_data_offsets = []
-            bs.write_a('DIDX')
+            bs.write_s('DIDX')
             bs.write_u32(len(self.didx.wems)*12)
             # write wem infos
             for i, wem in enumerate(self.didx.wems):
@@ -323,7 +323,7 @@ class BNK:
 
             # write data
             # signature, size
-            bs.write_a('DATA')
+            bs.write_s('DATA')
             bs.write_u32(sum(wem.size for wem in self.didx.wems))
             # wem data - need to minus start offset
             start_offset = bs.tell()

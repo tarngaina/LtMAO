@@ -309,7 +309,7 @@ class MAPGEO:
     
     def read(self, path, raw=None):
         with self.stream(path, 'rb', raw) as bs:
-            self.signature, = bs.read_a(4)
+            self.signature, = bs.read_s(4)
             if self.signature != 'OEGM':
                 raise Exception(
                     f'pyRitoFile: Failed: Read MAPGEO {path}: Wrong signature file: {self.signature}')
@@ -329,18 +329,18 @@ class MAPGEO:
                 self.texture_overrides = [MAPGEOTextureOverride() for i in range(texture_override_count)]
                 for texture_override in self.texture_overrides:
                     texture_override.index, = bs.read_u32()
-                    texture_override.path, = bs.read_a_sized32()
+                    texture_override.path, = bs.read_s_sized32()
             else:
                 self.texture_overrides = []
                 if self.version >= 9:
                     texture_override = MAPGEOTextureOverride()
                     texture_override.index = 0
-                    texture_override.path, = bs.read_a_sized32()
+                    texture_override.path, = bs.read_s_sized32()
                     self.texture_overrides.append(texture_override)
                     if self.version >= 11:
                         texture_override = MAPGEOTextureOverride()
                         texture_override.index = 1
-                        texture_override.path, = bs.read_a_sized32()
+                        texture_override.path, = bs.read_s_sized32()
                         self.texture_overrides.append(texture_override)
 
             # vertex descriptions
@@ -386,7 +386,7 @@ class MAPGEO:
                 print(f'read {model_id}')
                 # model name
                 if self.version < 12:
-                    model.name, = bs.read_a_sized32()
+                    model.name, = bs.read_s_sized32()
                 else:
                     model.name = f'MapGeo_Instance_{model_id}'
 
@@ -450,7 +450,7 @@ class MAPGEO:
                 model.submeshes = [MAPGEOSubmesh() for i in range(submesh_count)]
                 for submesh in model.submeshes:
                     submesh.hash, = bs.read_u32()
-                    submesh.name, = bs.read_a_sized32()
+                    submesh.name, = bs.read_s_sized32()
                     submesh.index_start, submesh.index_count, submesh.min_vertex, submesh.max_vertex = bs.read_u32(
                         4)
 
@@ -491,13 +491,13 @@ class MAPGEO:
 
                 # channels
                 model.baked_light = MAPGEOChannel()
-                model.baked_light.path, = bs.read_a_sized32()
+                model.baked_light.path, = bs.read_s_sized32()
                 model.baked_light.scale = bs.read_f32(2)
                 model.baked_light.offset = bs.read_f32(2)
 
                 if self.version >= 9:
                     model.stationary_light = MAPGEOChannel()
-                    model.stationary_light.path, = bs.read_a_sized32()
+                    model.stationary_light.path, = bs.read_s_sized32()
                     model.stationary_light.scale = bs.read_f32(2)
                     model.stationary_light.offset = bs.read_f32(2)
 
@@ -506,14 +506,14 @@ class MAPGEO:
                         if self.version < 17:
                             model.texture_overrides = [MAPGEOTextureOverride()]
                             model.texture_overrides[0].index = 0
-                            model.texture_overrides[0].path, = bs.read_a_sized32()
+                            model.texture_overrides[0].path, = bs.read_s_sized32()
                             model.texture_overrides_scale_offset = bs.read_f32(4)
                         else:
                             texture_override_count, = bs.read_u32()
                             model.texture_overrides = [MAPGEOTextureOverride() for i in range(texture_override_count)]
                             for texture_override in model.texture_overrides:
                                 texture_override.index, = bs.read_u32()
-                                texture_override.path, = bs.read_a_sized32()
+                                texture_override.path, = bs.read_s_sized32()
                             model.texture_overrides_scale_offset = bs.read_f32(4)
 
             # for modded file with no bucket grid, planar reflector: stop reading
@@ -666,7 +666,7 @@ class MAPGEO:
 
             # start to write mapgeo
             # signature, version
-            bs.write_a('OEGM')
+            bs.write_s('OEGM')
             bs.write_u32(self.version)
             # texture overrides
             if self.version > 13:
@@ -724,7 +724,7 @@ class MAPGEO:
                 bs.write_u32(len(model.submeshes))
                 for submesh in model.submeshes:
                     bs.write_u32(0)  # hash, always 0?
-                    bs.write_a_sized32(submesh.name)
+                    bs.write_s_sized32(submesh.name)
                     bs.write_u32(
                         submesh.index_start, submesh.index_count, submesh.min_vertex, submesh.max_vertex)
 
@@ -749,7 +749,7 @@ class MAPGEO:
 
                 # baked light
                 if model.baked_light not in (None, ''):
-                    bs.write_a_sized32(model.baked_light.path)
+                    bs.write_s_sized32(model.baked_light.path)
                     bs.write_f32(1.0, 1.0, 0.0, 0.0)
                 else:
                     bs.write_u32(0)
@@ -762,7 +762,7 @@ class MAPGEO:
                     bs.write_u32(len(model.texture_overrides))
                     for texture_override in model.texture_overrides:
                         bs.write_u32(texture_override.index)
-                        bs.write_a_sized32(texture_override.path)
+                        bs.write_s_sized32(texture_override.path)
                     bs.write_f32(*model.texture_overrides_scale_offset)
                 else:
                     bs.write_u32(0)

@@ -114,7 +114,7 @@ class SKN:
                 submesh_count, = bs.read_u32()
                 self.submeshes = [SKNSubmesh() for i in range(submesh_count)]
                 for submesh in self.submeshes:
-                    submesh.name, = bs.read_a_padded(64)
+                    submesh.name, = bs.read_s_padded(64)
                     submesh.bin_hash = bin_hash(submesh.name)
                     submesh.vertex_start, submesh.vertex_count, submesh.index_start, submesh.index_count = bs.read_u32(
                         4)
@@ -170,7 +170,7 @@ class SKN:
             # submesh
             bs.write_u32(len(self.submeshes))
             for submesh in self.submeshes:
-                bs.write_a_padded(submesh.name, 64)
+                bs.write_s_padded(submesh.name, 64)
                 bs.write_u32(
                     submesh.vertex_start, submesh.vertex_count, submesh.index_start, submesh.index_count)
             if self.version >= 4:
