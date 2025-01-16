@@ -1,6 +1,6 @@
 from fbx import *
 from ...pyRitoFile import SKL, SKLJoint, SKN, SKNVertex, SKNSubmesh, read_skl, read_skn, write_skl, write_skn
-from ...pyRitoFile.hash import Elf
+from ...pyRitoFile.ermmm import Elf
 from ...pyRitoFile.structs import Vector, Quaternion
 import os.path
 

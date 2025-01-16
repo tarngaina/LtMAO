@@ -7,7 +7,7 @@ from . import hash_manager, pyRitoFile
 from .hash_manager import cached_bin_hashes
 
 def bin_hash(name):
-    return f'{pyRitoFile.hash.FNV1a(name):08x}'
+    return f'{pyRitoFile.ermmm.FNV1a(name):08x}'
 
 
 LOG = print

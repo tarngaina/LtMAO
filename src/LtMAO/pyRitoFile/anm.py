@@ -2,7 +2,7 @@ from math import sqrt
 from io import BytesIO
 from .stream import BinStream
 from ..pyRitoFile.structs import Quaternion, Vector
-from ..pyRitoFile.hash import Elf
+from .ermmm import Elf
 
 
 class ANMHepler:

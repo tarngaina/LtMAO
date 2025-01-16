@@ -1,5 +1,5 @@
 from .pyRitoFile.stream import BinStream
-from .pyRitoFile.hash import Elf
+from .pyRitoFile.ermmm import Elf
 import os
 import os.path
 import traceback

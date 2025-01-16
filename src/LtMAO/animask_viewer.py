@@ -1,4 +1,4 @@
-from .pyRitoFile.hash import FNV1a
+from .pyRitoFile.ermmm import FNV1a
 from .pyRitoFile import BINHelper, bin_hash
 from .hash_manager import cached_bin_hashes
 
