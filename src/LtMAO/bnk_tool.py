@@ -1,5 +1,5 @@
 from .pyRitoFile import BNKObjectType, BINHelper, read_bnk, read_wpk, read_bin, write_bnk, write_wpk, BNK, WPK
-from .pyRitoFile.hash import FNV1
+from .pyRitoFile.ermmm import FNV1
 from .hash_manager import cached_bin_hashes
 from . import ext_tools
 

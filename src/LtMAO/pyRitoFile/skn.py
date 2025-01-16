@@ -1,6 +1,6 @@
 from io import BytesIO
 from .stream import BinStream
-from ..pyRitoFile.hash import FNV1a
+from .ermmm import FNV1a
 from enum import IntEnum
 
 def bin_hash(name):

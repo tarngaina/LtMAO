@@ -6,7 +6,7 @@ from maya import cmds
 import os.path
 from . import helper
 from ..... import pyRitoFile
-from .....pyRitoFile.hash import Elf
+from .....pyRitoFile.ermmm import Elf
 from .....pyRitoFile.structs import Vector, Quaternion
 
 LOG = print
