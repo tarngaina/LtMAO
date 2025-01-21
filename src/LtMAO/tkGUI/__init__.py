@@ -5722,6 +5722,7 @@ def create_CL_page():
         full_changelog_text = ''
         local_file = './prefs/changelog.txt'
         try:
+            
             page = 1
             while True:
                 url=f'https://api.github.com/repos/tarngaina/ltmao/commits?per_page=100&page={page}'
@@ -5737,12 +5738,13 @@ def create_CL_page():
                 else:
                     break
                 page+=1
-            with open(local_file, 'w+') as f:
+            with open(local_file, 'w+', encoding='utf-8') as f:
                 f.write(full_changelog_text)
+
         except Exception as e:
             LOG(f'get_changelog: Failed: {e}, switching to local file if exists.')
             if os.path.exists(local_file):
-                with open(local_file, 'r') as f:
+                with open(local_file, 'r', encoding='utf-8') as f:
                     full_changelog_text = f.read()
             else:
                 full_changelog_text = 'Failed to download changelog and no local changelog to read.'
