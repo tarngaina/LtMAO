@@ -80,26 +80,55 @@ def parse_bin(bin):
                         continue
                     for event in events.data:
                         event_names_by_id[FNV1(event)] = event
+    # parse feature bin
+    FeatureAudioDataPropertiesCollection = BINHelper.find_items(
+        items=bin.entries,
+        compare_func=lambda entry: entry.type == cached_bin_hashes['FeatureAudioDataProperties']
+    )
+    if len(FeatureAudioDataPropertiesCollection) > 0:
+        for FeatureAudioDataProperties in FeatureAudioDataPropertiesCollection:
+            if FeatureAudioDataProperties != None:
+                bankUnitsCollection = BINHelper.find_items(
+                    items=FeatureAudioDataProperties.data,
+                    compare_func=lambda field: field.hash == cached_bin_hashes['bankUnits']
+                )
+                if len(bankUnitsCollection) > 0:
+                    for bankUnits in bankUnitsCollection:
+                        if bankUnits != None and len(bankUnits.data) > 0:
+                            for BankUnit in bankUnits.data:
+                                events = BINHelper.find_item(
+                                    items=BankUnit.data,
+                                    compare_func=lambda field: field.hash == cached_bin_hashes['events']
+                                )
+                                if events == None:
+                                    continue
+                                for event in events.data:
+                                    event_names_by_id[FNV1(event)] = event
+
     # parse map bin
-    MapAudioDataProperties = BINHelper.find_item(
+    MapAudioDataPropertiesCollection = BINHelper.find_items(
         items=bin.entries,
         compare_func=lambda entry: entry.type == cached_bin_hashes['MapAudioDataProperties']
     )
-    if MapAudioDataProperties != None:
-        bankUnits = BINHelper.find_item(
-            items=MapAudioDataProperties.data,
-            compare_func=lambda field: field.hash == cached_bin_hashes['bankUnits']
-        )
-        if bankUnits != None and len(bankUnits.data) > 0:
-            for BankUnit in bankUnits.data:
-                events = BINHelper.find_item(
-                    items=BankUnit.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes['events']
+    if len(MapAudioDataPropertiesCollection) > 0:
+        for MapAudioDataProperties in MapAudioDataPropertiesCollection:
+            if MapAudioDataProperties != None:
+                bankUnitsCollection = BINHelper.find_items(
+                    items=MapAudioDataProperties.data,
+                    compare_func=lambda field: field.hash == cached_bin_hashes['bankUnits']
                 )
-                if events == None:
-                    continue
-                for event in events.data:
-                    event_names_by_id[FNV1(event)] = event
+                if len(bankUnitsCollection) > 0:
+                    for bankUnits in bankUnitsCollection:
+                        if bankUnits != None and len(bankUnits.data) > 0:
+                            for BankUnit in bankUnits.data:
+                                events = BINHelper.find_item(
+                                    items=BankUnit.data,
+                                    compare_func=lambda field: field.hash == cached_bin_hashes['events']
+                                )
+                                if events == None:
+                                    continue
+                                for event in events.data:
+                                    event_names_by_id[FNV1(event)] = event
     event_names_by_id[INF] = INF
     return event_names_by_id
 

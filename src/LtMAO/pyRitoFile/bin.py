@@ -86,6 +86,15 @@ class BINHelper:
                         return item
         return None
     
+    @staticmethod
+    def find_items(*, items=[], compare_func=None):
+        result = []
+        if compare_func != None and len(items) > 0:
+            for item in items:
+                if compare_func(item):
+                    result.append(item)
+        return result
+    
     # read related stuffs
     read_value_dict = {
         BINType.Empty:      lambda bs: bs.read_u16(3),
