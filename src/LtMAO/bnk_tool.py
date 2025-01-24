@@ -104,7 +104,6 @@ def parse_bin(bin):
                                     continue
                                 for event in events.data:
                                     event_names_by_id[FNV1(event)] = event
-
     # parse map bin
     MapAudioDataPropertiesCollection = BINHelper.find_items(
         items=bin.entries,
