@@ -23,9 +23,9 @@ def rename(path, olds, news, backup=True):
                 copy(path, backup_file)
             try:
                 rename_anm(path, olds, news)
-                LOG('shrum: Done: Rename: {path}')
+                LOG('shrum: Finish: Rename: {path}')
             except Exception as e:
-                LOG(f'shrum: Failed: Rename: {path}: {e}')
+                LOG(f'shrum: Error: Rename: {path}: {e}')
                 LOG(traceback.format_exc())
 
 
@@ -34,9 +34,9 @@ def rename_anm_dir(path, olds, news):
         if file.endswith('.anm'):
             try:
                 rename_anm(os.path.join(path, file), olds, news)
-                LOG('shrum: Done: Rename: {path}')
+                LOG('shrum: Finish: Rename: {path}')
             except Exception as e:
-                LOG(f'shrum: Failed: Rename: {path}: {e}')
+                LOG(f'shrum: Error: Rename: {path}: {e}')
                 LOG(traceback.format_exc())
 
 

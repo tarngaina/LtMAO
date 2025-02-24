@@ -1,11 +1,11 @@
 # LtMAO
 `LtMAO` is my toolpack to help League modding.
-![](https://i.imgur.com/dSpQlfc.png)
+![](https://i.imgur.com/RVB79rX.png)
 
 # Installation
-1. Download: [LtMAO-master.zip](https://github.com/tarngaina/LtMAO/archive/refs/heads/master.zip)
-2. Extract: `LtMAO-master.zip`
-3. Run `LtMAO/start.bat`
+1. Download: [LtMAO-hai.zip](https://github.com/tarngaina/LtMAO/archive/refs/heads/hai.zip)
+2. Extract: `LtMAO-hai.zip`
+3. Run `LtMAO-hai/start.bat`
 
 # Updates
 1. LtMAO always check for latest version when you open the app. If there is a newer version, the app will display update message in title bar.
@@ -33,11 +33,6 @@ Just [cslol-manager](https://github.com/LeagueToolkit/cslol-manager), but differ
 **Important**: Need to set Game folder in setting tab first to work.
 
 ![](https://i.imgur.com/GcjDQcs.png)
-
-## leaguefile_inspector
-View League files infomations.
-
-![](https://i.imgur.com/l5VvEWu.png)
 
 ## animask_viewer
 Edit MaskData's weights inside animation BINs.
@@ -141,3 +136,4 @@ Convert League files to FBX and vice versa.
 - [Hacksaw](https://github.com/TheMartynasXS/Hacksaw)
 - [Uvee](https://github.com/LeagueToolkit/Uvee)
 - [Ritoddstex](https://github.com/Morilli/Ritoddstex)
+- [bnk-extract-GUI](https://github.com/Morilli/bnk-extract-GUI)

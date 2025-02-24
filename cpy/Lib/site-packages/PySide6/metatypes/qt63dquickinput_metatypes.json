@@ -1,0 +1,225 @@
+[
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "DefaultProperty",
+                        "value": "inputs"
+                    }
+                ],
+                "className": "Quick3DAction",
+                "lineNumber": 30,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "inputs",
+                        "read": "qmlActionInputs",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DInput::QAbstractActionInput>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DInput::Input::Quick::Quick3DAction",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3daction_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "DefaultProperty",
+                        "value": "inputs"
+                    }
+                ],
+                "className": "Quick3DAxis",
+                "lineNumber": 30,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "inputs",
+                        "read": "qmlAxisInputs",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DInput::QAbstractAxisInput>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DInput::Input::Quick::Quick3DAxis",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3daxis_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "Quick3DInputChord",
+                "lineNumber": 29,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "chords",
+                        "read": "qmlActionInputs",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DInput::QAbstractActionInput>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DInput::Input::Quick::Quick3DInputChord",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dinputchord_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "Quick3DInputSequence",
+                "lineNumber": 29,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "sequences",
+                        "read": "qmlActionInputs",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DInput::QAbstractActionInput>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DInput::Input::Quick::Quick3DInputSequence",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dinputsequence_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "Quick3DLogicalDevice",
+                "lineNumber": 31,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "axes",
+                        "read": "qmlAxes",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DInput::QAxis>",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "actions",
+                        "read": "qmlActions",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DInput::QAction>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DInput::Input::Quick::Quick3DLogicalDevice",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dlogicaldevice_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "Quick3DPhysicalDevice",
+                "lineNumber": 31,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "axisSettings",
+                        "read": "axisSettings",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DInput::QAxisSetting>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DInput::Input::Quick::Quick3DPhysicalDevice",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dphysicaldevice_p.h",
+        "outputRevision": 68
+    }
+]

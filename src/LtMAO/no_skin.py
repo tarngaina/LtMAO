@@ -3,15 +3,15 @@ import os
 import os.path
 import zipfile
 import shutil
-from . import hash_manager, pyRitoFile
-from .hash_manager import cached_bin_hashes
+from . import hash_helper, pyRitoFile
+from .hash_helper import cached_bin_hashes
 
 def bin_hash(name):
     return f'{pyRitoFile.ermmm.FNV1a(name):08x}'
 
 
 LOG = print
-cache_dir = f'./prefs/no_skin/_cache'
+cache_dir = f'./pref/no_skin/_cache'
 local_dir = './resources/no_skin'
 skips_file = f'{local_dir}/SKIPS.json'
 SKIPS = {}
@@ -47,23 +47,23 @@ def set_skips(text):
         global SKIPS
         SKIPS = json.loads(text)
     except:
-        raise Exception('no_skin: Failed: Set SKIPS: Invalid input.')
+        raise Exception('no_skin: Error: Set SKIPS: Invalid input.')
 
 
 def mini_no_skin(skin0_file, otherskins_files):
     # rebuild hashes
-    LOG(f'no_skin: Running: Rebuilding hashes')
-    hash_manager.CustomHashes.read_hashes('hashes.binentries.txt')
+    LOG(f'no_skin: Start:  Rebuilding hashes')
+    hash_helper.CustomHashes.read_hashes('hashes.binentries.txt')
     skin0_hashes = {}
     otherskins_hashes = {}
-    for key, value in hash_manager.HASHTABLES['hashes.binentries.txt'].items():
+    for key, value in hash_helper.HASHTABLES['hashes.binentries.txt'].items():
         if 'Characters/' in value and '/Skins/' in value:
             if not '/Root' in value:
                 if '/Skin0' in value:
                     skin0_hashes[key] = value
                 else:
                     otherskins_hashes[key] = value
-    hash_manager.CustomHashes.free_hashes('hashes.binentries.txt')
+    hash_helper.CustomHashes.free_hashes('hashes.binentries.txt')
     # read bins
     skin0_bin = pyRitoFile.read_bin(skin0_file)
     otherskins_bins = [pyRitoFile.read_bin(otherskins_file) for otherskins_file in otherskins_files]
@@ -81,7 +81,7 @@ def mini_no_skin(skin0_file, otherskins_files):
         elif entry.type == cached_bin_hashes['ResourceResolver']:
             base_rr = entry
     if base_scdp.hash not in skin0_hashes:
-        raise Exception(f'no_skin: Failed: Swap skin: {skin0_file} is not a skin0.bin.')
+        raise Exception(f'no_skin: Error: Swap skin: {skin0_file} is not a skin0.bin.')
     # otherskins bin
     for i, otherskins_bin in enumerate(otherskins_bins):
         otherskins_file = otherskins_files[i]
@@ -96,7 +96,7 @@ def mini_no_skin(skin0_file, otherskins_files):
                         break
                 break
         if not skin_scdp_hash in otherskins_hashes:
-            LOG(f'no_skin: Failed: Swap skin: {otherskins_file} is not a specific skinX.bin.')
+            LOG(f'no_skin: Error: Swap skin: {otherskins_file} is not a specific skinX.bin.')
             continue
         # swapping
         base_scdp.hash = skin_scdp_hash
@@ -106,8 +106,8 @@ def mini_no_skin(skin0_file, otherskins_files):
         # write file
         
         pyRitoFile.write_bin(otherskins_file, skin0_bin)
-        LOG(f'no_skin: Done: Swap skin: {otherskins_file}')
-    LOG(f'no_skin: Done: Swap all skinX as skin0.')
+        LOG(f'no_skin: Finish: Swap skin: {otherskins_file}')
+    LOG(f'no_skin: Finish: Swap all skinX as skin0.')
 
 
 def parse(champions_dir, output_dir):
@@ -120,23 +120,23 @@ def parse(champions_dir, output_dir):
                 champions_dir, file).replace('\\', '/'))
     if len(wad_files) == 0:
         raise Exception(
-            'no_skin: Failed: Create NO SKIN mod: Invalid Champions folder?')
-    LOG(f'no_skin: Running: Create NO SKIN mod')
+            'no_skin: Error: Create NO SKIN mod: Invalid Champions folder?')
+    LOG(f'no_skin: Start:  Create NO SKIN mod')
     swapped_chunks = []  # list of (chunk_hash, chunk_data)
     # read hashes
-    hash_manager.read_wad_hashes()
+    hash_helper.read_wad_hashes()
     # rebuild smaller hash for faster comparsion
-    LOG(f'no_skin: Running: Rebuilding hashes')
+    LOG(f'no_skin: Start:  Rebuilding hashes')
     hashtables = {}
     hashtables['hashes.game.txt'] = {}
-    for key, value in hash_manager.HASHTABLES['hashes.game.txt'].items():
+    for key, value in hash_helper.HASHTABLES['hashes.game.txt'].items():
         if '.bin' in value and 'data/characters/' in value and '/skins/' in value and 'root.bin' not in value:
             hashtables['hashes.game.txt'][key] = value
-    hash_manager.free_wad_hashes()
+    hash_helper.free_wad_hashes()
     # start parsing each wad
     for wad_file in wad_files:
         # read wad
-        LOG(f'no_skin: Running: Parse: {wad_file}')
+        LOG(f'no_skin: Start:  Parse: {wad_file}')
         wad = pyRitoFile.read_wad(wad_file)
         # only unhash skinx.bin with rebuild hashtables
         wad.un_hash(hashtables)
@@ -157,7 +157,7 @@ def parse(champions_dir, output_dir):
                     if character in SKIPS:
                         if SKIPS[character] == 'all' or skinx in SKIPS[character]:
                             continue
-                    LOG(f'no_skin: Done: Parse: {character} {skinx}')
+                    LOG(f'no_skin: Finish: Parse: {character} {skinx}')
                     # read chunk
                     chunk.read_data(bs)
                     bin = pyRitoFile.read_bin('', raw=chunk.data)
@@ -215,7 +215,7 @@ def parse(champions_dir, output_dir):
                 # create WAD chunk
                 swapped_chunks.append(
                     (chunk_hashes[character][id], base_bin[character].write('', raw=True)))
-            LOG(f'no_skin: Done: Swap: {character}')
+            LOG(f'no_skin: Finish: Swap: {character}')
     # build new wad from swapped_chunks
     os.makedirs(cache_dir, exist_ok=True)
     wad_file = f'{cache_dir}/Annie.wad.client'
@@ -242,7 +242,7 @@ def parse(champions_dir, output_dir):
         z.write(info_file, 'META/info.json')
         z.write(wad_file, 'WAD/Annie.wad.client')
     delete_cache()
-    LOG(f'no_skin: Done: Create Fantome: {fantome_file}')
+    LOG(f'no_skin: Finish: Create Fantome: {fantome_file}')
 
 
 def prepare(_LOG):

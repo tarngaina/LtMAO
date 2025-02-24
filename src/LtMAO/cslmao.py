@@ -30,7 +30,7 @@ class MOD:
 
 
 class CSLMAO:
-    local_dir = './prefs/cslmao'
+    local_dir = './pref/cslmao'
 
     raw_dir = f'{local_dir}/raw'
     mod_file = f'{local_dir}/mods.json'
@@ -46,7 +46,7 @@ class CSLMAO:
         for mod in CSLMAO.MODS:
             if mod.get_path() == check_path:
                 raise Exception(
-                    f'cslmao: Failed: Create mod: A mod with path: {check_path} already existed in profile {mod.profile}.')
+                    f'cslmao: Error: Create mod: A mod with path: {check_path} already existed in profile {mod.profile}.')
         CSLMAO.MODS.append(m)
         return m
 
@@ -106,13 +106,13 @@ class CSLMAO:
             CSLMAO.MODS = [MOD(id, path, enable, profile)
                            for id, path, enable, profile in l]
         except Exception as e:
-            LOG(f'cslmao: Failed to load: {CSLMAO.mod_file}: {e}')
+            LOG(f'cslmao: Error: Can not load {CSLMAO.mod_file}: {e}')
             import traceback
             LOG(traceback.format_exc())
             CSLMAO.MODS = []
             with open(CSLMAO.mod_file, 'w+') as f:
                 json.dump({}, f, indent=4)
-            LOG(f'cslmao: Done: Reset {CSLMAO.mod_file}')
+            LOG(f'cslmao: Finish: Reset {CSLMAO.mod_file}')
         # load outside mod file
         for dirname in os.listdir(CSLMAO.raw_dir):
             info_file = os.path.join(
@@ -232,7 +232,7 @@ def prepare(_LOG):
                                       version=info['Version'], description=info['Description'], enable=mod.enable, profile=mod.profile))
             except Exception as e:
                 CSLMAO.MODS.remove(mod)
-                LOG(f'cslmao: Failed: Load {mod.get_path()}: {e}')
+                LOG(f'cslmao: Error: Load {mod.get_path()}: {e}')
                 import traceback
                 LOG(traceback.format_exc())
 

@@ -1,0 +1,3572 @@
+[
+    {
+        "classes": [
+            {
+                "className": "AbstractInputPanel",
+                "lineNumber": 25,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::AbstractInputPanel",
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "createView",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "destroyView",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "abstractinputpanel_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "AppInputPanel",
+                "lineNumber": 30,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::AppInputPanel",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "QtVirtualKeyboard::AbstractInputPanel",
+                        "name": "AbstractInputPanel"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "appinputpanel_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "DesktopInputPanel",
+                "lineNumber": 29,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::DesktopInputPanel",
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "createView",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "destroyView",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "protected",
+                        "arguments": [
+                            {
+                                "name": "rect",
+                                "type": "QRect"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "repositionView",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "protected",
+                        "arguments": [
+                            {
+                                "name": "focusWindow",
+                                "type": "QWindow*"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "focusWindowChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "protected",
+                        "arguments": [
+                            {
+                                "name": "visible",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "focusWindowVisibleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "protected",
+                        "index": 5,
+                        "name": "previewRectangleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "protected",
+                        "index": 6,
+                        "name": "previewVisibleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "protected",
+                        "arguments": [
+                            {
+                                "type": "QScreen*"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "screenChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "QtVirtualKeyboard::AppInputPanel",
+                        "name": "AppInputPanel"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "desktopinputpanel_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "DesktopInputSelectionControl",
+                "lineNumber": 33,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::DesktopInputSelectionControl",
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "updateAnchorHandlePosition",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "updateCursorHandlePosition",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "updateVisibility",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "reloadGraphics",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "desktopinputselectioncontrol_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "EnterKeyAction"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "EnterKeyAction is an abstract type that is only available as an attached property."
+                    },
+                    {
+                        "name": "QML.Attached",
+                        "value": "EnterKeyActionAttachedType"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    },
+                    {
+                        "name": "QML.ExtraVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "EnterKeyAction",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Id",
+                        "values": [
+                            "None",
+                            "Go",
+                            "Search",
+                            "Send",
+                            "Next",
+                            "Done"
+                        ]
+                    }
+                ],
+                "lineNumber": 27,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::EnterKeyAction",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "enterkeyaction_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "anonymous"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    },
+                    {
+                        "name": "QML.ExtraVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "EnterKeyActionAttachedType",
+                "lineNumber": 25,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "actionId",
+                        "notify": "actionIdChanged",
+                        "read": "actionId",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setActionId"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "label",
+                        "notify": "labelChanged",
+                        "read": "label",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setLabel"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "enabled",
+                        "notify": "enabledChanged",
+                        "read": "enabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setEnabled"
+                    }
+                ],
+                "qualifiedClassName": "QtVirtualKeyboard::EnterKeyActionAttachedType",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "actionIdChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "labelChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "enabledChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "enterkeyactionattachedtype_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "FallbackInputMethod",
+                "lineNumber": 24,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::FallbackInputMethod",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QVirtualKeyboardAbstractInputMethod"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "fallbackinputmethod_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "GestureRecognizer",
+                "lineNumber": 27,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::GestureRecognizer",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "gesturerecognizer_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "HandwritingGestureRecognizer",
+                "lineNumber": 23,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::HandwritingGestureRecognizer",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "QtVirtualKeyboard::GestureRecognizer",
+                        "name": "GestureRecognizer"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "handwritinggesturerecognizer_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "InputMethod"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    },
+                    {
+                        "name": "QML.ExtraVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "InputMethod",
+                "lineNumber": 25,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "inputContext",
+                        "read": "inputContext",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVirtualKeyboardInputContext*",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "inputEngine",
+                        "read": "inputEngine",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVirtualKeyboardInputEngine*",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QtVirtualKeyboard::InputMethod",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QVirtualKeyboardAbstractInputMethod"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "inputmethod_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "InputSelectionHandle",
+                "lineNumber": 30,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::InputSelectionHandle",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QRasterWindow"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "inputselectionhandle_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "InputView",
+                "lineNumber": 25,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::InputView",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "sizeChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QQuickView"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "inputview_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "PlainInputMethod"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "PlainInputMethod",
+                "lineNumber": 24,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::PlainInputMethod",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QVirtualKeyboardAbstractInputMethod"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "plaininputmethod_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "PlatformInputContext",
+                "lineNumber": 34,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::PlatformInputContext",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "focusObjectChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 1,
+                        "name": "keyboardRectangleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 2,
+                        "name": "updateInputPanelVisible",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QPlatformInputContext"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "platforminputcontext_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "anonymous"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    },
+                    {
+                        "name": "QML.ExtraVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "QVirtualKeyboardAbstractInputMethod",
+                "lineNumber": 15,
+                "object": true,
+                "qualifiedClassName": "QVirtualKeyboardAbstractInputMethod",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "type",
+                                "type": "QVirtualKeyboardSelectionListModel::Type"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "selectionListChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "type",
+                                "type": "QVirtualKeyboardSelectionListModel::Type"
+                            },
+                            {
+                                "name": "index",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "selectionListActiveItemChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "selectionListsChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "reset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "update",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "clearInputMode",
+                        "returnType": "void",
+                        "revision": 1537
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qvirtualkeyboardabstractinputmethod.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QVirtualKeyboardDictionary",
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "name",
+                        "read": "name",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "contents",
+                        "notify": "contentsChanged",
+                        "read": "contents",
+                        "required": false,
+                        "reset": "resetContents",
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false,
+                        "write": "setContents"
+                    }
+                ],
+                "qualifiedClassName": "QVirtualKeyboardDictionary",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "contentsChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qvirtualkeyboarddictionary.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QVirtualKeyboardDictionaryManager",
+                "lineNumber": 16,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "availableDictionaries",
+                        "notify": "availableDictionariesChanged",
+                        "read": "availableDictionaries",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "baseDictionaries",
+                        "notify": "baseDictionariesChanged",
+                        "read": "baseDictionaries",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false,
+                        "write": "setBaseDictionaries"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "extraDictionaries",
+                        "notify": "extraDictionariesChanged",
+                        "read": "extraDictionaries",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false,
+                        "write": "setExtraDictionaries"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "activeDictionaries",
+                        "notify": "activeDictionariesChanged",
+                        "read": "activeDictionaries",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QVirtualKeyboardDictionaryManager",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "availableDictionariesChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "baseDictionariesChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "extraDictionariesChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "activeDictionariesChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qvirtualkeyboarddictionarymanager.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "VirtualKeyboardFeatures"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1540"
+                    }
+                ],
+                "className": "QVirtualKeyboardFeatures",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Feature",
+                        "values": [
+                            "Handwriting"
+                        ]
+                    }
+                ],
+                "lineNumber": 25,
+                "namespace": true,
+                "qualifiedClassName": "QVirtualKeyboardFeatures"
+            }
+        ],
+        "inputFile": "qvirtualkeyboardfeatures_namespace_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Singleton",
+                        "value": "true"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    },
+                    {
+                        "name": "QML.ExtraVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "QVirtualKeyboardInputContext",
+                "lineNumber": 24,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "key",
+                                "type": "int"
+                            },
+                            {
+                                "name": "text",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "modifiers",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 17,
+                        "name": "sendKeyClick",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "key",
+                                "type": "int"
+                            },
+                            {
+                                "name": "text",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 18,
+                        "isCloned": true,
+                        "name": "sendKeyClick",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 19,
+                        "name": "commit",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "text",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "replaceFrom",
+                                "type": "int"
+                            },
+                            {
+                                "name": "replaceLength",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 20,
+                        "name": "commit",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "text",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "replaceFrom",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 21,
+                        "isCloned": true,
+                        "name": "commit",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "text",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 22,
+                        "isCloned": true,
+                        "name": "commit",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 23,
+                        "name": "clear",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "anchorPos",
+                                "type": "QPointF"
+                            },
+                            {
+                                "name": "cursorPos",
+                                "type": "QPointF"
+                            }
+                        ],
+                        "index": 24,
+                        "name": "setSelectionOnFocusObject",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "shift",
+                        "notify": "shiftActiveChanged",
+                        "read": "isShiftActive",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "shiftActive",
+                        "notify": "shiftActiveChanged",
+                        "read": "isShiftActive",
+                        "required": false,
+                        "revision": 516,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "capsLock",
+                        "notify": "capsLockActiveChanged",
+                        "read": "isCapsLockActive",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "capsLockActive",
+                        "notify": "capsLockActiveChanged",
+                        "read": "isCapsLockActive",
+                        "required": false,
+                        "revision": 516,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "uppercase",
+                        "notify": "uppercaseChanged",
+                        "read": "isUppercase",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "anchorPosition",
+                        "notify": "anchorPositionChanged",
+                        "read": "anchorPosition",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "cursorPosition",
+                        "notify": "cursorPositionChanged",
+                        "read": "cursorPosition",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "inputMethodHints",
+                        "notify": "inputMethodHintsChanged",
+                        "read": "inputMethodHints",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt::InputMethodHints",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 8,
+                        "name": "preeditText",
+                        "notify": "preeditTextChanged",
+                        "read": "preeditText",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setPreeditText"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 9,
+                        "name": "surroundingText",
+                        "notify": "surroundingTextChanged",
+                        "read": "surroundingText",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 10,
+                        "name": "selectedText",
+                        "notify": "selectedTextChanged",
+                        "read": "selectedText",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 11,
+                        "name": "anchorRectangle",
+                        "notify": "anchorRectangleChanged",
+                        "read": "anchorRectangle",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QRectF",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 12,
+                        "name": "cursorRectangle",
+                        "notify": "cursorRectangleChanged",
+                        "read": "cursorRectangle",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QRectF",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 13,
+                        "name": "animating",
+                        "notify": "animatingChanged",
+                        "read": "isAnimating",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setAnimating"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 14,
+                        "name": "locale",
+                        "notify": "localeChanged",
+                        "read": "locale",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 15,
+                        "name": "inputItem",
+                        "notify": "inputItemChanged",
+                        "read": "inputItem",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QObject*",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 16,
+                        "name": "inputEngine",
+                        "read": "inputEngine",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVirtualKeyboardInputEngine*",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 17,
+                        "name": "selectionControlVisible",
+                        "notify": "selectionControlVisibleChanged",
+                        "read": "isSelectionControlVisible",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 18,
+                        "name": "anchorRectIntersectsClipRect",
+                        "notify": "anchorRectIntersectsClipRectChanged",
+                        "read": "anchorRectIntersectsClipRect",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 19,
+                        "name": "cursorRectIntersectsClipRect",
+                        "notify": "cursorRectIntersectsClipRectChanged",
+                        "read": "cursorRectIntersectsClipRect",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 20,
+                        "name": "priv",
+                        "read": "priv",
+                        "required": false,
+                        "revision": 512,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVirtualKeyboardInputContextPrivate*",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 21,
+                        "name": "keyboardObserver",
+                        "read": "keyboardObserver",
+                        "required": false,
+                        "revision": 1537,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVirtualKeyboardObserver*",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QVirtualKeyboardInputContext",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "preeditTextChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "inputMethodHintsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "surroundingTextChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "selectedTextChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "anchorPositionChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "cursorPositionChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "anchorRectangleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "cursorRectangleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "shiftActiveChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 9,
+                        "name": "capsLockActiveChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 10,
+                        "name": "uppercaseChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 11,
+                        "name": "animatingChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 12,
+                        "name": "localeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 13,
+                        "name": "inputItemChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 14,
+                        "name": "selectionControlVisibleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 15,
+                        "name": "anchorRectIntersectsClipRectChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 16,
+                        "name": "cursorRectIntersectsClipRectChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qvirtualkeyboardinputcontext.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "InputContextPrivate"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "InputContextPrivate is only available via InputContext.priv"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "QVirtualKeyboardInputContextPrivate",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": true,
+                        "name": "State",
+                        "values": [
+                            "Reselect",
+                            "InputMethodEvent",
+                            "KeyEvent",
+                            "InputMethodClick",
+                            "SyncShadowInput",
+                            "SetFocus"
+                        ]
+                    }
+                ],
+                "lineNumber": 47,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "keyboardObserver",
+                                "type": "QVirtualKeyboardObserver*"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "setKeyboardObserver",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "fileUrl",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 13,
+                        "name": "fileExists",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "item",
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 14,
+                        "name": "hasEnterKeyAction",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "inputPanel",
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 15,
+                        "name": "registerInputPanel",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "point",
+                                "type": "QPointF"
+                            }
+                        ],
+                        "index": 16,
+                        "name": "contains",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "keyboardFunction",
+                                "type": "QtVirtualKeyboard::KeyboardFunction"
+                            }
+                        ],
+                        "index": 17,
+                        "name": "keyboardFunctionKey",
+                        "returnType": "QtVirtualKeyboard::KeyboardFunctionKey"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "focus",
+                        "notify": "focusChanged",
+                        "read": "focus",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setFocus"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "keyboardRectangle",
+                        "notify": "keyboardRectangleChanged",
+                        "read": "keyboardRectangle",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QRectF",
+                        "user": false,
+                        "write": "setKeyboardRectangle"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "previewRectangle",
+                        "notify": "previewRectangleChanged",
+                        "read": "previewRectangle",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QRectF",
+                        "user": false,
+                        "write": "setPreviewRectangle"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "previewVisible",
+                        "notify": "previewVisibleChanged",
+                        "read": "previewVisible",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setPreviewVisible"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "locale",
+                        "notify": "localeChanged",
+                        "read": "locale",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setLocale"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "inputItem",
+                        "notify": "inputItemChanged",
+                        "read": "inputItem",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QObject*",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "shiftHandler",
+                        "read": "shiftHandler",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QtVirtualKeyboard::ShiftHandler*",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "shadow",
+                        "read": "shadow",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QtVirtualKeyboard::ShadowInputContext*",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QVirtualKeyboardInputContextPrivate",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "focusChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "keyboardRectangleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "previewRectangleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "previewVisibleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "localeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "inputItemChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "key",
+                                "type": "int"
+                            },
+                            {
+                                "name": "isAutoRepeat",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "navigationKeyPressed",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "key",
+                                "type": "int"
+                            },
+                            {
+                                "name": "isAutoRepeat",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "navigationKeyReleased",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "hideInputPanel",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "availableLocales",
+                                "type": "QStringList"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "updateAvailableLocales",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "anchorPosition",
+                                "type": "int"
+                            },
+                            {
+                                "name": "cursorPosition",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "forceCursorPosition",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 11,
+                        "name": "onInputItemChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Foreign",
+                        "value": "QVirtualKeyboardInputContext"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "InputContext"
+                    },
+                    {
+                        "name": "QML.Singleton",
+                        "value": "true"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    },
+                    {
+                        "name": "QML.ExtraVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "QVirtualKeyboardInputContextForeign",
+                "gadget": true,
+                "lineNumber": 204,
+                "qualifiedClassName": "QVirtualKeyboardInputContextForeign"
+            }
+        ],
+        "inputFile": "qvirtualkeyboardinputcontext_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "InputEngine"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "InputEngine is only available via InputContext.inputEngine"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    },
+                    {
+                        "name": "QML.ExtraVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "QVirtualKeyboardInputEngine",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "TextCase",
+                        "values": [
+                            "Lower",
+                            "Upper"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "InputMode",
+                        "values": [
+                            "Latin",
+                            "Numeric",
+                            "Dialable",
+                            "Pinyin",
+                            "Cangjie",
+                            "Zhuyin",
+                            "Hangul",
+                            "Hiragana",
+                            "Katakana",
+                            "FullwidthLatin",
+                            "Greek",
+                            "Cyrillic",
+                            "Arabic",
+                            "Hebrew",
+                            "ChineseHandwriting",
+                            "JapaneseHandwriting",
+                            "KoreanHandwriting",
+                            "Thai",
+                            "Stroke",
+                            "Romaji"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "PatternRecognitionMode",
+                        "values": [
+                            "None",
+                            "PatternRecognitionDisabled",
+                            "Handwriting",
+                            "HandwritingRecoginition"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": true,
+                        "name": "ReselectFlag",
+                        "values": [
+                            "WordBeforeCursor",
+                            "WordAfterCursor",
+                            "WordAtCursor"
+                        ]
+                    }
+                ],
+                "lineNumber": 20,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "key",
+                                "type": "Qt::Key"
+                            },
+                            {
+                                "name": "text",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "modifiers",
+                                "type": "Qt::KeyboardModifiers"
+                            },
+                            {
+                                "name": "repeat",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 16,
+                        "name": "virtualKeyPress",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "index": 17,
+                        "name": "virtualKeyCancel",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "key",
+                                "type": "Qt::Key"
+                            },
+                            {
+                                "name": "text",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "modifiers",
+                                "type": "Qt::KeyboardModifiers"
+                            }
+                        ],
+                        "index": 18,
+                        "name": "virtualKeyRelease",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "key",
+                                "type": "Qt::Key"
+                            },
+                            {
+                                "name": "text",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "modifiers",
+                                "type": "Qt::KeyboardModifiers"
+                            }
+                        ],
+                        "index": 19,
+                        "name": "virtualKeyClick",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "traceId",
+                                "type": "int"
+                            },
+                            {
+                                "name": "patternRecognitionMode",
+                                "type": "PatternRecognitionMode"
+                            },
+                            {
+                                "name": "traceCaptureDeviceInfo",
+                                "type": "QVariantMap"
+                            },
+                            {
+                                "name": "traceScreenInfo",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 20,
+                        "name": "traceBegin",
+                        "returnType": "QVirtualKeyboardTrace*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "trace",
+                                "type": "QVirtualKeyboardTrace*"
+                            }
+                        ],
+                        "index": 21,
+                        "name": "traceEnd",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "cursorPosition",
+                                "type": "int"
+                            },
+                            {
+                                "name": "reselectFlags",
+                                "type": "ReselectFlags"
+                            }
+                        ],
+                        "index": 22,
+                        "name": "reselect",
+                        "returnType": "bool"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "activeKey",
+                        "notify": "activeKeyChanged",
+                        "read": "activeKey",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt::Key",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "previousKey",
+                        "notify": "previousKeyChanged",
+                        "read": "previousKey",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt::Key",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "inputMethod",
+                        "notify": "inputMethodChanged",
+                        "read": "inputMethod",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVirtualKeyboardAbstractInputMethod*",
+                        "user": false,
+                        "write": "setInputMethod"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "inputModes",
+                        "notify": "inputModesChanged",
+                        "read": "inputModes",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QList<int>",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "inputMode",
+                        "notify": "inputModeChanged",
+                        "read": "inputMode",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "InputMode",
+                        "user": false,
+                        "write": "setInputMode"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "patternRecognitionModes",
+                        "notify": "patternRecognitionModesChanged",
+                        "read": "patternRecognitionModes",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QList<int>",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "wordCandidateListModel",
+                        "notify": "wordCandidateListModelChanged",
+                        "read": "wordCandidateListModel",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVirtualKeyboardSelectionListModel*",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "wordCandidateListVisibleHint",
+                        "notify": "wordCandidateListVisibleHintChanged",
+                        "read": "wordCandidateListVisibleHint",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QVirtualKeyboardInputEngine",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "key",
+                                "type": "Qt::Key"
+                            },
+                            {
+                                "name": "text",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "modifiers",
+                                "type": "Qt::KeyboardModifiers"
+                            },
+                            {
+                                "name": "isAutoRepeat",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "virtualKeyClicked",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "key",
+                                "type": "Qt::Key"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "activeKeyChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "key",
+                                "type": "Qt::Key"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "previousKeyChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "inputMethodChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "inputMethodReset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "inputMethodUpdate",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "inputModesChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "inputModeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "patternRecognitionModesChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 9,
+                        "name": "wordCandidateListModelChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 10,
+                        "name": "wordCandidateListVisibleHintChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 11,
+                        "name": "reset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 12,
+                        "name": "update",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 13,
+                        "name": "shiftChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 14,
+                        "name": "updateSelectionListModels",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 15,
+                        "name": "updateInputModes",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qvirtualkeyboardinputengine.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "QtVirtualKeyboard"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1540"
+                    }
+                ],
+                "className": "QtVirtualKeyboard",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "KeyType",
+                        "values": [
+                            "BaseKey",
+                            "BackspaceKey",
+                            "ChangeLanguageKey",
+                            "EnterKey",
+                            "FillerKey",
+                            "HandwritingModeKey",
+                            "HideKeyboardKey",
+                            "InputModeKey",
+                            "Key",
+                            "ModeKey",
+                            "NumberKey",
+                            "ShiftKey",
+                            "SpaceKey",
+                            "SymbolModeKey",
+                            "FlickKey"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "KeyboardFunction",
+                        "values": [
+                            "HideInputPanel",
+                            "ChangeLanguage",
+                            "ToggleHandwritingMode"
+                        ]
+                    },
+                    {
+                        "alias": "KeyboardFunctionKey",
+                        "isClass": true,
+                        "isFlag": true,
+                        "name": "KeyboardFunctionKeys",
+                        "type": "quint32",
+                        "values": [
+                            "None",
+                            "Hide",
+                            "Language",
+                            "All"
+                        ]
+                    }
+                ],
+                "lineNumber": 24,
+                "namespace": true,
+                "qualifiedClassName": "QtVirtualKeyboard"
+            }
+        ],
+        "inputFile": "qvirtualkeyboardnamespace_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "KeyboardObserver"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1537"
+                    }
+                ],
+                "className": "QVirtualKeyboardObserver",
+                "lineNumber": 16,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "layout",
+                        "notify": "layoutChanged",
+                        "read": "layout",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVariant",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QVirtualKeyboardObserver",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "layoutChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 1,
+                        "name": "invalidateLayout",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qvirtualkeyboardobserver.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "SelectionListModel"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "SelectionListModel is only available via InputEngine.wordCandidateListModel"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    },
+                    {
+                        "name": "QML.ExtraVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "QVirtualKeyboardSelectionListModel",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "Type",
+                        "values": [
+                            "WordCandidateList"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "Role",
+                        "values": [
+                            "Display",
+                            "DisplayRole",
+                            "WordCompletionLength",
+                            "WordCompletionLengthRole",
+                            "Dictionary",
+                            "CanRemoveSuggestion"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "DictionaryType",
+                        "values": [
+                            "Default",
+                            "User"
+                        ]
+                    }
+                ],
+                "lineNumber": 17,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "selectItem",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "removeItem",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            },
+                            {
+                                "name": "role",
+                                "type": "Role"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "dataAt",
+                        "returnType": "QVariant"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 9,
+                        "isCloned": true,
+                        "name": "dataAt",
+                        "returnType": "QVariant"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "count",
+                        "notify": "countChanged",
+                        "read": "count",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QVirtualKeyboardSelectionListModel",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "countChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "activeItemChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "itemSelected",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "protected",
+                        "arguments": [
+                            {
+                                "name": "type",
+                                "type": "Type"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "selectionListChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "protected",
+                        "arguments": [
+                            {
+                                "name": "type",
+                                "type": "Type"
+                            },
+                            {
+                                "name": "index",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "selectionListActiveItemChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "protected",
+                        "index": 5,
+                        "name": "dataSourceDestroyed",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractListModel"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qvirtualkeyboardselectionlistmodel.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "Trace"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "Trace object is created by InputContext.inputEngine.traceBegin() function"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "QVirtualKeyboardTrace",
+                "lineNumber": 17,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "pos",
+                                "type": "int"
+                            },
+                            {
+                                "name": "count",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "points",
+                        "returnType": "QVariantList"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "pos",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 7,
+                        "isCloned": true,
+                        "name": "points",
+                        "returnType": "QVariantList"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "isCloned": true,
+                        "name": "points",
+                        "returnType": "QVariantList"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "point",
+                                "type": "QPointF"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "addPoint",
+                        "returnType": "int"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "channel",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "index",
+                                "type": "int"
+                            },
+                            {
+                                "name": "data",
+                                "type": "QVariant"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "setChannelData",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "channel",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "pos",
+                                "type": "int"
+                            },
+                            {
+                                "name": "count",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "channelData",
+                        "returnType": "QVariantList"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "channel",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "pos",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 12,
+                        "isCloned": true,
+                        "name": "channelData",
+                        "returnType": "QVariantList"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "channel",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 13,
+                        "isCloned": true,
+                        "name": "channelData",
+                        "returnType": "QVariantList"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "delayMs",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 14,
+                        "name": "startHideTimer",
+                        "returnType": "void",
+                        "revision": 1537
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "traceId",
+                        "notify": "traceIdChanged",
+                        "read": "traceId",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setTraceId"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "channels",
+                        "notify": "channelsChanged",
+                        "read": "channels",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false,
+                        "write": "setChannels"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "length",
+                        "notify": "lengthChanged",
+                        "read": "length",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "final",
+                        "notify": "finalChanged",
+                        "read": "isFinal",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setFinal"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "canceled",
+                        "notify": "canceledChanged",
+                        "read": "isCanceled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setCanceled"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "opacity",
+                        "notify": "opacityChanged",
+                        "read": "opacity",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setOpacity"
+                    }
+                ],
+                "qualifiedClassName": "QVirtualKeyboardTrace",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "traceId",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "traceIdChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "channelsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "length",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "lengthChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "isFinal",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "finalChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "isCanceled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "canceledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "opacity",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "opacityChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qvirtualkeyboardtrace.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "Settings",
+                "lineNumber": 29,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::Settings",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "styleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "styleNameChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "localeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "availableLocalesChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "activeLocalesChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "layoutPathChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "wclAutoHideDelayChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "wclAlwaysVisibleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "wclAutoCommitWordChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 9,
+                        "name": "fullScreenModeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 10,
+                        "name": "userDataPathChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 11,
+                        "name": "userDataReset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 12,
+                        "name": "hwrTimeoutForAlphabeticChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 13,
+                        "name": "hwrTimeoutForCjkChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 14,
+                        "name": "inputMethodHintsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 15,
+                        "name": "handwritingModeDisabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 16,
+                        "name": "defaultInputMethodDisabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 17,
+                        "name": "defaultDictionaryDisabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 18,
+                        "name": "visibleFunctionKeysChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 19,
+                        "name": "closeOnReturnChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "settings_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "ShadowInputContext"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "ShadowInputContext is only available via InputContext.priv.shadow"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "ShadowInputContext",
+                "lineNumber": 35,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "anchorPos",
+                                "type": "QPointF"
+                            },
+                            {
+                                "name": "cursorPos",
+                                "type": "QPointF"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "setSelectionOnFocusObject",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "updateSelectionProperties",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "inputItem",
+                        "notify": "inputItemChanged",
+                        "read": "inputItem",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QObject*",
+                        "user": false,
+                        "write": "setInputItem"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "anchorRectangle",
+                        "notify": "anchorRectangleChanged",
+                        "read": "anchorRectangle",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QRectF",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "cursorRectangle",
+                        "notify": "cursorRectangleChanged",
+                        "read": "cursorRectangle",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QRectF",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "anchorRectIntersectsClipRect",
+                        "notify": "anchorRectIntersectsClipRectChanged",
+                        "read": "anchorRectIntersectsClipRect",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "cursorRectIntersectsClipRect",
+                        "notify": "cursorRectIntersectsClipRectChanged",
+                        "read": "cursorRectIntersectsClipRect",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "selectionControlVisible",
+                        "notify": "selectionControlVisibleChanged",
+                        "read": "selectionControlVisible",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QtVirtualKeyboard::ShadowInputContext",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "inputItemChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "anchorRectangleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "cursorRectangleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "anchorRectIntersectsClipRectChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "cursorRectIntersectsClipRectChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "selectionControlVisibleChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "shadowinputcontext_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "ShiftHandler"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "ShiftHandler is only available via InputContextPrivate.shiftHandler"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    },
+                    {
+                        "name": "QML.ExtraVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "ShiftHandler",
+                "lineNumber": 32,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 11,
+                        "name": "toggleShift",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 12,
+                        "name": "clearToggleShiftTimer",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "sentenceEndingCharacters",
+                        "notify": "sentenceEndingCharactersChanged",
+                        "read": "sentenceEndingCharacters",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setSentenceEndingCharacters"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "autoCapitalizationEnabled",
+                        "notify": "autoCapitalizationEnabledChanged",
+                        "read": "isAutoCapitalizationEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "toggleShiftEnabled",
+                        "notify": "toggleShiftEnabledChanged",
+                        "read": "isToggleShiftEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "shiftActive",
+                        "notify": "shiftActiveChanged",
+                        "read": "isShiftActive",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setShiftActive"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "capsLockActive",
+                        "notify": "capsLockActiveChanged",
+                        "read": "isCapsLockActive",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setCapsLockActive"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "uppercase",
+                        "notify": "uppercaseChanged",
+                        "read": "isUppercase",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QtVirtualKeyboard::ShiftHandler",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "sentenceEndingCharactersChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "toggleShiftEnabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "autoCapitalizationEnabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "shiftActiveChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "capsLockActiveChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "uppercaseChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 6,
+                        "name": "reset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 7,
+                        "name": "autoCapitalize",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 8,
+                        "name": "restart",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 9,
+                        "name": "localeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 10,
+                        "name": "inputMethodVisibleChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "shifthandler_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "VirtualKeyboard"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "VirtualKeyboard is an abstract type that is only available as an attached property."
+                    },
+                    {
+                        "name": "QML.Attached",
+                        "value": "VirtualKeyboardAttachedType"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1537"
+                    }
+                ],
+                "className": "VirtualKeyboard",
+                "lineNumber": 27,
+                "object": true,
+                "qualifiedClassName": "QtVirtualKeyboard::VirtualKeyboard",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "virtualkeyboard_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "anonymous"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1537"
+                    }
+                ],
+                "className": "VirtualKeyboardAttachedType",
+                "lineNumber": 25,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "extraDictionaries",
+                        "notify": "extraDictionariesChanged",
+                        "read": "extraDictionaries",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false,
+                        "write": "setExtraDictionaries"
+                    }
+                ],
+                "qualifiedClassName": "QtVirtualKeyboard::VirtualKeyboardAttachedType",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "extraDictionariesChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "virtualkeyboardattachedtype_p.h",
+        "outputRevision": 68
+    }
+]

@@ -1,0 +1,611 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QAbstractWebViewSettings",
+                "lineNumber": 26,
+                "object": true,
+                "qualifiedClassName": "QAbstractWebViewSettings",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            },
+            {
+                "className": "QAbstractWebView",
+                "lineNumber": 44,
+                "object": true,
+                "qualifiedClassName": "QAbstractWebView",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "title",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "titleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "urlChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "loadRequest",
+                                "type": "QWebViewLoadRequestPrivate"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "loadingChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "progress",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "loadProgressChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "id",
+                                "type": "int"
+                            },
+                            {
+                                "name": "result",
+                                "type": "QVariant"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "javaScriptResult",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "focus",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "requestFocus",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "httpUserAgent",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "httpUserAgentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "domain",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "name",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "cookieAdded",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "domain",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "name",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "cookieRemoved",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    },
+                    {
+                        "access": "public",
+                        "name": "QWebViewInterface"
+                    },
+                    {
+                        "access": "public",
+                        "name": "QNativeViewController"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qabstractwebview_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebViewSettings",
+                "lineNumber": 32,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "localStorageEnabled",
+                        "notify": "localStorageEnabledChanged",
+                        "read": "localStorageEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setLocalStorageEnabled"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "javaScriptEnabled",
+                        "notify": "javaScriptEnabledChanged",
+                        "read": "javaScriptEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setJavaScriptEnabled"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "allowFileAccess",
+                        "notify": "allowFileAccessChanged",
+                        "read": "allowFileAccess",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setAllowFileAccess"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "localContentCanAccessFileUrls",
+                        "notify": "localContentCanAccessFileUrlsChanged",
+                        "read": "localContentCanAccessFileUrls",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setLocalContentCanAccessFileUrls"
+                    }
+                ],
+                "qualifiedClassName": "QWebViewSettings",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "localStorageEnabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "javaScriptEnabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "allowFileAccessChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "localContentCanAccessFileUrlsChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "enabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "setLocalStorageEnabled",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "enabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "setJavaScriptEnabled",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "enabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "setAllowFileAccess",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "enabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "setLocalContentCanAccessFileUrls",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            },
+            {
+                "className": "QWebView",
+                "lineNumber": 65,
+                "object": true,
+                "qualifiedClassName": "QWebView",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "titleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "urlChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "loadRequest",
+                                "type": "QWebViewLoadRequestPrivate"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "loadingChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "loadProgressChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "id",
+                                "type": "int"
+                            },
+                            {
+                                "name": "result",
+                                "type": "QVariant"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "javaScriptResult",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "focus",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "requestFocus",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "httpUserAgentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "domain",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "name",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "cookieAdded",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "domain",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "name",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "cookieRemoved",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 9,
+                        "name": "goBack",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 10,
+                        "name": "goForward",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 11,
+                        "name": "reload",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 12,
+                        "name": "stop",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "html",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "baseUrl",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 13,
+                        "name": "loadHtml",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "html",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 14,
+                        "isCloned": true,
+                        "name": "loadHtml",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "domain",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "name",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "value",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 15,
+                        "name": "setCookie",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "domain",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "name",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 16,
+                        "name": "deleteCookie",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 17,
+                        "name": "deleteAllCookies",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "title",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 18,
+                        "name": "onTitleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 19,
+                        "name": "onUrlChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "progress",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 20,
+                        "name": "onLoadProgressChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "loadRequest",
+                                "type": "QWebViewLoadRequestPrivate"
+                            }
+                        ],
+                        "index": 21,
+                        "name": "onLoadingChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "httpUserAgent",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 22,
+                        "name": "onHttpUserAgentChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    },
+                    {
+                        "access": "public",
+                        "name": "QWebViewInterface"
+                    },
+                    {
+                        "access": "public",
+                        "name": "QNativeViewController"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebview_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebViewPlugin",
+                "lineNumber": 27,
+                "object": true,
+                "qualifiedClassName": "QWebViewPlugin",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebviewplugin_p.h",
+        "outputRevision": 68
+    }
+]

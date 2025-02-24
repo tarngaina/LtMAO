@@ -8,13 +8,13 @@ def dds2tex(dds_path, tex_path=None):
     if tex_path == None:
         tex_path = dds_path.replace('.dds', '.tex')
     LOG(
-        f'Ritoddstex: Running: dds2tex: Convert {dds_path} to {tex_path}')
+        f'Ritoddstex: Start:  dds2tex: Convert {dds_path} to {tex_path}')
     # read dds header
     with pyRitoFile.stream.BinStream(open(dds_path, 'rb')) as bs:
         signature, = bs.read_u32()
         if signature != 0x20534444:
             raise Exception(
-                f'Ritoddstex: Failed: dds2tex: Wrong signature DDS file: {signature}')
+                f'Ritoddstex: Error: dds2tex: Wrong signature DDS file: {signature}')
         uints = bs.read_u32(31)
         dds_header = {
             'dwSize': uints[0],
@@ -54,18 +54,18 @@ def dds2tex(dds_path, tex_path=None):
     elif (dds_pixel_format['dwFlags'] & 0x00000041) == 0x00000041:
         if dds_pixel_format['dwRGBBitCount'] != 32 or dds_pixel_format['dwRBitMask'] != 0x000000ff or dds_pixel_format['dwGBitMask'] != 0x0000ff00 or dds_pixel_format['dwBBitMask'] != 0x00ff0000 or dds_pixel_format['dwABitMask'] != 0xff000000:
             raise Exception(
-                f'Ritoddstex: Failed: dds2tex: DDS file is not in exact RGBA8 format.')
+                f'Ritoddstex: Error: dds2tex: DDS file is not in exact RGBA8 format.')
         tex.format = pyRitoFile.TEXFormat.RGBA8
     else:
         raise Exception(
-            f'Ritoddstex: Failed: dds2tex: Unsupported DDS format: {dds_pixel_format["dwFourCC"]}')
+            f'Ritoddstex: Error: dds2tex: Unsupported DDS format: {dds_pixel_format["dwFourCC"]}')
     if dds_header['dwMipMapCount'] > 1:
         expected_dwMipMapCount = 32 - \
             len(f'{max(dds_header["dwWidth"], dds_header["dwHeight"]):032b}'.split(
                 '1', 1)[0])
         if dds_header['dwMipMapCount'] != expected_dwMipMapCount:
             raise Exception(
-                f'Ritoddstex: Failed: dds2tex: Wrong DDS mipmap count: {dds_header["dwMipMapCount"]}, expected: {expected_dwMipMapCount}'
+                f'Ritoddstex: Error: dds2tex: Wrong DDS mipmap count: {dds_header["dwMipMapCount"]}, expected: {expected_dwMipMapCount}'
             )
         tex.mipmaps = True
     # prepare tex data
@@ -102,7 +102,7 @@ def dds2tex(dds_path, tex_path=None):
     # write tex file
     tex.write(tex_path)
     LOG(
-        f'Ritoddstex: Done: dds2tex: Write {tex_path}')
+        f'Ritoddstex: Finish: dds2tex: Write {tex_path}')
 
 
 def tex2dds(tex_path, dds_path=None):
@@ -110,7 +110,7 @@ def tex2dds(tex_path, dds_path=None):
     if dds_path == None:
         dds_path = tex_path.split('.tex')[0] + '.dds'
     LOG(
-        f'Ritoddstex: Running: tex2dds: Convert {tex_path} to {dds_path}')
+        f'Ritoddstex: Start:  tex2dds: Convert {tex_path} to {dds_path}')
     # read tex
     tex = pyRitoFile.read_tex(tex_path)
     # prepare dds header
@@ -157,7 +157,7 @@ def tex2dds(tex_path, dds_path=None):
         dds_pixel_format['dwABitMask'] = 0xff000000
     else:
         raise Exception(
-            f'Ritoddstex: Failed: tex2dds: Unsupported TEX format: {tex.format}')
+            f'Ritoddstex: Error: tex2dds: Unsupported TEX format: {tex.format}')
     if tex.mipmaps:
         dds_header['dwFlags'] |= 0x00020000
         dds_header['dwCaps'] |= 0x00400008
@@ -197,7 +197,7 @@ def tex2dds(tex_path, dds_path=None):
         else:
             bs.write(tex.data[0])
     LOG(
-        f'Ritoddstex: Done: tex2dds: Write {dds_path}')
+        f'Ritoddstex: Finish: tex2dds: Write {dds_path}')
 
 
 def prepare(_LOG):

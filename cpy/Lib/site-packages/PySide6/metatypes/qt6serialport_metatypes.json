@@ -1,0 +1,460 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QSerialPort",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": true,
+                        "name": "Direction",
+                        "values": [
+                            "Input",
+                            "Output",
+                            "AllDirections"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "BaudRate",
+                        "values": [
+                            "Baud1200",
+                            "Baud2400",
+                            "Baud4800",
+                            "Baud9600",
+                            "Baud19200",
+                            "Baud38400",
+                            "Baud57600",
+                            "Baud115200"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "DataBits",
+                        "values": [
+                            "Data5",
+                            "Data6",
+                            "Data7",
+                            "Data8"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Parity",
+                        "values": [
+                            "NoParity",
+                            "EvenParity",
+                            "OddParity",
+                            "SpaceParity",
+                            "MarkParity"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "StopBits",
+                        "values": [
+                            "OneStop",
+                            "OneAndHalfStop",
+                            "TwoStop"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "FlowControl",
+                        "values": [
+                            "NoFlowControl",
+                            "HardwareControl",
+                            "SoftwareControl"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": true,
+                        "name": "PinoutSignal",
+                        "values": [
+                            "NoSignal",
+                            "DataTerminalReadySignal",
+                            "DataCarrierDetectSignal",
+                            "DataSetReadySignal",
+                            "RingIndicatorSignal",
+                            "RequestToSendSignal",
+                            "ClearToSendSignal",
+                            "SecondaryTransmittedDataSignal",
+                            "SecondaryReceivedDataSignal"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "SerialPortError",
+                        "values": [
+                            "NoError",
+                            "DeviceNotFoundError",
+                            "PermissionError",
+                            "OpenError",
+                            "WriteError",
+                            "ReadError",
+                            "ResourceError",
+                            "UnsupportedOperationError",
+                            "UnknownError",
+                            "TimeoutError",
+                            "NotOpenError"
+                        ]
+                    }
+                ],
+                "lineNumber": 18,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "baudRate",
+                        "notify": "baudRateChanged",
+                        "read": "baudRate",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qint32",
+                        "user": false,
+                        "write": "setBaudRate"
+                    },
+                    {
+                        "bindable": "bindableDataBits",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "dataBits",
+                        "notify": "dataBitsChanged",
+                        "read": "dataBits",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "DataBits",
+                        "user": false,
+                        "write": "setDataBits"
+                    },
+                    {
+                        "bindable": "bindableParity",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "parity",
+                        "notify": "parityChanged",
+                        "read": "parity",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Parity",
+                        "user": false,
+                        "write": "setParity"
+                    },
+                    {
+                        "bindable": "bindableStopBits",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "stopBits",
+                        "notify": "stopBitsChanged",
+                        "read": "stopBits",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "StopBits",
+                        "user": false,
+                        "write": "setStopBits"
+                    },
+                    {
+                        "bindable": "bindableFlowControl",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "flowControl",
+                        "notify": "flowControlChanged",
+                        "read": "flowControl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "FlowControl",
+                        "user": false,
+                        "write": "setFlowControl"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "dataTerminalReady",
+                        "notify": "dataTerminalReadyChanged",
+                        "read": "isDataTerminalReady",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setDataTerminalReady"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "requestToSend",
+                        "notify": "requestToSendChanged",
+                        "read": "isRequestToSend",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setRequestToSend"
+                    },
+                    {
+                        "bindable": "bindableError",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "error",
+                        "notify": "errorOccurred",
+                        "read": "error",
+                        "required": false,
+                        "reset": "clearError",
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "SerialPortError",
+                        "user": false
+                    },
+                    {
+                        "bindable": "bindableIsBreakEnabled",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 8,
+                        "name": "breakEnabled",
+                        "notify": "breakEnabledChanged",
+                        "read": "isBreakEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setBreakEnabled"
+                    }
+                ],
+                "qualifiedClassName": "QSerialPort",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "baudRate",
+                                "type": "qint32"
+                            },
+                            {
+                                "name": "directions",
+                                "type": "QSerialPort::Directions"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "baudRateChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "dataBits",
+                                "type": "QSerialPort::DataBits"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "dataBitsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "parity",
+                                "type": "QSerialPort::Parity"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "parityChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "stopBits",
+                                "type": "QSerialPort::StopBits"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "stopBitsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "flowControl",
+                                "type": "QSerialPort::FlowControl"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "flowControlChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "set",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "dataTerminalReadyChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "set",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "requestToSendChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "error",
+                                "type": "QSerialPort::SerialPortError"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "errorOccurred",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "set",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "breakEnabledChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 9,
+                        "name": "_q_startAsyncWrite",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "type": "quint32"
+                            },
+                            {
+                                "type": "quint32"
+                            },
+                            {
+                                "type": "OVERLAPPED*"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "_q_notified",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QIODevice"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qserialport.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWinOverlappedIoNotifier",
+                "lineNumber": 28,
+                "object": true,
+                "qualifiedClassName": "QWinOverlappedIoNotifier",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "numberOfBytes",
+                                "type": "quint32"
+                            },
+                            {
+                                "name": "errorCode",
+                                "type": "quint32"
+                            },
+                            {
+                                "name": "overlapped",
+                                "type": "OVERLAPPED*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "notified",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "_q_notify",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 2,
+                        "name": "_q_notified",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwinoverlappedionotifier_p.h",
+        "outputRevision": 68
+    }
+]

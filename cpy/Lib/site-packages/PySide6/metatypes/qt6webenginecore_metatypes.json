@@ -1,0 +1,3742 @@
+[
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "WebEngineClientHints"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": ""
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1544"
+                    }
+                ],
+                "className": "QWebEngineClientHints",
+                "lineNumber": 20,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "resetAll",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "arch",
+                        "read": "arch",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setArch"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "platform",
+                        "read": "platform",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setPlatform"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "model",
+                        "read": "model",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setModel"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "mobile",
+                        "read": "isMobile",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setIsMobile"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "fullVersion",
+                        "read": "fullVersion",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setFullVersion"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "platformVersion",
+                        "read": "platformVersion",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setPlatformVersion"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 6,
+                        "name": "bitness",
+                        "read": "bitness",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setBitness"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 7,
+                        "name": "fullVersionList",
+                        "read": "fullVersionList",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVariantMap",
+                        "user": false,
+                        "write": "setFullVersionList"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 8,
+                        "name": "wow64",
+                        "read": "isWow64",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setIsWow64"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 9,
+                        "name": "isAllClientHintsEnabled",
+                        "read": "isAllClientHintsEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setAllClientHintsEnabled"
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineClientHints",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebengineclienthints.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineCertificateError",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Type",
+                        "values": [
+                            "SslPinnedKeyNotInCertificateChain",
+                            "CertificateCommonNameInvalid",
+                            "CertificateDateInvalid",
+                            "CertificateAuthorityInvalid",
+                            "CertificateContainsErrors",
+                            "CertificateNoRevocationMechanism",
+                            "CertificateUnableToCheckRevocation",
+                            "CertificateRevoked",
+                            "CertificateInvalid",
+                            "CertificateWeakSignatureAlgorithm",
+                            "CertificateNonUniqueName",
+                            "CertificateWeakKey",
+                            "CertificateNameConstraintViolation",
+                            "CertificateValidityTooLong",
+                            "CertificateTransparencyRequired",
+                            "CertificateSymantecLegacy",
+                            "CertificateKnownInterceptionBlocked",
+                            "SslObsoleteVersion"
+                        ]
+                    }
+                ],
+                "gadget": true,
+                "lineNumber": 20,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "defer",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "rejectCertificate",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "acceptCertificate",
+                        "returnType": "void"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "url",
+                        "read": "url",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "type",
+                        "read": "type",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Type",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "description",
+                        "read": "description",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "overridable",
+                        "read": "isOverridable",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "isMainFrame",
+                        "read": "isMainFrame",
+                        "required": false,
+                        "revision": 1544,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineCertificateError"
+            }
+        ],
+        "inputFile": "qwebenginecertificateerror.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineContextMenuRequest",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "MediaType",
+                        "values": [
+                            "MediaTypeNone",
+                            "MediaTypeImage",
+                            "MediaTypeVideo",
+                            "MediaTypeAudio",
+                            "MediaTypeCanvas",
+                            "MediaTypeFile",
+                            "MediaTypePlugin"
+                        ]
+                    },
+                    {
+                        "alias": "MediaFlag",
+                        "isClass": false,
+                        "isFlag": true,
+                        "name": "MediaFlags",
+                        "values": [
+                            "MediaInError",
+                            "MediaPaused",
+                            "MediaMuted",
+                            "MediaLoop",
+                            "MediaCanSave",
+                            "MediaHasAudio",
+                            "MediaCanToggleControls",
+                            "MediaControls",
+                            "MediaCanPrint",
+                            "MediaCanRotate"
+                        ]
+                    },
+                    {
+                        "alias": "EditFlag",
+                        "isClass": false,
+                        "isFlag": true,
+                        "name": "EditFlags",
+                        "values": [
+                            "CanUndo",
+                            "CanRedo",
+                            "CanCut",
+                            "CanCopy",
+                            "CanPaste",
+                            "CanDelete",
+                            "CanSelectAll",
+                            "CanTranslate",
+                            "CanEditRichly"
+                        ]
+                    }
+                ],
+                "lineNumber": 39,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "position",
+                        "read": "position",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QPoint",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "selectedText",
+                        "read": "selectedText",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "linkText",
+                        "read": "linkText",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "linkUrl",
+                        "read": "linkUrl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "mediaUrl",
+                        "read": "mediaUrl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "mediaType",
+                        "read": "mediaType",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "MediaType",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 6,
+                        "name": "isContentEditable",
+                        "read": "isContentEditable",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 7,
+                        "name": "misspelledWord",
+                        "read": "misspelledWord",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 8,
+                        "name": "spellCheckerSuggestions",
+                        "read": "spellCheckerSuggestions",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 9,
+                        "name": "accepted",
+                        "read": "isAccepted",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setAccepted"
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 10,
+                        "name": "mediaFlags",
+                        "read": "mediaFlags",
+                        "required": false,
+                        "revision": 257,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "MediaFlags",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 11,
+                        "name": "editFlags",
+                        "read": "editFlags",
+                        "required": false,
+                        "revision": 257,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "EditFlags",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineContextMenuRequest",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebenginecontextmenurequest.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineCookieStore",
+                "lineNumber": 25,
+                "object": true,
+                "qualifiedClassName": "QWebEngineCookieStore",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "cookie",
+                                "type": "QNetworkCookie"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "cookieAdded",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "cookie",
+                                "type": "QNetworkCookie"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "cookieRemoved",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebenginecookiestore.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineDesktopMediaRequest",
+                "gadget": true,
+                "lineNumber": 23,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "QModelIndex"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "selectScreen",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "QModelIndex"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "selectWindow",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "cancel",
+                        "returnType": "void"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "screensModel",
+                        "read": "screensModel",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QAbstractListModel*",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "windowsModel",
+                        "read": "windowsModel",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QAbstractListModel*",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineDesktopMediaRequest"
+            }
+        ],
+        "inputFile": "qwebenginedesktopmediarequest.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineDownloadRequest",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "DownloadState",
+                        "values": [
+                            "DownloadRequested",
+                            "DownloadInProgress",
+                            "DownloadCompleted",
+                            "DownloadCancelled",
+                            "DownloadInterrupted"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "SavePageFormat",
+                        "values": [
+                            "UnknownSaveFormat",
+                            "SingleHtmlSaveFormat",
+                            "CompleteHtmlSaveFormat",
+                            "MimeHtmlSaveFormat"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "DownloadInterruptReason",
+                        "values": [
+                            "NoReason",
+                            "FileFailed",
+                            "FileAccessDenied",
+                            "FileNoSpace",
+                            "FileNameTooLong",
+                            "FileTooLarge",
+                            "FileVirusInfected",
+                            "FileTransientError",
+                            "FileBlocked",
+                            "FileSecurityCheckFailed",
+                            "FileTooShort",
+                            "FileHashMismatch",
+                            "NetworkFailed",
+                            "NetworkTimeout",
+                            "NetworkDisconnected",
+                            "NetworkServerDown",
+                            "NetworkInvalidRequest",
+                            "ServerFailed",
+                            "ServerBadContent",
+                            "ServerUnauthorized",
+                            "ServerCertProblem",
+                            "ServerForbidden",
+                            "ServerUnreachable",
+                            "UserCanceled"
+                        ]
+                    }
+                ],
+                "lineNumber": 18,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "id",
+                        "read": "id",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "quint32",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "state",
+                        "notify": "stateChanged",
+                        "read": "state",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "DownloadState",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "savePageFormat",
+                        "notify": "savePageFormatChanged",
+                        "read": "savePageFormat",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "SavePageFormat",
+                        "user": false,
+                        "write": "setSavePageFormat"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "totalBytes",
+                        "notify": "totalBytesChanged",
+                        "read": "totalBytes",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qint64",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "receivedBytes",
+                        "notify": "receivedBytesChanged",
+                        "read": "receivedBytes",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qint64",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "mimeType",
+                        "read": "mimeType",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 6,
+                        "name": "interruptReason",
+                        "notify": "interruptReasonChanged",
+                        "read": "interruptReason",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "DownloadInterruptReason",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 7,
+                        "name": "interruptReasonString",
+                        "notify": "interruptReasonChanged",
+                        "read": "interruptReasonString",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 8,
+                        "name": "isFinished",
+                        "notify": "isFinishedChanged",
+                        "read": "isFinished",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 9,
+                        "name": "isPaused",
+                        "notify": "isPausedChanged",
+                        "read": "isPaused",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 10,
+                        "name": "isSavePageDownload",
+                        "read": "isSavePageDownload",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 11,
+                        "name": "url",
+                        "read": "url",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 12,
+                        "name": "suggestedFileName",
+                        "read": "suggestedFileName",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 13,
+                        "name": "downloadDirectory",
+                        "notify": "downloadDirectoryChanged",
+                        "read": "downloadDirectory",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setDownloadDirectory"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 14,
+                        "name": "downloadFileName",
+                        "notify": "downloadFileNameChanged",
+                        "read": "downloadFileName",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setDownloadFileName"
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineDownloadRequest",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "state",
+                                "type": "QWebEngineDownloadRequest::DownloadState"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "stateChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "savePageFormatChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "receivedBytesChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "totalBytesChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "interruptReasonChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "isFinishedChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "isPausedChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "downloadDirectoryChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "downloadFileNameChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 9,
+                        "name": "accept",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 10,
+                        "name": "cancel",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 11,
+                        "name": "pause",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 12,
+                        "name": "resume",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebenginedownloadrequest.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineFileSystemAccessRequest",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "HandleType",
+                        "values": [
+                            "File",
+                            "Directory"
+                        ]
+                    },
+                    {
+                        "alias": "AccessFlag",
+                        "isClass": false,
+                        "isFlag": true,
+                        "name": "AccessFlags",
+                        "values": [
+                            "Read",
+                            "Write"
+                        ]
+                    }
+                ],
+                "gadget": true,
+                "lineNumber": 18,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "accept",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "reject",
+                        "returnType": "void"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "origin",
+                        "read": "origin",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "filePath",
+                        "read": "filePath",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "handleType",
+                        "read": "handleType",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "HandleType",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "accessFlags",
+                        "read": "accessFlags",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "AccessFlags",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineFileSystemAccessRequest"
+            }
+        ],
+        "inputFile": "qwebenginefilesystemaccessrequest.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineFindTextResult",
+                "gadget": true,
+                "lineNumber": 19,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "numberOfMatches",
+                        "read": "numberOfMatches",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "activeMatch",
+                        "read": "activeMatch",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineFindTextResult"
+            }
+        ],
+        "inputFile": "qwebenginefindtextresult.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "webEngineFrame"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1544"
+                    }
+                ],
+                "className": "QWebEngineFrame",
+                "gadget": true,
+                "lineNumber": 23,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "script",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "worldId",
+                                "type": "quint32"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "runJavaScript",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "script",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 1,
+                        "isCloned": true,
+                        "name": "runJavaScript",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "script",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "callback",
+                                "type": "QJSValue"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "runJavaScript",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "script",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "worldId",
+                                "type": "quint32"
+                            },
+                            {
+                                "name": "callback",
+                                "type": "QJSValue"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "runJavaScript",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "filePath",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "printToPdf",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "callback",
+                                "type": "QJSValue"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "printToPdf",
+                        "returnType": "void"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "isValid",
+                        "read": "isValid",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "name",
+                        "read": "name",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "htmlName",
+                        "read": "htmlName",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "url",
+                        "read": "url",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "size",
+                        "read": "size",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QSizeF",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "isMainFrame",
+                        "read": "isMainFrame",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineFrame"
+            }
+        ],
+        "inputFile": "qwebengineframe.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineFullScreenRequest",
+                "gadget": true,
+                "lineNumber": 19,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "reject",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "accept",
+                        "returnType": "void"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "toggleOn",
+                        "read": "toggleOn",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "origin",
+                        "read": "origin",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineFullScreenRequest"
+            }
+        ],
+        "inputFile": "qwebenginefullscreenrequest.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineHistoryModel",
+                "lineNumber": 53,
+                "object": true,
+                "qualifiedClassName": "QWebEngineHistoryModel",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractListModel"
+                    }
+                ]
+            },
+            {
+                "className": "QWebEngineHistory",
+                "lineNumber": 83,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "clear",
+                        "returnType": "void",
+                        "revision": 65281
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "items",
+                        "read": "itemsModel",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QWebEngineHistoryModel*",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "backItems",
+                        "read": "backItemsModel",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QWebEngineHistoryModel*",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "forwardItems",
+                        "read": "forwardItemsModel",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QWebEngineHistoryModel*",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineHistory",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebenginehistory.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineLoadingInfo",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "LoadStatus",
+                        "values": [
+                            "LoadStartedStatus",
+                            "LoadStoppedStatus",
+                            "LoadSucceededStatus",
+                            "LoadFailedStatus"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "ErrorDomain",
+                        "values": [
+                            "NoErrorDomain",
+                            "InternalErrorDomain",
+                            "ConnectionErrorDomain",
+                            "CertificateErrorDomain",
+                            "HttpErrorDomain",
+                            "FtpErrorDomain",
+                            "DnsErrorDomain",
+                            "HttpStatusCodeDomain"
+                        ]
+                    }
+                ],
+                "gadget": true,
+                "lineNumber": 21,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "url",
+                        "read": "url",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "isErrorPage",
+                        "read": "isErrorPage",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "status",
+                        "read": "status",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "LoadStatus",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "errorString",
+                        "read": "errorString",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "errorDomain",
+                        "read": "errorDomain",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "ErrorDomain",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "errorCode",
+                        "read": "errorCode",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 6,
+                        "name": "responseHeaders",
+                        "read": "responseHeaders",
+                        "required": false,
+                        "revision": 1542,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QMultiMap<QByteArray,QByteArray>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineLoadingInfo"
+            }
+        ],
+        "inputFile": "qwebengineloadinginfo.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineMessagePumpScheduler",
+                "lineNumber": 26,
+                "object": true,
+                "qualifiedClassName": "QWebEngineMessagePumpScheduler",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebenginemessagepumpscheduler_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineNavigationRequest",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "NavigationType",
+                        "values": [
+                            "LinkClickedNavigation",
+                            "TypedNavigation",
+                            "FormSubmittedNavigation",
+                            "BackForwardNavigation",
+                            "ReloadNavigation",
+                            "OtherNavigation",
+                            "RedirectNavigation"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "NavigationRequestAction",
+                        "values": [
+                            "AcceptRequest",
+                            "IgnoreRequest"
+                        ]
+                    }
+                ],
+                "lineNumber": 15,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "accept",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "reject",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "url",
+                        "read": "url",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "isMainFrame",
+                        "read": "isMainFrame",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "hasFormData",
+                        "read": "hasFormData",
+                        "required": false,
+                        "revision": 1544,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "navigationType",
+                        "read": "navigationType",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "NavigationType",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "action",
+                        "notify": "actionChanged",
+                        "read": "action",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "NavigationRequestAction",
+                        "user": false,
+                        "write": "setAction"
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineNavigationRequest",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "actionChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebenginenavigationrequest.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineNewWindowRequest",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "DestinationType",
+                        "values": [
+                            "InNewWindow",
+                            "InNewTab",
+                            "InNewDialog",
+                            "InNewBackgroundTab"
+                        ]
+                    }
+                ],
+                "lineNumber": 23,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "destination",
+                        "read": "destination",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "DestinationType",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "requestedUrl",
+                        "read": "requestedUrl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "requestedGeometry",
+                        "read": "requestedGeometry",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QRect",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "userInitiated",
+                        "read": "isUserInitiated",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineNewWindowRequest",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebenginenewwindowrequest.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineNotification",
+                "lineNumber": 22,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "origin",
+                        "read": "origin",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "title",
+                        "read": "title",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "message",
+                        "read": "message",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "tag",
+                        "read": "tag",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "language",
+                        "read": "language",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "direction",
+                        "read": "direction",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt::LayoutDirection",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineNotification",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "closed",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "show",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "click",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "close",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebenginenotification.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEnginePage",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "WebAction",
+                        "values": [
+                            "NoWebAction",
+                            "Back",
+                            "Forward",
+                            "Stop",
+                            "Reload",
+                            "Cut",
+                            "Copy",
+                            "Paste",
+                            "Undo",
+                            "Redo",
+                            "SelectAll",
+                            "ReloadAndBypassCache",
+                            "PasteAndMatchStyle",
+                            "OpenLinkInThisWindow",
+                            "OpenLinkInNewWindow",
+                            "OpenLinkInNewTab",
+                            "CopyLinkToClipboard",
+                            "DownloadLinkToDisk",
+                            "CopyImageToClipboard",
+                            "CopyImageUrlToClipboard",
+                            "DownloadImageToDisk",
+                            "CopyMediaUrlToClipboard",
+                            "ToggleMediaControls",
+                            "ToggleMediaLoop",
+                            "ToggleMediaPlayPause",
+                            "ToggleMediaMute",
+                            "DownloadMediaToDisk",
+                            "InspectElement",
+                            "ExitFullScreen",
+                            "RequestClose",
+                            "Unselect",
+                            "SavePage",
+                            "OpenLinkInNewBackgroundTab",
+                            "ViewSource",
+                            "ToggleBold",
+                            "ToggleItalic",
+                            "ToggleUnderline",
+                            "ToggleStrikethrough",
+                            "AlignLeft",
+                            "AlignCenter",
+                            "AlignRight",
+                            "AlignJustified",
+                            "Indent",
+                            "Outdent",
+                            "InsertOrderedList",
+                            "InsertUnorderedList",
+                            "ChangeTextDirectionLTR",
+                            "ChangeTextDirectionRTL",
+                            "WebActionCount"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "WebWindowType",
+                        "values": [
+                            "WebBrowserWindow",
+                            "WebBrowserTab",
+                            "WebDialog",
+                            "WebBrowserBackgroundTab"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "PermissionPolicy",
+                        "values": [
+                            "PermissionUnknown",
+                            "PermissionGrantedByUser",
+                            "PermissionDeniedByUser"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "NavigationType",
+                        "values": [
+                            "NavigationTypeLinkClicked",
+                            "NavigationTypeTyped",
+                            "NavigationTypeFormSubmitted",
+                            "NavigationTypeBackForward",
+                            "NavigationTypeReload",
+                            "NavigationTypeOther",
+                            "NavigationTypeRedirect"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Feature",
+                        "values": [
+                            "Notifications",
+                            "Geolocation",
+                            "MediaAudioCapture",
+                            "MediaVideoCapture",
+                            "MediaAudioVideoCapture",
+                            "MouseLock",
+                            "DesktopVideoCapture",
+                            "DesktopAudioVideoCapture",
+                            "ClipboardReadWrite",
+                            "LocalFontsAccess"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "FileSelectionMode",
+                        "values": [
+                            "FileSelectOpen",
+                            "FileSelectOpenMultiple",
+                            "FileSelectUploadFolder",
+                            "FileSelectSave"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "JavaScriptConsoleMessageLevel",
+                        "values": [
+                            "InfoMessageLevel",
+                            "WarningMessageLevel",
+                            "ErrorMessageLevel"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "RenderProcessTerminationStatus",
+                        "values": [
+                            "NormalTerminationStatus",
+                            "AbnormalTerminationStatus",
+                            "CrashedTerminationStatus",
+                            "KilledTerminationStatus"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "LifecycleState",
+                        "values": [
+                            "Active",
+                            "Frozen",
+                            "Discarded"
+                        ]
+                    }
+                ],
+                "lineNumber": 50,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "selectedText",
+                        "read": "selectedText",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "hasSelection",
+                        "read": "hasSelection",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "requestedUrl",
+                        "read": "requestedUrl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "zoomFactor",
+                        "notify": "zoomFactorChanged",
+                        "read": "zoomFactor",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setZoomFactor"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "title",
+                        "notify": "titleChanged",
+                        "read": "title",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "url",
+                        "notify": "urlChanged",
+                        "read": "url",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false,
+                        "write": "setUrl"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "iconUrl",
+                        "notify": "iconUrlChanged",
+                        "read": "iconUrl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "icon",
+                        "notify": "iconChanged",
+                        "read": "icon",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QIcon",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 8,
+                        "name": "backgroundColor",
+                        "read": "backgroundColor",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QColor",
+                        "user": false,
+                        "write": "setBackgroundColor"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 9,
+                        "name": "contentsSize",
+                        "notify": "contentsSizeChanged",
+                        "read": "contentsSize",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QSizeF",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 10,
+                        "name": "scrollPosition",
+                        "notify": "scrollPositionChanged",
+                        "read": "scrollPosition",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QPointF",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 11,
+                        "name": "audioMuted",
+                        "notify": "audioMutedChanged",
+                        "read": "isAudioMuted",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setAudioMuted"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 12,
+                        "name": "recentlyAudible",
+                        "notify": "recentlyAudibleChanged",
+                        "read": "recentlyAudible",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 13,
+                        "name": "visible",
+                        "notify": "visibleChanged",
+                        "read": "isVisible",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setVisible"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 14,
+                        "name": "lifecycleState",
+                        "notify": "lifecycleStateChanged",
+                        "read": "lifecycleState",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "LifecycleState",
+                        "user": false,
+                        "write": "setLifecycleState"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 15,
+                        "name": "recommendedState",
+                        "notify": "recommendedStateChanged",
+                        "read": "recommendedState",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "LifecycleState",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 16,
+                        "name": "renderProcessPid",
+                        "notify": "renderProcessPidChanged",
+                        "read": "renderProcessPid",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qint64",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 17,
+                        "name": "loading",
+                        "notify": "loadingChanged",
+                        "read": "isLoading",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEnginePage",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "loadStarted",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "progress",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "loadProgress",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "ok",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "loadFinished",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "loadingInfo",
+                                "type": "QWebEngineLoadingInfo"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "loadingChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "linkHovered",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "selectionChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "geom",
+                                "type": "QRect"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "geometryChangeRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "windowCloseRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "securityOrigin",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "feature",
+                                "type": "QWebEnginePage::Feature"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "featurePermissionRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "securityOrigin",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "feature",
+                                "type": "QWebEnginePage::Feature"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "featurePermissionRequestCanceled",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "fullScreenRequest",
+                                "type": "QWebEngineFullScreenRequest"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "fullScreenRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "permissionRequest",
+                                "type": "QWebEnginePermission"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "permissionRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "quotaRequest",
+                                "type": "QWebEngineQuotaRequest"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "quotaRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "request",
+                                "type": "QWebEngineRegisterProtocolHandlerRequest"
+                            }
+                        ],
+                        "index": 13,
+                        "name": "registerProtocolHandlerRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "request",
+                                "type": "QWebEngineFileSystemAccessRequest"
+                            }
+                        ],
+                        "index": 14,
+                        "name": "fileSystemAccessRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "clientCertSelection",
+                                "type": "QWebEngineClientCertificateSelection"
+                            }
+                        ],
+                        "index": 15,
+                        "name": "selectClientCertificate",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "requestUrl",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "authenticator",
+                                "type": "QAuthenticator*"
+                            }
+                        ],
+                        "index": 16,
+                        "name": "authenticationRequired",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "requestUrl",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "authenticator",
+                                "type": "QAuthenticator*"
+                            },
+                            {
+                                "name": "proxyHost",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 17,
+                        "name": "proxyAuthenticationRequired",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "terminationStatus",
+                                "type": "RenderProcessTerminationStatus"
+                            },
+                            {
+                                "name": "exitCode",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 18,
+                        "name": "renderProcessTerminated",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "request",
+                                "type": "QWebEngineDesktopMediaRequest"
+                            }
+                        ],
+                        "index": 19,
+                        "name": "desktopMediaRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "certificateError",
+                                "type": "QWebEngineCertificateError"
+                            }
+                        ],
+                        "index": 20,
+                        "name": "certificateError",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "request",
+                                "type": "QWebEngineNavigationRequest&"
+                            }
+                        ],
+                        "index": 21,
+                        "name": "navigationRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "request",
+                                "type": "QWebEngineNewWindowRequest&"
+                            }
+                        ],
+                        "index": 22,
+                        "name": "newWindowRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "title",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 23,
+                        "name": "titleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 24,
+                        "name": "urlChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 25,
+                        "name": "iconUrlChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "icon",
+                                "type": "QIcon"
+                            }
+                        ],
+                        "index": 26,
+                        "name": "iconChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "factor",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 27,
+                        "name": "zoomFactorChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "position",
+                                "type": "QPointF"
+                            }
+                        ],
+                        "index": 28,
+                        "name": "scrollPositionChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "size",
+                                "type": "QSizeF"
+                            }
+                        ],
+                        "index": 29,
+                        "name": "contentsSizeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "muted",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 30,
+                        "name": "audioMutedChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "recentlyAudible",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 31,
+                        "name": "recentlyAudibleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "pid",
+                                "type": "qint64"
+                            }
+                        ],
+                        "index": 32,
+                        "name": "renderProcessPidChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "filePath",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "success",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 33,
+                        "name": "pdfPrintingFinished",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 34,
+                        "name": "printRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "frame",
+                                "type": "QWebEngineFrame"
+                            }
+                        ],
+                        "index": 35,
+                        "name": "printRequestedByFrame",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "visible",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 36,
+                        "name": "visibleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "state",
+                                "type": "LifecycleState"
+                            }
+                        ],
+                        "index": 37,
+                        "name": "lifecycleStateChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "state",
+                                "type": "LifecycleState"
+                            }
+                        ],
+                        "index": 38,
+                        "name": "recommendedStateChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "result",
+                                "type": "QWebEngineFindTextResult"
+                            }
+                        ],
+                        "index": 39,
+                        "name": "findTextFinished",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 40,
+                        "name": "_q_aboutToDelete",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "request",
+                                "type": "QWebEngineWebAuthUxRequest*"
+                            }
+                        ],
+                        "index": 41,
+                        "name": "webAuthUxRequested",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "checked",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 42,
+                        "name": "_q_webActionTriggered",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebenginepage.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "RegisterEnumClassesUnscoped",
+                        "value": "false"
+                    }
+                ],
+                "className": "QWebEnginePermission",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "PermissionType",
+                        "type": "quint8",
+                        "values": [
+                            "Unsupported",
+                            "MediaAudioCapture",
+                            "MediaVideoCapture",
+                            "MediaAudioVideoCapture",
+                            "DesktopVideoCapture",
+                            "DesktopAudioVideoCapture",
+                            "MouseLock",
+                            "Notifications",
+                            "Geolocation",
+                            "ClipboardReadWrite",
+                            "LocalFontsAccess"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "State",
+                        "type": "quint8",
+                        "values": [
+                            "Invalid",
+                            "Ask",
+                            "Granted",
+                            "Denied"
+                        ]
+                    }
+                ],
+                "gadget": true,
+                "lineNumber": 26,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "grant",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "deny",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "reset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "permissionType",
+                                "type": "QWebEnginePermission::PermissionType"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "isPersistent",
+                        "returnType": "bool"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "origin",
+                        "read": "origin",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "permissionType",
+                        "read": "permissionType",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "PermissionType",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "state",
+                        "read": "state",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "State",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "isValid",
+                        "read": "isValid",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEnginePermission"
+            }
+        ],
+        "inputFile": "qwebenginepermission.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineProfile",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "HttpCacheType",
+                        "values": [
+                            "MemoryHttpCache",
+                            "DiskHttpCache",
+                            "NoCache"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "PersistentCookiesPolicy",
+                        "values": [
+                            "NoPersistentCookies",
+                            "AllowPersistentCookies",
+                            "ForcePersistentCookies"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "PersistentPermissionsPolicy",
+                        "type": "quint8",
+                        "values": [
+                            "AskEveryTime",
+                            "StoreInMemory",
+                            "StoreOnDisk"
+                        ]
+                    }
+                ],
+                "lineNumber": 31,
+                "object": true,
+                "qualifiedClassName": "QWebEngineProfile",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "download",
+                                "type": "QWebEngineDownloadRequest*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "downloadRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "clearHttpCacheCompleted",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebengineprofile.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineQuotaRequest",
+                "gadget": true,
+                "lineNumber": 15,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "accept",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "reject",
+                        "returnType": "void"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "origin",
+                        "read": "origin",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "requestedSize",
+                        "read": "requestedSize",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qint64",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineQuotaRequest"
+            }
+        ],
+        "inputFile": "qwebenginequotarequest.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineRegisterProtocolHandlerRequest",
+                "gadget": true,
+                "lineNumber": 19,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "accept",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "reject",
+                        "returnType": "void"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "origin",
+                        "read": "origin",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "scheme",
+                        "read": "scheme",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineRegisterProtocolHandlerRequest"
+            }
+        ],
+        "inputFile": "qwebengineregisterprotocolhandlerrequest.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineScript",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "InjectionPoint",
+                        "values": [
+                            "Deferred",
+                            "DocumentReady",
+                            "DocumentCreation"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "ScriptWorldId",
+                        "values": [
+                            "MainWorld",
+                            "ApplicationWorld",
+                            "UserWorld"
+                        ]
+                    }
+                ],
+                "gadget": true,
+                "lineNumber": 18,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "name",
+                        "read": "name",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setName"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "sourceUrl",
+                        "read": "sourceUrl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false,
+                        "write": "setSourceUrl"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "sourceCode",
+                        "read": "sourceCode",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setSourceCode"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "injectionPoint",
+                        "read": "injectionPoint",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "InjectionPoint",
+                        "user": false,
+                        "write": "setInjectionPoint"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "worldId",
+                        "read": "worldId",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "quint32",
+                        "user": false,
+                        "write": "setWorldId"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "runsOnSubFrames",
+                        "read": "runsOnSubFrames",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setRunsOnSubFrames"
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineScript"
+            }
+        ],
+        "inputFile": "qwebenginescript.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineUrlRequestInterceptor",
+                "lineNumber": 14,
+                "object": true,
+                "qualifiedClassName": "QWebEngineUrlRequestInterceptor",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebengineurlrequestinterceptor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineUrlRequestJob",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Error",
+                        "values": [
+                            "NoError",
+                            "UrlNotFound",
+                            "UrlInvalid",
+                            "RequestAborted",
+                            "RequestDenied",
+                            "RequestFailed"
+                        ]
+                    }
+                ],
+                "lineNumber": 22,
+                "object": true,
+                "qualifiedClassName": "QWebEngineUrlRequestJob",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebengineurlrequestjob.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineUrlScheme",
+                "enums": [
+                    {
+                        "alias": "Flag",
+                        "isClass": false,
+                        "isFlag": true,
+                        "name": "Flags",
+                        "values": [
+                            "SecureScheme",
+                            "LocalScheme",
+                            "LocalAccessAllowed",
+                            "NoAccessAllowed",
+                            "ServiceWorkersAllowed",
+                            "ViewSourceAllowed",
+                            "ContentSecurityPolicyIgnored",
+                            "CorsEnabled",
+                            "FetchApiAllowed"
+                        ]
+                    }
+                ],
+                "gadget": true,
+                "lineNumber": 21,
+                "qualifiedClassName": "QWebEngineUrlScheme"
+            }
+        ],
+        "inputFile": "qwebengineurlscheme.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineUrlSchemeHandler",
+                "lineNumber": 15,
+                "object": true,
+                "qualifiedClassName": "QWebEngineUrlSchemeHandler",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebengineurlschemehandler.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "RegisterEnumClassesUnscoped",
+                        "value": "false"
+                    }
+                ],
+                "className": "QWebEngineWebAuthUxRequest",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "WebAuthUxState",
+                        "values": [
+                            "NotStarted",
+                            "SelectAccount",
+                            "CollectPin",
+                            "FinishTokenCollection",
+                            "RequestFailed",
+                            "Cancelled",
+                            "Completed"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "PinEntryReason",
+                        "values": [
+                            "Set",
+                            "Change",
+                            "Challenge"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "PinEntryError",
+                        "values": [
+                            "NoError",
+                            "InternalUvLocked",
+                            "WrongPin",
+                            "TooShort",
+                            "InvalidCharacters",
+                            "SameAsCurrentPin"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "RequestFailureReason",
+                        "values": [
+                            "Timeout",
+                            "KeyNotRegistered",
+                            "KeyAlreadyRegistered",
+                            "SoftPinBlock",
+                            "HardPinBlock",
+                            "AuthenticatorRemovedDuringPinEntry",
+                            "AuthenticatorMissingResidentKeys",
+                            "AuthenticatorMissingUserVerification",
+                            "AuthenticatorMissingLargeBlob",
+                            "NoCommonAlgorithms",
+                            "StorageFull",
+                            "UserConsentDenied",
+                            "WinUserCancelled"
+                        ]
+                    }
+                ],
+                "lineNumber": 19,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "userNames",
+                        "read": "userNames",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "state",
+                        "notify": "stateChanged",
+                        "read": "state",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "WebAuthUxState",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "relyingPartyId",
+                        "read": "relyingPartyId",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "pinRequest",
+                        "read": "pinRequest",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QWebEngineWebAuthPinRequest",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "requestFailureReason",
+                        "read": "requestFailureReason",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "RequestFailureReason",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineWebAuthUxRequest",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "state",
+                                "type": "QWebEngineWebAuthUxRequest::WebAuthUxState"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "stateChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "cancel",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "retry",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "selectedAccount",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "setSelectedAccount",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "pin",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "setPin",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            },
+            {
+                "className": "QWebEngineWebAuthPinRequest",
+                "gadget": true,
+                "lineNumber": 100,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "member": "reason",
+                        "name": "reason",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QWebEngineWebAuthUxRequest::PinEntryReason",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "member": "error",
+                        "name": "error",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QWebEngineWebAuthUxRequest::PinEntryError",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "member": "minPinLength",
+                        "name": "minPinLength",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qint32",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "member": "remainingAttempts",
+                        "name": "remainingAttempts",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineWebAuthPinRequest"
+            }
+        ],
+        "inputFile": "qwebenginewebauthuxrequest.h",
+        "outputRevision": 68
+    }
+]

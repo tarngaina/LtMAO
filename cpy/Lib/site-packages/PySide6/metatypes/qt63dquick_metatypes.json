@@ -1,0 +1,2727 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QQmlAspectEngine",
+                "lineNumber": 18,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::Quick::QQmlAspectEngine",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "type": "Status"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "statusChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rootObject",
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "sceneCreated",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 2,
+                        "name": "_q_continueExecute",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qqmlaspectengine.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "QuaternionAnimation"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "QQuaternionAnimation",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Type",
+                        "values": [
+                            "Slerp",
+                            "Nlerp"
+                        ]
+                    }
+                ],
+                "lineNumber": 30,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "from",
+                        "read": "from",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQuaternion",
+                        "user": false,
+                        "write": "setFrom"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "to",
+                        "read": "to",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQuaternion",
+                        "user": false,
+                        "write": "setTo"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "type",
+                        "notify": "typeChanged",
+                        "read": "type",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Type",
+                        "user": false,
+                        "write": "setType"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "fromXRotation",
+                        "notify": "fromXRotationChanged",
+                        "read": "fromXRotation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setFromXRotation"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "fromYRotation",
+                        "notify": "fromYRotationChanged",
+                        "read": "fromYRotation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setFromYRotation"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "fromZRotation",
+                        "notify": "fromZRotationChanged",
+                        "read": "fromZRotation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setFromZRotation"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "toXRotation",
+                        "notify": "toXRotationChanged",
+                        "read": "toXRotation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setToXRotation"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "toYRotation",
+                        "notify": "toYRotationChanged",
+                        "read": "toYRotation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setToYRotation"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 8,
+                        "name": "toZRotation",
+                        "notify": "toZRotationChanged",
+                        "read": "toZRotation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setToZRotation"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::QQuaternionAnimation",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "type",
+                                "type": "Type"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "typeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "value",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "fromXRotationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "value",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "fromYRotationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "value",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "fromZRotationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "value",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "toXRotationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "value",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "toYRotationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "value",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "toZRotationChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QQuickPropertyAnimation"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquaternionanimation_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "Component3D"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "Qt3DCore::QComponent"
+                    }
+                ],
+                "className": "QComponentForeign",
+                "gadget": true,
+                "lineNumber": 42,
+                "qualifiedClassName": "Qt3DCore::Quick::QComponentForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "Entity"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "Qt3DCore::QEntity"
+                    },
+                    {
+                        "name": "QML.Extended",
+                        "value": "Qt3DCore::Quick::Quick3DEntity"
+                    }
+                ],
+                "className": "QEntityForeign",
+                "gadget": true,
+                "lineNumber": 50,
+                "qualifiedClassName": "Qt3DCore::Quick::QEntityForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "Transform"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "Qt3DCore::QTransform"
+                    }
+                ],
+                "className": "QTransformForeign",
+                "gadget": true,
+                "lineNumber": 59,
+                "qualifiedClassName": "Qt3DCore::Quick::QTransformForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "Armature"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "Qt3DCore::QArmature"
+                    }
+                ],
+                "className": "QArmatureForeign",
+                "gadget": true,
+                "lineNumber": 67,
+                "qualifiedClassName": "Qt3DCore::Quick::QArmatureForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "AbstractSkeleton"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "522"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "Qt3DCore::QAbstractSkeleton"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "AbstractSkeleton is an abstract base class"
+                    }
+                ],
+                "className": "QAbstractSkeletonForeign",
+                "gadget": true,
+                "lineNumber": 75,
+                "qualifiedClassName": "Qt3DCore::Quick::QAbstractSkeletonForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "SkeletonLoader"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "522"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "Qt3DCore::QSkeletonLoader"
+                    }
+                ],
+                "className": "QSkeletonLoaderForeign",
+                "gadget": true,
+                "lineNumber": 84,
+                "qualifiedClassName": "Qt3DCore::Quick::QSkeletonLoaderForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "Attribute"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "Qt3DCore::QAttribute"
+                    }
+                ],
+                "className": "QAttributeForeign",
+                "gadget": true,
+                "lineNumber": 92,
+                "qualifiedClassName": "Qt3DCore::Quick::QAttributeForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "BufferBase"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "Qt3DCore::QBuffer"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "Use Quick3DBuffer in QML"
+                    }
+                ],
+                "className": "QBufferForeign",
+                "gadget": true,
+                "lineNumber": 100,
+                "qualifiedClassName": "Qt3DCore::Quick::QBufferForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "Geometry"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "Qt3DCore::QGeometry"
+                    },
+                    {
+                        "name": "QML.Extended",
+                        "value": "Qt3DCore::Quick::Quick3DGeometry"
+                    }
+                ],
+                "className": "QGeometryForeign",
+                "gadget": true,
+                "lineNumber": 109,
+                "qualifiedClassName": "Qt3DCore::Quick::QGeometryForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "GeometryView"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "528"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "Qt3DCore::QGeometryView"
+                    }
+                ],
+                "className": "QGeometryViewForeign",
+                "gadget": true,
+                "lineNumber": 118,
+                "qualifiedClassName": "Qt3DCore::Quick::QGeometryViewForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "BoundingVolume"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "528"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "Qt3DCore::QBoundingVolume"
+                    }
+                ],
+                "className": "QBoundingVolumeForeign",
+                "gadget": true,
+                "lineNumber": 126,
+                "qualifiedClassName": "Qt3DCore::Quick::QBoundingVolumeForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "Node"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "Qt3DCore::QNode"
+                    },
+                    {
+                        "name": "QML.Extended",
+                        "value": "Qt3DCore::Quick::Quick3DNode"
+                    }
+                ],
+                "className": "QNodeForeign",
+                "gadget": true,
+                "lineNumber": 137,
+                "qualifiedClassName": "Qt3DCore::Quick::QNodeForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "Joint"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "Qt3DCore::QJoint"
+                    },
+                    {
+                        "name": "QML.Extended",
+                        "value": "Qt3DCore::Quick::Quick3DJoint"
+                    }
+                ],
+                "className": "QJointForeign",
+                "gadget": true,
+                "lineNumber": 146,
+                "qualifiedClassName": "Qt3DCore::Quick::QJointForeign"
+            }
+        ],
+        "inputFile": "qt3dquickforeign_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "QColor"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "color"
+                    },
+                    {
+                        "name": "QML.Extended",
+                        "value": "QQuick3DColorValueType"
+                    }
+                ],
+                "className": "QQuick3DColorValueType",
+                "gadget": true,
+                "lineNumber": 34,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "toString",
+                        "returnType": "QString"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "value",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "alpha",
+                        "returnType": "QVariant"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "factor",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "lighter",
+                        "returnType": "QVariant"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "isCloned": true,
+                        "name": "lighter",
+                        "returnType": "QVariant"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "factor",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "darker",
+                        "returnType": "QVariant"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "isCloned": true,
+                        "name": "darker",
+                        "returnType": "QVariant"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "factor",
+                                "type": "QVariant"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "tint",
+                        "returnType": "QVariant"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "r",
+                        "read": "r",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setR"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "g",
+                        "read": "g",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setG"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "b",
+                        "read": "b",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setB"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "a",
+                        "read": "a",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setA"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "hsvHue",
+                        "read": "hsvHue",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setHsvHue"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "hsvSaturation",
+                        "read": "hsvSaturation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setHsvSaturation"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 6,
+                        "name": "hsvValue",
+                        "read": "hsvValue",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setHsvValue"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 7,
+                        "name": "hslHue",
+                        "read": "hslHue",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setHslHue"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 8,
+                        "name": "hslSaturation",
+                        "read": "hslSaturation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setHslSaturation"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 9,
+                        "name": "hslLightness",
+                        "read": "hslLightness",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setHslLightness"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 10,
+                        "name": "valid",
+                        "read": "isValid",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::QQuick3DColorValueType"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "QMatrix4x4"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "matrix4x4"
+                    },
+                    {
+                        "name": "QML.Extended",
+                        "value": "QQuick3DMatrix4x4ValueType"
+                    }
+                ],
+                "className": "QQuick3DMatrix4x4ValueType",
+                "gadget": true,
+                "lineNumber": 87,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "t",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "translate",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "angle",
+                                "type": "float"
+                            },
+                            {
+                                "name": "axis",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "rotate",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "s",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "scale",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "sx",
+                                "type": "float"
+                            },
+                            {
+                                "name": "sy",
+                                "type": "float"
+                            },
+                            {
+                                "name": "sz",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "scale",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "s",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "scale",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "eye",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "center",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "up",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "lookAt",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "m",
+                                "type": "QMatrix4x4"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "times",
+                        "returnType": "QMatrix4x4"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector4D"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "times",
+                        "returnType": "QVector4D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "times",
+                        "returnType": "QVector3D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "factor",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "times",
+                        "returnType": "QMatrix4x4"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "m",
+                                "type": "QMatrix4x4"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "plus",
+                        "returnType": "QMatrix4x4"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "m",
+                                "type": "QMatrix4x4"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "minus",
+                        "returnType": "QMatrix4x4"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "n",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "row",
+                        "returnType": "QVector4D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "m",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 13,
+                        "name": "column",
+                        "returnType": "QVector4D"
+                    },
+                    {
+                        "access": "public",
+                        "index": 14,
+                        "name": "determinant",
+                        "returnType": "qreal"
+                    },
+                    {
+                        "access": "public",
+                        "index": 15,
+                        "name": "inverted",
+                        "returnType": "QMatrix4x4"
+                    },
+                    {
+                        "access": "public",
+                        "index": 16,
+                        "name": "transposed",
+                        "returnType": "QMatrix4x4"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "m",
+                                "type": "QMatrix4x4"
+                            },
+                            {
+                                "name": "epsilon",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 17,
+                        "name": "fuzzyEquals",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "m",
+                                "type": "QMatrix4x4"
+                            }
+                        ],
+                        "index": 18,
+                        "name": "fuzzyEquals",
+                        "returnType": "bool"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "m11",
+                        "read": "m11",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM11"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "m12",
+                        "read": "m12",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM12"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "m13",
+                        "read": "m13",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM13"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "m14",
+                        "read": "m14",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM14"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "m21",
+                        "read": "m21",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM21"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "m22",
+                        "read": "m22",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM22"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 6,
+                        "name": "m23",
+                        "read": "m23",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM23"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 7,
+                        "name": "m24",
+                        "read": "m24",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM24"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 8,
+                        "name": "m31",
+                        "read": "m31",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM31"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 9,
+                        "name": "m32",
+                        "read": "m32",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM32"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 10,
+                        "name": "m33",
+                        "read": "m33",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM33"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 11,
+                        "name": "m34",
+                        "read": "m34",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM34"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 12,
+                        "name": "m41",
+                        "read": "m41",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM41"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 13,
+                        "name": "m42",
+                        "read": "m42",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM42"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 14,
+                        "name": "m43",
+                        "read": "m43",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM43"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 15,
+                        "name": "m44",
+                        "read": "m44",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setM44"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::QQuick3DMatrix4x4ValueType"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "QVector2D"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "vector2d"
+                    },
+                    {
+                        "name": "QML.Extended",
+                        "value": "QQuick3DVector2DValueType"
+                    }
+                ],
+                "className": "QQuick3DVector2DValueType",
+                "gadget": true,
+                "lineNumber": 174,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "toString",
+                        "returnType": "QString"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector2D"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "dotProduct",
+                        "returnType": "qreal"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector2D"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "times",
+                        "returnType": "QVector2D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scalar",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "times",
+                        "returnType": "QVector2D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector2D"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "plus",
+                        "returnType": "QVector2D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector2D"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "minus",
+                        "returnType": "QVector2D"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "normalized",
+                        "returnType": "QVector2D"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "length",
+                        "returnType": "qreal"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "toVector3d",
+                        "returnType": "QVector3D"
+                    },
+                    {
+                        "access": "public",
+                        "index": 9,
+                        "name": "toVector4d",
+                        "returnType": "QVector4D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector2D"
+                            },
+                            {
+                                "name": "epsilon",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "fuzzyEquals",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector2D"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "fuzzyEquals",
+                        "returnType": "bool"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "x",
+                        "read": "x",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setX"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "y",
+                        "read": "y",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setY"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::QQuick3DVector2DValueType"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "QVector3D"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "vector3d"
+                    },
+                    {
+                        "name": "QML.Extended",
+                        "value": "QQuick3DVector3DValueType"
+                    }
+                ],
+                "className": "QQuick3DVector3DValueType",
+                "gadget": true,
+                "lineNumber": 208,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "toString",
+                        "returnType": "QString"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "crossProduct",
+                        "returnType": "QVector3D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "dotProduct",
+                        "returnType": "qreal"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "m",
+                                "type": "QMatrix4x4"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "times",
+                        "returnType": "QVector3D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "times",
+                        "returnType": "QVector3D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scalar",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "times",
+                        "returnType": "QVector3D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "plus",
+                        "returnType": "QVector3D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "minus",
+                        "returnType": "QVector3D"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "normalized",
+                        "returnType": "QVector3D"
+                    },
+                    {
+                        "access": "public",
+                        "index": 9,
+                        "name": "length",
+                        "returnType": "qreal"
+                    },
+                    {
+                        "access": "public",
+                        "index": 10,
+                        "name": "toVector2d",
+                        "returnType": "QVector2D"
+                    },
+                    {
+                        "access": "public",
+                        "index": 11,
+                        "name": "toVector4d",
+                        "returnType": "QVector4D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "epsilon",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "fuzzyEquals",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 13,
+                        "name": "fuzzyEquals",
+                        "returnType": "bool"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "x",
+                        "read": "x",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setX"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "y",
+                        "read": "y",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setY"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "z",
+                        "read": "z",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setZ"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::QQuick3DVector3DValueType"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "QVector4D"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "vector4d"
+                    },
+                    {
+                        "name": "QML.Extended",
+                        "value": "QQuick3DVector4DValueType"
+                    }
+                ],
+                "className": "QQuick3DVector4DValueType",
+                "gadget": true,
+                "lineNumber": 247,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "toString",
+                        "returnType": "QString"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector4D"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "dotProduct",
+                        "returnType": "qreal"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector4D"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "times",
+                        "returnType": "QVector4D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "m",
+                                "type": "QMatrix4x4"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "times",
+                        "returnType": "QVector4D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scalar",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "times",
+                        "returnType": "QVector4D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector4D"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "plus",
+                        "returnType": "QVector4D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector4D"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "minus",
+                        "returnType": "QVector4D"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "normalized",
+                        "returnType": "QVector4D"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "length",
+                        "returnType": "qreal"
+                    },
+                    {
+                        "access": "public",
+                        "index": 9,
+                        "name": "toVector2d",
+                        "returnType": "QVector2D"
+                    },
+                    {
+                        "access": "public",
+                        "index": 10,
+                        "name": "toVector3d",
+                        "returnType": "QVector3D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector4D"
+                            },
+                            {
+                                "name": "epsilon",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "fuzzyEquals",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vec",
+                                "type": "QVector4D"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "fuzzyEquals",
+                        "returnType": "bool"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "x",
+                        "read": "x",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setX"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "y",
+                        "read": "y",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setY"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "z",
+                        "read": "z",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setZ"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "w",
+                        "read": "w",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setW"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::QQuick3DVector4DValueType"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    },
+                    {
+                        "name": "QML.Foreign",
+                        "value": "QQuaternion"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "quaternion"
+                    },
+                    {
+                        "name": "QML.Extended",
+                        "value": "QQuick3DQuaternionValueType"
+                    }
+                ],
+                "className": "QQuick3DQuaternionValueType",
+                "gadget": true,
+                "lineNumber": 288,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "toString",
+                        "returnType": "QString"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "scalar",
+                        "read": "scalar",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setScalar"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "x",
+                        "read": "x",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setX"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "y",
+                        "read": "y",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setY"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "z",
+                        "read": "z",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setZ"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::QQuick3DQuaternionValueType"
+            }
+        ],
+        "inputFile": "qt3dquickvaluetypes_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "Buffer"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "Quick3DBuffer",
+                "lineNumber": 35,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "fileUrl",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "readBinaryFile",
+                        "returnType": "QVariant"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "data",
+                        "notify": "bufferDataChanged",
+                        "read": "bufferData",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVariant",
+                        "user": false,
+                        "write": "setBufferData"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::Quick3DBuffer",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "bufferDataChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "offset",
+                                "type": "int"
+                            },
+                            {
+                                "name": "bytes",
+                                "type": "QVariant"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "updateData",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "Qt3DCore::QBuffer"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dbuffer_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "Quick3DEntity",
+                "lineNumber": 33,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "components",
+                        "read": "componentList",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DCore::QComponent>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::Quick3DEntity",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dentity_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "EntityLoader"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "Quick3DEntityLoader",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Status",
+                        "values": [
+                            "Null",
+                            "Loading",
+                            "Ready",
+                            "Error"
+                        ]
+                    }
+                ],
+                "lineNumber": 37,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "entity",
+                        "notify": "entityChanged",
+                        "read": "entity",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QObject*",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "source",
+                        "notify": "sourceChanged",
+                        "read": "source",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false,
+                        "write": "setSource"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "status",
+                        "notify": "statusChanged",
+                        "read": "status",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Status",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "sourceComponent",
+                        "notify": "sourceComponentChanged",
+                        "read": "sourceComponent",
+                        "required": false,
+                        "revision": 524,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlComponent*",
+                        "user": false,
+                        "write": "setSourceComponent"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::Quick3DEntityLoader",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "entityChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "sourceChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "sourceComponentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "status",
+                                "type": "Status"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "statusChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "type": "QQmlComponent::Status"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "_q_componentStatusChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QEntity",
+                        "name": "QEntity"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dentityloader_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "DefaultProperty",
+                        "value": "attributes"
+                    }
+                ],
+                "className": "Quick3DGeometry",
+                "lineNumber": 28,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "attributes",
+                        "read": "attributeList",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DCore::QAttribute>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::Quick3DGeometry",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dgeometry_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "Quick3DJoint",
+                "lineNumber": 29,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "childJoints",
+                        "read": "childJoints",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DCore::QJoint>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::Quick3DJoint",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3djoint_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "DefaultProperty",
+                        "value": "data"
+                    }
+                ],
+                "className": "Quick3DNode",
+                "lineNumber": 28,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "data",
+                        "read": "data",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<QObject>",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "childNodes",
+                        "read": "childNodes",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DCore::QNode>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::Quick3DNode",
+                "slots": [
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "idx",
+                                "type": "int"
+                            },
+                            {
+                                "name": "child",
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "childAppended",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "idx",
+                                "type": "int"
+                            },
+                            {
+                                "name": "child",
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "childRemoved",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dnode_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "DefaultProperty",
+                        "value": "delegate"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "NodeInstantiator"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "512"
+                    }
+                ],
+                "className": "Quick3DNodeInstantiator",
+                "interfaces": [
+                    [
+                        {
+                            "className": "QQmlParserStatus",
+                            "id": "\"org.qt-project.Qt.QQmlParserStatus\""
+                        }
+                    ]
+                ],
+                "lineNumber": 32,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "objectAt",
+                        "returnType": "QObject*"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "active",
+                        "notify": "activeChanged",
+                        "read": "isActive",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setActive"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "asynchronous",
+                        "notify": "asynchronousChanged",
+                        "read": "isAsync",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setAsync"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "model",
+                        "notify": "modelChanged",
+                        "read": "model",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVariant",
+                        "user": false,
+                        "write": "setModel"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "count",
+                        "notify": "countChanged",
+                        "read": "count",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "delegate",
+                        "notify": "delegateChanged",
+                        "read": "delegate",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlComponent*",
+                        "user": false,
+                        "write": "setDelegate"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "object",
+                        "notify": "objectChanged",
+                        "read": "object",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QObject*",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::Quick::Quick3DNodeInstantiator",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "modelChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "delegateChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "countChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "objectChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "activeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "asynchronousChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            },
+                            {
+                                "name": "object",
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "objectAdded",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            },
+                            {
+                                "name": "object",
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "objectRemoved",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "parent",
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "onParentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "type": "int"
+                            },
+                            {
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "_q_createdItem",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "type": "QQmlChangeSet"
+                            },
+                            {
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "_q_modelUpdated",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QNode",
+                        "name": "QNode"
+                    },
+                    {
+                        "access": "public",
+                        "name": "QQmlParserStatus"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dnodeinstantiator_p.h",
+        "outputRevision": 68
+    }
+]

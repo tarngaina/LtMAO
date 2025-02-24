@@ -1,6 +1,7 @@
 
 
 if __name__ == '__main__':
-    # start UI
-    import LtMAO.tkGUI
-    LtMAO.tkGUI.start()
+    import sys
+    if sys.platform == 'win32':
+        from LtMAO import qtGUI
+        qtGUI.show()

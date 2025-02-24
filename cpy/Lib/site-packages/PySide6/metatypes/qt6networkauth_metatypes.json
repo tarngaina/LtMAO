@@ -1,0 +1,1294 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QAbstractOAuth",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "Status",
+                        "values": [
+                            "NotAuthenticated",
+                            "TemporaryCredentialsReceived",
+                            "Granted",
+                            "RefreshingToken"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "Stage",
+                        "values": [
+                            "RequestingTemporaryCredentials",
+                            "RequestingAuthorization",
+                            "RequestingAccessToken",
+                            "RefreshingAccessToken"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "Error",
+                        "values": [
+                            "NoError",
+                            "NetworkError",
+                            "ServerError",
+                            "OAuthTokenNotFoundError",
+                            "OAuthTokenSecretNotFoundError",
+                            "OAuthCallbackNotVerified"
+                        ]
+                    }
+                ],
+                "lineNumber": 29,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "parameters",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "head",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 13,
+                        "isCloned": true,
+                        "name": "head",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "parameters",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 14,
+                        "name": "get",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 15,
+                        "isCloned": true,
+                        "name": "get",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "parameters",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 16,
+                        "name": "post",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 17,
+                        "isCloned": true,
+                        "name": "post",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "parameters",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 18,
+                        "name": "put",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 19,
+                        "isCloned": true,
+                        "name": "put",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "parameters",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 20,
+                        "name": "deleteResource",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 21,
+                        "isCloned": true,
+                        "name": "deleteResource",
+                        "returnType": "QNetworkReply*"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "clientIdentifier",
+                        "notify": "clientIdentifierChanged",
+                        "read": "clientIdentifier",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setClientIdentifier"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "token",
+                        "notify": "tokenChanged",
+                        "read": "token",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setToken"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "status",
+                        "notify": "statusChanged",
+                        "read": "status",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Status",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "extraTokens",
+                        "notify": "extraTokensChanged",
+                        "read": "extraTokens",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVariantMap",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "authorizationUrl",
+                        "notify": "authorizationUrlChanged",
+                        "read": "authorizationUrl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false,
+                        "write": "setAuthorizationUrl"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "contentType",
+                        "notify": "contentTypeChanged",
+                        "read": "contentType",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QAbstractOAuth::ContentType",
+                        "user": false,
+                        "write": "setContentType"
+                    }
+                ],
+                "qualifiedClassName": "QAbstractOAuth",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "clientIdentifier",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "clientIdentifierChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "token",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "tokenChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "status",
+                                "type": "Status"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "statusChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "authorizationUrlChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "tokens",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "extraTokensChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "contentType",
+                                "type": "ContentType"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "contentTypeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "error",
+                                "type": "Error"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "requestFailed",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "authorizeWithBrowser",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "granted",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "reply",
+                                "type": "QNetworkReply*"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "finished",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "data",
+                                "type": "QByteArray"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "replyDataReceived",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 11,
+                        "name": "grant",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qabstractoauth.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAbstractOAuthReplyHandler",
+                "lineNumber": 17,
+                "object": true,
+                "qualifiedClassName": "QAbstractOAuthReplyHandler",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "values",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "callbackReceived",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "tokens",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "tokensReceived",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "error",
+                                "type": "QAbstractOAuth::Error"
+                            },
+                            {
+                                "name": "errorString",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "tokenRequestErrorOccurred",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "data",
+                                "type": "QByteArray"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "replyDataReceived",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "data",
+                                "type": "QByteArray"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "callbackDataReceived",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "reply",
+                                "type": "QNetworkReply*"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "networkReplyFinished",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qabstractoauthreplyhandler.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QOAuth1",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "SignatureMethod",
+                        "values": [
+                            "Hmac_Sha1",
+                            "Rsa_Sha1",
+                            "PlainText"
+                        ]
+                    }
+                ],
+                "lineNumber": 18,
+                "object": true,
+                "qualifiedClassName": "QOAuth1",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "method",
+                                "type": "QOAuth1::SignatureMethod"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "signatureMethodChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "credential",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "clientSharedSecretChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "token",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "tokenSecretChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "temporaryCredentialsUrlChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "tokenCredentialsUrlChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "grant",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "verifier",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "continueGrantWithVerifier",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractOAuth"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qoauth1.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAbstractOAuth2",
+                "lineNumber": 20,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "parameters",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "createAuthenticatedUrl",
+                        "returnType": "QUrl"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 11,
+                        "isCloned": true,
+                        "name": "createAuthenticatedUrl",
+                        "returnType": "QUrl"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "parameters",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "head",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 13,
+                        "isCloned": true,
+                        "name": "head",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "parameters",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 14,
+                        "name": "get",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 15,
+                        "isCloned": true,
+                        "name": "get",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "parameters",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 16,
+                        "name": "post",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 17,
+                        "isCloned": true,
+                        "name": "post",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "data",
+                                "type": "QByteArray"
+                            }
+                        ],
+                        "index": 18,
+                        "name": "post",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "multiPart",
+                                "type": "QHttpMultiPart*"
+                            }
+                        ],
+                        "index": 19,
+                        "name": "post",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "parameters",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 20,
+                        "name": "put",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 21,
+                        "isCloned": true,
+                        "name": "put",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "data",
+                                "type": "QByteArray"
+                            }
+                        ],
+                        "index": 22,
+                        "name": "put",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "multiPart",
+                                "type": "QHttpMultiPart*"
+                            }
+                        ],
+                        "index": 23,
+                        "name": "put",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "parameters",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 24,
+                        "name": "deleteResource",
+                        "returnType": "QNetworkReply*"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 25,
+                        "isCloned": true,
+                        "name": "deleteResource",
+                        "returnType": "QNetworkReply*"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "scope",
+                        "notify": "scopeChanged",
+                        "read": "scope",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setScope"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "userAgent",
+                        "notify": "userAgentChanged",
+                        "read": "userAgent",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setUserAgent"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "clientIdentifierSharedKey",
+                        "notify": "clientIdentifierSharedKeyChanged",
+                        "read": "clientIdentifierSharedKey",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setClientIdentifierSharedKey"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "state",
+                        "notify": "stateChanged",
+                        "read": "state",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setState"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "expiration",
+                        "notify": "expirationAtChanged",
+                        "read": "expirationAt",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QDateTime",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "refreshToken",
+                        "notify": "refreshTokenChanged",
+                        "read": "refreshToken",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setRefreshToken"
+                    }
+                ],
+                "qualifiedClassName": "QAbstractOAuth2",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scope",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "scopeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "userAgent",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "userAgentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "responseType",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "responseTypeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "clientIdentifierSharedKey",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "clientIdentifierSharedKeyChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "state",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "stateChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "expiration",
+                                "type": "QDateTime"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "expirationAtChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "refreshToken",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "refreshTokenChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "configuration",
+                                "type": "QSslConfiguration"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "sslConfigurationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "error",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "errorDescription",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "uri",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "error",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "data",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "authorizationCallbackReceived",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractOAuth"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qabstractoauth2.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "RegisterEnumClassesUnscoped",
+                        "value": "false"
+                    }
+                ],
+                "className": "QOAuth2AuthorizationCodeFlow",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "PkceMethod",
+                        "type": "quint8",
+                        "values": [
+                            "S256",
+                            "Plain",
+                            "None"
+                        ]
+                    }
+                ],
+                "lineNumber": 20,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "accessTokenUrl",
+                        "notify": "accessTokenUrlChanged",
+                        "read": "accessTokenUrl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false,
+                        "write": "setAccessTokenUrl"
+                    }
+                ],
+                "qualifiedClassName": "QOAuth2AuthorizationCodeFlow",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "accessTokenUrl",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "accessTokenUrlChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "grant",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "refreshAccessToken",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractOAuth2"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qoauth2authorizationcodeflow.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QOAuthHttpServerReplyHandler",
+                "lineNumber": 20,
+                "object": true,
+                "qualifiedClassName": "QOAuthHttpServerReplyHandler",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QOAuthOobReplyHandler"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qoauthhttpserverreplyhandler.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QOAuthOobReplyHandler",
+                "lineNumber": 16,
+                "object": true,
+                "qualifiedClassName": "QOAuthOobReplyHandler",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractOAuthReplyHandler"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qoauthoobreplyhandler.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QOAuthUriSchemeReplyHandler",
+                "lineNumber": 15,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "redirectUrl",
+                        "notify": "redirectUrlChanged",
+                        "read": "redirectUrl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false,
+                        "write": "setRedirectUrl"
+                    }
+                ],
+                "qualifiedClassName": "QOAuthUriSchemeReplyHandler",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "redirectUrlChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "url",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "_q_handleRedirectUrl",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QOAuthOobReplyHandler"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qoauthurischemereplyhandler.h",
+        "outputRevision": 68
+    }
+]

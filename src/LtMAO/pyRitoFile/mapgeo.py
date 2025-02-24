@@ -312,11 +312,11 @@ class MAPGEO:
             self.signature, = bs.read_s(4)
             if self.signature != 'OEGM':
                 raise Exception(
-                    f'pyRitoFile: Failed: Read MAPGEO {path}: Wrong signature file: {self.signature}')
+                    f'pyRitoFile: Error: Read MAPGEO {path}: Wrong signature file: {self.signature}')
             self.version, = bs.read_u32()
             if self.version not in (5, 6, 7, 9, 11, 12, 13, 14, 15, 17):
                 raise Exception(
-                    f'pyRitoFile: Failed: Read MAPGEO {path}: Unsupported file version: {self.version}')
+                    f'pyRitoFile: Error: Read MAPGEO {path}: Unsupported file version: {self.version}')
 
             # point light
             use_seperate_point_lights = False
@@ -562,7 +562,7 @@ class MAPGEO:
     def write(self, path, version, raw=None):
         if version not in (13, 17):
             raise Exception(
-                f'pyRitoFile: Failed: Write MAPGEO {path}: Unsupported file version: {version}')
+                f'pyRitoFile: Error: Write MAPGEO {path}: Unsupported file version: {version}')
         self.version = version
 
         with self.stream(path, 'wb', raw) as bs:

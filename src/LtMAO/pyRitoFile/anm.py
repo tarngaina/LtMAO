@@ -105,7 +105,7 @@ class ANMHepler:
                     if left_translate == None or right_translate == None:
                         if left_translate == None and right_translate == None:
                             raise Exception(
-                                f'pyRitoFile: Failed: Write ANM: Evaluate translate: left: {left_translate}, right: {right_translate}.')
+                                f'pyRitoFile: Error: Write ANM: Evaluate translate: left: {left_translate}, right: {right_translate}.')
                         elif left_translate == None:
                             pose.translate = track.poses[right_translate].translate
                         elif right_translate == None:
@@ -121,7 +121,7 @@ class ANMHepler:
                     if left_scale == None or right_scale == None:
                         if left_scale == None and right_scale == None:
                             raise Exception(
-                                f'pyRitoFile: Failed: Write ANM: Evaluate scale: left: {left_scale}, right: {right_scale}.')
+                                f'pyRitoFile: Error: Write ANM: Evaluate scale: left: {left_scale}, right: {right_scale}.')
                         elif left_scale == None:
                             pose.scale = track.poses[right_scale].scale
                         elif right_scale == None:
@@ -137,7 +137,7 @@ class ANMHepler:
                     if left_rotate == None or right_rotate == None:
                         if left_rotate == None and right_rotate == None:
                             raise Exception(
-                                f'pyRitoFile: Failed: Write ANM: Evaluate rotate: left: {left_rotate}, right: {right_rotate}.')
+                                f'pyRitoFile: Error: Write ANM: Evaluate rotate: left: {left_rotate}, right: {right_rotate}.')
                         elif left_rotate == None:
                             pose.rotate = track.poses[right_rotate].rotate
                         elif right_rotate == None:
@@ -296,11 +296,11 @@ class ANM:
                 frames_offset,  _, joint_hashes_offset = bs.read_i32(3)
                 if frames_offset <= 0:
                     raise Exception(
-                        f'pyRitoFile: Failed: Read ANM: File does not contain frames.'
+                        f'pyRitoFile: Error: Read ANM: File does not contain frames.'
                     )
                 if joint_hashes_offset <= 0:
                     raise Exception(
-                        f'pyRitoFile: Failed: Read ANM: File does not contain joint hashes.'
+                        f'pyRitoFile: Error: Read ANM: File does not contain joint hashes.'
                     )
                 # read joint hashes
                 bs.seek(joint_hashes_offset + 12)
@@ -346,7 +346,7 @@ class ANM:
                             scale_min, scale_max, compressed_transform)
                     else:
                         raise Exception(
-                            f'pyRitoFile: Failed: Read ANM: Unknown compressed transform type: {transform_type}.'
+                            f'pyRitoFile: Error: Read ANM: Unknown compressed transform type: {transform_type}.'
                         )
             elif self.signature == 'r3d2anmd':
                 if self.version == 5:
@@ -362,19 +362,19 @@ class ANM:
                         6)
                     if joint_hashes_offset <= 0:
                         raise Exception(
-                            f'pyRitoFile: Failed: Read ANM: File does not contain joint hashes data.'
+                            f'pyRitoFile: Error: Read ANM: File does not contain joint hashes data.'
                         )
                     if vecs_offset <= 0:
                         raise Exception(
-                            f'pyRitoFile: Failed: Read ANM: File does not contain unique vectors data.'
+                            f'pyRitoFile: Error: Read ANM: File does not contain unique vectors data.'
                         )
                     if quats_offset <= 0:
                         raise Exception(
-                            f'pyRitoFile: Failed: Read ANM: File does not contain unique quaternions data.'
+                            f'pyRitoFile: Error: Read ANM: File does not contain unique quaternions data.'
                         )
                     if frames_offset <= 0:
                         raise Exception(
-                            f'pyRitoFile: Failed: Read ANM: File does not contain frames data.'
+                            f'pyRitoFile: Error: Read ANM: File does not contain frames data.'
                         )
                     joint_hash_count = (
                         frames_offset - joint_hashes_offset) // 4
@@ -425,15 +425,15 @@ class ANM:
                         6)
                     if vecs_offset <= 0:
                         raise Exception(
-                            f'pyRitoFile: Failed: File does not contain unique vectors data.'
+                            f'pyRitoFile: Error: File does not contain unique vectors data.'
                         )
                     if quats_offset <= 0:
                         raise Exception(
-                            f'pyRitoFile: Failed: File does not contain unique quaternions data.'
+                            f'pyRitoFile: Error: File does not contain unique quaternions data.'
                         )
                     if frames_offset <= 0:
                         raise Exception(
-                            f'pyRitoFile: Failed: File does not contain frames data.'
+                            f'pyRitoFile: Error: File does not contain frames data.'
                         )
                     vec_count = (quats_offset - vecs_offset) // 12
                     quat_count = (frames_offset - quats_offset) // 16
@@ -504,10 +504,10 @@ class ANM:
                             track.poses[f] = pose
                 else:
                     raise Exception(
-                        f'pyRitoFile: Failed: Read ANM: Unsupported file version: {self.version}')
+                        f'pyRitoFile: Error: Read ANM: Unsupported file version: {self.version}')
             else:
                 raise Exception(
-                    f'pyRitoFile: Failed: Read ANM: Wrong signature file: {hex(self.signature)}') 
+                    f'pyRitoFile: Error: Read ANM: Wrong signature file: {hex(self.signature)}') 
 
     def write(self, path, raw=None):
         with self.stream(path, 'wb', raw) as bs:

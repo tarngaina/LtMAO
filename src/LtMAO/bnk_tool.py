@@ -1,6 +1,6 @@
 from .pyRitoFile import BNKObjectType, BINHelper, read_bnk, read_wpk, read_bin, write_bnk, write_wpk, BNK, WPK
 from .pyRitoFile.ermmm import FNV1
-from .hash_manager import cached_bin_hashes
+from .hash_helper import cached_bin_hashes
 from . import ext_tools
 
 import os
@@ -21,17 +21,17 @@ INF = float('inf')
 def parse_audio_bnk(audio_bnk):
     if audio_bnk.didx == None:
         raise Exception(
-            'bnk_tool: Failed: Extract BNK: No DIDX section found in audio BNK.')
+            'bnk_tool: Error: Extract BNK: No DIDX section found in audio BNK.')
     if audio_bnk.data == None:
         raise Exception(
-            'bnk_tool: Failed: Extract BNK: No DATA section found in audio BNK.')
+            'bnk_tool: Error: Extract BNK: No DATA section found in audio BNK.')
     return audio_bnk.didx, audio_bnk.data
 
 
 def parse_events_bnk(events_bnk):
     if events_bnk.hirc == None:
         raise Exception(
-            'bnk_tool: Failed: Extract BNK: No HIRC section found in events BNK.')
+            'bnk_tool: Error: Extract BNK: No HIRC section found in events BNK.')
     hirc = events_bnk.hirc
     map_bnk_objects = {}
     bnk_obj_types_need_to_be_mapped = [
@@ -242,7 +242,7 @@ def sort_audio_tree(audio_tree, event_names_by_id):
 
 
 class BNKParser:
-    cache_dir = './prefs/bnk_tool'
+    cache_dir = './pref/bnk_tool'
     cached_segments = {}
     
     @staticmethod
@@ -315,7 +315,7 @@ class BNKParser:
                                 with open(wem_file, 'wb') as f:
                                     f.write(wem_data)
                                 LOG(
-                                    f'bnk_tool: Done: Extracted [{wem.size}bytes] {wem.id} of {event_id}')
+                                    f'bnk_tool: Finish: Extracted [{wem.size}bytes] {wem.id} of {event_id}')
                                 if convert_ogg:
                                     ogg_file = wem_file.replace('.wem', '.ogg')
                                     if ext_tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
@@ -332,7 +332,7 @@ class BNKParser:
                                             if ext_tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
                                                 ext_tools.REVORB.run(ogg_file,silent=True)
                                     LOG(
-                                        f'bnk_tool: Done: Extracted [{wem.size}bytes] {wem.id}')
+                                        f'bnk_tool: Finish: Extracted [{wem.size}bytes] {wem.id}')
 
     def unpack(self, output_dir):
         os.makedirs(output_dir, exist_ok=True)

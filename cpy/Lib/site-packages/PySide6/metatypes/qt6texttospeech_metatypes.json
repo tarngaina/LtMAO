@@ -1,0 +1,709 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QTextToSpeech",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "State",
+                        "values": [
+                            "Ready",
+                            "Speaking",
+                            "Paused",
+                            "Error",
+                            "Synthesizing"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "ErrorReason",
+                        "values": [
+                            "NoError",
+                            "Initialization",
+                            "Configuration",
+                            "Input",
+                            "Playback"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "BoundaryHint",
+                        "values": [
+                            "Default",
+                            "Immediate",
+                            "Word",
+                            "Sentence",
+                            "Utterance"
+                        ]
+                    },
+                    {
+                        "alias": "Capability",
+                        "isClass": true,
+                        "isFlag": true,
+                        "name": "Capabilities",
+                        "values": [
+                            "None",
+                            "Speak",
+                            "PauseResume",
+                            "WordByWordProgress",
+                            "Synthesize"
+                        ]
+                    }
+                ],
+                "lineNumber": 24,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "engine",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "params",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 22,
+                        "name": "setEngine",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "engine",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 23,
+                        "isCloned": true,
+                        "name": "setEngine",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "index": 24,
+                        "name": "errorReason",
+                        "returnType": "QTextToSpeech::ErrorReason"
+                    },
+                    {
+                        "access": "public",
+                        "index": 25,
+                        "name": "errorString",
+                        "returnType": "QString"
+                    },
+                    {
+                        "access": "public",
+                        "index": 26,
+                        "name": "availableLocales",
+                        "returnType": "QList<QLocale>"
+                    },
+                    {
+                        "access": "public",
+                        "index": 27,
+                        "name": "availableVoices",
+                        "returnType": "QList<QVoice>"
+                    },
+                    {
+                        "access": "public",
+                        "index": 28,
+                        "name": "availableEngines",
+                        "returnType": "QStringList"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "engine",
+                        "notify": "engineChanged",
+                        "read": "engine",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setEngine"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "state",
+                        "notify": "stateChanged",
+                        "read": "state",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "State",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "volume",
+                        "notify": "volumeChanged",
+                        "read": "volume",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "double",
+                        "user": false,
+                        "write": "setVolume"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "rate",
+                        "notify": "rateChanged",
+                        "read": "rate",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "double",
+                        "user": false,
+                        "write": "setRate"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "pitch",
+                        "notify": "pitchChanged",
+                        "read": "pitch",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "double",
+                        "user": false,
+                        "write": "setPitch"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "locale",
+                        "notify": "localeChanged",
+                        "read": "locale",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QLocale",
+                        "user": false,
+                        "write": "setLocale"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 6,
+                        "name": "voice",
+                        "notify": "voiceChanged",
+                        "read": "voice",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVoice",
+                        "user": false,
+                        "write": "setVoice"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 7,
+                        "name": "engineCapabilities",
+                        "notify": "engineChanged",
+                        "read": "engineCapabilities",
+                        "required": false,
+                        "revision": 1542,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Capabilities",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QTextToSpeech",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "engine",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "engineChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "state",
+                                "type": "QTextToSpeech::State"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "stateChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "error",
+                                "type": "QTextToSpeech::ErrorReason"
+                            },
+                            {
+                                "name": "errorString",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "errorOccurred",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "locale",
+                                "type": "QLocale"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "localeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rate",
+                                "type": "double"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "rateChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "pitch",
+                                "type": "double"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "pitchChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "volume",
+                                "type": "double"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "volumeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "voice",
+                                "type": "QVoice"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "voiceChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "word",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "id",
+                                "type": "qsizetype"
+                            },
+                            {
+                                "name": "start",
+                                "type": "qsizetype"
+                            },
+                            {
+                                "name": "length",
+                                "type": "qsizetype"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "sayingWord",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "id",
+                                "type": "qsizetype"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "aboutToSynthesize",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "text",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "say",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "text",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "enqueue",
+                        "returnType": "qsizetype"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "boundaryHint",
+                                "type": "QTextToSpeech::BoundaryHint"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "stop",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 13,
+                        "isCloned": true,
+                        "name": "stop",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "boundaryHint",
+                                "type": "QTextToSpeech::BoundaryHint"
+                            }
+                        ],
+                        "index": 14,
+                        "name": "pause",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 15,
+                        "isCloned": true,
+                        "name": "pause",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 16,
+                        "name": "resume",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "locale",
+                                "type": "QLocale"
+                            }
+                        ],
+                        "index": 17,
+                        "name": "setLocale",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rate",
+                                "type": "double"
+                            }
+                        ],
+                        "index": 18,
+                        "name": "setRate",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "pitch",
+                                "type": "double"
+                            }
+                        ],
+                        "index": 19,
+                        "name": "setPitch",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "volume",
+                                "type": "double"
+                            }
+                        ],
+                        "index": 20,
+                        "name": "setVolume",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "voice",
+                                "type": "QVoice"
+                            }
+                        ],
+                        "index": 21,
+                        "name": "setVoice",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qtexttospeech.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QTextToSpeechEngine",
+                "lineNumber": 28,
+                "object": true,
+                "qualifiedClassName": "QTextToSpeechEngine",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "state",
+                                "type": "QTextToSpeech::State"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "stateChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "error",
+                                "type": "QTextToSpeech::ErrorReason"
+                            },
+                            {
+                                "name": "errorString",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "errorOccurred",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "word",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "start",
+                                "type": "qsizetype"
+                            },
+                            {
+                                "name": "length",
+                                "type": "qsizetype"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "sayingWord",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "format",
+                                "type": "QAudioFormat"
+                            },
+                            {
+                                "name": "data",
+                                "type": "QByteArray"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "synthesized",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qtexttospeechengine.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QVoice",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Gender",
+                        "values": [
+                            "Male",
+                            "Female",
+                            "Unknown"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Age",
+                        "values": [
+                            "Child",
+                            "Teenager",
+                            "Adult",
+                            "Senior",
+                            "Other"
+                        ]
+                    }
+                ],
+                "gadget": true,
+                "lineNumber": 19,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "name",
+                        "read": "name",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "gender",
+                        "read": "gender",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Gender",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "age",
+                        "read": "age",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Age",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "locale",
+                        "read": "locale",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QLocale",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "language",
+                        "read": "language",
+                        "required": false,
+                        "revision": 1542,
+                        "scriptable": true,
+                        "stored": false,
+                        "type": "QLocale::Language",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QVoice"
+            }
+        ],
+        "inputFile": "qvoice.h",
+        "outputRevision": 68
+    }
+]

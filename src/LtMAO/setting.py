@@ -7,7 +7,7 @@ LOG = print
 
 class SETTINGS:
     __settings__ = {}
-    local_dir = './prefs'
+    local_dir = './pref'
     local_file = f'{local_dir}/settings.json'
 
     @staticmethod
@@ -24,13 +24,11 @@ class SETTINGS:
     def load():
         with open(SETTINGS.local_file, 'r', encoding='utf-8') as f:
             SETTINGS.__settings__ = json.load(f)
-        LOG(f'setting: Done: Load {SETTINGS.local_file}')
 
     @staticmethod
     def save():
         with open(SETTINGS.local_file, 'w+', encoding='utf-8') as f:
             json.dump(SETTINGS.__settings__, f, indent=4)
-        LOG(f'setting: Done: Save {SETTINGS.local_file}')
 
 
 def get(key, default): return SETTINGS.get(key, default)

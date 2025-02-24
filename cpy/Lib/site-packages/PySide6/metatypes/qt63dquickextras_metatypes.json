@@ -1,0 +1,329 @@
+[
+    {
+        "classes": [
+            {
+                "className": "Qt3DQuickWindow",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "CameraAspectRatioMode",
+                        "values": [
+                            "AutomaticAspectRatio",
+                            "UserAspectRatio"
+                        ]
+                    }
+                ],
+                "lineNumber": 42,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "cameraAspectRatioMode",
+                        "notify": "cameraAspectRatioModeChanged",
+                        "read": "cameraAspectRatioMode",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "CameraAspectRatioMode",
+                        "user": false,
+                        "write": "setCameraAspectRatioMode"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DExtras::Quick::Qt3DQuickWindow",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "mode",
+                                "type": "CameraAspectRatioMode"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "cameraAspectRatioModeChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QWindow"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qt3dquickwindow.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "Quick3DLevelOfDetailLoader",
+                "lineNumber": 30,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "center",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "radius",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "createBoundingSphere",
+                        "returnType": "Qt3DRender::QLevelOfDetailBoundingSphere"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "sources",
+                        "notify": "sourcesChanged",
+                        "read": "sources",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVariantList",
+                        "user": false,
+                        "write": "setSources"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "camera",
+                        "notify": "cameraChanged",
+                        "read": "camera",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt3DRender::QCamera*",
+                        "user": false,
+                        "write": "setCamera"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "currentIndex",
+                        "notify": "currentIndexChanged",
+                        "read": "currentIndex",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setCurrentIndex"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "thresholdType",
+                        "notify": "thresholdTypeChanged",
+                        "read": "thresholdType",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt3DRender::QLevelOfDetail::ThresholdType",
+                        "user": false,
+                        "write": "setThresholdType"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "thresholds",
+                        "notify": "thresholdsChanged",
+                        "read": "thresholds",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QList<qreal>",
+                        "user": false,
+                        "write": "setThresholds"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "volumeOverride",
+                        "notify": "volumeOverrideChanged",
+                        "read": "volumeOverride",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt3DRender::QLevelOfDetailBoundingSphere",
+                        "user": false,
+                        "write": "setVolumeOverride"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "entity",
+                        "notify": "entityChanged",
+                        "read": "entity",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QObject*",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "source",
+                        "notify": "sourceChanged",
+                        "read": "source",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DExtras::Extras::Quick::Quick3DLevelOfDetailLoader",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "sourcesChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "cameraChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "currentIndexChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "thresholdTypeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "thresholdsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "volumeOverrideChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "entityChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "sourceChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "Qt3DCore::QEntity"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dlevelofdetailloader_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "DefaultProperty",
+                        "value": "sprites"
+                    }
+                ],
+                "className": "Quick3DSpriteSheet",
+                "lineNumber": 28,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "sprites",
+                        "read": "sprites",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DExtras::QSpriteSheetItem>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DExtras::Extras::Quick::Quick3DSpriteSheet",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dspritesheet_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "Qt3DQuickWindowIncubationController",
+                "lineNumber": 34,
+                "object": true,
+                "qualifiedClassName": "Qt3DExtras::Quick::Qt3DQuickWindowIncubationController",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    },
+                    {
+                        "access": "public",
+                        "name": "QQmlIncubationController"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qt3dquickwindow.cpp",
+        "outputRevision": 68
+    }
+]

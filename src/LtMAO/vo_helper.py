@@ -1,7 +1,7 @@
 import os
 from zipfile import ZipFile
 import json
-from . import pyRitoFile, hash_manager
+from . import hash_helper, pyRitoFile
 
 
 LOG = print
@@ -42,7 +42,7 @@ def scan_fantome(path):
                 wads.append(name)
     if info == None:
         raise Exception(
-            f'vo_helper: Failed: Scan FANTOME: {path}: This file does not contains META/info.json.'
+            f'vo_helper: Error: Scan FANTOME: {path}: This file does not contains META/info.json.'
         )
     return info, image, wads
 
@@ -67,7 +67,7 @@ def make_fantome(fantome_name, output_dir, info, image, wads, langs):
     # patch 14.4 rito decide to change inside vo files from all langs to just en_us
     # -> cdragon will purge unused hashes 
     # -> vo_helper need a separated old vo hashes file to deal with old mods
-    hash_manager.CustomHashes.read_wad_hashes()
+    hash_helper.CustomHashes.read_wad_hashes()
     read_old_vo_hashes()
     # read vo wads first
     parsed = []
@@ -76,12 +76,12 @@ def make_fantome(fantome_name, output_dir, info, image, wads, langs):
         is_vo = '_' in wad_name
         if is_vo:
             wad = pyRitoFile.read_wad('', raw=wad_data)
-            wad.un_hash(hash_manager.HASHTABLES)
+            wad.un_hash(hash_helper.HASHTABLES)
             wad.un_hash(OLD_VO_HASHTABLES)
             with wad.stream('', 'rb', raw=wad_data) as bs:
                 for chunk in wad.chunks:
                     chunk.read_data(bs)
-            LOG(f'vo_helper: Done: Prepare VO WAD: {wad_name}')
+            LOG(f'vo_helper: Finish: Prepare VO WAD: {wad_name}')
         parsed.append([wad_name, wad, is_vo])
     # replace lang and write using parsed
     for lang in langs:
@@ -117,10 +117,10 @@ def make_fantome(fantome_name, output_dir, info, image, wads, langs):
         # write fantome out
         path = output_dir + f'/({lang}) ' + fantome_name
         write_fantome(path, info, image, wads)
-        LOG(f'vo_helper: Done: Remake Fantomes: {path}')
-    hash_manager.CustomHashes.free_wad_hashes()
+        LOG(f'vo_helper: Finish: Remake Fantomes: {path}')
+    hash_helper.CustomHashes.free_wad_hashes()
     free_old_vo_hashes()
-    LOG(f'vo_helper: Done: Remake All Fantomes.')
+    LOG(f'vo_helper: Finish: Remake All Fantomes.')
 
 
 def write_fantome(path, info, image, wads):

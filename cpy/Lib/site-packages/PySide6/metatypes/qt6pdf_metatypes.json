@@ -1,0 +1,1320 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QPdfFile",
+                "lineNumber": 24,
+                "object": true,
+                "qualifiedClassName": "QPdfFile",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QFile"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qpdffile_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QPdfBookmarkModel",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "Role",
+                        "type": "int",
+                        "values": [
+                            "Title",
+                            "Level",
+                            "Page",
+                            "Location",
+                            "Zoom",
+                            "NRoles"
+                        ]
+                    }
+                ],
+                "lineNumber": 15,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "document",
+                        "notify": "documentChanged",
+                        "read": "document",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QPdfDocument*",
+                        "user": false,
+                        "write": "setDocument"
+                    }
+                ],
+                "qualifiedClassName": "QPdfBookmarkModel",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "document",
+                                "type": "QPdfDocument*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "documentChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 1,
+                        "name": "_q_documentStatusChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractItemModel"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qpdfbookmarkmodel.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QPdfDocument",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "Status",
+                        "values": [
+                            "Null",
+                            "Loading",
+                            "Ready",
+                            "Unloading",
+                            "Error"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "Error",
+                        "values": [
+                            "None",
+                            "Unknown",
+                            "DataNotYetAvailable",
+                            "FileNotFound",
+                            "InvalidFileFormat",
+                            "IncorrectPassword",
+                            "UnsupportedSecurityScheme"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "MetaDataField",
+                        "values": [
+                            "Title",
+                            "Subject",
+                            "Author",
+                            "Keywords",
+                            "Producer",
+                            "Creator",
+                            "CreationDate",
+                            "ModificationDate"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "PageModelRole",
+                        "values": [
+                            "Label",
+                            "PointSize",
+                            "NRoles"
+                        ]
+                    }
+                ],
+                "lineNumber": 20,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "page",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "pagePointSize",
+                        "returnType": "QSizeF"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "page",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "pageLabel",
+                        "returnType": "QString"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "label",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "pageIndexForLabel",
+                        "returnType": "int"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "page",
+                                "type": "int"
+                            },
+                            {
+                                "name": "start",
+                                "type": "QPointF"
+                            },
+                            {
+                                "name": "end",
+                                "type": "QPointF"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "getSelection",
+                        "returnType": "QPdfSelection"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "page",
+                                "type": "int"
+                            },
+                            {
+                                "name": "startIndex",
+                                "type": "int"
+                            },
+                            {
+                                "name": "maxLength",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "getSelectionAtIndex",
+                        "returnType": "QPdfSelection"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "page",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "getAllText",
+                        "returnType": "QPdfSelection"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "pageCount",
+                        "notify": "pageCountChanged",
+                        "read": "pageCount",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "password",
+                        "notify": "passwordChanged",
+                        "read": "password",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setPassword"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "status",
+                        "notify": "statusChanged",
+                        "read": "status",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Status",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "pageModel",
+                        "notify": "pageModelChanged",
+                        "read": "pageModel",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QAbstractListModel*",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QPdfDocument",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "passwordChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "passwordRequired",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "status",
+                                "type": "QPdfDocument::Status"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "statusChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "pageCount",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "pageCountChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "pageModelChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 5,
+                        "name": "_q_tryLoadingWithSizeFromContentHeader",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 6,
+                        "name": "_q_copyFromSequentialSourceDevice",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qpdfdocument.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QPdfLink",
+                "gadget": true,
+                "lineNumber": 20,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "toString",
+                        "returnType": "QString"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "mode",
+                                "type": "QClipboard::Mode"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "copyToClipboard",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "isCloned": true,
+                        "name": "copyToClipboard",
+                        "returnType": "void"
+                    }
+                ],
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "valid",
+                        "read": "isValid",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "page",
+                        "read": "page",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "location",
+                        "read": "location",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QPointF",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "zoom",
+                        "read": "zoom",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "url",
+                        "read": "url",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "contextBefore",
+                        "read": "contextBefore",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "contextAfter",
+                        "read": "contextAfter",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "rectangles",
+                        "read": "rectangles",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QList<QRectF>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QPdfLink"
+            }
+        ],
+        "inputFile": "qpdflink.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QPdfLinkModel",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "Role",
+                        "values": [
+                            "Link",
+                            "Rectangle",
+                            "Url",
+                            "Page",
+                            "Location",
+                            "Zoom",
+                            "NRoles"
+                        ]
+                    }
+                ],
+                "lineNumber": 19,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "document",
+                        "notify": "documentChanged",
+                        "read": "document",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QPdfDocument*",
+                        "user": false,
+                        "write": "setDocument"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "page",
+                        "notify": "pageChanged",
+                        "read": "page",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setPage"
+                    }
+                ],
+                "qualifiedClassName": "QPdfLinkModel",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "documentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "page",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "pageChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "document",
+                                "type": "QPdfDocument*"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "setDocument",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "page",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "setPage",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "status",
+                                "type": "QPdfDocument::Status"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "onStatusChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractListModel"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qpdflinkmodel.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QPdfPageNavigator",
+                "lineNumber": 15,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "currentPage",
+                        "notify": "currentPageChanged",
+                        "read": "currentPage",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "currentLocation",
+                        "notify": "currentLocationChanged",
+                        "read": "currentLocation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QPointF",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "currentZoom",
+                        "notify": "currentZoomChanged",
+                        "read": "currentZoom",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "backAvailable",
+                        "notify": "backAvailableChanged",
+                        "read": "backAvailable",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "forwardAvailable",
+                        "notify": "forwardAvailableChanged",
+                        "read": "forwardAvailable",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QPdfPageNavigator",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "page",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "currentPageChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "location",
+                                "type": "QPointF"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "currentLocationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "zoom",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "currentZoomChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "available",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "backAvailableChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "available",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "forwardAvailableChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "current",
+                                "type": "QPdfLink"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "jumped",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "clear",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "destination",
+                                "type": "QPdfLink"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "jump",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "page",
+                                "type": "int"
+                            },
+                            {
+                                "name": "location",
+                                "type": "QPointF"
+                            },
+                            {
+                                "name": "zoom",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "jump",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "page",
+                                "type": "int"
+                            },
+                            {
+                                "name": "location",
+                                "type": "QPointF"
+                            }
+                        ],
+                        "index": 9,
+                        "isCloned": true,
+                        "name": "jump",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "page",
+                                "type": "int"
+                            },
+                            {
+                                "name": "location",
+                                "type": "QPointF"
+                            },
+                            {
+                                "name": "zoom",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "update",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 11,
+                        "name": "forward",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 12,
+                        "name": "back",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qpdfpagenavigator.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QPdfPageRenderer",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "RenderMode",
+                        "values": [
+                            "MultiThreaded",
+                            "SingleThreaded"
+                        ]
+                    }
+                ],
+                "lineNumber": 19,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "document",
+                        "notify": "documentChanged",
+                        "read": "document",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QPdfDocument*",
+                        "user": false,
+                        "write": "setDocument"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "renderMode",
+                        "notify": "renderModeChanged",
+                        "read": "renderMode",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "RenderMode",
+                        "user": false,
+                        "write": "setRenderMode"
+                    }
+                ],
+                "qualifiedClassName": "QPdfPageRenderer",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "document",
+                                "type": "QPdfDocument*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "documentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "renderMode",
+                                "type": "QPdfPageRenderer::RenderMode"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "renderModeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "pageNumber",
+                                "type": "int"
+                            },
+                            {
+                                "name": "imageSize",
+                                "type": "QSize"
+                            },
+                            {
+                                "name": "image",
+                                "type": "QImage"
+                            },
+                            {
+                                "name": "options",
+                                "type": "QPdfDocumentRenderOptions"
+                            },
+                            {
+                                "name": "requestId",
+                                "type": "quint64"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "pageRendered",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qpdfpagerenderer.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QPdfSearchModel",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "Role",
+                        "type": "int",
+                        "values": [
+                            "Page",
+                            "IndexOnPage",
+                            "Location",
+                            "ContextBefore",
+                            "ContextAfter",
+                            "NRoles"
+                        ]
+                    }
+                ],
+                "lineNumber": 17,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "document",
+                        "notify": "documentChanged",
+                        "read": "document",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QPdfDocument*",
+                        "user": false,
+                        "write": "setDocument"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "searchString",
+                        "notify": "searchStringChanged",
+                        "read": "searchString",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setSearchString"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "count",
+                        "notify": "countChanged",
+                        "read": "count",
+                        "required": false,
+                        "revision": 1544,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QPdfSearchModel",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "documentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "searchStringChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "countChanged",
+                        "returnType": "void",
+                        "revision": 1544
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "searchString",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "setSearchString",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "document",
+                                "type": "QPdfDocument*"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "setDocument",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractListModel"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qpdfsearchmodel.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QPdfSelection",
+                "gadget": true,
+                "lineNumber": 18,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "valid",
+                        "read": "isValid",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "bounds",
+                        "read": "bounds",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QList<QPolygonF>",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "boundingRectangle",
+                        "read": "boundingRectangle",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QRectF",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "text",
+                        "read": "text",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "startIndex",
+                        "read": "startIndex",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "endIndex",
+                        "read": "endIndex",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QPdfSelection"
+            }
+        ],
+        "inputFile": "qpdfselection.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QPdfPageModel",
+                "lineNumber": 35,
+                "object": true,
+                "qualifiedClassName": "QPdfPageModel",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractListModel"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qpdfdocument.cpp",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "RenderWorker",
+                "lineNumber": 13,
+                "object": true,
+                "qualifiedClassName": "RenderWorker",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "page",
+                                "type": "int"
+                            },
+                            {
+                                "name": "imageSize",
+                                "type": "QSize"
+                            },
+                            {
+                                "name": "image",
+                                "type": "QImage"
+                            },
+                            {
+                                "name": "options",
+                                "type": "QPdfDocumentRenderOptions"
+                            },
+                            {
+                                "name": "requestId",
+                                "type": "quint64"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "pageRendered",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "requestId",
+                                "type": "quint64"
+                            },
+                            {
+                                "name": "page",
+                                "type": "int"
+                            },
+                            {
+                                "name": "imageSize",
+                                "type": "QSize"
+                            },
+                            {
+                                "name": "options",
+                                "type": "QPdfDocumentRenderOptions"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "requestPage",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qpdfpagerenderer.cpp",
+        "outputRevision": 68
+    }
+]

@@ -57,7 +57,7 @@ def dump_skl(fbx_joints):
         joint.ibind_translate = Vector(translate[0], translate[1], translate[2])
         joint.ibind_rotate = Quaternion(rotate[0], rotate[1], rotate[2], rotate[3])
         joint.ibind_scale = Vector(scale[0], scale[1], scale[2])
-    LOG(f'lemon_fbx: Done: Read {joint_count} joints.')
+    LOG(f'lemon_fbx: Finish: Read {joint_count} joints.')
     # link parent
     blender_armature_node_name = None
     blender_armature_node_local_matrix = None
@@ -81,7 +81,7 @@ def dump_skl(fbx_joints):
                     LOG(f'lemon_fbx: Found blender armature/locator node: {blender_armature_node_name}')
                 else:
                     if blender_armature_node_name != parent_node_name:
-                        raise Exception('lemon_fbx: Failed: Skeleton is grouped by multiple locator/blender armature node????')
+                        raise Exception('lemon_fbx: Error: Skeleton is grouped by multiple locator/blender armature node????')
                 joint = skl.joints[joint_id]
                 new_local_matrix = fbx_joint.EvaluateLocalTransform() * blender_armature_node_local_matrix
                 translate, rotate, scale = new_local_matrix.GetT(), new_local_matrix.GetQ(), new_local_matrix.GetS()
@@ -90,19 +90,19 @@ def dump_skl(fbx_joints):
                 joint.local_scale = Vector(scale[0], scale[1], scale[2])
         else:
             skl.joints[joint_id].parent = -1      
-    LOG(f'lemon_fbx: Done: Dump SKL.')
+    LOG(f'lemon_fbx: Finish: Dump SKL.')
     return skl, blender_armature_node_name, blender_armature_node_local_matrix
 
 
 def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_local_matrix):
     def dump_mesh(mesh_name, fbx_mesh):
-        LOG(f'lemon_fbx: Running: Read {mesh_name}')   
+        LOG(f'lemon_fbx: Start:  Read {mesh_name}')   
 
         # check triangle
         is_triangle = fbx_mesh.IsTriangleMesh()
         LOG(f'lemon_fbx: Triangle mesh: {is_triangle}')
         if not is_triangle:
-            raise Exception(f'lemon_fbx: Failed: {mesh_name} is not a triangle mesh.')
+            raise Exception(f'lemon_fbx: Error: {mesh_name} is not a triangle mesh.')
         
         # get info
         indices = fbx_mesh.GetPolygonVertices()
@@ -123,7 +123,7 @@ def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_
         submesh_indices = {submesh_name: [] for submesh_name in submesh_names}
         flag, material_faces = fbx_mesh.GetMaterialIndices()
         if not flag:
-            raise Exception(f'lemon_fbx: Failed: {mesh_name}: GetMaterialIndices()')
+            raise Exception(f'lemon_fbx: Error: {mesh_name}: GetMaterialIndices()')
         if material_faces.GetCount() == 1:
             material_faces = [material_faces[0]] * face_count
         else:
@@ -153,7 +153,7 @@ def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_
             for i in range(3):
                 vertex = indices[face_id*3+i]
                 if material_vertices[vertex] not in (-1, material_id):
-                    raise Exception(f'lemon_fbx: Failed: {mesh_name} contains vertices shared by multiple material.')
+                    raise Exception(f'lemon_fbx: Error: {mesh_name} contains vertices shared by multiple material.')
                 material_vertices[vertex] = material_id
                 submesh_indices[submesh_names[material_id]].append(vertex)
         for submesh_name in submesh_names:
@@ -168,7 +168,7 @@ def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_
         fbx_normals = FbxVector4Array()
         flag = fbx_mesh.GetPolygonVertexNormals(fbx_normals)
         if not flag:
-            raise Exception(f'lemon_fbx: Failed: {mesh_name}: GetPolygonVertexNormals()')
+            raise Exception(f'lemon_fbx: Error: {mesh_name}: GetPolygonVertexNormals()')
         vertex_normals = [[FbxVector4(0.0, 0.0, 0.0, 0.0), 0] for i in range(vertex_count)]
         for index, vertex in enumerate(indices): # this indices is sorted 
             vertex_normals[vertex][0] += fbx_normals[old_index_by_sorted_index[index]]
@@ -179,10 +179,10 @@ def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_
         for joint in skl.joints:
             joint_ids_by_names[joint.name] = joint.id
         if fbx_mesh.GetDeformerCount() <= 0:
-            raise Exception(f'lemon_fbx: Failed: {mesh_name}: No deformer found. Mesh is not bound?')
+            raise Exception(f'lemon_fbx: Error: {mesh_name}: No deformer found. Mesh is not bound?')
         fbx_deformer = fbx_mesh.GetDeformer(0)
         if type(fbx_deformer) != FbxSkin:
-            raise Exception(f'lemon_fbx: Failed: {mesh_name}: Deformer is not FbxSkin?')
+            raise Exception(f'lemon_fbx: Error: {mesh_name}: Deformer is not FbxSkin?')
         fbx_clusters = [fbx_deformer.GetCluster(i) for i in range(fbx_deformer.GetClusterCount())]
         vertex_influences_weights = [[] for i in range(vertex_count)] 
         for fbx_cluster in fbx_clusters:
@@ -210,7 +210,7 @@ def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_
         # uv values
         flag, uvs = fbx_mesh.GetTextureUV()
         if not flag:
-            raise Exception(f'lemon_fbx: Failed: {mesh_name}: GetTextureUV()')
+            raise Exception(f'lemon_fbx: Error: {mesh_name}: GetTextureUV()')
         # uv indices base on mapping mode
         vertex_uv_indices = [[] for i in range(vertex_count)]
         fbx_uv = fbx_mesh.GetElementUV(0)
@@ -236,7 +236,7 @@ def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_
         else:
             # not yet support mapping mode
             # actually only 2 mapping mode above is needed because the rest is pepega for UVs?
-            raise Exception(f'lemon_fbx: Failed: {mesh_name}: Unsupported UV MappingMode: {fbx_uv_mapping_mode}')
+            raise Exception(f'lemon_fbx: Error: {mesh_name}: Unsupported UV MappingMode: {fbx_uv_mapping_mode}')
         # dump vertex by uv index
         # -> first prepare normalized index by material
         # -> start dump each vertex with its uv indices
@@ -317,8 +317,8 @@ def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_
         submesh.vertex_count = len(combined_submesh_vertices[combined_submesh_names[submesh_id]])
     
     if len(skn.vertices) > 65535:
-        raise Exception(f'lemon_fbx: Failed Too many vertices found: {len(skn.vertices)}, max allowed: 65535 vertices. (base on UVs)')
-    LOG(f'lemon_fbx: Done: Dump SKN.')
+        raise Exception(f'lemon_fbx: Error: Too many vertices found: {len(skn.vertices)}, max allowed: 65535 vertices. (base on UVs)')
+    LOG(f'lemon_fbx: Finish: Dump SKN.')
     return skn
 
 
@@ -330,7 +330,7 @@ def fbx_to_skin(fbx_path, skl_path='', skn_path=''):
     major, minor, revision = fbx_importer.GetFileVersion()
     fbx_scene = FbxScene.Create(fbx_manager, 'scene')
     fbx_importer.Import(fbx_scene)
-    LOG(f'lemon_fbx: Done: Read FBX: {fbx_path}')
+    LOG(f'lemon_fbx: Finish: Read FBX: {fbx_path}')
     LOG(f'lemon_fbx: FBX Version: {major}.{minor}.{revision}')
 
     # nodes
@@ -359,11 +359,11 @@ def fbx_to_skin(fbx_path, skl_path='', skn_path=''):
     if skl_path == '':
         skl_path = fbx_path.replace('.fbx', '.skl')
     write_skl(skl_path, skl)
-    LOG(f'lemon_fbx: Done: Write SKL: {skl_path}')
+    LOG(f'lemon_fbx: Finish: Write SKL: {skl_path}')
     if skn_path == '':
         skn_path = fbx_path.replace('.fbx', '.skn')
     write_skn(skn_path, skn)
-    LOG(f'lemon_fbx: Done: Write SKN: {skn_path}')
+    LOG(f'lemon_fbx: Finish: Write SKN: {skn_path}')
 
     # boom boom bakudan
     fbx_importer.Destroy()
@@ -389,7 +389,7 @@ def load_skl(fbx_root_node, fbx_scene, skl):
     for joint_id, joint in enumerate(skl.joints):
         if joint.parent != -1:
             fbx_joint_nodes[joint.parent].AddChild(fbx_joint_nodes[joint_id])
-    LOG(f'lemon_fbx: Done: Load SKL.')
+    LOG(f'lemon_fbx: Finish: Load SKL.')
     return fbx_joint_nodes
 
 
@@ -470,17 +470,17 @@ def load_skn(fbx_root_node, fbx_scene, skn, skl, fbx_joint_nodes):
             fbx_cluster.SetTransformLinkMatrix(fbx_joint_nodes[influence].EvaluateGlobalTransform())
             fbx_skin.AddCluster(fbx_cluster)
         
-        LOG(f'lemon_fbx: Done: Load submesh: {submesh.name}, Indices: {len(submesh_indices)}, Vertices: {len(submesh_vertices)}')
-    LOG(f'lemon_fbx: Done: Load SKN.')
+        LOG(f'lemon_fbx: Finish: Load submesh: {submesh.name}, Indices: {len(submesh_indices)}, Vertices: {len(submesh_vertices)}')
+    LOG(f'lemon_fbx: Finish: Load SKN.')
 
 
 def skin_to_fbx(skl_path, skn_path, fbx_path=''):
     # read skl and skn
     skl = read_skl(skl_path)
-    LOG(f'lemon_fbx: Done: Read SKL: {skl_path}')
+    LOG(f'lemon_fbx: Finish: Read SKL: {skl_path}')
     LOG(f'lemon_fbx: SKL Version: {skl.version}')
     skn = read_skn(skn_path)
-    LOG(f'lemon_fbx: Done: Read SKN: {skn_path}')
+    LOG(f'lemon_fbx: Finish: Read SKN: {skn_path}')
     LOG(f'lemon_fbx: SKN Version: {skn.version}')
 
     # flipX 
@@ -507,7 +507,7 @@ def skin_to_fbx(skl_path, skn_path, fbx_path=''):
     fbx_exporter = FbxExporter.Create(fbx_manager, 'exporter')
     fbx_exporter.Initialize(fbx_path)
     fbx_exporter.Export(fbx_scene)
-    LOG(f'lemon_fbx: Done: Write FBX: {fbx_path}')
+    LOG(f'lemon_fbx: Finish: Write FBX: {fbx_path}')
 
     # boom boom bakudan
     fbx_exporter.Destroy()

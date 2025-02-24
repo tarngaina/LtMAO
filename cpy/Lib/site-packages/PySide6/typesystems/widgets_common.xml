@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+// Copyright (C) 2018 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+-->
+<typesystem>
+
+    <template name="replace_child">
+        $CHILD_TYPE* oldChild = %CPPSELF.$FUNCTION_GET_OLD();
+        if (oldChild &amp;&amp; (oldChild != $CPPARG)) {
+            Shiboken::AutoDecRef pyChild(%CONVERTTOPYTHON[$CHILD_TYPE*](oldChild));
+            Shiboken::Object::setParent(nullptr, pyChild);
+            Shiboken::Object::releaseOwnership(pyChild);
+        }
+        Shiboken::Object::setParent(%PYSELF, $PYARG);
+    </template>
+
+    <template name="qgraphicsitem_pysequence">
+        const Py_ssize_t numItems = PySequence_Size(%PYARG_1);
+        Shiboken::AutoArrayPointer&lt;QGraphicsItem*&gt; %out(numItems);
+        for (Py_ssize_t i = 0; i &lt; numItems; ++i) {
+            Shiboken::AutoDecRef _arg1(PySequence_GetItem(%PYARG_1, i));
+            %out[i] = %CONVERTTOCPP[QGraphicsItem*](_arg1);
+        }
+    </template>
+
+    <template name="qgraphicsitem_pyobject">
+        Shiboken::AutoDecRef object(PyList_New(0));
+        for (int i=0, max=numItems; i &lt; max; i++) {
+            PyList_Append(object, %CONVERTTOPYTHON[QGraphicsItem*](%in[i]));
+        }
+        PyObject *%out = object.object();
+    </template>
+
+    <template name="qstyleoptiongraphicsitem_pyobject">
+        Shiboken::AutoDecRef option_object(PyList_New(0));
+        for (int i=0, max=numItems; i &lt; max; i++) {
+            const QStyleOptionGraphicsItem* item = &amp;%in[i];
+            PyList_Append(option_object, %CONVERTTOPYTHON[QStyleOptionGraphicsItem](item));
+        }
+        PyObject* %out = option_object.object();
+    </template>
+
+    <template name="pysequence_qstyleoptiongraphicsitem">
+        const Py_ssize_t numOptions = PySequence_Size(%PYARG_2);
+        Shiboken::AutoArrayPointer&lt;QStyleOptionGraphicsItem&gt; %out(numOptions);
+        for (Py_ssize_t i=0; i &lt; numOptions; ++i) {
+            Shiboken::AutoDecRef _arg1(PySequence_GetItem(%PYARG_1, i));
+            %out[i] = %CONVERTTOCPP[QStyleOptionGraphicsItem](_arg1);
+        }
+    </template>
+
+    <template name="pysequencesize_int">
+        Py_ssize_t %out = PySequence_Size(%PYARG_1);
+    </template>
+
+</typesystem>

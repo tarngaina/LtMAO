@@ -1,0 +1,2875 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QQuick3DXrInputManagerPrivate",
+                "lineNumber": 34,
+                "object": true,
+                "qualifiedClassName": "QQuick3DXrInputManagerPrivate",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qopenxrinputmanager_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QQuick3DXrAnchorManager",
+                "lineNumber": 48,
+                "object": true,
+                "qualifiedClassName": "QQuick3DXrAnchorManager",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "anchor",
+                                "type": "QQuick3DXrSpatialAnchor*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "anchorAdded",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "uuid",
+                                "type": "QUuid"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "anchorRemoved",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "anchor",
+                                "type": "QQuick3DXrSpatialAnchor*"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "anchorUpdated",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "sceneCaptureCompleted",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxranchormanager_openxr_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "XrInputAction"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1544"
+                    }
+                ],
+                "className": "QQuick3DXrInputAction",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Hand",
+                        "type": "quint8",
+                        "values": [
+                            "LeftHand",
+                            "RightHand",
+                            "Unknown"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Action",
+                        "type": "qint16",
+                        "values": [
+                            "CustomAction",
+                            "Button1Pressed",
+                            "Button1Touched",
+                            "Button2Pressed",
+                            "Button2Touched",
+                            "ButtonMenuPressed",
+                            "ButtonMenuTouched",
+                            "ButtonSystemPressed",
+                            "ButtonSystemTouched",
+                            "SqueezeValue",
+                            "SqueezeForce",
+                            "SqueezePressed",
+                            "TriggerValue",
+                            "TriggerPressed",
+                            "TriggerTouched",
+                            "ThumbstickX",
+                            "ThumbstickY",
+                            "ThumbstickPressed",
+                            "ThumbstickTouched",
+                            "ThumbrestTouched",
+                            "TrackpadX",
+                            "TrackpadY",
+                            "TrackpadForce",
+                            "TrackpadTouched",
+                            "TrackpadPressed",
+                            "IndexFingerPinch",
+                            "MiddleFingerPinch",
+                            "RingFingerPinch",
+                            "LittleFingerPinch",
+                            "HandTrackingMenuPress",
+                            "NumHandActions",
+                            "NumActions"
+                        ]
+                    }
+                ],
+                "interfaces": [
+                    [
+                        {
+                            "className": "QQmlParserStatus",
+                            "id": "\"org.qt-project.Qt.QQmlParserStatus\""
+                        }
+                    ]
+                ],
+                "lineNumber": 29,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "value",
+                        "notify": "valueChanged",
+                        "read": "value",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "pressed",
+                        "notify": "pressedChanged",
+                        "read": "pressed",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "actionName",
+                        "notify": "actionNameChanged",
+                        "read": "actionName",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setActionName"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "actionId",
+                        "notify": "actionIdChanged",
+                        "read": "actionId",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QList<Action>",
+                        "user": false,
+                        "write": "setActionId"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "hand",
+                        "notify": "handChanged",
+                        "read": "hand",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Hand",
+                        "user": false,
+                        "write": "setHand"
+                    }
+                ],
+                "qualifiedClassName": "QQuick3DXrInputAction",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "valueChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "pressedChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "triggered",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "actionNameChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "actionIdChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "handChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    },
+                    {
+                        "access": "public",
+                        "name": "QQmlParserStatus"
+                    }
+                ]
+            },
+            {
+                "className": "QQuick3DXrActionMapper",
+                "lineNumber": 128,
+                "object": true,
+                "qualifiedClassName": "QQuick3DXrActionMapper",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxractionmapper_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QQuick3DXrEyeCamera",
+                "lineNumber": 28,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "leftTangent",
+                        "notify": "leftTangentChanged",
+                        "read": "leftTangent",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setLeftTangent"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "rightTangent",
+                        "notify": "rightTangentChanged",
+                        "read": "rightTangent",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setRightTangent"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "upTangent",
+                        "notify": "upTangentChanged",
+                        "read": "upTangent",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setUpTangent"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "downTangent",
+                        "notify": "downTangentChanged",
+                        "read": "downTangent",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setDownTangent"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "clipNear",
+                        "notify": "clipNearChanged",
+                        "read": "clipNear",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setClipNear"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "clipFar",
+                        "notify": "clipFarChanged",
+                        "read": "clipFar",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setClipFar"
+                    }
+                ],
+                "qualifiedClassName": "QQuick3DXrEyeCamera",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "leftTangent",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "leftTangentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rightTangent",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "rightTangentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "upTangent",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "upTangentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "downTangent",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "downTangentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "clipNear",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "clipNearChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "clipFar",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "clipFarChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "leftTangent",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "setLeftTangent",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rightTangent",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "setRightTangent",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "upTangent",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "setUpTangent",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "downTangent",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "setDownTangent",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "clipNear",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "setClipNear",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "clipFar",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "setClipFar",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "projection",
+                                "type": "QMatrix4x4"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "setProjection",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QQuick3DCamera"
+                    }
+                ]
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "XrCamera"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1544"
+                    }
+                ],
+                "className": "QQuick3DXrCamera",
+                "lineNumber": 91,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "clipNear",
+                        "notify": "clipNearChanged",
+                        "read": "clipNear",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setClipNear"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "clipFar",
+                        "notify": "clipFarChanged",
+                        "read": "clipFar",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setClipFar"
+                    }
+                ],
+                "qualifiedClassName": "QQuick3DXrCamera",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "clipNear",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "clipNearChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "clipFar",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "clipFarChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "clipNear",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "setClipNear",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "clipFar",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "setClipFar",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QQuick3DNode"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxrcamera_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "XrController"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1544"
+                    }
+                ],
+                "className": "QQuick3DXrController",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Controller",
+                        "values": [
+                            "ControllerLeft",
+                            "ControllerRight",
+                            "ControllerNone"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "HandPoseSpace",
+                        "values": [
+                            "GripPose",
+                            "AimPose"
+                        ]
+                    }
+                ],
+                "lineNumber": 28,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "controller",
+                        "notify": "controllerChanged",
+                        "read": "controller",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Controller",
+                        "user": false,
+                        "write": "setController"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "isActive",
+                        "notify": "isActiveChanged",
+                        "read": "isActive",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "poseSpace",
+                        "notify": "poseSpaceChanged",
+                        "read": "poseSpace",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "HandPoseSpace",
+                        "user": false,
+                        "write": "setPoseSpace"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "pokePosition",
+                        "notify": "pokePositionChanged",
+                        "read": "pokePosition",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "jointPositions",
+                        "notify": "jointPositionsChanged",
+                        "read": "jointPositions",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QList<QVector3D>",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "jointRotations",
+                        "notify": "jointRotationsChanged",
+                        "read": "jointRotations",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QList<QQuaternion>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QQuick3DXrController",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "controllerChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "actionMapperChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "poseSpaceChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "pokePositionChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "jointPositionsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "jointRotationsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "jointDataUpdated",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "isActiveChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QQuick3DNode"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxrcontroller_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QQuick3DXrHandInput",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "HandPoseSpace",
+                        "values": [
+                            "GripPose",
+                            "AimPose"
+                        ]
+                    }
+                ],
+                "lineNumber": 26,
+                "object": true,
+                "qualifiedClassName": "QQuick3DXrHandInput",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "isActiveChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "poseSpaceChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "posePositionChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "poseRotationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "jointPositionsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "jointRotationsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "jointDataUpdated",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "pokePositionChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "isHandTrackingChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxrhandinput_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "XrHandModel"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1544"
+                    }
+                ],
+                "className": "QQuick3DXrHandModel",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Hand",
+                        "type": "quint8",
+                        "values": [
+                            "LeftHand",
+                            "RightHand",
+                            "Unknown"
+                        ]
+                    }
+                ],
+                "lineNumber": 32,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "hand",
+                        "notify": "handChanged",
+                        "read": "hand",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Hand",
+                        "user": false,
+                        "write": "setHand"
+                    }
+                ],
+                "qualifiedClassName": "QQuick3DXrHandModel",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "handChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "handTrackerChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 2,
+                        "name": "updatePose",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QQuick3DModel"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxrhandmodel_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QQuick3DXrInputManager",
+                "lineNumber": 30,
+                "object": true,
+                "qualifiedClassName": "QQuick3DXrInputManager",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxrinputmanager_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "XrItem"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1544"
+                    }
+                ],
+                "className": "QQuick3DXrItem",
+                "lineNumber": 28,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "contentItem",
+                        "notify": "contentItemChanged",
+                        "read": "contentItem",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQuickItem*",
+                        "user": false,
+                        "write": "setContentItem"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "pixelsPerUnit",
+                        "notify": "pixelsPerUnitChanged",
+                        "read": "pixelsPerUnit",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setPixelsPerUnit"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "manualPixelsPerUnit",
+                        "notify": "manualPixelsPerUnitChanged",
+                        "read": "manualPixelsPerUnit",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setManualPixelsPerUnit"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "automaticHeight",
+                        "notify": "automaticHeightChanged",
+                        "read": "automaticHeight",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setAutomaticHeight"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "automaticWidth",
+                        "notify": "automaticWidthChanged",
+                        "read": "automaticWidth",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setAutomaticWidth"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "width",
+                        "notify": "widthChanged",
+                        "read": "width",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setWidth"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 6,
+                        "name": "height",
+                        "notify": "heightChanged",
+                        "read": "height",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setHeight"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 7,
+                        "name": "color",
+                        "notify": "colorChanged",
+                        "read": "color",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QColor",
+                        "user": false,
+                        "write": "setColor"
+                    }
+                ],
+                "qualifiedClassName": "QQuick3DXrItem",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "contentItemChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "pixelsPerUnitChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "flagsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "manualPixelsPerUnitChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "widthChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "heightChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "colorChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "automaticHeightChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "automaticWidthChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QQuick3DNode"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxritem_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QQuick3DXrManager",
+                "lineNumber": 41,
+                "object": true,
+                "qualifiedClassName": "QQuick3DXrManager",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "initialized",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "sessionEnded",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "xrOriginChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "frameReady",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "referenceSpaceChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "multiViewRenderingEnabledChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 6,
+                        "name": "update",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxrmanager_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "XrOrigin"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1544"
+                    }
+                ],
+                "className": "QQuick3DXrOrigin",
+                "lineNumber": 30,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "camera",
+                        "notify": "cameraChanged",
+                        "read": "camera",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQuick3DXrCamera*",
+                        "user": false,
+                        "write": "setCamera"
+                    }
+                ],
+                "qualifiedClassName": "QQuick3DXrOrigin",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "cameraChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QQuick3DNode"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxrorigin_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "XrRuntimeInfo"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "Created by XrView"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1544"
+                    }
+                ],
+                "className": "QQuick3DXrRuntimeInfo",
+                "lineNumber": 26,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "enabledExtensions",
+                        "read": "enabledExtensions",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "runtimeName",
+                        "read": "runtimeName",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "runtimeVersion",
+                        "read": "runtimeVersion",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "graphicsApiName",
+                        "read": "graphicsApiName",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QQuick3DXrRuntimeInfo",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxrruntimeinfo_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "XrSpatialAnchor"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "Spatial anchor objects cannot be created in QML"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1544"
+                    }
+                ],
+                "className": "QQuick3DXrSpatialAnchor",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "Classification",
+                        "values": [
+                            "Unknown",
+                            "Wall",
+                            "Ceiling",
+                            "Floor",
+                            "Table",
+                            "Seat",
+                            "Window",
+                            "Door",
+                            "Other"
+                        ]
+                    }
+                ],
+                "lineNumber": 32,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "has2DBounds",
+                        "notify": "has2DBoundsChanged",
+                        "read": "has2DBounds",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "has3DBounds",
+                        "notify": "has3DBoundsChanged",
+                        "read": "has3DBounds",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "offset2D",
+                        "notify": "offset2DChanged",
+                        "read": "offset2D",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector2D",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "extent2D",
+                        "notify": "extent2DChanged",
+                        "read": "extent2D",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector2D",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 4,
+                        "name": "offset3D",
+                        "notify": "offset3DChanged",
+                        "read": "offset3D",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "extent3D",
+                        "notify": "extent3DChanged",
+                        "read": "extent3D",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 6,
+                        "name": "position",
+                        "notify": "positionChanged",
+                        "read": "position",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 7,
+                        "name": "rotation",
+                        "notify": "rotationChanged",
+                        "read": "rotation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQuaternion",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 8,
+                        "name": "classification",
+                        "notify": "classificationChanged",
+                        "read": "classification",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Classification",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 9,
+                        "name": "classificationString",
+                        "notify": "classificationStringChanged",
+                        "read": "classificationString",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 10,
+                        "name": "identifier",
+                        "read": "identifier",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QQuick3DXrSpatialAnchor",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "offset3DChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "extent3DChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "positionChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "rotationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "classificationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "classificationStringChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "has2DBoundsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "has3DBoundsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "offset2DChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 9,
+                        "name": "extent2DChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxrspatialanchor_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "XrSpatialAnchorListModel"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1544"
+                    }
+                ],
+                "className": "QQuick3DXrSpatialAnchorListModel",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "FilterMode",
+                        "values": [
+                            "All",
+                            "Classification",
+                            "Identifier"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "ClassificationFlag",
+                        "type": "quint32",
+                        "values": [
+                            "Wall",
+                            "Ceiling",
+                            "Floor",
+                            "Table",
+                            "Seat",
+                            "Window",
+                            "Door",
+                            "Other"
+                        ]
+                    },
+                    {
+                        "alias": "ClassificationFlag",
+                        "isClass": false,
+                        "isFlag": true,
+                        "name": "ClassificationFlags",
+                        "type": "quint32",
+                        "values": [
+                            "Wall",
+                            "Ceiling",
+                            "Floor",
+                            "Table",
+                            "Seat",
+                            "Window",
+                            "Door",
+                            "Other"
+                        ]
+                    }
+                ],
+                "lineNumber": 29,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "requestSceneCapture",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "queryAnchors",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 0,
+                        "name": "filterMode",
+                        "notify": "filterModeChanged",
+                        "read": "filterMode",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "FilterMode",
+                        "user": false,
+                        "write": "setFilterMode"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 1,
+                        "name": "classificationFilter",
+                        "notify": "classificationFilterChanged",
+                        "read": "classificationFilter",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "ClassificationFlags",
+                        "user": false,
+                        "write": "setClassificationFilter"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 2,
+                        "name": "classificationStringFilter",
+                        "notify": "classificationStringFilterChanged",
+                        "read": "classificationStringFilter",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false,
+                        "write": "setClassificationStringFilter"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "identifierFilter",
+                        "notify": "identifierFilterChanged",
+                        "read": "identifierFilter",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false,
+                        "write": "setIdentifierFilter"
+                    }
+                ],
+                "qualifiedClassName": "QQuick3DXrSpatialAnchorListModel",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "filterModeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "identifierFilterChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "classificationFilterChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "classificationStringFilterChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "anchor",
+                                "type": "QQuick3DXrSpatialAnchor*"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "handleAnchorAdded",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "uuid",
+                                "type": "QUuid"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "handleAnchorRemoved",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "anchor",
+                                "type": "QQuick3DXrSpatialAnchor*"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "handleAnchorUpdated",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractListModel"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxrspatialanchorlistmodel_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "XrView"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1544"
+                    }
+                ],
+                "className": "QQuick3DXrView",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "FoveationLevel",
+                        "values": [
+                            "NoFoveation",
+                            "LowFoveation",
+                            "MediumFoveation",
+                            "HighFoveation"
+                        ]
+                    },
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "ReferenceSpace",
+                        "values": [
+                            "ReferenceSpaceUnknown",
+                            "ReferenceSpaceLocal",
+                            "ReferenceSpaceStage",
+                            "ReferenceSpaceLocalFloor"
+                        ]
+                    }
+                ],
+                "lineNumber": 36,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "origin",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "direction",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 22,
+                        "name": "rayPick",
+                        "returnType": "QQuick3DPickResult"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "origin",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "direction",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 23,
+                        "name": "rayPickAll",
+                        "returnType": "QList<QQuick3DPickResult>"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "target",
+                                "type": "QQuickItem*"
+                            },
+                            {
+                                "name": "position",
+                                "type": "QPointF"
+                            },
+                            {
+                                "name": "pointId",
+                                "type": "int"
+                            },
+                            {
+                                "name": "active",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 24,
+                        "name": "setTouchpoint",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "pos",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "pointId",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 25,
+                        "name": "processTouch",
+                        "returnType": "QVector3D"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "pointId",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 26,
+                        "name": "touchpointState",
+                        "returnType": "QVariantMap"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "xrOrigin",
+                        "notify": "xrOriginChanged",
+                        "read": "xrOrigin",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQuick3DXrOrigin*",
+                        "user": false,
+                        "write": "setXROrigin"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "environment",
+                        "notify": "environmentChanged",
+                        "read": "environment",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQuick3DSceneEnvironment*",
+                        "user": false,
+                        "write": "setEnvironment"
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "passthroughSupported",
+                        "read": "passthroughSupported",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 3,
+                        "name": "passthroughEnabled",
+                        "notify": "passthroughEnabledChanged",
+                        "read": "passthroughEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setPassthroughEnabled"
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "runtimeInfo",
+                        "read": "runtimeInfo",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQuick3DXrRuntimeInfo*",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 5,
+                        "name": "quitOnSessionEnd",
+                        "notify": "quitOnSessionEndChanged",
+                        "read": "isQuitOnSessionEndEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setQuitOnSessionEnd"
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "renderStats",
+                        "read": "renderStats",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQuick3DRenderStats*",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 7,
+                        "name": "fixedFoveation",
+                        "notify": "fixedFoveationChanged",
+                        "read": "fixedFoveation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "FoveationLevel",
+                        "user": false,
+                        "write": "setFixedFoveation"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 8,
+                        "name": "referenceSpace",
+                        "notify": "referenceSpaceChanged",
+                        "read": "referenceSpace",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "ReferenceSpace",
+                        "user": false,
+                        "write": "setReferenceSpace"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 9,
+                        "name": "depthSubmissionEnabled",
+                        "notify": "depthSubmissionEnabledChanged",
+                        "read": "depthSubmissionEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setDepthSubmissionEnabled"
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 10,
+                        "name": "multiViewRenderingSupported",
+                        "read": "isMultiViewRenderingSupported",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": true,
+                        "index": 11,
+                        "name": "multiViewRenderingEnabled",
+                        "notify": "multiViewRenderingEnabledChanged",
+                        "read": "multiViewRenderingEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setMultiViewRenderingEnabled"
+                    }
+                ],
+                "qualifiedClassName": "QQuick3DXrView",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "errorString",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "initializeFailed",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "sessionEnded",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "xrOriginChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "environment",
+                                "type": "QQuick3DSceneEnvironment*"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "environmentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "passthroughEnabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "quitOnSessionEndChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "fixedFoveationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "name": "frameReady",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "name": "referenceSpaceChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 9,
+                        "name": "depthSubmissionEnabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 10,
+                        "name": "multiViewRenderingEnabledChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "environment",
+                                "type": "QQuick3DSceneEnvironment*"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "setEnvironment",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "enable",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "setPassthroughEnabled",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "enable",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 13,
+                        "name": "setQuitOnSessionEnd",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "enable",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 14,
+                        "name": "setDepthSubmissionEnabled",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "enable",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 15,
+                        "name": "setMultiViewRenderingEnabled",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "newXrOrigin",
+                                "type": "QQuick3DXrOrigin*"
+                            }
+                        ],
+                        "index": 16,
+                        "name": "setXROrigin",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 17,
+                        "name": "updateViewportGeometry",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 18,
+                        "name": "handleSessionEnded",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 19,
+                        "name": "handleClearColorChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 20,
+                        "name": "handleAAChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 21,
+                        "name": "init",
+                        "returnType": "bool"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QQuick3DNode"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxrview_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "XrVirtualMouse"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "1544"
+                    }
+                ],
+                "className": "QQuick3DXrVirtualMouse",
+                "lineNumber": 28,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "rightMouseButton",
+                        "notify": "rightMouseButtonChanged",
+                        "read": "rightMouseButton",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setRightMouseButton"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "leftMouseButton",
+                        "notify": "leftMouseButtonChanged",
+                        "read": "leftMouseButton",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setLeftMouseButton"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "middleMouseButton",
+                        "notify": "middleMouseButtonChanged",
+                        "read": "middleMouseButton",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setMiddleMouseButton"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "scrollWheelX",
+                        "notify": "scrollWheelXChanged",
+                        "read": "scrollWheelX",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setScrollWheelX"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "scrollWheelY",
+                        "notify": "scrollWheelYChanged",
+                        "read": "scrollWheelY",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setScrollWheelY"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "scrollTimerInterval",
+                        "notify": "scrollTimerIntervalChanged",
+                        "read": "scrollTimerInterval",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setScrollTimerInterval"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "scrollPixelDelta",
+                        "notify": "scrollPixelDeltaChanged",
+                        "read": "scrollPixelDelta",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setScrollPixelDelta"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "source",
+                        "notify": "sourceChanged",
+                        "read": "source",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQuick3DNode*",
+                        "user": false,
+                        "write": "setSource"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 8,
+                        "name": "view",
+                        "notify": "viewChanged",
+                        "read": "view",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQuick3DXrView*",
+                        "user": false,
+                        "write": "setView"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 9,
+                        "name": "enabled",
+                        "notify": "enabledChanged",
+                        "read": "enabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setEnabled"
+                    }
+                ],
+                "qualifiedClassName": "QQuick3DXrVirtualMouse",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rightMouseButton",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "rightMouseButtonChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "leftMouseButton",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "leftMouseButtonChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "middleMouseButton",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "middleMouseButtonChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scrollWheelX",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "scrollWheelXChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scrollWheelY",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "scrollWheelYChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scrollTimerInterval",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "scrollTimerIntervalChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scrollPixelDelta",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "scrollPixelDeltaChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "source",
+                                "type": "QQuick3DNode*"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "sourceChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "view",
+                                "type": "QQuick3DXrView*"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "viewChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "enabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "enabledChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rightMouseButton",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "setRightMouseButton",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "leftMouseButton",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "setLeftMouseButton",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "middleMouseButton",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "setMiddleMouseButton",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scrollWheelX",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 13,
+                        "name": "setScrollWheelX",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scrollWheelY",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 14,
+                        "name": "setScrollWheelY",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scrollTimerInterval",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 15,
+                        "name": "setScrollTimerInterval",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scrollPixelDelta",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 16,
+                        "name": "setScrollPixelDelta",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "source",
+                                "type": "QQuick3DNode*"
+                            }
+                        ],
+                        "index": 17,
+                        "name": "setSource",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "view",
+                                "type": "QQuick3DXrView*"
+                            }
+                        ],
+                        "index": 18,
+                        "name": "setView",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "enabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 19,
+                        "name": "setEnabled",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 20,
+                        "name": "moveEvent",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 21,
+                        "name": "generateWheelEvent",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dxrvirtualmouse_p.h",
+        "outputRevision": 68
+    }
+]

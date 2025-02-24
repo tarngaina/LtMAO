@@ -1,0 +1,3949 @@
+[
+    {
+        "classes": [
+            {
+                "className": "AspectCommandDebugger",
+                "lineNumber": 33,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::Debug::AspectCommandDebugger",
+                "slots": [
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "reply",
+                                "type": "AsynchronousCommandReply*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "asynchronousReplyFinished",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QTcpServer"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "aspectcommanddebugger_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "PropertyChangeHandlerBase",
+                "lineNumber": 28,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::PropertyChangeHandlerBase",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "propertychangehandler_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAbstractAspect",
+                "lineNumber": 27,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QAbstractAspect",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qabstractaspect.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "AsynchronousCommandReply",
+                "lineNumber": 43,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::Debug::AsynchronousCommandReply",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "reply",
+                                "type": "AsynchronousCommandReply*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "finished",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qabstractaspect_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAbstractAspectJobManager",
+                "lineNumber": 25,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QAbstractAspectJobManager",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qabstractaspectjobmanager_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAbstractFrameAdvanceService",
+                "lineNumber": 29,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QAbstractFrameAdvanceService",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QAbstractServiceProvider",
+                        "name": "QAbstractServiceProvider"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qabstractframeadvanceservice_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAbstractSkeleton",
+                "lineNumber": 16,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "jointCount",
+                        "notify": "jointCountChanged",
+                        "read": "jointCount",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QAbstractSkeleton",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "jointCount",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "jointCountChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "Qt3DCore::QNode"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qabstractskeleton.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QArmature",
+                "lineNumber": 17,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "skeleton",
+                        "notify": "skeletonChanged",
+                        "read": "skeleton",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt3DCore::QAbstractSkeleton*",
+                        "user": false,
+                        "write": "setSkeleton"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QArmature",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "skeleton",
+                                "type": "Qt3DCore::QAbstractSkeleton*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "skeletonChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "skeleton",
+                                "type": "Qt3DCore::QAbstractSkeleton*"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "setSkeleton",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "Qt3DCore::QComponent"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qarmature.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAspectEngine",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "RunMode",
+                        "values": [
+                            "Manual",
+                            "Automatic"
+                        ]
+                    }
+                ],
+                "lineNumber": 24,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QAspectEngine",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qaspectengine.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAspectJobManager",
+                "lineNumber": 31,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QAspectJobManager",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QAbstractAspectJobManager",
+                        "name": "QAbstractAspectJobManager"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qaspectjobmanager_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAspectManager",
+                "lineNumber": 50,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QAspectManager",
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "initialize",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "shutdown",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "processFrame",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "root",
+                                "type": "Qt3DCore::QEntity*"
+                            },
+                            {
+                                "name": "nodes",
+                                "type": "QList<QNode*>"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "setRootEntity",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "nodes",
+                                "type": "QList<QNode*>"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "addNodes",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "nodes",
+                                "type": "QList<QNode*>"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "removeNodes",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "aspect",
+                                "type": "Qt3DCore::QAbstractAspect*"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "registerAspect",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "aspect",
+                                "type": "Qt3DCore::QAbstractAspect*"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "unregisterAspect",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    },
+                    {
+                        "access": "public",
+                        "name": "QAbstractFrontEndNodeManager"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qaspectmanager_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAttribute",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "AttributeType",
+                        "values": [
+                            "VertexAttribute",
+                            "IndexAttribute",
+                            "DrawIndirectAttribute"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "VertexBaseType",
+                        "values": [
+                            "Byte",
+                            "UnsignedByte",
+                            "Short",
+                            "UnsignedShort",
+                            "Int",
+                            "UnsignedInt",
+                            "HalfFloat",
+                            "Float",
+                            "Double"
+                        ]
+                    }
+                ],
+                "lineNumber": 20,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 20,
+                        "name": "defaultPositionAttributeName",
+                        "returnType": "QString"
+                    },
+                    {
+                        "access": "public",
+                        "index": 21,
+                        "name": "defaultNormalAttributeName",
+                        "returnType": "QString"
+                    },
+                    {
+                        "access": "public",
+                        "index": 22,
+                        "name": "defaultColorAttributeName",
+                        "returnType": "QString"
+                    },
+                    {
+                        "access": "public",
+                        "index": 23,
+                        "name": "defaultTextureCoordinateAttributeName",
+                        "returnType": "QString"
+                    },
+                    {
+                        "access": "public",
+                        "index": 24,
+                        "name": "defaultTangentAttributeName",
+                        "returnType": "QString"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "buffer",
+                        "notify": "bufferChanged",
+                        "read": "buffer",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt3DCore::QBuffer*",
+                        "user": false,
+                        "write": "setBuffer"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "name",
+                        "notify": "nameChanged",
+                        "read": "name",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setName"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "vertexBaseType",
+                        "notify": "vertexBaseTypeChanged",
+                        "read": "vertexBaseType",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "VertexBaseType",
+                        "user": false,
+                        "write": "setVertexBaseType"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "vertexSize",
+                        "notify": "vertexSizeChanged",
+                        "read": "vertexSize",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "uint",
+                        "user": false,
+                        "write": "setVertexSize"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "count",
+                        "notify": "countChanged",
+                        "read": "count",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "uint",
+                        "user": false,
+                        "write": "setCount"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "byteStride",
+                        "notify": "byteStrideChanged",
+                        "read": "byteStride",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "uint",
+                        "user": false,
+                        "write": "setByteStride"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "byteOffset",
+                        "notify": "byteOffsetChanged",
+                        "read": "byteOffset",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "uint",
+                        "user": false,
+                        "write": "setByteOffset"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "divisor",
+                        "notify": "divisorChanged",
+                        "read": "divisor",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "uint",
+                        "user": false,
+                        "write": "setDivisor"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 8,
+                        "name": "attributeType",
+                        "notify": "attributeTypeChanged",
+                        "read": "attributeType",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "AttributeType",
+                        "user": false,
+                        "write": "setAttributeType"
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 9,
+                        "name": "defaultPositionAttributeName",
+                        "read": "defaultPositionAttributeName",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 10,
+                        "name": "defaultNormalAttributeName",
+                        "read": "defaultNormalAttributeName",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 11,
+                        "name": "defaultColorAttributeName",
+                        "read": "defaultColorAttributeName",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 12,
+                        "name": "defaultTextureCoordinateAttributeName",
+                        "read": "defaultTextureCoordinateAttributeName",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 13,
+                        "name": "defaultTextureCoordinate1AttributeName",
+                        "read": "defaultTextureCoordinate1AttributeName",
+                        "required": false,
+                        "revision": 523,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 14,
+                        "name": "defaultTextureCoordinate2AttributeName",
+                        "read": "defaultTextureCoordinate2AttributeName",
+                        "required": false,
+                        "revision": 523,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 15,
+                        "name": "defaultTangentAttributeName",
+                        "read": "defaultTangentAttributeName",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 16,
+                        "name": "defaultJointIndicesAttributeName",
+                        "read": "defaultJointIndicesAttributeName",
+                        "required": false,
+                        "revision": 522,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 17,
+                        "name": "defaultJointWeightsAttributeName",
+                        "read": "defaultJointWeightsAttributeName",
+                        "required": false,
+                        "revision": 522,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QAttribute",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "buffer",
+                                "type": "QBuffer*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "bufferChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "name",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "nameChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vertexBaseType",
+                                "type": "VertexBaseType"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "vertexBaseTypeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vertexSize",
+                                "type": "uint"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "vertexSizeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vertexBaseType",
+                                "type": "VertexBaseType"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "dataTypeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vertexSize",
+                                "type": "uint"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "dataSizeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "count",
+                                "type": "uint"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "countChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "byteStride",
+                                "type": "uint"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "byteStrideChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "byteOffset",
+                                "type": "uint"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "byteOffsetChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "divisor",
+                                "type": "uint"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "divisorChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "attributeType",
+                                "type": "AttributeType"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "attributeTypeChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "buffer",
+                                "type": "QBuffer*"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "setBuffer",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "name",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "setName",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "type",
+                                "type": "VertexBaseType"
+                            }
+                        ],
+                        "index": 13,
+                        "name": "setVertexBaseType",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "size",
+                                "type": "uint"
+                            }
+                        ],
+                        "index": 14,
+                        "name": "setVertexSize",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "count",
+                                "type": "uint"
+                            }
+                        ],
+                        "index": 15,
+                        "name": "setCount",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "byteStride",
+                                "type": "uint"
+                            }
+                        ],
+                        "index": 16,
+                        "name": "setByteStride",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "byteOffset",
+                                "type": "uint"
+                            }
+                        ],
+                        "index": 17,
+                        "name": "setByteOffset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "divisor",
+                                "type": "uint"
+                            }
+                        ],
+                        "index": 18,
+                        "name": "setDivisor",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "attributeType",
+                                "type": "AttributeType"
+                            }
+                        ],
+                        "index": 19,
+                        "name": "setAttributeType",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QNode",
+                        "name": "QNode"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qattribute.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QBoundingVolume",
+                "lineNumber": 18,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "view",
+                        "notify": "viewChanged",
+                        "read": "view",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QGeometryView*",
+                        "user": false,
+                        "write": "setView"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "implicitMinPoint",
+                        "notify": "implicitMinPointChanged",
+                        "read": "implicitMinPoint",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "implicitMaxPoint",
+                        "notify": "implicitMaxPointChanged",
+                        "read": "implicitMaxPoint",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "implicitPointsValid",
+                        "notify": "implicitPointsValidChanged",
+                        "read": "areImplicitPointsValid",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "minPoint",
+                        "notify": "minPointChanged",
+                        "read": "minPoint",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false,
+                        "write": "setMinPoint"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "maxPoint",
+                        "notify": "maxPointChanged",
+                        "read": "maxPoint",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false,
+                        "write": "setMaxPoint"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QBoundingVolume",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "view",
+                                "type": "QGeometryView*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "viewChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "implicitMinPoint",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "implicitMinPointChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "implicitMaxPoint",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "implicitMaxPointChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "implicitPointsValid",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "implicitPointsValidChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "minPoint",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "minPointChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "maxPoint",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "maxPointChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "view",
+                                "type": "QGeometryView*"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "setView",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "minPoint",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "setMinPoint",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "maxPoint",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "setMaxPoint",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 9,
+                        "name": "updateImplicitBounds",
+                        "returnType": "bool"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "Qt3DCore::QComponent"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qboundingvolume.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QBuffer",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "UsageType",
+                        "values": [
+                            "StreamDraw",
+                            "StreamRead",
+                            "StreamCopy",
+                            "StaticDraw",
+                            "StaticRead",
+                            "StaticCopy",
+                            "DynamicDraw",
+                            "DynamicRead",
+                            "DynamicCopy"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "AccessType",
+                        "values": [
+                            "Write",
+                            "Read",
+                            "ReadWrite"
+                        ]
+                    }
+                ],
+                "lineNumber": 18,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "offset",
+                                "type": "int"
+                            },
+                            {
+                                "name": "bytes",
+                                "type": "QByteArray"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "updateData",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "usage",
+                        "notify": "usageChanged",
+                        "read": "usage",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "UsageType",
+                        "user": false,
+                        "write": "setUsage"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "accessType",
+                        "notify": "accessTypeChanged",
+                        "read": "accessType",
+                        "required": false,
+                        "revision": 521,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "AccessType",
+                        "user": false,
+                        "write": "setAccessType"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QBuffer",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "bytes",
+                                "type": "QByteArray"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "dataChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "usage",
+                                "type": "UsageType"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "usageChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "access",
+                                "type": "AccessType"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "accessTypeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "dataAvailable",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "usage",
+                                "type": "UsageType"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "setUsage",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "access",
+                                "type": "AccessType"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "setAccessType",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "Qt3DCore::QNode"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qbuffer.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QChangeArbiter",
+                "lineNumber": 55,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QChangeArbiter",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "receivedChange",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qchangearbiter_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QComponent",
+                "lineNumber": 17,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "isShareable",
+                        "notify": "shareableChanged",
+                        "read": "isShareable",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setShareable"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QComponent",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "isShareable",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "shareableChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "entity",
+                                "type": "QEntity*"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "addedToEntity",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "entity",
+                                "type": "QEntity*"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "removedFromEntity",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "isShareable",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "setShareable",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QNode",
+                        "name": "QNode"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qcomponent.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QCoreAspect",
+                "lineNumber": 15,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QCoreAspect",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "Qt3DCore::QAbstractAspect"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qcoreaspect.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QCoreSettings",
+                "lineNumber": 18,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "boundingVolumesEnabled",
+                        "notify": "boundingVolumesEnabledChanged",
+                        "read": "boundingVolumesEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setBoundingVolumesEnabled"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QCoreSettings",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "boundingVolumesEnabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "boundingVolumesEnabledChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "boundingVolumesEnabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "setBoundingVolumesEnabled",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "Qt3DCore::QComponent"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qcoresettings.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QDownloadHelperService",
+                "lineNumber": 66,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QDownloadHelperService",
+                "slots": [
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "type": "Qt3DCore::QDownloadRequestPtr"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "_q_onRequestCompleted",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QAbstractServiceProvider",
+                        "name": "QAbstractServiceProvider"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qdownloadhelperservice_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QDownloadNetworkWorker",
+                "lineNumber": 35,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QDownloadNetworkWorker",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "request",
+                                "type": "Qt3DCore::QDownloadRequestPtr"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "submitRequest",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "request",
+                                "type": "Qt3DCore::QDownloadRequestPtr"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "cancelRequest",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "cancelAllRequests",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "request",
+                                "type": "Qt3DCore::QDownloadRequestPtr"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "requestDownloaded",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "request",
+                                "type": "Qt3DCore::QDownloadRequestPtr"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "onRequestSubmited",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "request",
+                                "type": "Qt3DCore::QDownloadRequestPtr"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "onRequestCancelled",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 6,
+                        "name": "onAllRequestsCancelled",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "reply",
+                                "type": "QNetworkReply*"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "onRequestFinished",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "bytesReceived",
+                                "type": "qint64"
+                            },
+                            {
+                                "name": "bytesTotal",
+                                "type": "qint64"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "onDownloadProgressed",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qdownloadnetworkworker_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QEntity",
+                "lineNumber": 20,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QEntity",
+                "slots": [
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "onParentChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QNode",
+                        "name": "QNode"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qentity.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QEventFilterService",
+                "lineNumber": 29,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QEventFilterService",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QAbstractServiceProvider",
+                        "name": "QAbstractServiceProvider"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qeventfilterservice_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QGeometry",
+                "lineNumber": 17,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "attribute",
+                                "type": "Qt3DCore::QAttribute*"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "addAttribute",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "attribute",
+                                "type": "Qt3DCore::QAttribute*"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "removeAttribute",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "boundingVolumePositionAttribute",
+                        "notify": "boundingVolumePositionAttributeChanged",
+                        "read": "boundingVolumePositionAttribute",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt3DCore::QAttribute*",
+                        "user": false,
+                        "write": "setBoundingVolumePositionAttribute"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "minExtent",
+                        "notify": "minExtentChanged",
+                        "read": "minExtent",
+                        "required": false,
+                        "revision": 525,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "maxExtent",
+                        "notify": "maxExtentChanged",
+                        "read": "maxExtent",
+                        "required": false,
+                        "revision": 525,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QGeometry",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "boundingVolumePositionAttribute",
+                                "type": "QAttribute*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "boundingVolumePositionAttributeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "minExtent",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "minExtentChanged",
+                        "returnType": "void",
+                        "revision": 525
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "maxExtent",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "maxExtentChanged",
+                        "returnType": "void",
+                        "revision": 525
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "boundingVolumePositionAttribute",
+                                "type": "QAttribute*"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "setBoundingVolumePositionAttribute",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "Qt3DCore::QNode"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qgeometry.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QGeometryView",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "PrimitiveType",
+                        "values": [
+                            "Points",
+                            "Lines",
+                            "LineLoop",
+                            "LineStrip",
+                            "Triangles",
+                            "TriangleStrip",
+                            "TriangleFan",
+                            "LinesAdjacency",
+                            "TrianglesAdjacency",
+                            "LineStripAdjacency",
+                            "TriangleStripAdjacency",
+                            "Patches"
+                        ]
+                    }
+                ],
+                "lineNumber": 20,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "instanceCount",
+                        "notify": "instanceCountChanged",
+                        "read": "instanceCount",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setInstanceCount"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "vertexCount",
+                        "notify": "vertexCountChanged",
+                        "read": "vertexCount",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setVertexCount"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "indexOffset",
+                        "notify": "indexOffsetChanged",
+                        "read": "indexOffset",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setIndexOffset"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "firstInstance",
+                        "notify": "firstInstanceChanged",
+                        "read": "firstInstance",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setFirstInstance"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "firstVertex",
+                        "notify": "firstVertexChanged",
+                        "read": "firstVertex",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setFirstVertex"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "indexBufferByteOffset",
+                        "notify": "indexBufferByteOffsetChanged",
+                        "read": "indexBufferByteOffset",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setIndexBufferByteOffset"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "restartIndexValue",
+                        "notify": "restartIndexValueChanged",
+                        "read": "restartIndexValue",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setRestartIndexValue"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "verticesPerPatch",
+                        "notify": "verticesPerPatchChanged",
+                        "read": "verticesPerPatch",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setVerticesPerPatch"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 8,
+                        "name": "primitiveRestartEnabled",
+                        "notify": "primitiveRestartEnabledChanged",
+                        "read": "primitiveRestartEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setPrimitiveRestartEnabled"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 9,
+                        "name": "geometry",
+                        "notify": "geometryChanged",
+                        "read": "geometry",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt3DCore::QGeometry*",
+                        "user": false,
+                        "write": "setGeometry"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 10,
+                        "name": "primitiveType",
+                        "notify": "primitiveTypeChanged",
+                        "read": "primitiveType",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "PrimitiveType",
+                        "user": false,
+                        "write": "setPrimitiveType"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QGeometryView",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "instanceCount",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "instanceCountChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vertexCount",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "vertexCountChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "indexOffset",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "indexOffsetChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "firstInstance",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "firstInstanceChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "firstVertex",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "firstVertexChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "offset",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "indexBufferByteOffsetChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "restartIndexValue",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "restartIndexValueChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "verticesPerPatch",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "verticesPerPatchChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "primitiveRestartEnabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "primitiveRestartEnabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "geometry",
+                                "type": "QGeometry*"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "geometryChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "primitiveType",
+                                "type": "PrimitiveType"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "primitiveTypeChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "instanceCount",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "setInstanceCount",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "vertexCount",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "setVertexCount",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "indexOffset",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 13,
+                        "name": "setIndexOffset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "firstInstance",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 14,
+                        "name": "setFirstInstance",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "firstVertex",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 15,
+                        "name": "setFirstVertex",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "offset",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 16,
+                        "name": "setIndexBufferByteOffset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 17,
+                        "name": "setRestartIndexValue",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "verticesPerPatch",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 18,
+                        "name": "setVerticesPerPatch",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "enabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 19,
+                        "name": "setPrimitiveRestartEnabled",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "geometry",
+                                "type": "QGeometry*"
+                            }
+                        ],
+                        "index": 20,
+                        "name": "setGeometry",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "primitiveType",
+                                "type": "PrimitiveType"
+                            }
+                        ],
+                        "index": 21,
+                        "name": "setPrimitiveType",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "Qt3DCore::QNode"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qgeometryview.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QJoint",
+                "lineNumber": 20,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "scale",
+                        "notify": "scaleChanged",
+                        "read": "scale",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false,
+                        "write": "setScale"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "rotation",
+                        "notify": "rotationChanged",
+                        "read": "rotation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQuaternion",
+                        "user": false,
+                        "write": "setRotation"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "translation",
+                        "notify": "translationChanged",
+                        "read": "translation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false,
+                        "write": "setTranslation"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "inverseBindMatrix",
+                        "notify": "inverseBindMatrixChanged",
+                        "read": "inverseBindMatrix",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QMatrix4x4",
+                        "user": false,
+                        "write": "setInverseBindMatrix"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "rotationX",
+                        "notify": "rotationXChanged",
+                        "read": "rotationX",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setRotationX"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "rotationY",
+                        "notify": "rotationYChanged",
+                        "read": "rotationY",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setRotationY"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "rotationZ",
+                        "notify": "rotationZChanged",
+                        "read": "rotationZ",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setRotationZ"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "name",
+                        "notify": "nameChanged",
+                        "read": "name",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setName"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QJoint",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scale",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "scaleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotation",
+                                "type": "QQuaternion"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "rotationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "translation",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "translationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "inverseBindMatrix",
+                                "type": "QMatrix4x4"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "inverseBindMatrixChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotationX",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "rotationXChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotationY",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "rotationYChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotationZ",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "rotationZChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "name",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "nameChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scale",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "setScale",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotation",
+                                "type": "QQuaternion"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "setRotation",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "translation",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "setTranslation",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "inverseBindMatrix",
+                                "type": "QMatrix4x4"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "setInverseBindMatrix",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotationX",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "setRotationX",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotationY",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 13,
+                        "name": "setRotationY",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotationZ",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 14,
+                        "name": "setRotationZ",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "name",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 15,
+                        "name": "setName",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 16,
+                        "name": "setToIdentity",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QNode",
+                        "name": "QNode"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qjoint.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QNode",
+                "lineNumber": 28,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "parent",
+                        "notify": "parentChanged",
+                        "read": "parentNode",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt3DCore::QNode*",
+                        "user": false,
+                        "write": "setParent"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "enabled",
+                        "notify": "enabledChanged",
+                        "read": "isEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setEnabled"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QNode",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "parent",
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "parentChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "enabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "enabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "nodeDestroyed",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "parent",
+                                "type": "QNode*"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "setParent",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "isEnabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "setEnabled",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 5,
+                        "name": "_q_postConstructorInit",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "type": "Qt3DCore::QNode*"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "_q_addChild",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "type": "Qt3DCore::QNode*"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "_q_removeChild",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "type": "Qt3DCore::QNode*"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "_q_setParentHelper",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qnode.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "NodePostConstructorInit",
+                "lineNumber": 171,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::NodePostConstructorInit",
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "processNodes",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qnode_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QOpenGLInformationService",
+                "lineNumber": 30,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QOpenGLInformationService",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QAbstractServiceProvider",
+                        "name": "QAbstractServiceProvider"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qopenglinformationservice_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QScheduler",
+                "lineNumber": 27,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QScheduler",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qscheduler_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAbstractServiceProvider",
+                "lineNumber": 28,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QAbstractServiceProvider",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qservicelocator_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QSkeleton",
+                "lineNumber": 17,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "rootJoint",
+                        "notify": "rootJointChanged",
+                        "read": "rootJoint",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt3DCore::QJoint*",
+                        "user": false,
+                        "write": "setRootJoint"
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QSkeleton",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rootJoint",
+                                "type": "Qt3DCore::QJoint*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "rootJointChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rootJoint",
+                                "type": "Qt3DCore::QJoint*"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "setRootJoint",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QAbstractSkeleton",
+                        "name": "QAbstractSkeleton"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qskeleton.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QSkeletonLoader",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Status",
+                        "values": [
+                            "NotReady",
+                            "Ready",
+                            "Error"
+                        ]
+                    }
+                ],
+                "lineNumber": 18,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "source",
+                        "notify": "sourceChanged",
+                        "read": "source",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false,
+                        "write": "setSource"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "status",
+                        "notify": "statusChanged",
+                        "read": "status",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Status",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "createJointsEnabled",
+                        "notify": "createJointsEnabledChanged",
+                        "read": "isCreateJointsEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setCreateJointsEnabled"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "rootJoint",
+                        "notify": "rootJointChanged",
+                        "read": "rootJoint",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt3DCore::QJoint*",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QSkeletonLoader",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "source",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "sourceChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "status",
+                                "type": "Status"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "statusChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "createJointsEnabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "createJointsEnabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rootJoint",
+                                "type": "Qt3DCore::QJoint*"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "rootJointChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "source",
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "setSource",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "enabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "setCreateJointsEnabled",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QAbstractSkeleton",
+                        "name": "QAbstractSkeleton"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qskeletonloader.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QSystemInformationService",
+                "lineNumber": 31,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "revealLogFolder",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "traceEnabled",
+                        "notify": "traceEnabledChanged",
+                        "read": "isTraceEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setTraceEnabled"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "graphicsTraceEnabled",
+                        "notify": "graphicsTraceEnabledChanged",
+                        "read": "isGraphicsTraceEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setGraphicsTraceEnabled"
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "commandServerEnabled",
+                        "read": "isCommandServerEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QSystemInformationService",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "traceEnabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "traceEnabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "graphicsTraceEnabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "graphicsTraceEnabledChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "traceEnabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "setTraceEnabled",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "graphicsTraceEnabled",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "setGraphicsTraceEnabled",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "command",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "executeCommand",
+                        "returnType": "QVariant"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "command",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "dumpCommand",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QAbstractServiceProvider",
+                        "name": "QAbstractServiceProvider"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qsysteminformationservice_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QThreadPooler",
+                "lineNumber": 31,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QThreadPooler",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qthreadpooler_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QTickClockService",
+                "lineNumber": 26,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::QTickClockService",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QAbstractFrameAdvanceService",
+                        "name": "QAbstractFrameAdvanceService"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qtickclockservice_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QTransform",
+                "lineNumber": 17,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "axis",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "angle",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 17,
+                        "name": "fromAxisAndAngle",
+                        "returnType": "QQuaternion"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "x",
+                                "type": "float"
+                            },
+                            {
+                                "name": "y",
+                                "type": "float"
+                            },
+                            {
+                                "name": "z",
+                                "type": "float"
+                            },
+                            {
+                                "name": "angle",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 18,
+                        "name": "fromAxisAndAngle",
+                        "returnType": "QQuaternion"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "axis1",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "angle1",
+                                "type": "float"
+                            },
+                            {
+                                "name": "axis2",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "angle2",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 19,
+                        "name": "fromAxesAndAngles",
+                        "returnType": "QQuaternion"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "axis1",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "angle1",
+                                "type": "float"
+                            },
+                            {
+                                "name": "axis2",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "angle2",
+                                "type": "float"
+                            },
+                            {
+                                "name": "axis3",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "angle3",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 20,
+                        "name": "fromAxesAndAngles",
+                        "returnType": "QQuaternion"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "xAxis",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "yAxis",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "zAxis",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 21,
+                        "name": "fromAxes",
+                        "returnType": "QQuaternion"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "eulerAngles",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 22,
+                        "name": "fromEulerAngles",
+                        "returnType": "QQuaternion"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "pitch",
+                                "type": "float"
+                            },
+                            {
+                                "name": "yaw",
+                                "type": "float"
+                            },
+                            {
+                                "name": "roll",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 23,
+                        "name": "fromEulerAngles",
+                        "returnType": "QQuaternion"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "point",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "angle",
+                                "type": "float"
+                            },
+                            {
+                                "name": "axis",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 24,
+                        "name": "rotateAround",
+                        "returnType": "QMatrix4x4"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "xAxis",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "yAxis",
+                                "type": "QVector3D"
+                            },
+                            {
+                                "name": "zAxis",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 25,
+                        "name": "rotateFromAxes",
+                        "returnType": "QMatrix4x4"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "matrix",
+                        "notify": "matrixChanged",
+                        "read": "matrix",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QMatrix4x4",
+                        "user": false,
+                        "write": "setMatrix"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "scale",
+                        "notify": "scaleChanged",
+                        "read": "scale",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setScale"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "scale3D",
+                        "notify": "scale3DChanged",
+                        "read": "scale3D",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false,
+                        "write": "setScale3D"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "rotation",
+                        "notify": "rotationChanged",
+                        "read": "rotation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQuaternion",
+                        "user": false,
+                        "write": "setRotation"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "translation",
+                        "notify": "translationChanged",
+                        "read": "translation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QVector3D",
+                        "user": false,
+                        "write": "setTranslation"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "rotationX",
+                        "notify": "rotationXChanged",
+                        "read": "rotationX",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setRotationX"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "rotationY",
+                        "notify": "rotationYChanged",
+                        "read": "rotationY",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setRotationY"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "rotationZ",
+                        "notify": "rotationZChanged",
+                        "read": "rotationZ",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "write": "setRotationZ"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 8,
+                        "name": "worldMatrix",
+                        "notify": "worldMatrixChanged",
+                        "read": "worldMatrix",
+                        "required": false,
+                        "revision": 526,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QMatrix4x4",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DCore::QTransform",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scale",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "scaleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scale",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "scale3DChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotation",
+                                "type": "QQuaternion"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "rotationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "translation",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "translationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "matrixChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotationX",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "rotationXChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotationY",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "rotationYChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotationZ",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "rotationZChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "worldMatrix",
+                                "type": "QMatrix4x4"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "worldMatrixChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scale",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "setScale",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "scale",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "setScale3D",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotation",
+                                "type": "QQuaternion"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "setRotation",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "translation",
+                                "type": "QVector3D"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "setTranslation",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "matrix",
+                                "type": "QMatrix4x4"
+                            }
+                        ],
+                        "index": 13,
+                        "name": "setMatrix",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotationX",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 14,
+                        "name": "setRotationX",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotationY",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 15,
+                        "name": "setRotationY",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "rotationZ",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 16,
+                        "name": "setRotationZ",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "fullyQualifiedName": "Qt3DCore::QComponent",
+                        "name": "QComponent"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qtransform.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "InternalEventListener",
+                "lineNumber": 35,
+                "object": true,
+                "qualifiedClassName": "Qt3DCore::InternalEventListener",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qeventfilterservice.cpp",
+        "outputRevision": 68
+    }
+]

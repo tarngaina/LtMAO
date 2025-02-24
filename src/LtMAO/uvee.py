@@ -48,7 +48,7 @@ def uvee_skn(path):
         img_path = os.path.join(
             uvee_dir, f'{submesh.name}.png').replace('\\', '/')
         img.save(img_path)
-        LOG(f'uvee: Done: Extract UV: {img_path}')
+        LOG(f'uvee: Finish: Extract UV: {img_path}')
         imgs.append((submesh.name, img))
     return imgs
 
@@ -80,7 +80,7 @@ def uvee_so(path):
     base = os.path.basename(path).replace('.sco', '').replace('.scb', '')
     img_path = os.path.join(dir, f'uvee_{base}.png').replace('\\', '/')
     img.save(img_path)
-    LOG(f'uvee: Done: Extract UV: {img_path}')
+    LOG(f'uvee: Finish: Extract UV: {img_path}')
     return [(so.material, img)]
 
 
@@ -89,13 +89,13 @@ def uvee_file(path):
         try:
             return uvee_skn(path)
         except Exception as e:
-            LOG(f'uvee: Failed: Extract UV: {path}: {e}')
+            LOG(f'uvee: Error: Extract UV: {path}: {e}')
             LOG(traceback.format_exc())
     elif path.endswith('.scb') or path.endswith('.sco'):
         try:
             return uvee_so(path)
         except Exception as e:
-            LOG(f'uvee: Failed: Extract UV: {path}: {e}')
+            LOG(f'uvee: Error: Extract UV: {path}: {e}')
             LOG(traceback.format_exc())
     return None
 

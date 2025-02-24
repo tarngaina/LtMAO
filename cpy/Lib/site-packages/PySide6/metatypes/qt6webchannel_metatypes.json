@@ -1,0 +1,250 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QMetaObjectPublisher",
+                "lineNumber": 74,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "propertyUpdateIntervalTime",
+                        "read": "propertyUpdateInterval",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setPropertyUpdateInterval"
+                    }
+                ],
+                "qualifiedClassName": "QMetaObjectPublisher",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "block",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "blockUpdatesChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "message",
+                                "type": "QJsonObject"
+                            },
+                            {
+                                "name": "transport",
+                                "type": "QWebChannelAbstractTransport*"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "handleMessage",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qmetaobjectpublisher_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebChannelAbstractTransport",
+                "lineNumber": 13,
+                "object": true,
+                "qualifiedClassName": "QWebChannelAbstractTransport",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "message",
+                                "type": "QJsonObject"
+                            },
+                            {
+                                "name": "transport",
+                                "type": "QWebChannelAbstractTransport*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "messageReceived",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "message",
+                                "type": "QJsonObject"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "sendMessage",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebchannelabstracttransport.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebChannel",
+                "lineNumber": 20,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "id",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "object",
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 4,
+                        "name": "registerObject",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "object",
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "deregisterObject",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "bindable": "bindableBlockUpdates",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "blockUpdates",
+                        "notify": "blockUpdatesChanged",
+                        "read": "blockUpdates",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setBlockUpdates"
+                    },
+                    {
+                        "bindable": "bindablePropertyUpdateInterval",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "propertyUpdateInterval",
+                        "read": "propertyUpdateInterval",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setPropertyUpdateInterval"
+                    }
+                ],
+                "qualifiedClassName": "QWebChannel",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "block",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "blockUpdatesChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "transport",
+                                "type": "QWebChannelAbstractTransport*"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "connectTo",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "transport",
+                                "type": "QWebChannelAbstractTransport*"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "disconnectFrom",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "_q_transportDestroyed",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebchannel.h",
+        "outputRevision": 68
+    }
+]

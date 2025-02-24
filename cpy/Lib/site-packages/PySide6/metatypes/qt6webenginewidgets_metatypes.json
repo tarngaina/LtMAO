@@ -1,0 +1,337 @@
+[
+    {
+        "classes": [
+            {
+                "className": "AutofillPopupWidget",
+                "lineNumber": 33,
+                "object": true,
+                "qualifiedClassName": "QtWebEngineWidgetUI::AutofillPopupWidget",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QFrame"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "autofillpopupwidget_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "DefaultNotificationPresenter",
+                "lineNumber": 29,
+                "object": true,
+                "qualifiedClassName": "DefaultNotificationPresenter",
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 0,
+                        "name": "messageClicked",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 1,
+                        "name": "closeNotification",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebenginenotificationpresenter_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QWebEngineView",
+                "lineNumber": 30,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "title",
+                        "read": "title",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "url",
+                        "read": "url",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false,
+                        "write": "setUrl"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "iconUrl",
+                        "notify": "iconUrlChanged",
+                        "read": "iconUrl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QUrl",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "icon",
+                        "notify": "iconChanged",
+                        "read": "icon",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QIcon",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "selectedText",
+                        "read": "selectedText",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "hasSelection",
+                        "read": "hasSelection",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "zoomFactor",
+                        "read": "zoomFactor",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false,
+                        "write": "setZoomFactor"
+                    }
+                ],
+                "qualifiedClassName": "QWebEngineView",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "loadStarted",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "progress",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "loadProgress",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "loadFinished",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "title",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "titleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "selectionChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "urlChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "type": "QUrl"
+                            }
+                        ],
+                        "index": 6,
+                        "name": "iconUrlChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "type": "QIcon"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "iconChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "terminationStatus",
+                                "type": "QWebEnginePage::RenderProcessTerminationStatus"
+                            },
+                            {
+                                "name": "exitCode",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "renderProcessTerminated",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "filePath",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "success",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "pdfPrintingFinished",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 10,
+                        "name": "printRequested",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "frame",
+                                "type": "QWebEngineFrame"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "printRequestedByFrame",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "success",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "printFinished",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 13,
+                        "name": "stop",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 14,
+                        "name": "back",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 15,
+                        "name": "forward",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 16,
+                        "name": "reload",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QWidget"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qwebengineview.h",
+        "outputRevision": 68
+    }
+]

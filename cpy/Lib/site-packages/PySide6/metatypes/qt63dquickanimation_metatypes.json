@@ -1,0 +1,239 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QQuick3DAnimationController",
+                "lineNumber": 27,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "animationGroups",
+                        "read": "animationGroups",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DAnimation::QAnimationGroup>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DAnimation::Quick::QQuick3DAnimationController",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3danimationcontroller_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QQuick3DAnimationGroup",
+                "lineNumber": 29,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "animations",
+                        "read": "animations",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DAnimation::QAbstractAnimation>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DAnimation::Quick::QQuick3DAnimationGroup",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3danimationgroup_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "DefaultProperty",
+                        "value": "mappings"
+                    }
+                ],
+                "className": "Quick3DChannelMapper",
+                "lineNumber": 29,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "mappings",
+                        "read": "qmlMappings",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DAnimation::QAbstractChannelMapping>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DAnimation::Animation::Quick::Quick3DChannelMapper",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dchannelmapper_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QQuick3DKeyframeAnimation",
+                "lineNumber": 29,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "keyframes",
+                        "read": "keyframes",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DCore::QTransform>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DAnimation::Quick::QQuick3DKeyframeAnimation",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dkeyframeanimation_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QQuick3DMorphingAnimation",
+                "lineNumber": 29,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "morphTargets",
+                        "read": "morphTargets",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DAnimation::QMorphTarget>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DAnimation::Quick::QQuick3DMorphingAnimation",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dmorphinganimation_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QQuick3DMorphTarget",
+                "lineNumber": 27,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "attributes",
+                        "read": "attributes",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DCore::QAttribute>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DAnimation::Quick::QQuick3DMorphTarget",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dmorphtarget_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QQuick3DVertexBlendAnimation",
+                "lineNumber": 29,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "morphTargets",
+                        "read": "morphTargets",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<Qt3DAnimation::QMorphTarget>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "Qt3DAnimation::Quick::QQuick3DVertexBlendAnimation",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "quick3dvertexblendanimation_p.h",
+        "outputRevision": 68
+    }
+]

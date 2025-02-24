@@ -1,0 +1,499 @@
+[
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "DefaultProperty",
+                        "value": "children"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "auto"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    }
+                ],
+                "className": "FinalState",
+                "lineNumber": 30,
+                "object": true,
+                "properties": [
+                    {
+                        "bindable": "bindableChildren",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "children",
+                        "notify": "childrenChanged",
+                        "read": "children",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<QObject>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "FinalState",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "childrenChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QFinalState"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "finalstate_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Foreign",
+                        "value": "QHistoryState"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "HistoryState"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    }
+                ],
+                "className": "QHistoryStateForeign",
+                "gadget": true,
+                "lineNumber": 26,
+                "qualifiedClassName": "QHistoryStateForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Foreign",
+                        "value": "QState"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "QState"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "Don't use this, use State instead."
+                    }
+                ],
+                "className": "QStateForeign",
+                "gadget": true,
+                "lineNumber": 34,
+                "qualifiedClassName": "QStateForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Foreign",
+                        "value": "QAbstractState"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "QAbstractState"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "Don't use this, use State instead."
+                    }
+                ],
+                "className": "QAbstractStateForeign",
+                "gadget": true,
+                "lineNumber": 43,
+                "qualifiedClassName": "QAbstractStateForeign"
+            },
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Foreign",
+                        "value": "QSignalTransition"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "QSignalTransition"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    },
+                    {
+                        "name": "QML.Creatable",
+                        "value": "false"
+                    },
+                    {
+                        "name": "QML.UncreatableReason",
+                        "value": "Don't use this, use SignalTransition instead."
+                    }
+                ],
+                "className": "QSignalTransitionForeign",
+                "gadget": true,
+                "lineNumber": 52,
+                "qualifiedClassName": "QSignalTransitionForeign"
+            }
+        ],
+        "inputFile": "statemachineforeign_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "auto"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    },
+                    {
+                        "name": "QML.HasCustomParser",
+                        "value": "true"
+                    }
+                ],
+                "className": "SignalTransition",
+                "interfaces": [
+                    [
+                        {
+                            "className": "QQmlParserStatus",
+                            "id": "\"org.qt-project.Qt.QQmlParserStatus\""
+                        }
+                    ]
+                ],
+                "lineNumber": 33,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "invoke",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "bindable": "bindableSignal",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "signal",
+                        "notify": "qmlSignalChanged",
+                        "read": "signal",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QJSValue",
+                        "user": false,
+                        "write": "setSignal"
+                    },
+                    {
+                        "bindable": "bindableGuard",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "guard",
+                        "notify": "guardChanged",
+                        "read": "guard",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlScriptString",
+                        "user": false,
+                        "write": "setGuard"
+                    }
+                ],
+                "qualifiedClassName": "SignalTransition",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "guardChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "invokeYourself",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "qmlSignalChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSignalTransition"
+                    },
+                    {
+                        "access": "public",
+                        "name": "QQmlParserStatus"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "signaltransition_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "DefaultProperty",
+                        "value": "children"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "auto"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    }
+                ],
+                "className": "State",
+                "interfaces": [
+                    [
+                        {
+                            "className": "QQmlParserStatus",
+                            "id": "\"org.qt-project.Qt.QQmlParserStatus\""
+                        }
+                    ]
+                ],
+                "lineNumber": 29,
+                "object": true,
+                "properties": [
+                    {
+                        "bindable": "bindableChildren",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "children",
+                        "notify": "childrenChanged",
+                        "read": "children",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<QObject>",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "State",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "childrenChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QState"
+                    },
+                    {
+                        "access": "public",
+                        "name": "QQmlParserStatus"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "state_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "DefaultProperty",
+                        "value": "children"
+                    },
+                    {
+                        "name": "QML.Element",
+                        "value": "auto"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    }
+                ],
+                "className": "StateMachine",
+                "interfaces": [
+                    [
+                        {
+                            "className": "QQmlParserStatus",
+                            "id": "\"org.qt-project.Qt.QQmlParserStatus\""
+                        }
+                    ]
+                ],
+                "lineNumber": 29,
+                "object": true,
+                "properties": [
+                    {
+                        "bindable": "bindableChildren",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "children",
+                        "notify": "childrenChanged",
+                        "read": "children",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QQmlListProperty<QObject>",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "running",
+                        "notify": "qmlRunningChanged",
+                        "read": "isRunning",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setRunning"
+                    }
+                ],
+                "qualifiedClassName": "StateMachine",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "childrenChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "qmlRunningChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 2,
+                        "name": "checkChildMode",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QStateMachine"
+                    },
+                    {
+                        "access": "public",
+                        "name": "QQmlParserStatus"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "statemachine_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "auto"
+                    },
+                    {
+                        "name": "QML.AddedInVersion",
+                        "value": "256"
+                    }
+                ],
+                "className": "TimeoutTransition",
+                "interfaces": [
+                    [
+                        {
+                            "className": "QQmlParserStatus",
+                            "id": "\"org.qt-project.Qt.QQmlParserStatus\""
+                        }
+                    ]
+                ],
+                "lineNumber": 28,
+                "object": true,
+                "properties": [
+                    {
+                        "bindable": "bindableTimeout",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "timeout",
+                        "read": "timeout",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setTimeout"
+                    }
+                ],
+                "qualifiedClassName": "TimeoutTransition",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSignalTransition"
+                    },
+                    {
+                        "access": "public",
+                        "name": "QQmlParserStatus"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "timeouttransition_p.h",
+        "outputRevision": 68
+    }
+]

@@ -50,7 +50,7 @@ class TEX:
             self.signature, = bs.read_u32()
             if self.signature != 0x00584554:
                 raise Exception(
-                    f'pyRitoFile: Failed: Read TEX {path}: Wrong file signature: {hex(self.signature)}')
+                    f'pyRitoFile: Error: Read TEX {path}: Wrong file signature: {hex(self.signature)}')
             self.width, self.height = bs.read_u16(2)
             self.unknown1, self.format, self.unknown2 = bs.read_u8(3)
             self.format = TEXFormat(self.format)

@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+// Copyright (C) 2018 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+-->
+<typesystem>
+    <template name="QFontCharFix">
+       int size = Shiboken::String::len(%PYARG_1);
+       if (size == 1) {
+           const char *str = Shiboken::String::toCString(%PYARG_1);
+           const QChar ch(static_cast&lt;unsigned short&gt;(str[0]));
+           %RETURN_TYPE %0 = %CPPSELF.%FUNCTION_NAME(ch);
+           %PYARG_0 = %CONVERTTOPYTHON[%RETURN_TYPE](%0);
+       } else {
+           PyErr_SetString(PyExc_TypeError, "String must have only one character");
+       }
+    </template>
+
+    <template name="load_xpm">
+        Shiboken::AutoDecRef strList(PySequence_Fast(%PYARG_1, "Invalid sequence."));
+        Py_ssize_t lineCount = PySequence_Size(strList.object());
+        for (Py_ssize_t line = 0; line &lt; lineCount; ++line) {
+            Shiboken::AutoDecRef _obj(PySequence_GetItem(strList.object(), line));
+            bool isString = Shiboken::String::check(_obj);
+            if (!isString) {
+                PyErr_SetString(PyExc_TypeError, "The argument must be a sequence of strings.");
+                break;
+            }
+        }
+        // PySIDE-1735: Enums are now implemented in Python, so we need to avoid asserts.
+        if (PyErr_Occurred())
+            break;
+
+        auto xpm = new const char*[lineCount];
+        for (Py_ssize_t line = 0; line &lt; lineCount; ++line) {
+            Shiboken::AutoDecRef _obj(PySequence_GetItem(strList.object(), line));
+            xpm[line] = Shiboken::String::toCString(_obj);
+        }
+
+        %0 = new %TYPE(xpm);
+
+        delete [] xpm;
+    </template>
+
+    <template name="qmatrix_map">
+        %ARG1_TYPE a, b;
+        %CPPSELF.%FUNCTION_NAME(%1, %2, &amp;a, &amp;b);
+        %PYARG_0 = PyTuple_New(2);
+        PyTuple_SetItem(%PYARG_0, 0, %CONVERTTOPYTHON[%ARG1_TYPE](a));
+        PyTuple_SetItem(%PYARG_0, 1, %CONVERTTOPYTHON[%ARG1_TYPE](b));
+    </template>
+
+    <template name="qimage_buffer_constructor">
+        Py_INCREF(%PYARG_1);
+        auto ptr = reinterpret_cast&lt;uchar*&gt;(Shiboken::Buffer::getPointer(%PYARG_1));
+        %0 = new %TYPE(ptr, %ARGS, imageDecrefDataHandler, %PYARG_1);
+    </template>
+
+    <template name="qcolor_repr">
+        switch(%CPPSELF.spec()) {
+          case QColor::Rgb:
+          {
+              float r, g, b, a;
+              %CPPSELF.getRgbF(&amp;r, &amp;g, &amp;b, &amp;a);
+              QString repr = QString::asprintf("PySide6.QtGui.QColor.fromRgbF(%.6f, %.6f, %.6f, %.6f)", r, g, b, a);
+              %PYARG_0 = Shiboken::String::fromCString(qPrintable(repr));
+              break;
+          }
+          case QColor::Hsv:
+          {
+              float h, s, v, a;
+              %CPPSELF.getHsvF(&amp;h, &amp;s, &amp;v, &amp;a);
+              QString repr = QString::asprintf("PySide6.QtGui.QColor.fromHsvF(%.6f, %.6f, %.6f, %.6f)", h, s, v, a);
+              %PYARG_0 = Shiboken::String::fromCString(qPrintable(repr));
+              break;
+          }
+          case QColor::Cmyk:
+          {
+              float c, m, y, k, a;
+              %CPPSELF.getCmykF(&amp;c, &amp;m, &amp;y, &amp;k, &amp;a);
+              QString repr = QString::asprintf("PySide6.QtGui.QColor.fromCmykF(%.6f, %.6f, %.6f, %.6f, %.6f)", c, m, y, k, a);
+              %PYARG_0 = Shiboken::String::fromCString(qPrintable(repr));
+              break;
+          }
+          case QColor::Hsl:
+          {
+              float h, s, l, a;
+              %CPPSELF.getHslF(&amp;h, &amp;s, &amp;l, &amp;a);
+              QString repr = QString::asprintf("PySide6.QtGui.QColor.fromHslF(%.6f, %.6f, %.6f, %.6f)", h, s, l, a);
+              %PYARG_0 = Shiboken::String::fromCString(qPrintable(repr));
+              break;
+          }
+          default:
+          {
+              %PYARG_0 = Shiboken::String::fromCString("PySide6.QtGui.QColor()");
+          }
+       }
+    </template>
+
+    <template name="validator_conversionrule">
+          QValidator::State %out;
+
+          if (PySequence_Check(%PYARG_0)) {
+              Shiboken::AutoDecRef seq(PySequence_Fast(%PYARG_0, 0));
+              const Py_ssize_t size = PySequence_Size(seq.object());
+
+              if (size > 1) {
+                  Shiboken::AutoDecRef _obj1(PySequence_GetItem(seq.object(), 1));
+                  if (%ISCONVERTIBLE[QString](_obj1))
+                      %1 = %CONVERTTOCPP[QString](_obj1);
+                  else
+                      qWarning("%TYPE::%FUNCTION_NAME: Second tuple element is not convertible to unicode.");
+              }
+
+              if (size > 2) {
+                  Shiboken::AutoDecRef _obj2(PySequence_GetItem(seq.object(), 2));
+                  if (%ISCONVERTIBLE[int](_obj2))
+                      %2 = %CONVERTTOCPP[int](_obj2);
+                  else
+                      qWarning("%TYPE::%FUNCTION_NAME: Second tuple element is not convertible to int.");
+              }
+              Shiboken::AutoDecRef _sobj(PySequence_GetItem(seq.object(), 0));
+
+              %PYARG_0.reset(_sobj);
+              Py_INCREF(%PYARG_0); // we need to incref, because "%PYARG_0 = ..." will decref the tuple and the tuple will be decrefed again at the end of this scope.
+          }
+
+          // check retrun value
+          if (%ISCONVERTIBLE[QValidator::State](%PYARG_0)) {
+              %out = %CONVERTTOCPP[QValidator::State](%PYARG_0);
+          } else {
+              PyErr_Format(PyExc_TypeError, "Invalid return value in function %s, expected %s, got %s.",
+                          "QValidator.validate",
+                          "PySide6.QtGui.QValidator.State, (PySide6.QtGui.QValidator.State,), (PySide6.QtGui.QValidator.State, unicode) or (PySide6.QtGui.QValidator.State, unicode, int)",
+                          Py_TYPE(pyResult)->tp_name);
+              return QValidator::State();
+          }
+    </template>
+
+    <template name="qpainter_drawlist">
+        %CPPSELF.%FUNCTION_NAME(%1.constData(), %1.size());
+    </template>
+
+    <template name="inplace_add">
+        *%CPPSELF += %1;
+        return %CONVERTTOPYTHON[%RETURN_TYPE](*%CPPSELF);
+    </template>
+
+    <template name="inplace_sub">
+        *%CPPSELF -= %1;
+        return %CONVERTTOPYTHON[%RETURN_TYPE](*%CPPSELF);
+    </template>
+
+    <template name="inplace_mult">
+        *%CPPSELF *= %1;
+        return %CONVERTTOPYTHON[%RETURN_TYPE](*%CPPSELF);
+    </template>
+
+    <template name="inplace_div">
+        *%CPPSELF /= %1;
+        return %CONVERTTOPYTHON[%RETURN_TYPE](*%CPPSELF);
+    </template>
+
+    <template name="return_QString_native">
+        if (%ISCONVERTIBLE[QString](%PYARG_0))
+            %1 = %CONVERTTOCPP[QString](%PYARG_0);
+        else
+            qWarning("%TYPE::%FUNCTION_NAME: Argument is not convertible to unicode.");
+    </template>
+
+    <template name="repr_code_matrix">
+        QByteArray format(Py_TYPE(%PYSELF)->tp_name);
+        format += QByteArrayLiteral("((");
+
+        QList&lt; %MATRIX_TYPE &gt; cppArgs;
+        %MATRIX_TYPE data[%MATRIX_SIZE];
+        %CPPSELF.copyDataTo(data);
+        int matrixSize = %MATRIX_SIZE;
+        for(int size=0; size &lt; matrixSize; size++) {
+            if (size > 0)
+                format += ", ";
+            format += QByteArray::number(data[size]);
+        }
+        format += "))";
+
+        %PYARG_0 = Shiboken::String::fromStringAndSize(format, format.size());
+    </template>
+
+    <template name="reduce_code_matrix">
+        QList&lt; %MATRIX_TYPE &gt; cppArgs;
+        %MATRIX_TYPE data[%MATRIX_SIZE];
+        %CPPSELF.copyDataTo(data);
+        int matrixSize = %MATRIX_SIZE;
+        for(int size=0; size &lt; matrixSize; size++)
+            cppArgs.append(data[size]);
+
+        PyObject *type = PyObject_Type(%PYSELF);
+        PyObject *args = Py_BuildValue("(N)",
+            %CONVERTTOPYTHON[QList&lt;%MATRIX_TYPE&gt; ](cppArgs));
+        %PYARG_0 = Py_BuildValue("(NN)", type, args);
+    </template>
+
+    <template name="matrix_data_function">
+        const float* data = %CPPSELF.constData();
+        PyObject *pyData = PyTuple_New(%MATRIX_SIZE);
+        if (data) {
+            for(int i=0; i &lt; %MATRIX_SIZE; i++)
+                PyTuple_SetItem(pyData, i, %CONVERTTOPYTHON[float](data[i]));
+        }
+        return pyData;
+    </template>
+
+    <template name="matrix_constructor">
+        // PYSIDE-795: All PySequences can be made iterable with PySequence_Fast.
+        Shiboken::AutoDecRef seq(PySequence_Fast(%PYARG_1, "Can't turn into sequence"));
+        if (PySequence_Size(seq) == %SIZE) {
+            Shiboken::AutoDecRef fast(PySequence_Fast(seq,
+                "Failed to parse sequence on %TYPE constructor."));
+            float values[%SIZE];
+            for(int i=0; i &lt; %SIZE; i++) {
+                Shiboken::AutoDecRef pv(PySequence_GetItem(fast.object(), i));
+                values[i] = %CONVERTTOCPP[float](pv);
+            }
+            %0 = new %TYPE(values);
+        }
+    </template>
+
+    <template name="fix_args,QRectF*">
+        QRectF rect_;
+        %CPPSELF.%FUNCTION_NAME(%ARGUMENT_NAMES, &amp;rect_);
+        %PYARG_0 = %CONVERTTOPYTHON[QRectF](rect_);
+    </template>
+
+    <template name="fix_args,QRect*">
+        QRect rect_;
+        %CPPSELF.%FUNCTION_NAME(%ARGUMENT_NAMES, &amp;rect_);
+        %PYARG_0 = %CONVERTTOPYTHON[QRect](rect_);
+    </template>
+
+    <template name="__next__">
+        if (!%CPPSELF.atEnd()) {
+            %PYARG_0 = %CONVERTTOPYTHON[%CPPSELF_TYPE](*%CPPSELF);
+            ++(*%CPPSELF);
+        }
+    </template>
+
+    <template name="__iter_parent__">
+        %CPPSELF_TYPE _tmp = %CPPSELF.begin();
+        %PYARG_0 = %CONVERTTOPYTHON[%CPPSELF_TYPE](_tmp);
+    </template>
+
+    <template name="const_char_pybuffer">
+        PyObject *%out = Shiboken::Buffer::newObject(%in, size);
+    </template>
+
+    <template name="pybuffer_const_char">
+        Py_ssize_t bufferLen;
+        char *%out = reinterpret_cast&lt;char*&gt;(Shiboken::Buffer::getPointer(%PYARG_1, &amp;bufferLen));
+    </template>
+
+    <template name="uint_remove">
+        uint %out = bufferLen;
+    </template>
+
+    <template name="pybytes_const_uchar">
+        const uchar *%out = reinterpret_cast&lt;const uchar*>(PyBytes_AsString(%PYARG_1));
+    </template>
+
+    <template name="pybytes_uint">
+          uint %out = static_cast&lt;uint>(PyBytes_Size(%PYARG_1));
+    </template>
+
+
+</typesystem>

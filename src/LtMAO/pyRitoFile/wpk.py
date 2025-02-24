@@ -40,7 +40,7 @@ class WPK:
             self.signature, = bs.read_s(4)
             if self.signature != 'r3d2':
                 raise Exception(
-                    f'pyRitoFile: Failed: Read WPK {path}: Wrong signature file: {hex(self.signature)}')
+                    f'pyRitoFile: Error: Read WPK {path}: Wrong signature file: {hex(self.signature)}')
             self.version, = bs.read_u32()
             # read wems offset in wpk
             wem_count, = bs.read_u32()

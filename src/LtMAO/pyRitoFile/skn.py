@@ -88,14 +88,14 @@ class SKN:
             self.signature, = bs.read_u32()
             if self.signature != 0x00112233:
                 raise Exception(
-                    f'pyRitoFile: Failed: Read SKN {path}: Wrong signature file: {hex(self.signature)}')
+                    f'pyRitoFile: Error: Read SKN {path}: Wrong signature file: {hex(self.signature)}')
             self.signature = hex(self.signature)
 
             major, minor = bs.read_u16(2)
             self.version = float(f'{major}.{minor}')
             if major not in (0, 2, 4) and minor != 1:
                 raise Exception(
-                    f'pyRitoFile: Failed: Read SKN {path}: Unsupported file version: {major}.{minor}')
+                    f'pyRitoFile: Error: Read SKN {path}: Unsupported file version: {major}.{minor}')
             
             if major == 0:
                 # version 0 doesn't have submesh data
@@ -127,14 +127,14 @@ class SKN:
                     self.vertex_size, = bs.read_u32()
                     self.vertex_type, = bs.read_u32()
                     if not self.vertex_type in (0, 1, 2):
-                        raise Exception(f'pyRitoFile: Failed: Read SKN {path}: Invalid vertex_type: {self.vertex_type}')
+                        raise Exception(f'pyRitoFile: Error: Read SKN {path}: Invalid vertex_type: {self.vertex_type}')
                     self.vertex_type = SKNVertexType(self.vertex_type)
                     self.bounding_box = (bs.read_vec3()[0], bs.read_vec3()[0])
                     self.bounding_sphere = (
                         bs.read_vec3()[0], bs.read_f32()[0])
                     
             if index_count % 3 > 0:
-                raise Exception(f'pyRitoFile: Failed: Read SKN {path}: Bad indices data: {index_count}')
+                raise Exception(f'pyRitoFile: Error: Read SKN {path}: Bad indices data: {index_count}')
 
             # read unique indices
             indices = bs.read_u16(index_count)

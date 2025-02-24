@@ -418,18 +418,18 @@ class BIN:
             self.signature, = bs.read_s(4, encoding='utf-8')
             if self.signature not in ('PROP', 'PTCH'):
                 raise Exception(
-                    f'pyRitoFile: Failed: Read BIN {path}: Wrong file signature: {self.signature}')
+                    f'pyRitoFile: Error: Read BIN {path}: Wrong file signature: {self.signature}')
             if self.signature == 'PTCH':
                 self.is_patch = True
                 bs.pad(8)  # patch header
                 magic, = bs.read_s(4, encoding='utf-8')
                 if magic != 'PROP':
                     raise Exception(
-                        f'pyRitoFile: Failed: Read BIN {path}: Missing PROP after PTCH signature.')
+                        f'pyRitoFile: Error: Read BIN {path}: Missing PROP after PTCH signature.')
             self.version, = bs.read_u32()
             if self.version not in (1, 2, 3):
                 raise Exception(
-                    f'pyRitoFile: Failed: Read BIN {path}: Unsupported file version: {self.version}')
+                    f'pyRitoFile: Error: Read BIN {path}: Unsupported file version: {self.version}')
             # links
             if self.version >= 2:
                 link_count, = bs.read_u32()

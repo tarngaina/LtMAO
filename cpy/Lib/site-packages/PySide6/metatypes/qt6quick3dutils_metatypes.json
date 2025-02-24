@@ -1,0 +1,42 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QQuick3DProfiler",
+                "lineNumber": 123,
+                "object": true,
+                "qualifiedClassName": "QQuick3DProfiler",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "data",
+                                "type": "QList<QQuick3DProfilerData>"
+                            },
+                            {
+                                "name": "eventData",
+                                "type": "QHash<int,QByteArray>"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "dataReady",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    },
+                    {
+                        "access": "public",
+                        "name": "QQmlProfilerDefinitions"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qquick3dprofiler_p.h",
+        "outputRevision": 68
+    }
+]

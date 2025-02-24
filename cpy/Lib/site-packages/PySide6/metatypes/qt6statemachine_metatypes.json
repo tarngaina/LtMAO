@@ -1,0 +1,900 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QSignalEventGenerator",
+                "lineNumber": 29,
+                "object": true,
+                "qualifiedClassName": "QSignalEventGenerator",
+                "slots": [
+                    {
+                        "access": "private",
+                        "index": 0,
+                        "name": "execute",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qsignaleventgenerator_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAbstractState",
+                "lineNumber": 18,
+                "object": true,
+                "properties": [
+                    {
+                        "bindable": "bindableActive",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "active",
+                        "notify": "activeChanged",
+                        "read": "active",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QAbstractState",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "entered",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "exited",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "active",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "activeChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qabstractstate.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAbstractTransition",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "TransitionType",
+                        "values": [
+                            "ExternalTransition",
+                            "InternalTransition"
+                        ]
+                    }
+                ],
+                "lineNumber": 26,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "sourceState",
+                        "read": "sourceState",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QState*",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "targetState",
+                        "notify": "targetStateChanged",
+                        "read": "targetState",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QAbstractState*",
+                        "user": false,
+                        "write": "setTargetState"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "targetStates",
+                        "notify": "targetStatesChanged",
+                        "read": "targetStates",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QList<QAbstractState*>",
+                        "user": false,
+                        "write": "setTargetStates"
+                    },
+                    {
+                        "bindable": "bindableTransitionType",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "transitionType",
+                        "read": "transitionType",
+                        "required": false,
+                        "revision": 257,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "TransitionType",
+                        "user": false,
+                        "write": "setTransitionType"
+                    }
+                ],
+                "qualifiedClassName": "QAbstractTransition",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "triggered",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "targetStateChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "targetStatesChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qabstracttransition.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QBasicKeyEventTransition",
+                "lineNumber": 27,
+                "object": true,
+                "qualifiedClassName": "QBasicKeyEventTransition",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractTransition"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qbasickeyeventtransition_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QBasicMouseEventTransition",
+                "lineNumber": 29,
+                "object": true,
+                "qualifiedClassName": "QBasicMouseEventTransition",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractTransition"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qbasicmouseeventtransition_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QEventTransition",
+                "lineNumber": 15,
+                "object": true,
+                "properties": [
+                    {
+                        "bindable": "bindableEventSource",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "eventSource",
+                        "read": "eventSource",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QObject*",
+                        "user": false,
+                        "write": "setEventSource"
+                    },
+                    {
+                        "bindable": "bindableEventType",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "eventType",
+                        "read": "eventType",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QEvent::Type",
+                        "user": false,
+                        "write": "setEventType"
+                    }
+                ],
+                "qualifiedClassName": "QEventTransition",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractTransition"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qeventtransition.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QFinalState",
+                "lineNumber": 14,
+                "object": true,
+                "qualifiedClassName": "QFinalState",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractState"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qfinalstate.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QHistoryState",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "HistoryType",
+                        "values": [
+                            "ShallowHistory",
+                            "DeepHistory"
+                        ]
+                    }
+                ],
+                "lineNumber": 15,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "defaultState",
+                        "notify": "defaultStateChanged",
+                        "read": "defaultState",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QAbstractState*",
+                        "user": false,
+                        "write": "setDefaultState"
+                    },
+                    {
+                        "bindable": "bindableDefaultTransition",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "defaultTransition",
+                        "notify": "defaultTransitionChanged",
+                        "read": "defaultTransition",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QAbstractTransition*",
+                        "user": false,
+                        "write": "setDefaultTransition"
+                    },
+                    {
+                        "bindable": "bindableHistoryType",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "historyType",
+                        "notify": "historyTypeChanged",
+                        "read": "historyType",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "HistoryType",
+                        "user": false,
+                        "write": "setHistoryType"
+                    }
+                ],
+                "qualifiedClassName": "QHistoryState",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "defaultTransitionChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "defaultStateChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "historyTypeChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractState"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qhistorystate.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QKeyEventTransition",
+                "lineNumber": 14,
+                "object": true,
+                "properties": [
+                    {
+                        "bindable": "bindableKey",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "key",
+                        "read": "key",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setKey"
+                    },
+                    {
+                        "bindable": "bindableModifierMask",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "modifierMask",
+                        "read": "modifierMask",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt::KeyboardModifiers",
+                        "user": false,
+                        "write": "setModifierMask"
+                    }
+                ],
+                "qualifiedClassName": "QKeyEventTransition",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QEventTransition"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qkeyeventtransition.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QMouseEventTransition",
+                "lineNumber": 15,
+                "object": true,
+                "properties": [
+                    {
+                        "bindable": "bindableButton",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "button",
+                        "read": "button",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt::MouseButton",
+                        "user": false,
+                        "write": "setButton"
+                    },
+                    {
+                        "bindable": "bindableModifierMask",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "modifierMask",
+                        "read": "modifierMask",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Qt::KeyboardModifiers",
+                        "user": false,
+                        "write": "setModifierMask"
+                    }
+                ],
+                "qualifiedClassName": "QMouseEventTransition",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QEventTransition"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qmouseeventtransition.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QSignalTransition",
+                "lineNumber": 15,
+                "object": true,
+                "properties": [
+                    {
+                        "bindable": "bindableSenderObject",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "senderObject",
+                        "notify": "senderObjectChanged",
+                        "read": "senderObject",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "const QObject*",
+                        "user": false,
+                        "write": "setSenderObject"
+                    },
+                    {
+                        "bindable": "bindableSignal",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "signal",
+                        "notify": "signalChanged",
+                        "read": "signal",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QByteArray",
+                        "user": false,
+                        "write": "setSignal"
+                    }
+                ],
+                "qualifiedClassName": "QSignalTransition",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "senderObjectChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "signalChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractTransition"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qsignaltransition.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QState",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "ChildMode",
+                        "values": [
+                            "ExclusiveStates",
+                            "ParallelStates"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "RestorePolicy",
+                        "values": [
+                            "DontRestoreProperties",
+                            "RestoreProperties"
+                        ]
+                    }
+                ],
+                "lineNumber": 20,
+                "object": true,
+                "properties": [
+                    {
+                        "bindable": "bindableInitialState",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "initialState",
+                        "notify": "initialStateChanged",
+                        "read": "initialState",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QAbstractState*",
+                        "user": false,
+                        "write": "setInitialState"
+                    },
+                    {
+                        "bindable": "bindableErrorState",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "errorState",
+                        "notify": "errorStateChanged",
+                        "read": "errorState",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QAbstractState*",
+                        "user": false,
+                        "write": "setErrorState"
+                    },
+                    {
+                        "bindable": "bindableChildMode",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "childMode",
+                        "notify": "childModeChanged",
+                        "read": "childMode",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "ChildMode",
+                        "user": false,
+                        "write": "setChildMode"
+                    }
+                ],
+                "qualifiedClassName": "QState",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "finished",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "propertiesAssigned",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "childModeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "initialStateChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "errorStateChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractState"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qstate.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QStateMachine",
+                "lineNumber": 25,
+                "object": true,
+                "properties": [
+                    {
+                        "bindable": "bindableErrorString",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "errorString",
+                        "read": "errorString",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "bindable": "bindableGlobalRestorePolicy",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "globalRestorePolicy",
+                        "read": "globalRestorePolicy",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QState::RestorePolicy",
+                        "user": false,
+                        "write": "setGlobalRestorePolicy"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "running",
+                        "notify": "runningChanged",
+                        "read": "isRunning",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setRunning"
+                    },
+                    {
+                        "bindable": "bindableAnimated",
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "animated",
+                        "read": "isAnimated",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setAnimated"
+                    }
+                ],
+                "qualifiedClassName": "QStateMachine",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "started",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "stopped",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "running",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "runningChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "start",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "stop",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "running",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 5,
+                        "name": "setRunning",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 6,
+                        "name": "_q_start",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 7,
+                        "name": "_q_process",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 8,
+                        "name": "_q_animationFinished",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "type": "int"
+                            },
+                            {
+                                "type": "int"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "_q_startDelayedEventTimer",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "type": "int"
+                            },
+                            {
+                                "type": "int"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "_q_killDelayedEventTimer",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QState"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qstatemachine.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "DefaultStateTransition",
+                "lineNumber": 94,
+                "object": true,
+                "qualifiedClassName": "DefaultStateTransition",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractTransition"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qhistorystate.cpp",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "GoToStateTransition",
+                "lineNumber": 2091,
+                "object": true,
+                "qualifiedClassName": "_QStateMachine_Internal::GoToStateTransition",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractTransition"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qstatemachine.cpp",
+        "outputRevision": 68
+    }
+]

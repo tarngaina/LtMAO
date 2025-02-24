@@ -1,0 +1,1753 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QSensor",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Feature",
+                        "values": [
+                            "Buffering",
+                            "AlwaysOn",
+                            "GeoValues",
+                            "FieldOfView",
+                            "AccelerationMode",
+                            "SkipDuplicates",
+                            "AxesOrientation",
+                            "PressureSensorTemperature",
+                            "Reserved"
+                        ]
+                    },
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "AxesOrientationMode",
+                        "values": [
+                            "FixedOrientation",
+                            "AutomaticOrientation",
+                            "UserOrientation"
+                        ]
+                    }
+                ],
+                "lineNumber": 35,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 17,
+                        "name": "connectToBackend",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "feature",
+                                "type": "Feature"
+                            }
+                        ],
+                        "index": 18,
+                        "name": "isFeatureSupported",
+                        "returnType": "bool"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "identifier",
+                        "notify": "identifierChanged",
+                        "read": "identifier",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QByteArray",
+                        "user": false,
+                        "write": "setIdentifier"
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "type",
+                        "read": "type",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QByteArray",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "connectedToBackend",
+                        "read": "isConnectedToBackend",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "availableDataRates",
+                        "read": "availableDataRates",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qrangelist",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "name": "dataRate",
+                        "notify": "dataRateChanged",
+                        "read": "dataRate",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setDataRate"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "name": "reading",
+                        "notify": "readingChanged",
+                        "read": "reading",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QSensorReading*",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "name": "busy",
+                        "notify": "busyChanged",
+                        "read": "isBusy",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "name": "active",
+                        "notify": "activeChanged",
+                        "read": "isActive",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setActive"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 8,
+                        "name": "outputRanges",
+                        "read": "outputRanges",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qoutputrangelist",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 9,
+                        "name": "outputRange",
+                        "read": "outputRange",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setOutputRange"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 10,
+                        "name": "description",
+                        "read": "description",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 11,
+                        "name": "error",
+                        "notify": "sensorError",
+                        "read": "error",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 12,
+                        "name": "alwaysOn",
+                        "notify": "alwaysOnChanged",
+                        "read": "isAlwaysOn",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setAlwaysOn"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 13,
+                        "name": "skipDuplicates",
+                        "notify": "skipDuplicatesChanged",
+                        "read": "skipDuplicates",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setSkipDuplicates"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 14,
+                        "name": "axesOrientationMode",
+                        "notify": "axesOrientationModeChanged",
+                        "read": "axesOrientationMode",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "AxesOrientationMode",
+                        "user": false,
+                        "write": "setAxesOrientationMode"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 15,
+                        "name": "currentOrientation",
+                        "notify": "currentOrientationChanged",
+                        "read": "currentOrientation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 16,
+                        "name": "userOrientation",
+                        "notify": "userOrientationChanged",
+                        "read": "userOrientation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setUserOrientation"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 17,
+                        "name": "maxBufferSize",
+                        "notify": "maxBufferSizeChanged",
+                        "read": "maxBufferSize",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 18,
+                        "name": "efficientBufferSize",
+                        "notify": "efficientBufferSizeChanged",
+                        "read": "efficientBufferSize",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 19,
+                        "name": "bufferSize",
+                        "notify": "bufferSizeChanged",
+                        "read": "bufferSize",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "write": "setBufferSize"
+                    }
+                ],
+                "qualifiedClassName": "QSensor",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "busyChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "activeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "readingChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "error",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "sensorError",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "availableSensorsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "name": "alwaysOnChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "name": "dataRateChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "skipDuplicates",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 7,
+                        "name": "skipDuplicatesChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "axesOrientationMode",
+                                "type": "AxesOrientationMode"
+                            }
+                        ],
+                        "index": 8,
+                        "name": "axesOrientationModeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "currentOrientation",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 9,
+                        "name": "currentOrientationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "userOrientation",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 10,
+                        "name": "userOrientationChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "maxBufferSize",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 11,
+                        "name": "maxBufferSizeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "efficientBufferSize",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 12,
+                        "name": "efficientBufferSizeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "bufferSize",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 13,
+                        "name": "bufferSizeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 14,
+                        "name": "identifierChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 15,
+                        "name": "start",
+                        "returnType": "bool"
+                    },
+                    {
+                        "access": "public",
+                        "index": 16,
+                        "name": "stop",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            },
+            {
+                "className": "QSensorReading",
+                "lineNumber": 195,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "timestamp",
+                        "read": "timestamp",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "quint64",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QSensorReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qsensor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAccelerometerReading",
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "x",
+                        "read": "x",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "y",
+                        "read": "y",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "z",
+                        "read": "z",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QAccelerometerReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QAccelerometer",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "AccelerationMode",
+                        "values": [
+                            "Combined",
+                            "Gravity",
+                            "User"
+                        ]
+                    }
+                ],
+                "lineNumber": 41,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "accelerationMode",
+                        "notify": "accelerationModeChanged",
+                        "read": "accelerationMode",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "AccelerationMode",
+                        "user": false,
+                        "write": "setAccelerationMode"
+                    }
+                ],
+                "qualifiedClassName": "QAccelerometer",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "accelerationMode",
+                                "type": "AccelerationMode"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "accelerationModeChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qaccelerometer.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAmbientLightReading",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "LightLevel",
+                        "values": [
+                            "Undefined",
+                            "Dark",
+                            "Twilight",
+                            "Light",
+                            "Bright",
+                            "Sunny"
+                        ]
+                    }
+                ],
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "lightLevel",
+                        "read": "lightLevel",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "LightLevel",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QAmbientLightReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QAmbientLightSensor",
+                "lineNumber": 41,
+                "object": true,
+                "qualifiedClassName": "QAmbientLightSensor",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qambientlightsensor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAmbientTemperatureReading",
+                "lineNumber": 12,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "temperature",
+                        "read": "temperature",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QAmbientTemperatureReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QAmbientTemperatureSensor",
+                "lineNumber": 30,
+                "object": true,
+                "qualifiedClassName": "QAmbientTemperatureSensor",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qambienttemperaturesensor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QCompassReading",
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "azimuth",
+                        "read": "azimuth",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "calibrationLevel",
+                        "read": "calibrationLevel",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QCompassReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QCompass",
+                "lineNumber": 35,
+                "object": true,
+                "qualifiedClassName": "QCompass",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qcompass.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QGyroscopeReading",
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "x",
+                        "read": "x",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "y",
+                        "read": "y",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "z",
+                        "read": "z",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QGyroscopeReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QGyroscope",
+                "lineNumber": 39,
+                "object": true,
+                "qualifiedClassName": "QGyroscope",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qgyroscope.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QHumidityReading",
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "relativeHumidity",
+                        "read": "relativeHumidity",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "absoluteHumidity",
+                        "read": "absoluteHumidity",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QHumidityReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QHumiditySensor",
+                "lineNumber": 38,
+                "object": true,
+                "qualifiedClassName": "QHumiditySensor",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qhumiditysensor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QIRProximityReading",
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "reflectance",
+                        "read": "reflectance",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QIRProximityReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QIRProximitySensor",
+                "lineNumber": 31,
+                "object": true,
+                "qualifiedClassName": "QIRProximitySensor",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qirproximitysensor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QLidReading",
+                "lineNumber": 12,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "backLidClosed",
+                        "read": "backLidClosed",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "frontLidClosed",
+                        "read": "frontLidClosed",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QLidReading",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "closed",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "backLidChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "closed",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "frontLidChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QLidSensor",
+                "lineNumber": 39,
+                "object": true,
+                "qualifiedClassName": "QLidSensor",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qlidsensor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QLightReading",
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "lux",
+                        "read": "lux",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QLightReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QLightSensor",
+                "lineNumber": 33,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "fieldOfView",
+                        "notify": "fieldOfViewChanged",
+                        "read": "fieldOfView",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QLightSensor",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "fieldOfView",
+                                "type": "qreal"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "fieldOfViewChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qlightsensor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QMagnetometerReading",
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "x",
+                        "read": "x",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "y",
+                        "read": "y",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "z",
+                        "read": "z",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "name": "calibrationLevel",
+                        "read": "calibrationLevel",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QMagnetometerReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QMagnetometer",
+                "lineNumber": 45,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "returnGeoValues",
+                        "notify": "returnGeoValuesChanged",
+                        "read": "returnGeoValues",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setReturnGeoValues"
+                    }
+                ],
+                "qualifiedClassName": "QMagnetometer",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "returnGeoValues",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "returnGeoValuesChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qmagnetometer.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QOrientationReading",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "Orientation",
+                        "values": [
+                            "Undefined",
+                            "TopUp",
+                            "TopDown",
+                            "LeftUp",
+                            "RightUp",
+                            "FaceUp",
+                            "FaceDown"
+                        ]
+                    }
+                ],
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "orientation",
+                        "read": "orientation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "Orientation",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QOrientationReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QOrientationSensor",
+                "lineNumber": 42,
+                "object": true,
+                "qualifiedClassName": "QOrientationSensor",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qorientationsensor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QPressureReading",
+                "lineNumber": 12,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "pressure",
+                        "read": "pressure",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "temperature",
+                        "read": "temperature",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QPressureReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QPressureSensor",
+                "lineNumber": 34,
+                "object": true,
+                "qualifiedClassName": "QPressureSensor",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qpressuresensor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QProximityReading",
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "close",
+                        "read": "close",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QProximityReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QProximitySensor",
+                "lineNumber": 31,
+                "object": true,
+                "qualifiedClassName": "QProximitySensor",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qproximitysensor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QRotationReading",
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "x",
+                        "read": "x",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "y",
+                        "read": "y",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "name": "z",
+                        "read": "z",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QRotationReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QRotationSensor",
+                "lineNumber": 38,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "hasZ",
+                        "notify": "hasZChanged",
+                        "read": "hasZ",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QRotationSensor",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "hasZ",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "hasZChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qrotationsensor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QSensorBackend",
+                "lineNumber": 14,
+                "object": true,
+                "qualifiedClassName": "QSensorBackend",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qsensorbackend.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QTapReading",
+                "enums": [
+                    {
+                        "isClass": false,
+                        "isFlag": false,
+                        "name": "TapDirection",
+                        "values": [
+                            "Undefined",
+                            "X",
+                            "Y",
+                            "Z",
+                            "X_Pos",
+                            "Y_Pos",
+                            "Z_Pos",
+                            "X_Neg",
+                            "Y_Neg",
+                            "Z_Neg",
+                            "X_Both",
+                            "Y_Both",
+                            "Z_Both"
+                        ]
+                    }
+                ],
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "tapDirection",
+                        "read": "tapDirection",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "TapDirection",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "doubleTap",
+                        "read": "isDoubleTap",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QTapReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QTapSensor",
+                "lineNumber": 54,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "returnDoubleTapEvents",
+                        "notify": "returnDoubleTapEventsChanged",
+                        "read": "returnDoubleTapEvents",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "write": "setReturnDoubleTapEvents"
+                    }
+                ],
+                "qualifiedClassName": "QTapSensor",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "returnDoubleTapEvents",
+                                "type": "bool"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "returnDoubleTapEventsChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qtapsensor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QTiltReading",
+                "lineNumber": 13,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "yRotation",
+                        "read": "yRotation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "name": "xRotation",
+                        "read": "xRotation",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "qreal",
+                        "user": false
+                    }
+                ],
+                "qualifiedClassName": "QTiltReading",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensorReading"
+                    }
+                ]
+            },
+            {
+                "className": "QTiltSensor",
+                "lineNumber": 37,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "calibrate",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "qualifiedClassName": "QTiltSensor",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QSensor"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qtiltsensor.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QSensorManagerPrivate",
+                "lineNumber": 22,
+                "object": true,
+                "qualifiedClassName": "QSensorManagerPrivate",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "availableSensorsChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "name": "emitSensorsChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qsensormanager.cpp",
+        "outputRevision": 68
+    }
+]

@@ -1,1 +1,1 @@
-start "" "%~dp0epython\pythonw.exe" "%~dp0src\gui.py"
+start "" "%~dp0cpy\pythonw.exe" "%~dp0src\gui.py"

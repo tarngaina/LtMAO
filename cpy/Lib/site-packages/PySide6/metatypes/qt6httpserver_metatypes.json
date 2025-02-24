@@ -1,0 +1,283 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QHttpServerHttp1ProtocolHandler",
+                "lineNumber": 29,
+                "object": true,
+                "qualifiedClassName": "QHttpServerHttp1ProtocolHandler",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QHttpServerStream"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qhttpserverhttp1protocolhandler_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QHttpServerHttp2ProtocolHandler",
+                "lineNumber": 41,
+                "object": true,
+                "qualifiedClassName": "QHttpServerHttp2ProtocolHandler",
+                "slots": [
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "stream",
+                                "type": "QHttp2Stream*"
+                            }
+                        ],
+                        "index": 0,
+                        "name": "onStreamCreated",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "streamId",
+                                "type": "quint32"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "onStreamClosed",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "streamId",
+                                "type": "quint32"
+                            }
+                        ],
+                        "index": 2,
+                        "name": "onStreamHalfClosed",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "arguments": [
+                            {
+                                "name": "streamId",
+                                "type": "quint32"
+                            }
+                        ],
+                        "index": 3,
+                        "name": "sendToStream",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QHttpServerStream"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qhttpserverhttp2protocolhandler_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QHttpServerResponder",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "StatusCode",
+                        "values": [
+                            "Continue",
+                            "SwitchingProtocols",
+                            "Processing",
+                            "Ok",
+                            "Created",
+                            "Accepted",
+                            "NonAuthoritativeInformation",
+                            "NoContent",
+                            "ResetContent",
+                            "PartialContent",
+                            "MultiStatus",
+                            "AlreadyReported",
+                            "IMUsed",
+                            "MultipleChoices",
+                            "MovedPermanently",
+                            "Found",
+                            "SeeOther",
+                            "NotModified",
+                            "UseProxy",
+                            "TemporaryRedirect",
+                            "PermanentRedirect",
+                            "BadRequest",
+                            "Unauthorized",
+                            "PaymentRequired",
+                            "Forbidden",
+                            "NotFound",
+                            "MethodNotAllowed",
+                            "NotAcceptable",
+                            "ProxyAuthenticationRequired",
+                            "RequestTimeout",
+                            "Conflict",
+                            "Gone",
+                            "LengthRequired",
+                            "PreconditionFailed",
+                            "PayloadTooLarge",
+                            "UriTooLong",
+                            "UnsupportedMediaType",
+                            "RequestRangeNotSatisfiable",
+                            "ExpectationFailed",
+                            "ImATeapot",
+                            "MisdirectedRequest",
+                            "UnprocessableEntity",
+                            "Locked",
+                            "FailedDependency",
+                            "UpgradeRequired",
+                            "PreconditionRequired",
+                            "TooManyRequests",
+                            "RequestHeaderFieldsTooLarge",
+                            "UnavailableForLegalReasons",
+                            "InternalServerError",
+                            "NotImplemented",
+                            "BadGateway",
+                            "ServiceUnavailable",
+                            "GatewayTimeout",
+                            "HttpVersionNotSupported",
+                            "VariantAlsoNegotiates",
+                            "InsufficientStorage",
+                            "LoopDetected",
+                            "NotExtended",
+                            "NetworkAuthenticationRequired",
+                            "NetworkConnectTimeoutError"
+                        ]
+                    }
+                ],
+                "gadget": true,
+                "lineNumber": 24,
+                "qualifiedClassName": "QHttpServerResponder"
+            }
+        ],
+        "inputFile": "qhttpserverresponder.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QHttpServerStream",
+                "lineNumber": 27,
+                "object": true,
+                "qualifiedClassName": "QHttpServerStream",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qhttpserverstream_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QAbstractHttpServer",
+                "lineNumber": 33,
+                "object": true,
+                "qualifiedClassName": "QAbstractHttpServer",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "newWebSocketConnection",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qabstracthttpserver.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QHttpServer",
+                "lineNumber": 26,
+                "object": true,
+                "qualifiedClassName": "QHttpServer",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractHttpServer"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qhttpserver.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QHttpServerRequest",
+                "enums": [
+                    {
+                        "isClass": true,
+                        "isFlag": false,
+                        "name": "Method",
+                        "values": [
+                            "Unknown",
+                            "Get",
+                            "Put",
+                            "Delete",
+                            "Post",
+                            "Head",
+                            "Options",
+                            "Patch",
+                            "Connect",
+                            "Trace",
+                            "AnyKnown"
+                        ]
+                    },
+                    {
+                        "alias": "Method",
+                        "isClass": true,
+                        "isFlag": true,
+                        "name": "Methods",
+                        "values": [
+                            "Unknown",
+                            "Get",
+                            "Put",
+                            "Delete",
+                            "Post",
+                            "Head",
+                            "Options",
+                            "Patch",
+                            "Connect",
+                            "Trace",
+                            "AnyKnown"
+                        ]
+                    }
+                ],
+                "gadget": true,
+                "lineNumber": 26,
+                "qualifiedClassName": "QHttpServerRequest"
+            }
+        ],
+        "inputFile": "qhttpserverrequest.h",
+        "outputRevision": 68
+    }
+]

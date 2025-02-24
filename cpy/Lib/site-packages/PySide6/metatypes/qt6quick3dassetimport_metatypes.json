@@ -1,0 +1,56 @@
+[
+    {
+        "classes": [
+            {
+                "className": "QSSGAssetImporter",
+                "lineNumber": 34,
+                "object": true,
+                "qualifiedClassName": "QSSGAssetImporter",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qssgassetimporter_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QSSGAssetImporterPlugin",
+                "lineNumber": 31,
+                "object": true,
+                "qualifiedClassName": "QSSGAssetImporterPlugin",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qssgassetimporterplugin_p.h",
+        "outputRevision": 68
+    },
+    {
+        "classes": [
+            {
+                "className": "QSSGAssetImportManager",
+                "lineNumber": 44,
+                "object": true,
+                "qualifiedClassName": "QSSGAssetImportManager",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "qssgassetimportmanager_p.h",
+        "outputRevision": 68
+    }
+]
