@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
 )
 
 from . import control, helper, log
-from .. import setting, hash_helper
+from .. import setting, hash_helper, winLT, tools, Ritoddstex
 import requests
 
 
@@ -39,7 +39,7 @@ def build_app():
     import qdarktheme
     qdarktheme.enable_hi_dpi()
     app = QApplication([])
-    qdarktheme.setup_theme(theme='auto', corner_shape='sharp')
+    qdarktheme.setup_theme(theme='dark', corner_shape='sharp')
     app.setFont(QFont('Consolas', weight=14))
     # build splash and show splash
     qtwidgets.splash = splash = QSplashScreen()
@@ -78,7 +78,7 @@ def build_splash_screen(splash: QSplashScreen):
 
 def build_main_window(window: QMainWindow):
     window.setGeometry(10, 10, 1000, 700)
-    window.setWindowIcon(QPixmap('./res/appicon.png'))
+    window.setWindowIcon(QPixmap('./res/appicon.ico'))
     window.setWindowFlags(Qt.Window|Qt.FramelessWindowHint|Qt.WindowMinMaxButtonsHint)
     window.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
     window.setContentsMargins(0, 0, 0, 0)
@@ -368,6 +368,10 @@ def after_build():
     setting.prepare(LOG)
     control.on_page_id_changed(True, setting.get('qtGUI.page_id', 0))
     hash_helper.prepare(LOG)
+    winLT.prepare(LOG)
+    tools.prepare(LOG)
+    Ritoddstex.prepare(LOG)
+    
  
 def check_version():
     def check_version_thrd():

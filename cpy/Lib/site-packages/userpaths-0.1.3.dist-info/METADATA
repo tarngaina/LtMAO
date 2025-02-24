@@ -1,0 +1,51 @@
+Metadata-Version: 2.1
+Name: userpaths
+Version: 0.1.3
+Summary: Cross-platform access to a user's special folders
+Home-page: https://github.com/bmjcode/userpaths
+Author: Benjamin Johnson
+Author-email: bmjcode@gmail.com
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
+
+The **userpaths** module provides cross-platform access to a user's special folders (or directories) like My Documents, Desktop, and Application Data. It is primarily intended to simplify development of desktop application software.
+
+A quick usage example:
+
+```python
+# Get the user's My Documents folder
+import userpaths
+my_docs = userpaths.get_my_documents()
+```
+
+Both Python 2 and 3 are supported, on Windows and Unix platforms.
+
+
+## API Reference
+
+Function | Description
+-------- | -----------
+`get_appdata()` | Return the current user's roaming Application Data folder.
+`get_desktop()` | Return the current user's Desktop folder.
+`get_downloads()` | Return the current user's Downloads folder.
+`get_local_appdata()` | Return the current user's local Application Data folder.
+`get_my_documents()` | Return the current user's My Documents folder.
+`get_my_music()` | Return the current user's My Music folder.
+`get_my_pictures()` | Return the current user's My Pictures folder.
+`get_my_videos()` | Return the current user's My Videos folder.
+`get_profile()` | Return the current user's profile folder.
+
+The userpaths API was inspired by, and is partly compatible with, Ryan Ginstrom's [winpaths](http://ginstrom.com/code/winpaths.html). However, userpaths is not intended as a direct replacement for that module.
+
+
+## Compatibility Note
+
+The userpaths module was originally designed from a Windows-centric perspective. Because of the many differences between the two systems, there are some Windows paths that do not have a direct equivalent on Unix, and vice versa. In these cases, userpaths attempts to return the nearest functional equivalent, but it is up to the user to ensure their application is using the appropriate path for what it seeks to do.
+
+

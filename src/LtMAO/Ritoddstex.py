@@ -7,8 +7,6 @@ def dds2tex(dds_path, tex_path=None):
     # prepare path
     if tex_path == None:
         tex_path = dds_path.replace('.dds', '.tex')
-    LOG(
-        f'Ritoddstex: Start:  dds2tex: Convert {dds_path} to {tex_path}')
     # read dds header
     with pyRitoFile.stream.BinStream(open(dds_path, 'rb')) as bs:
         signature, = bs.read_u32()
@@ -101,16 +99,12 @@ def dds2tex(dds_path, tex_path=None):
         
     # write tex file
     tex.write(tex_path)
-    LOG(
-        f'Ritoddstex: Finish: dds2tex: Write {tex_path}')
 
 
 def tex2dds(tex_path, dds_path=None):
     # prepare path
     if dds_path == None:
         dds_path = tex_path.split('.tex')[0] + '.dds'
-    LOG(
-        f'Ritoddstex: Start:  tex2dds: Convert {tex_path} to {dds_path}')
     # read tex
     tex = pyRitoFile.read_tex(tex_path)
     # prepare dds header
@@ -196,8 +190,6 @@ def tex2dds(tex_path, dds_path=None):
                 bs.write(block_data)
         else:
             bs.write(tex.data[0])
-    LOG(
-        f'Ritoddstex: Finish: tex2dds: Write {dds_path}')
 
 
 def prepare(_LOG):

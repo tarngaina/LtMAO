@@ -1,4 +1,4 @@
-from . import hash_helper, pyRitoFile, ext_tools
+from . import hash_helper, pyRitoFile, tools
 import os
 
 LOG = print
@@ -125,7 +125,7 @@ def read_lfi(path, hashtables=None):
 
 def read_ritobin(path):
     json = None
-    p = ext_tools.RITOBIN.run(
+    p = tools.RITOBIN.run(
         src=path,
         dir_hashes=hash_helper.CustomHashes.local_dir
     )

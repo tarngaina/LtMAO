@@ -4,9 +4,9 @@ import os.path
 import winreg
 
 LOG = print
-icon_file = './resources/appicon.ico'
-pythonw_file = './epython/pythonw.exe'
-python_file = './epython/python.exe'
+icon_file = './res/appicon.ico'
+pythonw_file = './cpy/pythonw.exe'
+python_file = './cpy/python.exe'
 gui_file = './src/gui.py'
 cli_file = './src/cli.py'
 

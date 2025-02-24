@@ -1,7 +1,7 @@
 from .pyRitoFile import BNKObjectType, BINHelper, read_bnk, read_wpk, read_bin, write_bnk, write_wpk, BNK, WPK
 from .pyRitoFile.ermmm import FNV1
 from .hash_helper import cached_bin_hashes
-from . import ext_tools
+from . import tools
 
 import os
 import os.path
@@ -318,8 +318,8 @@ class BNKParser:
                                     f'bnk_tool: Finish: Extracted [{wem.size}bytes] {wem.id} of {event_id}')
                                 if convert_ogg:
                                     ogg_file = wem_file.replace('.wem', '.ogg')
-                                    if ext_tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
-                                        ext_tools.REVORB.run(ogg_file,silent=True)
+                                    if tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
+                                        tools.REVORB.run(ogg_file,silent=True)
                     else:
                         for container_id in self.audio_tree[event_id]:
                             if container_id in (INF, 'No container'):
@@ -329,8 +329,8 @@ class BNKParser:
                                         f.write(wem_data)
                                     if convert_ogg:
                                             ogg_file = wem_file.replace('.wem', '.ogg')
-                                            if ext_tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
-                                                ext_tools.REVORB.run(ogg_file,silent=True)
+                                            if tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
+                                                tools.REVORB.run(ogg_file,silent=True)
                                     LOG(
                                         f'bnk_tool: Finish: Extracted [{wem.size}bytes] {wem.id}')
 
@@ -385,8 +385,8 @@ class BNKParser:
                 self.unpack_wem(self.get_cache_dir(), wem_id)
             ogg_file = wem_file.replace('.wem', '.ogg')
             if not os.path.exists(ogg_file):
-                if ext_tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
-                    ext_tools.REVORB.run(ogg_file,silent=True)
+                if tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
+                    tools.REVORB.run(ogg_file,silent=True)
             if ogg_file not in BNKParser.cached_segments:
                 BNKParser.cached_segments[ogg_file] = AudioSegment.from_ogg(ogg_file)
             self.playbacks.append(_play_with_simpleaudio(BNKParser.cached_segments[ogg_file]))
