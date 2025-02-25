@@ -394,4 +394,3 @@ def prepare(_LOG):
     os.makedirs(CDTBHashes.local_dir, exist_ok=True)
     os.makedirs(ExtractedHashes.local_dir, exist_ok=True)
     os.makedirs(CustomHashes.local_dir, exist_ok=True)
-    Thread(target=CDTBHashes.sync_all, daemon=True).start()

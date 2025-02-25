@@ -1,5 +1,3 @@
-
-
 if __name__ == '__main__':
     import sys
     if sys.platform == 'win32':

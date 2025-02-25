@@ -1,6 +1,3 @@
-from PySide6.QtCore import (
-    Qt,
-)
 from PySide6.QtWidgets import (
     QWidget, 
     QLabel,
@@ -9,14 +6,13 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QFileDialog,
-
 )
 
 import os, posixpath
 from PIL import Image
 
 from . import log, helper
-from .. import setting, tools, Ritoddstex
+from .. import setting, tools, Ritoddstex, winLT
 LOG = log.LOG
 
 qtwidgets = None
@@ -35,13 +31,13 @@ def on_page_id_changed(event, page_id):
         if c.page_id == page_id:
             c.content.setVisible(True)
             if c.page_id == 100:
-                c.widget.setStyleSheet(f'background-color: rgb{qtwidgets.accent_color}')
+                c.widget.setStyleSheet(f'background-color: rgb{qtwidgets.accent_color};')
             else:
                 c.widget.setChecked(True)
         else:
             c.content.setVisible(False)
             if c.page_id == 100:
-                c.widget.setStyleSheet(f'background-color: rgba(0, 0, 0, 127); :hover {{ background-color: rgb{qtwidgets.accent_color} }}')
+                c.widget.setStyleSheet(f'QStatusBar {{ background-color: rgba(0, 0, 0, 127) }} QStatusBar::hover {{ background-color: rgb{qtwidgets.accent_color}; }}')
             else:
                 c.widget.setChecked(False)
 
@@ -114,16 +110,14 @@ def build_ddsmart(widget: QWidget):
             )
 
     
-
     def convert_cmd(isfile, title, input_type, func):
         dialog = QFileDialog()
         final_paths = []
-        # scan first
         if isfile:
             filepaths = dialog.getOpenFileNames(
                 widget, 
                 f'Select {input_type}s',
-                setting.get('default_folder', None),
+                setting.get('qtGUI.default_folder', None),
                 f'{input_type} Files (*.{input_type})'
             )
             if len(filepaths[0]) > 0:
@@ -132,7 +126,7 @@ def build_ddsmart(widget: QWidget):
             dirpath = dialog.getExistingDirectory(
                 widget,
                 f'Select Folder',
-                setting.get('default_folder', None),
+                setting.get('qtGUI.default_folder', None),
             )
             if dirpath != '':
                 for root, dirs, files in os.walk(dirpath):
@@ -141,9 +135,14 @@ def build_ddsmart(widget: QWidget):
                             final_paths.append(posixpath.join(root, file).replace('\\','/'))
         final_path_count = len(final_paths)
         if  final_path_count > 0:
-            LOG(f'ddsmart: Start: {title}: {final_path_count} items.')
-            helper.SafeThread.start('ddsmart', lambda: [func(final_path) for final_path in final_paths])
-            LOG(f'ddsmart: Finish: {title}: {final_path_count} items.')
+            def convert_thrd():
+                LOG(f'ddsmart: Start: {title}: {final_path_count} items.')
+                for final_path in final_paths:
+                    func(final_path)
+                LOG(f'ddsmart: Finish: {title}: {final_path_count} items.')
+            helper.SafeThread.start('ddsmart', convert_thrd)
+        
+            
     
     converters = [
         { 
@@ -225,4 +224,118 @@ def build_changelog(widget: QWidget):
     widget.setLayout(layout)
 
 def build_setting(widget: QWidget):
-    widget.setStyleSheet(f'background-color: rgba(127, 127, 255, 127)')
+    layout = QVBoxLayout()
+    
+    # default folder
+    layout2 = QHBoxLayout()
+    button = QToolButton()
+    button.setText('🌳 Default folder: ')
+    def default_dir_cmd():
+        dialog = QFileDialog()
+        dirpath = dialog.getExistingDirectory(
+            widget,
+            f'Select Folder',
+            setting.get('qtGUI.default_folder', None),
+        )
+        if dirpath == '':
+            dirpath = None
+            qtwidgets.default_dir_label.setText('Default path for all file/dir dialog.')
+        else:
+            qtwidgets.default_dir_label.setText(dirpath)
+        setting.set('qtGUI.default_folder', dirpath)
+        setting.save()
+    button.clicked.connect(default_dir_cmd)
+    layout2.addWidget(button)
+    qtwidgets.default_dir_label = label = QLabel(setting.get('qtGUI.default_folder', 'Default path for all file/dir dialog.'))
+    label.setStyleSheet('background-color: transparent')
+    layout2.addWidget(label)
+    layout2.addStretch()
+    layout.addLayout(layout2)
+    # winlt stuffs
+    layout2 = QHBoxLayout()
+    button = QToolButton()
+    button.setText('💬 Create explorer context')
+    button.clicked.connect(winLT.Context.create_contexts)
+    layout2.addWidget(button)
+    button = QToolButton()
+    button.setText('❌ Remove explorer context')
+    button.clicked.connect(winLT.Context.remove_contexts)
+    layout2.addWidget(button)
+    button = QToolButton()
+    button.setText('🖥️ Create desktop shortcut')
+    button.clicked.connect(winLT.Shortcut.create_desktop)
+    layout2.addWidget(button)
+    layout.addLayout(layout2)
+    layout2.addStretch()
+    # restart + update + support
+    layout2 = QHBoxLayout()
+    button = QToolButton()
+    button.setText('🚀 Restart LtMAO')
+    def restart_cmd():
+        import sys
+        LOG(f'Running: Restart LtMAO')
+        os.system(os.path.join(os.path.abspath(os.path.curdir),'start.bat'))
+        sys.exit(0)
+        qtwidgets.main_window.close()
+        
+    button.clicked.connect(restart_cmd)
+    layout2.addWidget(button)
+    button = QToolButton()
+    button.setText('🛠️ Redownload LtMAO')
+    def redownload_ltmao():
+        def redownload_thrd():
+            def to_human(size): 
+                return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) + ["", " KB", " MB", " GB", " TB", " PB", " EB"][max(size.bit_length()-1, 0)//10]
+            
+            import requests
+            local_file = './LtMAO-hai.zip'
+            remote_file = 'https://codeload.github.com/tarngaina/LtMAO/zip/refs/heads/hai'
+            # GET request
+            get = requests.get(remote_file, stream=True)
+            get.raise_for_status()
+            # download update
+            bytes_downloaded = 0
+            chunk_size = 1024**2*5
+            bytes_downloaded_log = 0
+            bytes_downloaded_log_limit = 1024**2
+            with open(local_file, 'wb') as f:
+                for chunk in get.iter_content(chunk_size):
+                    chunk_length = len(chunk)
+                    bytes_downloaded += chunk_length
+                    f.write(chunk)
+                    bytes_downloaded_log += chunk_length
+                    if bytes_downloaded_log > bytes_downloaded_log_limit:
+                        LOG(
+                            f'update_ltmao: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
+                        bytes_downloaded_log = 0
+            LOG(f'update_ltmao: Finish: Download: {local_file}')
+            # extract update
+            from zipfile import ZipFile
+            with ZipFile(local_file) as zip:
+                for zipinfo in zip.infolist():
+                    zipinfo.filename = zipinfo.filename.replace('LtMAO-hai/', '')
+                    try:
+                        zip.extract(zipinfo, '.')
+                    except Exception as e:
+                        LOG(f'update_ltmao: Error but ignored: Extract: {zipinfo.filename}: {e}')
+            # remove update file
+            os.remove(local_file)
+            # restat ltmao
+            restart_cmd()
+
+        helper.SafeThread.start('update_ltmao', redownload_thrd)
+    button.clicked.connect(redownload_ltmao)
+    layout2.addWidget(button)
+    button = QToolButton()
+    button.setText('🤝 Support me')
+    def support_cmd():
+        import webbrowser
+        webbrowser.open('https://paypal.me/tarngaina')
+    button.clicked.connect(support_cmd)
+    layout2.addWidget(button)
+    layout.addLayout(layout2)
+    layout2.addStretch()
+    
+    layout.addStretch()
+    widget.setLayout(layout)
+

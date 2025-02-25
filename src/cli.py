@@ -44,29 +44,29 @@ class CLI:
 
     @staticmethod
     def wadunpack(src, dst):
-        from LtMAO import wad_tool, hash_manager
+        from LtMAO import wad_tool, hash_helper
         if dst == None:
             dst = src.replace('.wad.client', '.wad')
-        hash_manager.read_wad_hashes()
-        wad_tool.unpack(src, dst, hash_manager.HASHTABLES)
-        hash_manager.free_wad_hashes()
+        hash_helper.read_wad_hashes()
+        wad_tool.unpack(src, dst, hash_helper.HASHTABLES)
+        hash_helper.free_wad_hashes()
 
     @staticmethod
     def ritobin(src, dst):
-        from LtMAO import hash_manager
+        from LtMAO import hash_helper
         tools.RITOBIN.run(
-            src, dst, dir_hashes=hash_manager.CustomHashes.local_dir)
+            src, dst, dir_hashes=hash_helper.CustomHashes.local_dir)
 
     @staticmethod
     def lfi(src):
-        from LtMAO import leaguefile_inspector, hash_manager
-        hash_manager.read_all_hashes()
+        from LtMAO import leaguefile_inspector, hash_helper
+        hash_helper.read_all_hashes()
         path, size, type, json = leaguefile_inspector.read_lfi(
-            src, hash_manager.HASHTABLES)
+            src, hash_helper.HASHTABLES)
         dst = src + '.json'
         with open(dst, 'w+') as f:
             f.write(json if json != None else '{}')
-        hash_manager.free_all_hashes()
+        hash_helper.free_all_hashes()
 
     @staticmethod
     def uvee(src):
@@ -75,7 +75,7 @@ class CLI:
 
     @staticmethod
     def hashextract(src):
-        from LtMAO import hash_manager
+        from LtMAO import hash_helper
         import os
         import os.path
         if os.path.isdir(src):
@@ -83,9 +83,9 @@ class CLI:
             for root, dirs, files in os.walk(src):
                 for file in files:
                     file_paths.append(os.path.join(root, file))
-            hash_manager.ExtractedHashes.extract(*file_paths)
+            hash_helper.ExtractedHashes.extract(*file_paths)
         else:
-            hash_manager.ExtractedHashes.extract(src)
+            hash_helper.ExtractedHashes.extract(src)
 
     @staticmethod
     def pyntex(src):
