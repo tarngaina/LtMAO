@@ -3,8 +3,6 @@ from zipfile import ZipFile
 import json
 from . import hash_helper, pyRitoFile
 
-
-LOG = print
 local_dir = './resources/vo_helper'
 langs_file = f'{local_dir}/langs.json'
 old_vo_file = f'{local_dir}/old_vo_hashes.game.txt'
@@ -81,7 +79,7 @@ def make_fantome(fantome_name, output_dir, info, image, wads, langs):
             with wad.stream('', 'rb', raw=wad_data) as bs:
                 for chunk in wad.chunks:
                     chunk.read_data(bs)
-            LOG(f'vo_helper: Finish: Prepare VO WAD: {wad_name}')
+            print(f'vo_helper: Finish: Prepare VO WAD: {wad_name}')
         parsed.append([wad_name, wad, is_vo])
     # replace lang and write using parsed
     for lang in langs:
@@ -117,10 +115,10 @@ def make_fantome(fantome_name, output_dir, info, image, wads, langs):
         # write fantome out
         path = output_dir + f'/({lang}) ' + fantome_name
         write_fantome(path, info, image, wads)
-        LOG(f'vo_helper: Finish: Remake Fantomes: {path}')
+        print(f'vo_helper: Finish: Remake Fantomes: {path}')
     hash_helper.CustomHashes.free_wad_hashes()
     free_old_vo_hashes()
-    LOG(f'vo_helper: Finish: Remake All Fantomes.')
+    print(f'vo_helper: Finish: Remake All Fantomes.')
 
 
 def write_fantome(path, info, image, wads):
@@ -132,8 +130,6 @@ def write_fantome(path, info, image, wads):
             zip.writestr(wad_name, wad_data)
 
 
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG
+def init():
     os.makedirs(local_dir, exist_ok=True)
     load_langs()

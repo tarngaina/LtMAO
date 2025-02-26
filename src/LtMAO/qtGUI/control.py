@@ -8,12 +8,11 @@ from PySide6.QtWidgets import (
     QFileDialog,
 )
 
-import os, posixpath
+import os, os.path
 from PIL import Image
 
-from . import log, helper
-from .. import setting, tools, Ritoddstex, winLT
-LOG = log.LOG
+from . import helper
+from .. import setting, tools, Ritoddstex, winLT, hash_helper
 
 qtwidgets = None
 
@@ -46,7 +45,7 @@ def on_page_id_changed(event, page_id):
 
 all = [
     Control('🕹️\ncslmao', 0, lambda widget: build_cslmao(widget)),
-    Control('📖\nhash_helper', 1, lambda widget: build_hashmanager(widget)),
+    Control('📖\nhash_helper', 1, lambda widget: build_hash_helper(widget)),
     Control('🎬\nmask_viewer', 2, lambda widget: build_mask_viewer(widget)),
     Control('🐱\nhapiBin', 3, lambda widget: build_hapiBin(widget)),
     Control('🚫\nno_skin', 4, lambda widget: build_no_skin(widget)),
@@ -62,8 +61,71 @@ extras = []
 def build_cslmao(widget: QWidget):
     widget.setStyleSheet(f'background-color: rgba(255, 0, 0, 127)')
 
-def build_hashmanager(widget: QWidget):
-    widget.setStyleSheet(f'background-color: rgba(255, 255, 0, 127)')
+def build_hash_helper(widget: QWidget):
+    layout = QVBoxLayout()
+
+    def get_hash_path(hash_id):
+        if hash_id == 0:
+            return setting.get('CDTBHashes.local_dir', hash_helper.CDTBHashes.local_dir)
+        elif hash_id == 1:
+            return setting.get('ExtractedHashes.local_dir', hash_helper.ExtractedHashes.local_dir)
+        else:
+            return setting.get('CustomHashes.local_dir', hash_helper.CustomHashes.local_dir)
+
+    def set_hash_path(hash_id, label):
+        dialog = QFileDialog()
+        dirpath = dialog.getExistingDirectory(widget, 'Select hash folder', setting.get('qtGUI.default_folder', None))
+        if dirpath != '':
+            abspath = os.path.abspath(dirpath).replace('\\', '/')
+            abspath_cdtb = os.path.abspath(hash_helper.CDTBHashes.local_dir).replace('\\', '/')
+            abspath_extracted = os.path.abspath(hash_helper.ExtractedHashes.local_dir).replace('\\', '/')
+            abspath_custom = os.path.abspath(hash_helper.CustomHashes.local_dir).replace('\\', '/')
+            if hash_id == 0:
+                if abspath in (abspath_extracted, abspath_custom):
+                    raise Exception(f'hash_manager: Error: Set hash path: {abspath} is already selected as another hash path. All hash paths must be different.')
+                hash_helper.CDTBHashes.local_dir = abspath
+                setting.set('CDTBHashes.local_dir', abspath)
+            elif hash_id == 1:
+                if abspath in (abspath_cdtb, abspath_custom):
+                    raise Exception(f'hash_manager: Error: Set hash path: {abspath} is already selected as another hash path. All hash paths must be different.')
+                hash_helper.ExtractedHashes.local_dir = abspath
+                setting.set('ExtractedHashes.local_dir', abspath)
+            else:
+                if abspath in (abspath_cdtb, abspath_extracted):
+                    raise Exception(f'hash_manager: Error: Set hash path: {abspath} is already selected as another hash path. All hash paths must be different.')
+                hash_helper.CustomHashes.local_dir = abspath
+                setting.set('CustomHashes.local_dir', abspath)
+            setting.save()
+            label.setText(f'📖 {hash_name}: {get_hash_path(hash_id)}')
+
+    def open_hash_path(hash_id):
+        if hash_id == 0:
+            os.startfile(os.path.abspath(hash_helper.CDTBHashes.local_dir))
+        elif hash_id == 1:
+            os.startfile(os.path.abspath(hash_helper.ExtractedHashes.local_dir))
+        else:
+            os.startfile(os.path.abspath(hash_helper.CustomHashes.local_dir))
+    
+    for hash_id, hash_name in enumerate(['CDTB', 'Extracted', 'Custom']):
+        layout2 = QHBoxLayout()
+        label = QLabel(f'📖 {hash_name}: {get_hash_path(hash_id)}')
+        layout2.addWidget(label, stretch=8)
+        button = QToolButton()
+        button.setText('🛠️ Change')
+        button.clicked.connect(lambda event, id=hash_id: set_hash_path(id, label))
+        layout2.addWidget(button, stretch=1)
+        button = QToolButton()
+        button.setText('📂 Open')
+        button.clicked.connect(lambda event, id=hash_id: open_hash_path(id))
+        layout2.addWidget(button, stretch=1)
+        layout.addLayout(layout2)
+
+    button = QToolButton()
+    button.setText('❌ Reset Custom hash to CDTB hash')
+    button.clicked.connect(lambda event: hash_helper.reset_custom_hashes(*hash_helper.ALL_HASHES))
+    layout.addWidget(button)
+    layout.addStretch()
+    widget.setLayout(layout)
 
 def build_mask_viewer(widget: QWidget):
     widget.setStyleSheet(f'background-color: rgba(255, 255, 255, 127)')
@@ -94,10 +156,10 @@ def build_ddsmart(widget: QWidget):
             dirname = os.path.dirname(src)
             width_2x = img.width // 2
             height_2x = img.height // 2
-            file_2x = os.path.join(dirname, '2x_'+basename).replace('\\', '/')
+            file_2x = os.path.join(dirname, '2x_'+basename)
             width_4x = img.width // 4
             height_4x = img.height // 4
-            file_4x = os.path.join(dirname, '4x_'+basename).replace('\\', '/')
+            file_4x = os.path.join(dirname, '4x_'+basename)
         if not os.path.exists(file_2x):
             tools.ImageMagick.resize_dds(
                 src=src,
@@ -132,14 +194,14 @@ def build_ddsmart(widget: QWidget):
                 for root, dirs, files in os.walk(dirpath):
                     for file in files:
                         if file.endswith(f'.{input_type.lower()}'):
-                            final_paths.append(posixpath.join(root, file).replace('\\','/'))
+                            final_paths.append(os.path.join(root, file).replace('\\', '/'))
         final_path_count = len(final_paths)
         if  final_path_count > 0:
             def convert_thrd():
-                LOG(f'ddsmart: Start: {title}: {final_path_count} items.')
+                print(f'ddsmart: Start: {title}: {final_path_count} items.')
                 for final_path in final_paths:
                     func(final_path)
-                LOG(f'ddsmart: Finish: {title}: {final_path_count} items.')
+                print(f'ddsmart: Finish: {title}: {final_path_count} items.')
             helper.SafeThread.start('ddsmart', convert_thrd)
         
             
@@ -186,7 +248,6 @@ def build_ddsmart(widget: QWidget):
     layout = QVBoxLayout()
     for converter in converters:
         label = QLabel(converter['title'])
-        label.setStyleSheet('background-color: transparent')
         layout.addWidget(label)
 
         layout2 = QHBoxLayout()
@@ -265,18 +326,18 @@ def build_setting(widget: QWidget):
     button.setText('🖥️ Create desktop shortcut')
     button.clicked.connect(winLT.Shortcut.create_desktop)
     layout2.addWidget(button)
-    layout.addLayout(layout2)
     layout2.addStretch()
+    layout.addLayout(layout2)
     # restart + update + support
     layout2 = QHBoxLayout()
     button = QToolButton()
     button.setText('🚀 Restart LtMAO')
     def restart_cmd():
         import sys
-        LOG(f'Running: Restart LtMAO')
+        print(f'Running: Restart LtMAO')
         os.system(os.path.join(os.path.abspath(os.path.curdir),'start.bat'))
-        sys.exit(0)
         qtwidgets.main_window.close()
+        sys.exit(0)
         
     button.clicked.connect(restart_cmd)
     layout2.addWidget(button)
@@ -305,10 +366,10 @@ def build_setting(widget: QWidget):
                     f.write(chunk)
                     bytes_downloaded_log += chunk_length
                     if bytes_downloaded_log > bytes_downloaded_log_limit:
-                        LOG(
+                        print(
                             f'update_ltmao: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
                         bytes_downloaded_log = 0
-            LOG(f'update_ltmao: Finish: Download: {local_file}')
+            print(f'update_ltmao: Finish: Download: {local_file}')
             # extract update
             from zipfile import ZipFile
             with ZipFile(local_file) as zip:
@@ -317,7 +378,8 @@ def build_setting(widget: QWidget):
                     try:
                         zip.extract(zipinfo, '.')
                     except Exception as e:
-                        LOG(f'update_ltmao: Error but ignored: Extract: {zipinfo.filename}: {e}')
+                        filename = zipinfo.filename
+                        print(f'update_ltmao: Error but ignored: Extract: {filename}: {e}')
             # remove update file
             os.remove(local_file)
             # restat ltmao
@@ -333,8 +395,8 @@ def build_setting(widget: QWidget):
         webbrowser.open('https://paypal.me/tarngaina')
     button.clicked.connect(support_cmd)
     layout2.addWidget(button)
-    layout.addLayout(layout2)
     layout2.addStretch()
+    layout.addLayout(layout2)
     
     layout.addStretch()
     widget.setLayout(layout)

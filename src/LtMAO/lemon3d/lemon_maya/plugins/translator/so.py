@@ -7,7 +7,6 @@ import os.path
 from . import helper
 from ..... import pyRitoFile
 from .....pyRitoFile.structs import Vector
-LOG = print
 
 class SCOTranslator(MPxFileTranslator):
     name = 'League of Legends: SCO'
@@ -519,4 +518,4 @@ class SO:
             so.central = riot_so.central
             so.pivot = riot_so.pivot
             so.flags = riot_so.flags
-            LOG('SO Expoter: Found riot.so (scb/sco), updated central, pivot, flags.')
+            print('SO Expoter: Found riot.so (scb/sco), updated central, pivot, flags.')

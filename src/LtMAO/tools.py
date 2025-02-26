@@ -2,7 +2,6 @@ import os
 import os.path
 from subprocess import Popen, CREATE_NO_WINDOW, PIPE, STDOUT
 
-LOG = print
 EMPTY_MSG = ('', '\r', '\t', '\n')
 
 
@@ -10,7 +9,7 @@ def block_and_stream_process_output(process, log_message_header=''):
     for line in process.stdout:
         msg = line.decode()[:-1]
         if msg not in EMPTY_MSG:
-            LOG(log_message_header + msg)
+            print(log_message_header + msg)
     process.wait()
 
 
@@ -198,8 +197,3 @@ class REVORB:
         else:
             p.wait()
         return p
-
-
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG

@@ -5,8 +5,6 @@ from . import hash_helper, pyRitoFile
 from .hash_helper import cached_bin_hashes
 import json
 
-LOG = print
-
 def parse_bin(bin, *, existing_files=[]):
     bin_hash = pyRitoFile.bin_hash
     temp_hashes = [
@@ -79,7 +77,7 @@ def parse_dir(path):
     existing_files = [os.path.relpath(file_path, path).replace(
         '\\', '/') for file_path in full_files]
     # parsing
-    LOG(f'pyntex: Start:  Read bin hashes')
+    print(f'pyntex: Start:  Read bin hashes')
     hash_helper.read_bin_hashes()
     for i, full_file in enumerate(full_files):
         if full_file.endswith('.bin'):
@@ -89,22 +87,22 @@ def parse_dir(path):
                 result = parse_bin(bin, existing_files=existing_files)
                 if len(result) > 0:
                     res[existing_files[i]] = result
-                    LOG(f'pyntex: Finish: Parse {full_file}')
+                    print(f'pyntex: Finish: Parse {full_file}')
             except Exception as e:
-                LOG(f'pyntex: Error: Parse {full_file}: {e}')
-                LOG(traceback.format_exc())
+                print(f'pyntex: Error: Parse {full_file}: {e}')
+                print(traceback.format_exc())
     hash_helper.free_bin_hashes()
     # write json out
     json_file = path + '.pyntex.json'
     with open(json_file, 'w+') as f:
         json.dump(res, f, indent=4)
-    LOG(f'pyntex: Finish: Write {json_file}')
+    print(f'pyntex: Finish: Write {json_file}')
 
 
 def parse_wad(path):
     res = {}
     # read wad
-    LOG(f'pyntex: Start:  Read wad hashes')
+    print(f'pyntex: Start:  Read wad hashes')
     hash_helper.read_wad_hashes()
     wad = pyRitoFile.read_wad(path)
     wad.un_hash(hash_helper.HASHTABLES)
@@ -119,7 +117,7 @@ def parse_wad(path):
     for chunk in wad.chunks:
         chunk_hashes.append(chunk.hash)
     # parsing
-    LOG(f'pyntex: Start:  Read bin hashes')
+    print(f'pyntex: Start:  Read bin hashes')
     hash_helper.read_bin_hashes()
     with wad.stream(path, 'rb') as bs:
         for chunk in wad.chunks:
@@ -131,17 +129,17 @@ def parse_wad(path):
                     result = parse_bin(bin, existing_files=chunk_hashes)
                     if len(result) > 0:
                         res[chunk.hash] = result
-                        LOG(f'pyntex: Finish: Parse {chunk.hash}')
+                        print(f'pyntex: Finish: Parse {chunk.hash}')
                 except Exception as e:
-                    LOG(f'pyntex: Error: Parse {chunk.hash}: {e}')
-                    LOG(traceback.format_exc())
+                    print(f'pyntex: Error: Parse {chunk.hash}: {e}')
+                    print(traceback.format_exc())
             chunk.free_data()
     hash_helper.free_bin_hashes()
     # write json out
     json_file = path + '.pyntex.json'
     with open(json_file, 'w+') as f:
         json.dump(res, f, indent=4)
-    LOG(f'pyntex: Finish: Write {json_file}')
+    print(f'pyntex: Finish: Write {json_file}')
 
 
 def parse(path):
@@ -151,7 +149,3 @@ def parse(path):
         if path.endswith('.wad.client'):
             parse_wad(path)
 
-
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG

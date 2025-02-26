@@ -5,9 +5,6 @@ import os.path
 import traceback
 from shutil import copytree, copy
 
-LOG = print
-
-
 def rename(path, olds, news, backup=True):
     if os.path.isdir(path):
         if backup:
@@ -23,10 +20,10 @@ def rename(path, olds, news, backup=True):
                 copy(path, backup_file)
             try:
                 rename_anm(path, olds, news)
-                LOG('shrum: Finish: Rename: {path}')
+                print('shrum: Finish: Rename: {path}')
             except Exception as e:
-                LOG(f'shrum: Error: Rename: {path}: {e}')
-                LOG(traceback.format_exc())
+                print(f'shrum: Error: Rename: {path}: {e}')
+                print(traceback.format_exc())
 
 
 def rename_anm_dir(path, olds, news):
@@ -34,10 +31,10 @@ def rename_anm_dir(path, olds, news):
         if file.endswith('.anm'):
             try:
                 rename_anm(os.path.join(path, file), olds, news)
-                LOG('shrum: Finish: Rename: {path}')
+                print('shrum: Finish: Rename: {path}')
             except Exception as e:
-                LOG(f'shrum: Error: Rename: {path}: {e}')
-                LOG(traceback.format_exc())
+                print(f'shrum: Error: Rename: {path}: {e}')
+                print(traceback.format_exc())
 
 
 def rename_anm(path, olds, news):
@@ -143,7 +140,3 @@ def rename_anm(path, olds, news):
             raise Exception(
                 f'Wrong signature file: {magic}')
 
-
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG

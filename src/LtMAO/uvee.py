@@ -6,8 +6,6 @@ from PIL import Image, ImageDraw
 
 TEXTURE_SIZE = 1024
 UV_COLOR = 0xFFFFFFFF
-LOG = print
-
 
 def uvee_skn(path):
     imgs = []
@@ -48,7 +46,7 @@ def uvee_skn(path):
         img_path = os.path.join(
             uvee_dir, f'{submesh.name}.png').replace('\\', '/')
         img.save(img_path)
-        LOG(f'uvee: Finish: Extract UV: {img_path}')
+        print(f'uvee: Finish: Extract UV: {img_path}')
         imgs.append((submesh.name, img))
     return imgs
 
@@ -80,7 +78,7 @@ def uvee_so(path):
     base = os.path.basename(path).replace('.sco', '').replace('.scb', '')
     img_path = os.path.join(dir, f'uvee_{base}.png').replace('\\', '/')
     img.save(img_path)
-    LOG(f'uvee: Finish: Extract UV: {img_path}')
+    print(f'uvee: Finish: Extract UV: {img_path}')
     return [(so.material, img)]
 
 
@@ -89,17 +87,14 @@ def uvee_file(path):
         try:
             return uvee_skn(path)
         except Exception as e:
-            LOG(f'uvee: Error: Extract UV: {path}: {e}')
-            LOG(traceback.format_exc())
+            print(f'uvee: Error: Extract UV: {path}: {e}')
+            print(traceback.format_exc())
     elif path.endswith('.scb') or path.endswith('.sco'):
         try:
             return uvee_so(path)
         except Exception as e:
-            LOG(f'uvee: Error: Extract UV: {path}: {e}')
-            LOG(traceback.format_exc())
+            print(f'uvee: Error: Extract UV: {path}: {e}')
+            print(traceback.format_exc())
     return None
 
 
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG

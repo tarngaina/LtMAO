@@ -2,9 +2,6 @@ import os
 import os.path
 import json
 
-LOG = print
-
-
 class SETTINGS:
     __settings__ = {}
     local_dir = './pref'
@@ -38,10 +35,7 @@ def set(key, value): SETTINGS.set(key, value)
 load = SETTINGS.load
 save = SETTINGS.save
 
-def prepare(_LOG):
-    # function need to call first
-    global LOG
-    LOG = _LOG
+def init():
     # ensure folder
     os.makedirs(SETTINGS.local_dir, exist_ok=True)
     # ensure file

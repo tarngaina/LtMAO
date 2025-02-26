@@ -1,8 +1,5 @@
 from . import pyRitoFile
 
-LOG = print
-
-
 def dds2tex(dds_path, tex_path=None):
     # prepare path
     if tex_path == None:
@@ -99,7 +96,6 @@ def dds2tex(dds_path, tex_path=None):
         
     # write tex file
     tex.write(tex_path)
-    #LOG(f'Ritoddstex: Finish: dds2tex: Write {tex_path}')
 
 
 def tex2dds(tex_path, dds_path=None):
@@ -191,8 +187,3 @@ def tex2dds(tex_path, dds_path=None):
                 bs.write(block_data)
         else:
             bs.write(tex.data[0])
-    #LOG(f'Ritoddstex: Finish: tex2dds: Write {dds_path}')
-
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG

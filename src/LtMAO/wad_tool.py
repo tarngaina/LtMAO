@@ -2,8 +2,6 @@ from . import pyRitoFile
 import os
 import json
 
-LOG = print
-
 
 def check_hashed_name(basename):
     try:
@@ -14,7 +12,7 @@ def check_hashed_name(basename):
 
 
 def unpack(wad_file, raw_dir, hashtables, filter=None):
-    LOG(f'wad_tool: Start:  Unpack WAD: {wad_file}')
+    print(f'wad_tool: Start:  Unpack WAD: {wad_file}')
     # read wad
     wad = pyRitoFile.read_wad(wad_file)
     wad.un_hash(hashtables)
@@ -46,7 +44,7 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
             with open(file_path, 'wb') as fo:
                 fo.write(chunk.data)
             chunk.free_data()
-            LOG(f'wad_tool: Finish: Unpack: {chunk.hash}')
+            print(f'wad_tool: Finish: Unpack: {chunk.hash}')
     # write hashed bins json
     if len(hashed_bins) > 0:
         with open(os.path.join(raw_dir, 'hashed_bins.json'), 'w+') as f:
@@ -54,7 +52,7 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
 
 
 def pack(raw_dir, wad_file):
-    LOG(f'wad_tool: Start:  Pack WAD: {raw_dir}')
+    print(f'wad_tool: Start:  Pack WAD: {raw_dir}')
     # create wad first with only infos
     chunk_datas = []
     chunk_hashes = []
@@ -90,9 +88,6 @@ def pack(raw_dir, wad_file):
                 chunk_data = f.read()
             chunk.write_data(bs, id, chunk_hashes[id], chunk_data, previous_chunks=wad.chunks[:id])
             chunk.free_data()
-            LOG(f'wad_tool: Finish: Pack: {chunk.hash}')
+            print(f'wad_tool: Finish: Pack: {chunk.hash}')
 
 
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG

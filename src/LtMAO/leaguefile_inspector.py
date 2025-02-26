@@ -1,9 +1,6 @@
 from . import hash_helper, pyRitoFile, tools
 import os
 
-LOG = print
-
-
 def to_human(size): return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) + \
     ["", " KB", " MB", " GB", " TB", " PB",
         " EB"][max(size.bit_length()-1, 0)//10]
@@ -57,53 +54,53 @@ def read_lfi(path, hashtables=None):
     ftype = pyRitoFile.guess_extension(data)
     if ftype == 'skl':
         obj = pyRitoFile.read_skl(path)
-        LOG(
+        print(
             f'leaguefile_inspector: Finish: Read SKL: {path}')
         json = pyRitoFile.to_json(obj)
     elif ftype == 'skn':
         obj = pyRitoFile.read_skn(path)
-        LOG(
+        print(
             f'leaguefile_inspector: Finish: Read SKN: {path}')
         json = pyRitoFile.to_json(obj)
     elif ftype == 'sco':
         obj = pyRitoFile.read_sco(path)
-        LOG(
+        print(
             f'leaguefile_inspector: Finish: Read SCO: {path}')
         json = pyRitoFile.to_json(obj)
     elif ftype == 'scb':
         obj = pyRitoFile.read_scb(path)
-        LOG(
+        print(
             f'leaguefile_inspector: Finish: Read SCB: {path}')
         json = pyRitoFile.to_json(obj)
     elif ftype == 'anm':
         obj = pyRitoFile.read_anm(path)
-        LOG(
+        print(
             f'leaguefile_inspector: Finish: Read ANM: {path}')
         json = pyRitoFile.to_json(obj)
     elif ftype == 'mapgeo':
         obj = pyRitoFile.read_mapgeo(path)
-        LOG(
+        print(
             f'leaguefile_inspector: Finish: Read MAPGEO: {path}')
         json = pyRitoFile.to_json(obj)
     elif ftype == 'bin':
         obj = pyRitoFile.read_bin(path)
         obj.un_hash(hashtables)
-        LOG(
+        print(
             f'leaguefile_inspector: Finish: Read BIN: {path}')
         json = pyRitoFile.to_json(obj)
     elif ftype == 'bnk':
         obj = pyRitoFile.read_bnk(path)
-        LOG(
+        print(
             f'leaguefile_inspector: Finish: Read BNK: {path}')
         json = pyRitoFile.to_json(obj)
     elif ftype == 'wpk':
         obj = pyRitoFile.read_wpk(path)
-        LOG(
+        print(
             f'leaguefile_inspector: Finish: Read WPK: {path}')
         json = pyRitoFile.to_json(obj)
     elif ftype == 'tex':
         obj = pyRitoFile.read_tex(path)
-        LOG(
+        print(
             f'leaguefile_inspector: Finish: Read TEX: {path}')
         json = pyRitoFile.to_json(obj)
     elif ftype == 'wad':
@@ -114,7 +111,7 @@ def read_lfi(path, hashtables=None):
             for chunk in obj.chunks:
                 chunk.read_data(bs)
                 chunk.free_data()
-        LOG(
+        print(
             f'leaguefile_inspector: Finish: Read WAD: {path}')
         json = pyRitoFile.to_json(obj)
     else:
@@ -136,10 +133,5 @@ def read_ritobin(path):
     with open(py_file, 'r') as f:
         json = f.read()
     os.remove(py_file)
-    LOG(f'leaguefile_inspector: Finish: Read ritobin: {path}')
+    print(f'leaguefile_inspector: Finish: Read ritobin: {path}')
     return path, to_human(os.stat(path).st_size), 'bin', json
-
-
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG

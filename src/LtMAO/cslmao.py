@@ -8,8 +8,6 @@ from PIL import Image
 from threading import Thread
 from shutil import rmtree, copy
 
-LOG = print
-
 
 class MOD:
     __slots__ = (
@@ -106,13 +104,13 @@ class CSLMAO:
             CSLMAO.MODS = [MOD(id, path, enable, profile)
                            for id, path, enable, profile in l]
         except Exception as e:
-            LOG(f'cslmao: Error: Can not load {CSLMAO.mod_file}: {e}')
+            print(f'cslmao: Error: Can not load {CSLMAO.mod_file}: {e}')
             import traceback
-            LOG(traceback.format_exc())
+            print(traceback.format_exc())
             CSLMAO.MODS = []
             with open(CSLMAO.mod_file, 'w+') as f:
                 json.dump({}, f, indent=4)
-            LOG(f'cslmao: Finish: Reset {CSLMAO.mod_file}')
+            print(f'cslmao: Finish: Reset {CSLMAO.mod_file}')
         # load outside mod file
         for dirname in os.listdir(CSLMAO.raw_dir):
             info_file = os.path.join(
@@ -206,9 +204,7 @@ tk_refresh_profile = None
 preparing = False
 
 
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG
+def init():
     # ensure folders and files
     os.makedirs(CSLMAO.raw_dir, exist_ok=True)
     os.makedirs(CSLMAO.profile_dir, exist_ok=True)
@@ -223,7 +219,7 @@ def prepare(_LOG):
     def prepare_cmd():
         global preparing
         preparing = True
-        LOG(f'cslmao: Status: Loading mods.')
+        print(f'cslmao: Status: Loading mods.')
         mgs = []
         for mod in CSLMAO.MODS:
             try:
@@ -232,14 +228,14 @@ def prepare(_LOG):
                                       version=info['Version'], description=info['Description'], enable=mod.enable, profile=mod.profile))
             except Exception as e:
                 CSLMAO.MODS.remove(mod)
-                LOG(f'cslmao: Error: Load {mod.get_path()}: {e}')
+                print(f'cslmao: Error: Load {mod.get_path()}: {e}')
                 import traceback
-                LOG(traceback.format_exc())
+                print(traceback.format_exc())
 
         # grid all mod frame at one
         for mg in mgs:
             mg()
         tk_refresh_profile(setting.get('Cslmao.profile', 'all'))
         preparing = False
-        LOG(f'cslmao: Status: Finished loading mods.')
+        print(f'cslmao: Status: Finished loading mods.')
     Thread(target=prepare_cmd, daemon=True).start()

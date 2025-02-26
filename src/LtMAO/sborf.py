@@ -5,24 +5,21 @@ from shutil import copy
 import os.path
 from .mask_viewer import find_mMaskDataMap, get_weights, set_weights
 
-LOG = print
-
-
 def skin_fix(skl_path, skn_path, riotskl_path, riotskn_path='', backup=True, dont_add_joint_back=False):
     # read skin
-    LOG(f'sborf: Start:  Read SKIN.')
+    print(f'sborf: Start:  Read SKIN.')
     skl = read_skl(skl_path)
     riotskl = read_skl(riotskl_path)
     skn = read_skn(skn_path)
     riotskn = None
     if riotskn_path != '':
         riotskn = read_skn(riotskn_path)
-    LOG(f'sborf: Finish: Read SKIN.')
+    print(f'sborf: Finish: Read SKIN.')
 
     # sort joint
     new_joint_id_by_old_joint_id = {}
     new_joint_id_by_old_joint_id[-1] = -1  # for parent
-    LOG(f'sborf: Start:  Sort joints.')
+    print(f'sborf: Start:  Sort joints.')
     new_joints = []
     extra_joints = [True] * len(skl.joints)
     # sort with riot skl
@@ -34,7 +31,7 @@ def skin_fix(skl_path, skn_path, riotskl_path, riotskn_path='', backup=True, don
                 new_id = len(new_joints)
                 new_joint_id_by_old_joint_id[joint_id] = new_id
                 new_joints.append(joint)
-                LOG(
+                print(
                     f'sborf: Sorted: [{new_id}] {joint.name} <- [{joint_id}]')
                 extra_joints[joint_id] = False
                 found = True
@@ -43,7 +40,7 @@ def skin_fix(skl_path, skn_path, riotskl_path, riotskn_path='', backup=True, don
         # fill removed rito joint back
         if not found:
             if dont_add_joint_back:
-                LOG(
+                print(
                     f'sborf: Missing: {joint.name}')
             else:
                 joint = SKLJoint()
@@ -59,7 +56,7 @@ def skin_fix(skl_path, skn_path, riotskl_path, riotskn_path='', backup=True, don
                 joint.ibind_scale = Vector(0.0, 0.0, 0.0)
                 new_id = len(new_joints)
                 new_joints.append(joint)
-                LOG(
+                print(
                     f'sborf: Filled back: [{new_id}] {joint.name}')
     # extra joints
     for joint_id, joint in enumerate(skl.joints):
@@ -67,7 +64,7 @@ def skin_fix(skl_path, skn_path, riotskl_path, riotskn_path='', backup=True, don
             new_id = len(new_joints)
             new_joint_id_by_old_joint_id[joint_id] = new_id
             new_joints.append(joint)
-            LOG(
+            print(
                 f'sborf: Moved new: [{new_id}] {joint.name} <- [{joint_id}]')
     skl.joints = new_joints
     # sort parent
@@ -76,18 +73,18 @@ def skin_fix(skl_path, skn_path, riotskl_path, riotskn_path='', backup=True, don
     if len(skl.joints) > 256:
         raise Exception(
             f'sborf: Error: Sort joints: Too many joints after sort: {len(skn.joints)}(>256), please check if Riot SKL is correct.')
-    LOG(f'sborf: Finish: Sort joints.')
+    print(f'sborf: Finish: Sort joints.')
 
     # update influences
-    LOG(f'sborf: Start:  Update influences.')
+    print(f'sborf: Start:  Update influences.')
     for vertex in skn.vertices:
         vertex.influences = [new_joint_id_by_old_joint_id[inf]
                              for inf in vertex.influences]
-    LOG(f'sborf: Finish: Update influences.')
+    print(f'sborf: Finish: Update influences.')
 
     # sort materials
     if riotskn != None:
-        LOG(f'sborf: Start:  Sort materials.')
+        print(f'sborf: Start:  Sort materials.')
         new_submeshes = []
         flags = [True] * len(skn.submeshes)
         # sort with riot skn
@@ -99,25 +96,25 @@ def skin_fix(skl_path, skn_path, riotskl_path, riotskn_path='', backup=True, don
                     flags[submesh_id] = False
                     found = True
                     new_submeshes.append(submesh)
-                    LOG(
+                    print(
                         f'sborf: Sorted: [{len(new_submeshes)-1}] {submesh.name} <- [{submesh_id}]')
                     break
             if not found:
-                LOG(
+                print(
                     f'sborf: Missing submesh: {riotsubmesh.name}')
         # extra submeshes
         for submesh_id, submesh in enumerate(skn.submeshes):
             if flags[submesh_id]:
                 flags[submesh_id] = False
                 new_submeshes.append(submesh)
-                LOG(
+                print(
                     f'sborf: Moved new: [{len(new_submeshes)-1}] {submesh.name} <- [{submesh_id}]')
         skn.submeshes = new_submeshes
-        LOG(f'sborf: Finish: Sort materials.')
+        print(f'sborf: Finish: Sort materials.')
 
     # backup skin
     if backup:
-        LOG(f'sborf: Start:  Backup SKIN.')
+        print(f'sborf: Start:  Backup SKIN.')
         backup_skl_path = os.path.join(
             os.path.dirname(skl_path),
             'sborf_backup_' + os.path.basename(skl_path)
@@ -128,23 +125,23 @@ def skin_fix(skl_path, skn_path, riotskl_path, riotskn_path='', backup=True, don
             'sborf_backup_' + os.path.basename(skn_path)
         )
         copy(skn_path, backup_skn_path)
-        LOG(f'sborf: Finish: Backup SKIN.')
+        print(f'sborf: Finish: Backup SKIN.')
     # write skin
-    LOG(f'sborf: Start:  Write SKIN.')
+    print(f'sborf: Start:  Write SKIN.')
     write_skl(skl_path, skl)
     write_skn(skn_path, skn)
-    LOG(f'sborf: Finish: Write SKIN.')
-    LOG(f'sborf: Finish: Fix SKIN.')
+    print(f'sborf: Finish: Write SKIN.')
+    print(f'sborf: Finish: Fix SKIN.')
 
 
 def maskdata_adapt(skl_path, riotskl_path, bin_path, riotbin_path, backup=True):
     # read skl and bin
-    LOG(f'sborf: Start:  Read SKL and Animation BIN.')
+    print(f'sborf: Start:  Read SKL and Animation BIN.')
     skl = read_skl(skl_path)
     riotskl = read_skl(riotskl_path)
     bin = read_bin(bin_path)
     riotbin = read_bin(riotbin_path)
-    LOG(f'sborf: Finish: Read SKL and Animation BIN.')
+    print(f'sborf: Finish: Read SKL and Animation BIN.')
 
     # get joints order
     new_joint_id_by_old_joint_id = {}
@@ -158,7 +155,7 @@ def maskdata_adapt(skl_path, riotskl_path, bin_path, riotbin_path, backup=True):
                 extra_joints[joint_id] = False
 
     # adapt mask_data
-    LOG(f'sborf: Start:  Adapt animation BIN MaskData.')
+    print(f'sborf: Start:  Adapt animation BIN MaskData.')
     binMDM = find_mMaskDataMap(bin)
     riotbinMDM = find_mMaskDataMap(riotbin)
     binMDM.data = riotbinMDM.data
@@ -170,24 +167,20 @@ def maskdata_adapt(skl_path, riotskl_path, bin_path, riotbin_path, backup=True):
             if not extra_joints[joint_id]:
                 mask_data[riot_mask_name][joint_id] = riot_mask_data[riot_mask_name][new_joint_id_by_old_joint_id[joint_id]]
     set_weights(bin, mask_data)
-    LOG(f'sborf: Finish: Adapt animation BIN MaskData.')
+    print(f'sborf: Finish: Adapt animation BIN MaskData.')
 
     # backup skin
     if backup:
-        LOG(f'sborf: Start:  Backup Animation BIN.')
+        print(f'sborf: Start:  Backup Animation BIN.')
         backup_bin_path = os.path.join(
             os.path.dirname(bin_path),
             'sborf_backup_' + os.path.basename(bin_path)
         )
         copy(bin_path, backup_bin_path)
-        LOG(f'sborf: Start:  Backup Animation BIN.')
+        print(f'sborf: Start:  Backup Animation BIN.')
     # write skin
-    LOG(f'sborf: Start:  Write Animation BIN.')
+    print(f'sborf: Start:  Write Animation BIN.')
     write_bin(bin_path, bin)
-    LOG(f'sborf: Finish: Write Animation BIN.')
-    LOG(f'sborf: Finish: Adapt MaskData.')
+    print(f'sborf: Finish: Write Animation BIN.')
+    print(f'sborf: Finish: Adapt MaskData.')
 
-
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG

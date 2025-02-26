@@ -11,11 +11,9 @@ from pydub import utils, AudioSegment
 from pydub.playback import _play_with_simpleaudio
 from threading import Thread
 
-AudioSegment.converter = os.path.abspath('./resources/ext_tools/ffmpeg/ffmpeg.exe')             
-utils.get_prober_name = lambda: os.path.abspath('./resources/ext_tools/ffmpeg/ffprobe.exe')
+AudioSegment.converter = os.path.abspath('./res/tools/ffmpeg/ffmpeg.exe')             
+utils.get_prober_name = lambda: os.path.abspath('./res/tools/ffmpeg/ffprobe.exe')
 
-
-LOG = print
 INF = float('inf')
 
 def parse_audio_bnk(audio_bnk):
@@ -314,7 +312,7 @@ class BNKParser:
                                 wem_file = os.path.join(wem_dir, f'{wem.id}.wem')
                                 with open(wem_file, 'wb') as f:
                                     f.write(wem_data)
-                                LOG(
+                                print(
                                     f'bnk_tool: Finish: Extracted [{wem.size}bytes] {wem.id} of {event_id}')
                                 if convert_ogg:
                                     ogg_file = wem_file.replace('.wem', '.ogg')
@@ -331,7 +329,7 @@ class BNKParser:
                                             ogg_file = wem_file.replace('.wem', '.ogg')
                                             if tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
                                                 tools.REVORB.run(ogg_file,silent=True)
-                                    LOG(
+                                    print(
                                         f'bnk_tool: Finish: Extracted [{wem.size}bytes] {wem.id}')
 
     def unpack(self, output_dir):
@@ -398,7 +396,5 @@ class BNKParser:
             playback.stop()
         
 
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG
+def init():
     os.makedirs(BNKParser.cache_dir, exist_ok=True)

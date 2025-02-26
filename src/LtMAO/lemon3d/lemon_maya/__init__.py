@@ -1,5 +1,3 @@
-LOG = print
-
 
 def install_plugin(maya_pref_dir):
     import os, os.path
@@ -36,9 +34,5 @@ def install_plugin(maya_pref_dir):
     with open(maya_env_file, 'w+') as f:
         for key, value in maya_env.items():
             f.write(f'{key}={value}\n')
-    LOG(f'lemon_maya: Finish: Install plugin: {maya_pref_dir}')
+    print(f'lemon_maya: Finish: Install plugin: {maya_pref_dir}')
     
-
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG

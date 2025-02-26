@@ -6,7 +6,6 @@ from threading import Thread
 import traceback
 from . import pyRitoFile, setting
 
-LOG = print
 BIN_HASHES = (
     'hashes.binentries.txt',
     'hashes.binfields.txt',
@@ -90,15 +89,15 @@ class CDTBHashes:
                             f.write(chunk)
                             bytes_downloaded_log += chunk_length
                             if bytes_downloaded_log > bytes_downloaded_log_limit:
-                                LOG(
+                                print(
                                     f'hash_manager: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
                                 bytes_downloaded_log = 0
-                LOG(f'hash_manager: Finish: Sync hash: {local_file}')
+                print(f'hash_manager: Finish: Sync hash: {local_file}')
             except Exception as e:
-                LOG(f'hash_manager: Error: Sync hash: {filename}: {e}')
-                LOG(traceback.format_exc())
+                print(f'hash_manager: Error: Sync hash: {filename}: {e}')
+                print(traceback.format_exc())
             combine_custom_hashes(filename)
-        LOG(f'hash_manager: Finish: Sync all hashes.')
+        print(f'hash_manager: Finish: Sync all hashes.')
 
     @staticmethod
     def sync_all():
@@ -135,10 +134,9 @@ class ExtractedHashes:
                     skn = pyRitoFile.read_skn('', raw)
                 for submesh in skn.submeshes:
                     hashtables['hashes.binhashes.txt'][submesh.bin_hash] = submesh.name
-                LOG(f'hash_manager: Finish: Extract Hashes: {file_path}')
             except Exception as e:
-                LOG(f'hash_manager: Error: Extract Hashes: {file_path}: {e}')
-                LOG(traceback.format_exc())
+                print(f'hash_manager: Error: Extract hashes: {file_path}: {e}')
+                print(traceback.format_exc())
 
         def extract_skl(file_path, raw=None):
             try:
@@ -149,10 +147,9 @@ class ExtractedHashes:
                     skl = pyRitoFile.read_skl('', raw)
                 for joint in skl.joints:
                     hashtables['hashes.binhashes.txt'][joint.bin_hash] = joint.name
-                LOG(f'hash_manager: Finish: Extract Hashes: {file_path}')
             except Exception as e:
-                LOG(f'hash_manager: Error: Extract Hashes: {file_path}: {e}')
-                LOG(traceback.format_exc())
+                print(f'hash_manager: Error: Extract hashes: {file_path}: {e}')
+                print(traceback.format_exc())
 
         def extract_bin(file_path, raw=None):
             def extract_file_value(value, value_type):
@@ -221,10 +218,9 @@ class ExtractedHashes:
                 for link in bin.links:
                     extract_file_value(link, pyRitoFile.BINType.String)
 
-                LOG(f'hash_manager: Finish: Extract Hashes: {file_path}')
             except Exception as e:
-                LOG(f'hash_manager: Error: Extract Hashes: {file_path}: {e}')
-                LOG(traceback.format_exc())
+                print(f'hash_manager: Error: Extract hashes: {file_path}: {e}')
+                print(traceback.format_exc())
 
         def extract_wad(file_path):
             try:
@@ -242,10 +238,9 @@ class ExtractedHashes:
                             extract_bin(
                                 f'{chunk.hash}.{chunk.extension}', chunk.data)
                         chunk.free_data()
-                LOG(f'hash_manager: Finish: Extract Hashes: {file_path}')
             except Exception as e:
-                LOG(f'hash_manager: Error: Extract Hashes: {file_path}: {e}')
-                LOG(traceback.format_exc())
+                print(f'hash_manager: Error: Extract hashes: {file_path}: {e}')
+                print(traceback.format_exc())
 
         # extract hashes base on file types
         for file_path in file_paths:
@@ -274,7 +269,7 @@ class ExtractedHashes:
                         hashtable.items(), key=lambda item: item[1]
                     )
                 )
-            LOG(f'hash_manager: Finish: Extract: {local_file}')
+            print(f'hash_manager: Finish: Extract: {local_file}')
             combine_custom_hashes(filename)
 
 
@@ -369,7 +364,7 @@ def combine_custom_hashes(*filenames):
                     hashtable.items(), key=lambda item: item[1]
                 )
             )
-        LOG(f'hash_manager: Finish: Update: {ch_file}')
+        print(f'hash_manager: Finish: Update: {ch_file}')
 
 
 def reset_custom_hashes(*filenames):
@@ -381,11 +376,9 @@ def reset_custom_hashes(*filenames):
             data = f.read()
         with open(ch_file, 'wb+') as f:
             f.write(data)
+    print('hash_manager: Finish: Reset Custom Hashes to CDTB Hashes.')
 
-
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG
+def init():
     # load setting first
     CDTBHashes.local_dir = setting.get('CDTBHashes.local_dir', CDTBHashes.local_dir)
     ExtractedHashes.local_dir = setting.get('ExtractedHashes.local_dir', ExtractedHashes.local_dir)

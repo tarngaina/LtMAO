@@ -9,8 +9,6 @@ from ..... import pyRitoFile
 from .....pyRitoFile.ermmm import Elf
 from .....pyRitoFile.structs import Vector, Quaternion
 
-LOG = print
-
 class SKNTranslator(MPxFileTranslator):
     name = 'League of Legends: SKN'
     extension = 'skn'
@@ -1010,7 +1008,7 @@ class SKN:
         # sort submesh to match riot.skn submeshes order
         riot_skn = dump_options['riot_skn']
         if riot_skn != None:
-            LOG(
+            print(
                 'SKN Exporter: Found riot.skn, sorting materials...')
 
             new_submeshes = []
@@ -1025,7 +1023,7 @@ class SKN:
                 for i in range(submesh_count):
                     if flags[i] and skn.submeshes[i].name.lower() == riot_submesh_name:
                         new_submeshes.append(skn.submeshes[i])
-                        LOG(
+                        print(
                             f'SKN Exporter: Found material: {skn.submeshes[i].name}')
                         flags[i] = False
                         found = True
@@ -1033,7 +1031,7 @@ class SKN:
 
                 # submesh that not found
                 if not found:
-                    LOG(
+                    print(
                         f'SKN Exporter: Missing riot material: {riot_submesh.name}')
 
             # add extra/addtional materials to the end of list
@@ -1041,7 +1039,7 @@ class SKN:
                 if flags[i]:
                     new_submeshes.append(skn.submeshes[i])
                     flags[i] = False
-                    LOG(
+                    print(
                         f'SKN Exporter: New material: {skn.submeshes[i].name}')
 
             # assign new list
@@ -1147,7 +1145,7 @@ class SKL:
         riot_skl = dump_options['riot_skl']
         if riot_skl != None:
             # sort joints with riot skl
-            LOG('SKL Expoter: Found riot.skl, sorting joints...')
+            print('SKL Expoter: Found riot.skl, sorting joints...')
 
             new_joints = []
             joint_count = len(skl.joints)
@@ -1168,7 +1166,7 @@ class SKL:
                 # if not found riot join in current scene -> not enough joints to match riot joints -> bad
                 # fill empty joint
                 if not found:
-                    LOG(
+                    print(
                         f'SKL Exporter: Missing riot joint: {riot_joint.name}')
                     joint = helper.LemonSKLJoint()
                     joint.dagpath = None
@@ -1188,10 +1186,10 @@ class SKL:
             # joint in scene < riot joint: bad, might not work
             new_joint_count = len(new_joints)
             if new_joint_count < riot_joint_count:
-                LOG(
+                print(
                     f'SKL Exporter: Missing {riot_joint_count - new_joint_count} joints compared to riot.skl, joints order might be wrong.')
             else:
-                LOG(
+                print(
                     f'SKL Exporter: Successfully matched {new_joint_count} joints with riot.skl.')
 
             # add extra/addtional joints to the end of list
@@ -1200,7 +1198,7 @@ class SKL:
                 if flags[i]:
                     new_joints.append(skl.joints[i])
                     flags[i] = False
-                    LOG(
+                    print(
                         f'SKL Exporter: New joints: {skl.joints[i].name}')
 
             # assign new list

@@ -6,7 +6,6 @@ from .pyRitoFile.structs import Vector
 from .hash_helper import cached_bin_hashes
 
 tk_widgets_data = []
-LOG = print
 
 
 class HPHelper:
@@ -25,9 +24,9 @@ class HPHelper:
 
         for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
             if require_dst:
-                LOG(f'hapiBin: Start:  {hp_command.__name__}: {src_bin_path} -> {dst_bin_path}.')
+                print(f'hapiBin: Start:  {hp_command.__name__}: {src_bin_path} -> {dst_bin_path}.')
             else:
-                LOG(f'hapiBin: Start:  {hp_command.__name__}: {src_bin_path}.')
+                print(f'hapiBin: Start:  {hp_command.__name__}: {src_bin_path}.')
             hp_command(src_bin, dst_bin)
         
         HPHelper.write_src_dst(src, dst, matching_src_dst_bins, src_type, require_dst)
@@ -45,7 +44,7 @@ class HPHelper:
 
     @staticmethod
     def read_src_dst(src, dst, require_dst):
-        LOG(f'hapiBin: Start:  Read source & target.')
+        print(f'hapiBin: Start:  Read source & target.')
         # parsing src first
         if src == '':
             raise Exception('hapiBin: Error: Source entry is empty.')
@@ -155,20 +154,20 @@ class HPHelper:
                         continue
                     chunk.write_data(bs, chunk.id, chunk.hash, matching_chunk_bin_data.write('', raw=True))
                     chunk.free_data()
-        LOG(f'hapiBin: Finish: Write source & target.')
+        print(f'hapiBin: Finish: Write source & target.')
 
     @staticmethod
     def backup(path):
         backup_path = os.path.join(
             os.path.dirname(path),
             'hapiBin_backup_' + os.path.basename(path)
-        ).replace('\\','/')
-        LOG(f'hapiBin: Start:  Backup target {path} -> {backup_path}.')
+        )
+        print(f'hapiBin: Start:  Backup target {path} -> {backup_path}.')
         if os.path.isdir(path):
             copytree(path, backup_path)
         else:
             copy(path, backup_path)
-        LOG(f'hapiBin: Finish: Backup target {path} -> {backup_path}.')
+        print(f'hapiBin: Finish: Backup target {path} -> {backup_path}.')
 
 
 @HPHelper.create_tk_button(
@@ -179,7 +178,7 @@ class HPHelper:
 )
 def copy_linked_list(src_bin, dst_bin):
     dst_bin.links = src_bin.links 
-    LOG(f'hapiBin: Finish: Copy {len(dst_bin.links)} links.')
+    print(f'hapiBin: Finish: Copy {len(dst_bin.links)} links.')
 
 @HPHelper.create_tk_button(
     label='Copy VFX colors from source to target',
@@ -427,7 +426,7 @@ def copy_vfx_colors(src_bin, dst_bin):
                                     if src_field != None:
                                         dst_field.data = src_field.data
                                         copied_field_count += 1
-    LOG(f'hapiBin: Finish: Copy {copied_field_count} color fields.')                          
+    print(f'hapiBin: Finish: Copy {copied_field_count} color fields.')                          
 
 @HPHelper.create_tk_button(
     label='Fix VFX Shape Property + BirthTranslation on source',
@@ -549,8 +548,5 @@ def fix_vfx_shape(src_bin, dst_bin):
                                             # Clueless, default 0x4f4e2ed7
                                             shape.hash_type = '4f4e2ed7'
                                             continue
-    LOG(f'hapiBin: Finish: FixVfxShape and BirthTranslation')
+    print(f'hapiBin: Finish: FixVfxShape and BirthTranslation')
 
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG

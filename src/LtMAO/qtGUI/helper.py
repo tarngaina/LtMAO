@@ -7,8 +7,6 @@ class Keeper:
 
 class SafeThread:
     cached = {}
-    log = print
-
     pool = QThreadPool()
     pool.setMaxThreadCount(20)
     
@@ -34,5 +32,4 @@ class SafeThread:
             SafeThread.cached[thread_name] = cmd
             SafeThread.pool.start(cmd)
         else:
-            SafeThread.log(
-                f'{thread_name}: Error: Thread is already running, wait for it to end.')
+            print(f'{thread_name}: Error: Thread is already running, wait for it to end.')

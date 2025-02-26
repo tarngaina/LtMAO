@@ -26,16 +26,15 @@ from . import control, helper, log
 from .. import setting, hash_helper, winLT, tools, Ritoddstex
 import requests
 
+qtwidgets = helper.Keeper()
 
 def show():
     build_app()
 
-qtwidgets = helper.Keeper()
-LOG = log.LOG
-
 def before_build():
+    setting.init()
     control.qtwidgets = qtwidgets
-    log.qtwidgets = qtwidgets
+    
 
 def build_app():
     import qdarktheme
@@ -70,16 +69,12 @@ def build_splash_screen(splash: QSplashScreen):
     pixmap = QPixmap('./res/splash.png').scaled(400, 400, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation)
     splash.setPixmap(pixmap)
     layout = QVBoxLayout()
-    message = QLabel()
-    message.setStyleSheet('background-color: rgba(0, 0, 0, 127); color: rgba(255, 255, 255, 255);')
-    layout.addWidget(message, stretch=1, alignment=Qt.AlignmentFlag.AlignBottom)
+    label = QLabel()
+    label.setStyleSheet('background-color: rgba(0, 0, 0, 127); color: rgba(255, 255, 255, 255);')
+    layout.addWidget(label, stretch=1, alignment=Qt.AlignmentFlag.AlignBottom)
     splash.setLayout(layout)
-    def update_msg(msg):
-        message.setText('🗒️ ' + msg) 
-        message.repaint()
-    global LOGSPLASH
-    LOGSPLASH = lambda msg: update_msg(msg)
-    LOGSPLASH('qtGUI: Finish: Build splash screen.')
+    log.link_splash(label)
+    print('qtGUI: Finish: Build splash screen.')
 
 def build_main_window(window: QMainWindow):
     window.setGeometry(10, 10, 1000, 700)
@@ -118,7 +113,7 @@ def build_main_window(window: QMainWindow):
         event.accept()
     window.changeEvent = changeEvent
     
-    LOGSPLASH('qtGUI: Finish: Build main window.')
+    print('qtGUI: Finish: Build main window.')
 
 def build_grips(window: QMainWindow):
     def build_edge_grip(edge):
@@ -165,14 +160,18 @@ def build_grips(window: QMainWindow):
         event.accept()
     window.resizeEvent = resizeEvent
 
-    LOGSPLASH('qtGUI: Finish: Build scale grips.')
+    print('qtGUI: Finish: Build scale grips.')
 
 def build_main_layout(widget: QWidget, layout: QBoxLayout):
     layout.setContentsMargins(0, 0, 0, 0)
     layout.setSpacing(0)
+    # main stylesheet
     widget.setStyleSheet(f"""
         QWidget {{
             background-color: rgba(0, 0, 0, 127);        
+        }}  
+        QLabel {{
+            background-color: transparent;
         }}         
         QToolButton {{
             min-height: 30;
@@ -209,7 +208,7 @@ def build_main_layout(widget: QWidget, layout: QBoxLayout):
     for c in control.all:
         c.build_command(c.content)
     
-    LOGSPLASH('qtGUI: Finish: Build main layout.')
+    print('qtGUI: Finish: Build main layout.')
 
 def build_title_bar(widget: QWidget, layout: QBoxLayout):
     widget.setMinimumHeight(30)
@@ -223,6 +222,7 @@ def build_title_bar(widget: QWidget, layout: QBoxLayout):
 
     # icon
     qtwidgets.title_label = title_label = QLabel('LtMAO-hai')
+    title_label.setStyleSheet('background-color: rgba(0, 0, 0, 127)')
     layout.addWidget(title_label, stretch=80)
 
     # buttons
@@ -287,7 +287,7 @@ def build_title_bar(widget: QWidget, layout: QBoxLayout):
         event.accept()
     widget.mouseDoubleClickEvent = mouseDoubleClickEvent
 
-    LOGSPLASH('qtGUI: Finish: Build title bar.')
+    print('qtGUI: Finish: Build title bar.')
     
 def build_midcontent(widget: QWidget, layout: QBoxLayout):
     qtwidgets.content_layout = layout
@@ -317,7 +317,7 @@ def build_midcontent(widget: QWidget, layout: QBoxLayout):
         layout.addWidget(content_widget, stretch=99)
     control_layout.addStretch()
 
-    LOGSPLASH('qtGUI: Finish: Build mid content.')
+    print('qtGUI: Finish: Build mid content.')
     
 def build_status_bar(widget: QWidget, layout: QBoxLayout):
     widget.setMinimumHeight(30)
@@ -366,29 +366,27 @@ def build_status_bar(widget: QWidget, layout: QBoxLayout):
     setting_button.clicked.connect(lambda event, page_id=102: control.on_page_id_changed(event, page_id))
     layout.addWidget(setting_button, stretch=3)
 
-    LOGSPLASH('qtGUI: Finish: Build status bar.')
+    print('qtGUI: Finish: Build status bar.')
 
 def after_build():
-    LOG('qtGUI: Finish: Build main window.')
-    helper.SafeThread.start('check_version', check_version)
-    helper.SafeThread.start('sync_changelog', sync_changelog)
-    setting.prepare(LOG)
+    print('qtGUI: Finish: Build main window.')
+    log.link_main_window(qtwidgets.logbox, qtwidgets.statusbar)
+    helper.SafeThread.start('check_version', lambda: check_version(qtwidgets.title_label))
+    helper.SafeThread.start('sync_changelog', lambda: sync_changelog(qtwidgets.changelog))
     control.on_page_id_changed(True, setting.get('qtGUI.page_id', 0))
-    hash_helper.prepare(LOG)
+    hash_helper.init()
     helper.SafeThread.start('sync_ctdb_hashes', hash_helper.CDTBHashes.sync_all)
-    winLT.prepare(LOG)
-    tools.prepare(LOG)
-    Ritoddstex.prepare(LOG)
+    winLT.init()
     
  
-def check_version():
+def check_version(label):
     try:
         # read offline
         local_file = './version'
         with open(local_file, 'r') as f:
             VERSION = f.read()
         title = f'LtMAO-hai V{VERSION}'
-        qtwidgets.title_label.setText(title)
+        label.setText(title)
         # read online
         remote_file = 'https://raw.githubusercontent.com/tarngaina/LtMAO/hai/version'
         get = requests.get(remote_file)
@@ -396,41 +394,37 @@ def check_version():
         NEW_VERSION = get.text
         if VERSION != NEW_VERSION:
             title += f' - New version found: {NEW_VERSION}, redownload LtMAO to update.'
-        qtwidgets.title_label.setText(title)
+        label.setText(title)
     except Exception as e:
-        LOG(f'qtGUI: check_version: Error: {str(e)}')
-    LOG('qtGUI: Finish: Check version.')
+        print(f'qtGUI: check_version: Error: {str(e)}')
+    print('qtGUI: Finish: Check version.')
 
-def sync_changelog():
+def sync_changelog(changelog):
     full_changelog_text = ''
     local_file = './pref/changelog.txt'
     try:
-        page = 1
-        while True:
-            url=f'https://api.github.com/repos/tarngaina/ltmao/commits?sha=hai&per_page=100&page={page}'
-            commits=requests.get(url).json()
-            if len(commits) > 0:
-                for commit in commits:
-                    commit = commit['commit']
-                    author = commit['author']['name']
-                    date = commit['author']['date']
-                    message = commit['message']
-                    full_changelog_text += f'[{date}] by {author}:\n{message}\n\n'
-            else:
-                break
-            page+=1
+        # read online
+        url=f'https://api.github.com/repos/tarngaina/ltmao/commits?sha=hai&per_page=100'
+        commits=requests.get(url).json()
+        for commit in commits:
+            commit = commit['commit']
+            author = commit['author']['name']
+            date = commit['author']['date']
+            message = commit['message']
+            full_changelog_text += f'[{date}] by {author}:\n{message}\n\n'
         with open(local_file, 'w+', encoding='utf-8') as f:
             f.write(full_changelog_text)
 
     except Exception as e:
         import os.path
-        LOG(f'get_changelog: Error: {e}, switching to local file if exists.')
+        print(f'get_changelog: Error: {e}, switching to local file if exists.')
         if os.path.exists(local_file):
+            # read offline
             with open(local_file, 'r', encoding='utf-8') as f:
                 full_changelog_text = f.read()
         else:
-            full_changelog_text = 'Error: Download changelog failed, no local changelog to read.'
-    qtwidgets.changelog.insertPlainText(full_changelog_text)
-    LOG('qtGUI: Finish: Sync changelog.')
+            full_changelog_text = 'get_changelog: Error: Download changelog failed, no local changelog to read.'
+    changelog.insertPlainText(full_changelog_text)
+    print('qtGUI: Finish: Sync changelog.')
 
    

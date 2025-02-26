@@ -8,7 +8,6 @@ from ..... import pyRitoFile
 from .....pyRitoFile.ermmm import Elf
 from .....pyRitoFile.structs import Vector, Quaternion
 
-LOG = print
 
 class ANMTranslator(MPxFileTranslator):
     name = 'League of Legends: ANM'

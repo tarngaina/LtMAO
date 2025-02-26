@@ -3,7 +3,6 @@ import os
 import os.path
 import winreg
 
-LOG = print
 icon_file = './res/appicon.ico'
 pythonw_file = './cpy/pythonw.exe'
 python_file = './cpy/python.exe'
@@ -241,7 +240,7 @@ class Context:
                 cmd_desc='cslmao: Unzip Fantome',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="unzipfantome" -src="%V"'
             )
-        LOG('winLT: Finish: Create Explorer Contexts')
+        print('winLT: Finish: Create Explorer Contexts')
 
     @staticmethod
     def remove_submenu(shell):
@@ -279,7 +278,7 @@ class Context:
         Context.remove_submenu('SystemFileAssociations\\.dds\\shell')
         # .png contexts
         Context.remove_submenu('SystemFileAssociations\\.png\\shell')
-        LOG('winLT: Finish: Remove Explorer Contexts')
+        print('winLT: Finish: Remove Explorer Contexts')
 
 
 class Shortcut:
@@ -296,7 +295,7 @@ class Shortcut:
         shortcut.IconLocation = os.path.abspath(icon_file)
         shortcut.Description = 'Run LtMAO'
         shortcut.save()
-        LOG(f'winLT: Finish: Create Desktop Shortcut: {desktop_file}')
+        print(f'winLT: Finish: Create Desktop Shortcut: {desktop_file}')
 
     @staticmethod
     def create_launch():
@@ -311,10 +310,8 @@ class Shortcut:
             shortcut.IconLocation = os.path.abspath(icon_file)
             shortcut.Description = 'Run LtMAO'
             shortcut.save()
-            LOG(f'winLT: Finish: Create Launch Shortcut: {launch_file}')
+            print(f'winLT: Finish: Create Launch Shortcut: {launch_file}')
 
 
-def prepare(_LOG):
-    global LOG
-    LOG = _LOG
+def init():
     Shortcut.create_launch()

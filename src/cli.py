@@ -22,8 +22,6 @@ def parse_arguments():
 
 
 def ensure_curdir():
-    # argv[0] is LtMAO/src/cli.py
-    # curdir must be LtMAO -> new curdir = dirname(dirname(argv[0]))
     import os
     import os.path
     os.chdir(os.path.dirname(os.path.dirname(sys.argv[0])))
@@ -162,7 +160,7 @@ class CLI:
         import json
         info_file = src + '/META/info.json'
         if not os.path.exists(info_file):
-            raise Exception(f'zipfantome: Failed: No META/info.json found inside {src}.')
+            raise Exception(f'zipfantome: Error:  No META/info.json found inside {src}.')
 
         info = {}
         with open(info_file, 'r') as f:
