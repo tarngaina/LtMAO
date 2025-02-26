@@ -12,7 +12,7 @@ import os, os.path
 from PIL import Image
 
 from . import helper
-from .. import setting, tools, Ritoddstex, winLT, hash_helper
+from .. import setting, tools, Ritoddstex, winLT, hash_helper, pyRitoFile
 
 qtwidgets = None
 
@@ -64,6 +64,7 @@ def build_cslmao(widget: QWidget):
 def build_hash_helper(widget: QWidget):
     layout = QVBoxLayout()
 
+    # path hash + reset button
     def get_hash_path(hash_id):
         if hash_id == 0:
             return setting.get('CDTBHashes.local_dir', hash_helper.CDTBHashes.local_dir)
@@ -82,17 +83,17 @@ def build_hash_helper(widget: QWidget):
             abspath_custom = os.path.abspath(hash_helper.CustomHashes.local_dir).replace('\\', '/')
             if hash_id == 0:
                 if abspath in (abspath_extracted, abspath_custom):
-                    raise Exception(f'hash_manager: Error: Set hash path: {abspath} is already selected as another hash path. All hash paths must be different.')
+                    raise Exception(f'hash_helper: Error: Set hash path: {abspath} is already selected as another hash path. All hash paths must be different.')
                 hash_helper.CDTBHashes.local_dir = abspath
                 setting.set('CDTBHashes.local_dir', abspath)
             elif hash_id == 1:
                 if abspath in (abspath_cdtb, abspath_custom):
-                    raise Exception(f'hash_manager: Error: Set hash path: {abspath} is already selected as another hash path. All hash paths must be different.')
+                    raise Exception(f'hash_helper: Error: Set hash path: {abspath} is already selected as another hash path. All hash paths must be different.')
                 hash_helper.ExtractedHashes.local_dir = abspath
                 setting.set('ExtractedHashes.local_dir', abspath)
             else:
                 if abspath in (abspath_cdtb, abspath_extracted):
-                    raise Exception(f'hash_manager: Error: Set hash path: {abspath} is already selected as another hash path. All hash paths must be different.')
+                    raise Exception(f'hash_helper: Error: Set hash path: {abspath} is already selected as another hash path. All hash paths must be different.')
                 hash_helper.CustomHashes.local_dir = abspath
                 setting.set('CustomHashes.local_dir', abspath)
             setting.save()
@@ -124,6 +125,131 @@ def build_hash_helper(widget: QWidget):
     button.setText('❌ Reset Custom hash to CDTB hash')
     button.clicked.connect(lambda event: hash_helper.reset_custom_hashes(*hash_helper.ALL_HASHES))
     layout.addWidget(button)
+
+    # extract hash
+    def extract_hash(isfile):
+        dialog = QFileDialog()
+        final_paths = []
+        if isfile:
+            filepaths = dialog.getOpenFileNames(
+                widget, 
+                f'Select WADs',
+                setting.get('qtGUI.default_folder', None),
+                f'WAD Files (*.wad.client)'
+            )
+            if len(filepaths[0]) > 0:
+                final_paths += filepaths[0]
+        else:
+            dirpath = dialog.getExistingDirectory(
+                widget,
+                f'Select Folder',
+                setting.get('qtGUI.default_folder', None),
+            )
+            if dirpath != '':
+                for root, dirs, files in os.walk(dirpath):
+                    for file in files:
+                        final_paths.append(os.path.join(root, file).replace('\\', '/'))
+        final_path_count = len(final_paths)
+        if  final_path_count > 0:
+            def extract_thrd():
+                print(f'hash_helper: Start: Extract hashes with {final_path_count} items.')
+                hash_helper.ExtractedHashes.extract(*final_paths)
+                print('hash_helper: Finish: Extract hashes.')
+            helper.SafeThread.start('hash_helper', extract_thrd)
+
+    layout2 = QHBoxLayout()
+    button = QToolButton()
+    button.setText('📦 Extract from WADs')
+    button.clicked.connect(lambda event: extract_hash(True))
+    layout2.addWidget(button)
+    button = QToolButton()
+    button.setText('📁 Extract from Folder')
+    button.clicked.connect(lambda event: extract_hash(False))
+    layout2.addWidget(button)
+    layout2.addStretch()
+    layout.addLayout(layout2)
+
+    # generate bin hash
+    layout2 = QHBoxLayout()
+    layout3 = QVBoxLayout()
+    label = QLabel('🤖 Generate BIN hash:')
+    label.setMinimumHeight(40)
+    layout3.addWidget(label, stretch=1)
+    textedit = QPlainTextEdit()
+    layout3.addWidget(textedit, stretch=99) 
+    layout2.addLayout(layout3, stretch=1)
+    layout3 = QVBoxLayout()
+    layout4 = QHBoxLayout()
+    def add_bin_hash(binhash_name):
+        raws = [text for text in textedit.toPlainText().split('\n') if text != '']
+        hashes =  [text for text in textedit2.toPlainText().split('\n') if text != '']
+        raw_count = len(raws)
+        if raw_count > 0:
+            filename = f'hashes.bin{binhash_name.lower()}.txt'
+            hash_helper.CustomHashes.read_hashes(filename)
+            for i in range(len(raws)):
+                hash_helper.HASHTABLES[filename][hashes[i]] = raws[i]
+            hash_helper.CustomHashes.write_hashes(filename)
+            hash_helper.CustomHashes.free_hashes(filename)
+            print(f'hash_helper: Finish: Add {raw_count} hashes to {filename} of custom hash.')
+    for binhash_name in ['Entries', 'Fields', 'Types', 'Hashes']:
+        button = QToolButton()
+        button.setText('✍️ '+binhash_name)
+        button.clicked.connect(lambda event, binhash_name=binhash_name: add_bin_hash(binhash_name))
+        layout4.addWidget(button)
+    layout4.addStretch()
+    layout3.addLayout(layout4, stretch=1)
+    textedit2 = QPlainTextEdit()
+    textedit2.setReadOnly(True)
+    layout3.addWidget(textedit2, stretch=99) 
+    layout2.addLayout(layout3, stretch=1)
+    layout.addLayout(layout2)
+    def input_text():
+        textedit2.clear()
+        textedit2.setPlainText('\n'.join([pyRitoFile.bin_hash(text) if text != '' else '' for text in textedit.toPlainText().split('\n')]))
+    textedit.textChanged.connect(input_text)
+    
+    # generate wad hash
+    layout2 = QHBoxLayout()
+    layout3 = QVBoxLayout()
+    label = QLabel('🤖 Generate WAD hash:')
+    label.setMinimumHeight(40)
+    layout3.addWidget(label, stretch=1)
+    textedit3 = QPlainTextEdit()
+    layout3.addWidget(textedit3, stretch=99) 
+    layout2.addLayout(layout3, stretch=1)
+    layout3 = QVBoxLayout()
+    layout4 = QHBoxLayout()
+    def add_wad_hash(wadhash_name):
+        raws = [text for text in textedit3.toPlainText().split('\n') if text != '']
+        hashes =  [text for text in textedit4.toPlainText().split('\n') if text != '']
+        raw_count = len(raws)
+        if raw_count > 0:
+            filename = f'hashes.{wadhash_name.lower()}.txt'
+            hash_helper.CustomHashes.read_hashes(filename)
+            for i in range(len(raws)):
+                hash_helper.HASHTABLES[filename][hashes[i]] = raws[i]
+            hash_helper.CustomHashes.write_hashes(filename)
+            hash_helper.CustomHashes.free_hashes(filename)
+            print(f'hash_helper: Finish: Add {raw_count} hashes to {filename} of custom hash.')
+    for wadhash_name in ['Game', 'Lcu']:
+        button = QToolButton()
+        button.setText('✍️ '+wadhash_name)
+        button.clicked.connect(lambda event, wadhash_name=wadhash_name: add_wad_hash(wadhash_name))
+        layout4.addWidget(button)
+    layout4.addStretch()
+    layout3.addLayout(layout4, stretch=1)
+    textedit4 = QPlainTextEdit()
+    textedit4.setReadOnly(True)
+    layout3.addWidget(textedit4, stretch=99) 
+    layout2.addLayout(layout3, stretch=1)
+    layout.addLayout(layout2)
+    def input_text():
+        textedit4.clear()
+        textedit4.setPlainText('\n'.join([pyRitoFile.wad_hash(text) if text != '' else '' for text in textedit3.toPlainText().split('\n')]))
+    textedit3.textChanged.connect(input_text)
+
+
     layout.addStretch()
     widget.setLayout(layout)
 
@@ -170,9 +296,8 @@ def build_ddsmart(widget: QWidget):
                 src=src,
                 dst=file_4x, width=width_4x, height=height_4x
             )
-
-    
-    def convert_cmd(isfile, title, input_type, func):
+ 
+    def convert(isfile, title, input_type, func):
         dialog = QFileDialog()
         final_paths = []
         if isfile:
@@ -253,11 +378,11 @@ def build_ddsmart(widget: QWidget):
         layout2 = QHBoxLayout()
         file_button = QToolButton()
         file_button.setText(f'{converter["icon"]} Select {converter['input_type']}')
-        file_button.clicked.connect(lambda event, converter=converter: convert_cmd(True, converter['title'], converter['input_type'], converter['func']))
+        file_button.clicked.connect(lambda event, converter=converter: convert(True, converter['title'], converter['input_type'], converter['func']))
         layout2.addWidget(file_button)
         dir_button = QToolButton()
         dir_button.setText('📁 Select Folder')
-        dir_button.clicked.connect(lambda event, converter=converter: convert_cmd(False, converter['title'], converter['input_type'], converter['func']))
+        dir_button.clicked.connect(lambda event, converter=converter: convert(False, converter['title'], converter['input_type'], converter['func']))
         layout2.addWidget(dir_button)
         layout2.addStretch()
         layout.addLayout(layout2)

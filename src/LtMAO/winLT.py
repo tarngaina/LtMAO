@@ -174,7 +174,7 @@ class Context:
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.hashextract',
-                cmd_desc='hash_manager: Extract hashes',
+                cmd_desc='hash_helper: Extract hashes',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="hashextract" -src="%V"'
             )
             # PT

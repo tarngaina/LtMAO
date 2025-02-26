@@ -77,7 +77,7 @@ def build_splash_screen(splash: QSplashScreen):
     print('qtGUI: Finish: Build splash screen.')
 
 def build_main_window(window: QMainWindow):
-    window.setGeometry(10, 10, 1000, 700)
+    window.setGeometry(0, 0, 1280, 720)
     window.setWindowIcon(QPixmap('./res/appicon.ico'))
     window.setWindowFlags(Qt.Window|Qt.FramelessWindowHint|Qt.WindowMinMaxButtonsHint)
     window.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
