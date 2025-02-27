@@ -6,13 +6,18 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QFileDialog,
+    QCheckBox,
+    QLineEdit,
+    QScrollArea,
+    QTabWidget
 )
+from PySide6.QtCore import Qt
 
 import os, os.path
 from PIL import Image
 
 from . import helper
-from .. import setting, tools, Ritoddstex, winLT, hash_helper, pyRitoFile
+from .. import setting, tools, Ritoddstex, winLT, hash_helper, pyRitoFile, hapiBin
 
 qtwidgets = None
 
@@ -49,12 +54,11 @@ all = [
     Control('🎬\nmask_viewer', 2, lambda widget: build_mask_viewer(widget)),
     Control('🐱\nhapiBin', 3, lambda widget: build_hapiBin(widget)),
     Control('🚫\nno_skin', 4, lambda widget: build_no_skin(widget)),
-    Control('🧱\nuvee', 5, lambda widget: build_uvee(widget)),
-    Control('📦\nwad_tool', 6, lambda widget: build_wad_tool(widget)),
-    Control('🛠️\nsborf', 7, lambda widget: build_sborf(widget)),
-    Control('🍋\nlemon3d', 8, lambda widget: build_lemon3d(widget)),
-    Control('🛣️\nddsmart', 9, lambda widget: build_ddsmart(widget)),
-    Control('🔊\nbnk_tool', 10, lambda widget: build_bnk_tool(widget)),
+    Control('📦\nwad_tool', 5, lambda widget: build_wad_tool(widget)),
+    Control('🛠️\nsborf', 6, lambda widget: build_sborf(widget)),
+    Control('🍋\nlemon3d', 7, lambda widget: build_lemon3d(widget)),
+    Control('🛣️\nddsmart', 8, lambda widget: build_ddsmart(widget)),
+    Control('🔊\nbnk_tool', 9, lambda widget: build_bnk_tool(widget)),
 ]
 extras = []
 
@@ -257,13 +261,171 @@ def build_mask_viewer(widget: QWidget):
     widget.setStyleSheet(f'background-color: rgba(255, 255, 255, 127)')
 
 def build_hapiBin(widget: QWidget):
-    widget.setStyleSheet(f'background-color: rgba(0, 255, 0, 127)')
+    layout = QVBoxLayout()
+    # tutorial label + backup
+    layout2 = QHBoxLayout()
+    label = QLabel("""
+        💡 Target type (if needed) must match source type.
+        \t📝 BIN: run functions directly on selected bin.
+        \t📦 WAD/📁 Folder/🗃️ Fantome: run functions on all bins inside selected WAD/Folder/Fantome.
+    """)
+    layout2.addWidget(label, stretch=99)
+    checkbox = QCheckBox()
+    checkbox.setChecked(setting.get('hapiBin.backup', True))
+    checkbox.setText('💿 Backup file')
+    def backup_cmd():
+        setting.set('hapiBin.backup', checkbox.isChecked())
+        setting.save()
+    checkbox.clicked.connect(backup_cmd)
+    layout2.addWidget(checkbox, stretch=1)
+    layout.addLayout(layout2)
+
+    # browse stuffs
+    def browse_cmd(line, browse_type):
+        dialog = QFileDialog()
+        final_path = ''
+        if browse_type == 'BIN':
+            filepaths = dialog.getOpenFileName(
+                widget, 
+                f'Select BINs',
+                setting.get('qtGUI.default_folder', None),
+                f'BIN Files (*.bin)'
+            )
+            if len(filepaths[0]) > 0:
+                final_path = filepaths[0]
+        elif browse_type == 'WAD':
+            filepaths = dialog.getOpenFileName(
+                widget, 
+                f'Select WADs',
+                setting.get('qtGUI.default_folder', None),
+                f'WAD Files (*.wad.client)'
+            )
+            if len(filepaths[0]) > 0:
+                final_path = filepaths[0]
+        else:
+            dirpath = dialog.getExistingDirectory(
+                widget,
+                f'Select Folder',
+                setting.get('qtGUI.default_folder', None),
+            )
+            if dirpath != '':
+                final_path = dirpath
+        if final_path != '':
+            line.setText(final_path)
+    # source 
+    src_line = QLineEdit()
+    layout.addWidget(src_line)
+    layout2 = QHBoxLayout()
+    layout2.addStretch()
+    for browse_type in ['BIN', 'WAD', 'Folder']:
+        button = QToolButton()
+        button.setText(f'🔥 Browse Source {browse_type}')
+        button.clicked.connect(lambda event, line=src_line, browse_type=browse_type: browse_cmd(line, browse_type))
+        layout2.addWidget(button)
+    layout.addLayout(layout2)
+    # target 
+    dst_line = QLineEdit()
+    layout.addWidget(dst_line)
+    layout2 = QHBoxLayout()
+    layout2.addStretch()
+    for browse_type in ['BIN', 'WAD', 'Folder']:
+        button = QToolButton()
+        button.setText(f'💧 Browse Target {browse_type}')
+        button.clicked.connect(lambda event, line=dst_line, browse_type=browse_type: browse_cmd(line, browse_type))
+        layout2.addWidget(button)
+    layout.addLayout(layout2)
+
+    # funcs
+    def run_hp_command(src_line, dst_line, hp_command, require_dst):
+        def run_hp_thrd():
+            hapiBin.Helper.run_command(
+                src=src_line.text(), 
+                dst=dst_line.text(),
+                hp_command=hp_command, 
+                require_dst=require_dst, 
+                backup=setting.get('hapiBin.backup', 1)
+            )
+        
+        helper.SafeThread.start('hapiBin', run_hp_thrd)
+    scrollarea = QScrollArea()
+    layout2 = QVBoxLayout()
+    for name, description, hp_command, require_dst in hapiBin.Helper.qt_datas: 
+        button = QToolButton()
+        button.setText(name)
+        button.clicked.connect(lambda event, src_line=src_line, dst_line=dst_line, hp_command=hp_command, require_dst=require_dst: run_hp_command(src_line, dst_line, hp_command, require_dst))
+        layout2.addWidget(button)
+        label = QLabel(description)
+        layout2.addWidget(label)
+    scrollarea.setLayout(layout2)
+    layout.addWidget(scrollarea, stretch=999)
+
+    widget.setLayout(layout)
 
 def build_no_skin(widget: QWidget):
-    widget.setStyleSheet(f'background-color: rgba(0, 255, 255, 127)')
+    layout = QHBoxLayout()
+    tab_widget = QTabWidget()
+    tab_widget.setStyleSheet(f"""
+        QWidget {{
+            background-color: transparent;
+        }}     
+        QLabel {{
+            background-color: transparent;
+        }}
+        QPlainTextEdit {{
+            border: none;
+        }}
+        QToolButton {{
+            min-height: 30;
+            background-color: rgba(0, 0, 0, 127);
+        }}
+        QToolButton:hover {{ 
+            background-color: rgb{qtwidgets.accent_color}; 
+        }}
+        QToolButton:checked {{ 
+            background-color: rgb{qtwidgets.accent_color}; 
+        }}
+    """)
+    
+    
+    # no skin full
+    tab1 = QWidget()
+    layout2 = QVBoxLayout()
+    tab1.setLayout(layout2)
+    tab_widget.addTab(tab1, '🔴 Full')
+    # no skin lite
+    tab2 = QWidget()
+    layout2 = QVBoxLayout()
 
-def build_uvee(widget: QWidget):
-    widget.setStyleSheet(f'background-color: rgba(255, 0, 255, 127)')
+    layout3 = QHBoxLayout()
+    label = QLabel()
+    layout3.addWidget(label,stretch=99)
+    button = QToolButton()
+    button.setMinimumWidth(220)
+    button.setText('📝 Select Skin0 BIN')
+    layout3.addWidget(button)
+    layout2.addLayout(layout3)
+
+    layout3 = QHBoxLayout()
+    label = QPlainTextEdit()
+    label.setReadOnly(True)
+    layout3.addWidget(label, stretch=99)
+    button = QToolButton()
+    button.setMinimumWidth(220)
+    button.setText('📝 Select SkinX BINs')
+    layout3.addWidget(button, alignment=Qt.AlignmentFlag.AlignTop)
+    layout2.addLayout(layout3, stretch=999)
+
+    button = QToolButton()
+    button.setText('🦭 Do the thing')
+    layout2.addWidget(button)
+    
+    #layout2.addStretch()
+    tab2.setLayout(layout2)
+    tab_widget.addTab(tab2, '⭕ Lite')
+
+    
+    layout.addWidget(tab_widget, stretch=1)
+    widget.setLayout(layout)
 
 def build_wad_tool(widget: QWidget):
     widget.setStyleSheet(f'background-color: rgba(0, 0, 255, 127)')
@@ -329,8 +491,7 @@ def build_ddsmart(widget: QWidget):
                 print(f'ddsmart: Finish: {title}: {final_path_count} items.')
             helper.SafeThread.start('ddsmart', convert_thrd)
         
-            
-    
+
     converters = [
         { 
             'title': 'DDS to PNG',

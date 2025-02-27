@@ -5,22 +5,21 @@ from .pyRitoFile import BINField, BINType
 from .pyRitoFile.structs import Vector
 from .hash_helper import cached_bin_hashes
 
-tk_widgets_data = []
+class Helper:
+    qt_datas = [] 
 
-
-class HPHelper:
     @staticmethod
-    def create_tk_button(label, description, icon, require_dst):
+    def create_qt_data(name, description, require_dst):
         def wrapper(hp_command):
-            tk_widgets_data.append((label, description, icon, hp_command, require_dst))
+            Helper.qt_datas.append((name, description, hp_command, require_dst))
         return wrapper
 
     @staticmethod
-    def main(src, dst, hp_command, require_dst, backup):
-        matching_src_dst_bins, src_type = HPHelper.read_src_dst(src, dst, require_dst)
+    def run_command(src, dst, hp_command, require_dst, backup):
+        matching_src_dst_bins, src_type = Helper.read_src_dst(src, dst, require_dst)
 
         # backup dst if require dst else src
-        HPHelper.backup(dst if backup and require_dst else src)
+        Helper.backup(dst if backup and require_dst else src)
 
         for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
             if require_dst:
@@ -29,7 +28,7 @@ class HPHelper:
                 print(f'hapiBin: Start:  {hp_command.__name__}: {src_bin_path}.')
             hp_command(src_bin, dst_bin)
         
-        HPHelper.write_src_dst(src, dst, matching_src_dst_bins, src_type, require_dst)
+        Helper.write_src_dst(src, dst, matching_src_dst_bins, src_type, require_dst)
 
     @staticmethod
     def check_type(path):
@@ -40,7 +39,7 @@ class HPHelper:
                 return 'wad'
             elif path.endswith('.bin'):
                 return 'bin'
-        raise Exception('hapiBin: Error: {path} is not a BIN/WAD or FOLDER.')
+        raise Exception('hapiBin: Error: {path} is not a BIN/WAD/Folder/Fantome.')
 
     @staticmethod
     def read_src_dst(src, dst, require_dst):
@@ -48,12 +47,12 @@ class HPHelper:
         # parsing src first
         if src == '':
             raise Exception('hapiBin: Error: Source entry is empty.')
-        src_type = HPHelper.check_type(src)
+        src_type = Helper.check_type(src)
         # parsing dst next if require
         if require_dst:
             if dst == '':
                 raise Exception('hapiBin: Error: Target entry is empty.')
-            dst_type = HPHelper.check_type(dst)
+            dst_type = Helper.check_type(dst)
             if src_type != dst_type:
                 raise Exception('hapiBin: Error: Source entry\'s type is different from target entry type.')
 
@@ -160,7 +159,7 @@ class HPHelper:
     def backup(path):
         backup_path = os.path.join(
             os.path.dirname(path),
-            'hapiBin_backup_' + os.path.basename(path)
+            'hp_backup_' + os.path.basename(path)
         )
         print(f'hapiBin: Start:  Backup target {path} -> {backup_path}.')
         if os.path.isdir(path):
@@ -170,20 +169,18 @@ class HPHelper:
         print(f'hapiBin: Finish: Backup target {path} -> {backup_path}.')
 
 
-@HPHelper.create_tk_button(
-    label='Copy Linked List from source to target',
+@Helper.create_qt_data(
+    name='🔗 Copy Linked List: source -> target',
     description='Copy linked list.',
-    icon='🔗',
     require_dst=True
 )
 def copy_linked_list(src_bin, dst_bin):
     dst_bin.links = src_bin.links 
     print(f'hapiBin: Finish: Copy {len(dst_bin.links)} links.')
 
-@HPHelper.create_tk_button(
-    label='Copy VFX colors from source to target',
+@Helper.create_qt_data(
+    name='🎨 Copy VFX colors: source -> target',
     description='Copy color, birthColor, reflectionDefinition, lingerColor of VfxEmitterDefinitionData.\nCopy colors, Color, mColorOn, mColorOff of StaticMaterialShaderParamDef/DynamicMaterialParameterDef.',
-    icon='🎨',
     require_dst=True
 )
 def copy_vfx_colors(src_bin, dst_bin):
@@ -428,10 +425,44 @@ def copy_vfx_colors(src_bin, dst_bin):
                                         copied_field_count += 1
     print(f'hapiBin: Finish: Copy {copied_field_count} color fields.')                          
 
-@HPHelper.create_tk_button(
-    label='Fix VFX Shape Property + BirthTranslation on source',
+@Helper.create_qt_data(
+    name='✨ Add Vfx emitters: source -> target ',
+    description='Add all emitters inside complexEmitterDefinitionData of VfxSystemDefinitionData.',
+    require_dst=True
+)
+def add_vfx_emitters(src_bin, dst_bin):
+    emitters_copied = 0
+    for dst_entry in dst_bin.entries:
+        if dst_entry.type == cached_bin_hashes['VfxSystemDefinitionData']:
+            # find VfxSystemDefinitionData entry
+            dst_VfxSystemDefinitionData = dst_entry
+            src_VfxSystemDefinitionData = BINHelper.find_item(
+                items=src_bin.entries,
+                compare_func=lambda entry: entry.hash == dst_VfxSystemDefinitionData.hash and entry.type == cached_bin_hashes[
+                    'VfxSystemDefinitionData']
+            )
+            if src_VfxSystemDefinitionData != None:
+                # find complexEmitterDefinitionData block
+                dst_complexEmitterDefinitionData = BINHelper.find_item(
+                    items=dst_VfxSystemDefinitionData.data,
+                    compare_func=lambda field: field.hash == cached_bin_hashes[
+                        'complexEmitterDefinitionData']
+                )
+                src_complexEmitterDefinitionData = BINHelper.find_item(
+                    items=src_VfxSystemDefinitionData.data,
+                    compare_func=lambda field: field.hash == cached_bin_hashes[
+                        'complexEmitterDefinitionData']
+                )
+                if src_complexEmitterDefinitionData != None and dst_complexEmitterDefinitionData != None:
+                    # merge 2 list 
+                    emitters_copied += len(src_complexEmitterDefinitionData.data)
+                    dst_complexEmitterDefinitionData.data += src_complexEmitterDefinitionData.data
+    print(f'hapiBin: Done: Copy {emitters_copied} emitters.')   
+
+
+@Helper.create_qt_data(
+    name='💠 Fix VFX Shape Property + BirthTranslation: on source',
     description='Fix bin shape owo?! (patch 14.1)',
-    icon='💠',
     require_dst=False
 )
 def fix_vfx_shape(src_bin, dst_bin):

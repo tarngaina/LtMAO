@@ -113,6 +113,48 @@ def build_main_window(window: QMainWindow):
         event.accept()
     window.changeEvent = changeEvent
     
+     # main stylesheet
+    window.setStyleSheet(f"""
+        QWidget {{
+            background-color: rgba(0, 0, 0, 127 );        
+        }}  
+        QLabel {{
+            background-color: transparent;
+        }}  
+        QScrollArea {{
+            border: none;
+            background-color: transparent;
+        }}         
+        QToolButton {{
+            min-height: 30;
+        }}
+        QToolButton:hover {{ 
+            background-color: rgb{qtwidgets.accent_color}; 
+        }}
+        QToolButton:checked {{ 
+            background-color: rgb{qtwidgets.accent_color}; 
+        }}
+        QCheckBox:hover {{
+            border-bottom-color: rgb{qtwidgets.accent_color};  
+        }} 
+        QTabWidget:pane {{
+            border: none;
+        }}   
+        QTabWidget:tab-bar {{
+            background-color: rgba(0, 0, 0, 127);        
+        }}    
+        QTabBar:tab {{
+            min-height: 30;
+            min-width: 120;
+            background-color: rgba(0, 0, 0, 127);        
+        }}
+        QTabBar:tab:selected {{
+            color: #ffffff;
+            border-bottom-color: rgb{qtwidgets.accent_color};
+            background-color: rgb{qtwidgets.accent_color};
+        }}
+    """)
+    
     print('qtGUI: Finish: Build main window.')
 
 def build_grips(window: QMainWindow):
@@ -165,27 +207,6 @@ def build_grips(window: QMainWindow):
 def build_main_layout(widget: QWidget, layout: QBoxLayout):
     layout.setContentsMargins(0, 0, 0, 0)
     layout.setSpacing(0)
-    # main stylesheet
-    widget.setStyleSheet(f"""
-        QWidget {{
-            background-color: rgba(0, 0, 0, 127);        
-        }}  
-        QLabel {{
-            background-color: transparent;
-        }}         
-        QToolButton {{
-            min-height: 30;
-        }}
-        QToolButton:hover {{ 
-            background-color: rgb{qtwidgets.accent_color}; 
-        }}
-        QToolButton:checked {{ 
-            background-color: rgb{qtwidgets.accent_color}; 
-        }}
-        QStatusBar::hover {{ 
-            background-color: rgb{qtwidgets.accent_color}; 
-        }}
-    """)
     widget = QWidget()
     hlayout = QHBoxLayout()
     build_title_bar(widget, hlayout)
@@ -211,19 +232,19 @@ def build_main_layout(widget: QWidget, layout: QBoxLayout):
     print('qtGUI: Finish: Build main layout.')
 
 def build_title_bar(widget: QWidget, layout: QBoxLayout):
-    widget.setMinimumHeight(30)
+    widget.setFixedHeight(40)
     layout.setContentsMargins(0, 0, 0, 0)
     layout.setSpacing(0)
 
     # icon
-    pixmap = QPixmap('./res/titlebaricon.png').scaled(118, 40, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation)
+    pixmap = QPixmap('./res/titlebaricon.png').scaled(120, 40, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation)
     icon_label = QLabel(pixmap=pixmap)
-    layout.addWidget(icon_label, stretch=4)
+    layout.addWidget(icon_label, stretch=3)
 
     # icon
     qtwidgets.title_label = title_label = QLabel('LtMAO-hai')
     title_label.setStyleSheet('background-color: rgba(0, 0, 0, 127)')
-    layout.addWidget(title_label, stretch=80)
+    layout.addWidget(title_label, stretch=100)
 
     # buttons
     min_button = QToolButton()
@@ -236,26 +257,26 @@ def build_title_bar(widget: QWidget, layout: QBoxLayout):
             qtwidgets.main_window.remember_maximized_state = True
         qtwidgets.main_window.showMinimized()
     min_button.clicked.connect(min_button_cmd)
-    layout.addWidget(min_button, stretch=4)
+    layout.addWidget(min_button, stretch=3)
     
     qtwidgets.nor_button = nor_button = QToolButton()
     nor_button.setText('🟡 Restore')
     nor_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
     nor_button.clicked.connect(qtwidgets.main_window.showNormal)
-    layout.addWidget(nor_button, stretch=4)
+    layout.addWidget(nor_button, stretch=3)
 
     qtwidgets.max_button = max_button = QToolButton()
     max_button.setText('🔵 Maximize')
     max_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
     max_button.setVisible(False)
     max_button.clicked.connect(qtwidgets.main_window.showMaximized)
-    layout.addWidget(max_button, stretch=4)
+    layout.addWidget(max_button, stretch=3)
     
     close_button = QToolButton()
     close_button.setText('🔴 Close')
     close_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
     close_button.clicked.connect(qtwidgets.main_window.close)
-    layout.addWidget(close_button, stretch=4)
+    layout.addWidget(close_button, stretch=3)
 
     # events
     def mousePressEvent(event):
@@ -313,14 +334,14 @@ def build_midcontent(widget: QWidget, layout: QBoxLayout):
         # create content
         content_widget = QWidget()
         content_widget.setVisible(False)
-        c.content = content_widget
+        c.content = content_widget  
         layout.addWidget(content_widget, stretch=99)
     control_layout.addStretch()
 
     print('qtGUI: Finish: Build mid content.')
     
 def build_status_bar(widget: QWidget, layout: QBoxLayout):
-    widget.setMinimumHeight(30)
+    widget.setFixedHeight(40)
     layout.setContentsMargins(0, 0, 0, 0)
     layout.setSpacing(0)
     
