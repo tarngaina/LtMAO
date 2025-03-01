@@ -23,6 +23,7 @@ from PIL import Image
 
 from . import helper
 from .. import setting, tools, Ritoddstex, winLT, hash_helper, pyRitoFile, hapiBin, no_skin, sborf, mask_viewer
+from ..lemon3d import lemon_fbx, lemon_maya
 
 qtwidgets = None
 
@@ -450,7 +451,7 @@ Target type (if needed) must match source type.
     layout2.addStretch()
     for browse_type in ['BIN', 'WAD', 'Folder']:
         button = QToolButton()
-        button.setText(f'🔥 Browse Source {browse_type}')
+        button.setText(f'🏹 Browse Source {browse_type}')
         button.clicked.connect(lambda event, line=src_line, browse_type=browse_type: browse_cmd(line, browse_type))
         layout2.addWidget(button)
     layout.addLayout(layout2)
@@ -461,7 +462,7 @@ Target type (if needed) must match source type.
     layout2.addStretch()
     for browse_type in ['BIN', 'WAD', 'Folder']:
         button = QToolButton()
-        button.setText(f'💧 Browse Target {browse_type}')
+        button.setText(f'🎯 Browse Target {browse_type}')
         button.clicked.connect(lambda event, line=dst_line, browse_type=browse_type: browse_cmd(line, browse_type))
         layout2.addWidget(button)
     layout.addLayout(layout2)
@@ -495,32 +496,7 @@ Target type (if needed) must match source type.
 def build_no_skin(widget: QWidget):
     layout = QHBoxLayout()
     tab_widget = QTabWidget()
-    tab_widget.setStyleSheet(f"""
-        QWidget {{
-            background-color: transparent;
-        }}     
-        QToolButton {{
-            min-height: 30;
-            background-color: rgba(0, 0, 0, 127);
-            border-bottom: 2px solid rgb{qtwidgets.accent_color};
-        }}
-        QLineEdit {{
-            min-height: 30;
-            background-color: rgba(0, 0, 0, 127);
-        }}
-        QPlainTextEdit, QLabel {{
-            background-color: rgba(0, 0, 0, 127);
-        }}
-        QToolButton:hover {{ 
-            background-color: rgb{qtwidgets.accent_color}; 
-        }}
-        QToolButton:checked {{ 
-            background-color: rgb{qtwidgets.accent_color}; 
-        }}
-        QTabBar::tab {{
-            border-bottom: 2px solid rgb{qtwidgets.accent_color};
-        }}
-    """)
+    tab_widget.setStyleSheet(qtwidgets.tab_stylesheet)
     
     # no skin full
     tab1 = QWidget()
@@ -799,7 +775,92 @@ New custom joints will have weight set to 0.0.
     widget.setLayout(layout)
 
 def build_lemon3d(widget: QWidget):
-    widget.setStyleSheet(f'background-color: rgba(127, 255, 255, 127)')
+    layout = QHBoxLayout()
+    tab_widget = QTabWidget()
+    tab_widget.setStyleSheet(qtwidgets.tab_stylesheet)
+    # fbx
+    
+    tab1 = QWidget()
+    layout2 = QVBoxLayout()
+    
+    def browse(line, title, file_type):
+        dialog = QFileDialog()
+        filepath = dialog.getOpenFileName(
+            widget, 
+            title,
+            setting.get('qtGUI.default_folder', None),
+            f'{file_type} Files (*.{file_type.lower()})'
+        )
+        if len(filepath[0]) > 0:
+            final_path = filepath[0]
+            line.setText(final_path)
+
+    # browse skin to fbx
+    layout2.addWidget(QLabel('👽 SKIN to FBX'))
+    layout3 = QGridLayout()
+    skn_line = QLineEdit()
+    layout3.addWidget(skn_line, 0, 0)
+    button = QToolButton()
+    button.setText('🧊 Browse SKN')    
+    button.setMinimumWidth(260)
+    button.clicked.connect(lambda event, line=skn_line: browse(line, 'Select SKN', 'SKN'))
+    layout3.addWidget(button, 0, 1)
+    skl_line = QLineEdit()
+    layout3.addWidget(skl_line, 1, 0)
+    button = QToolButton()
+    button.setText('🦴 Browse SKL')    
+    button.setMinimumWidth(260)
+    button.clicked.connect(lambda event, line=skl_line: browse(line, 'Select SKL', 'SKL'))
+    layout3.addWidget(button, 1, 1)
+    layout2.addLayout(layout3)
+    # to fbx
+    layout3 = QHBoxLayout()
+    button = QToolButton()
+    button.setText('🚙 To FBX')
+    layout3.addWidget(button)
+    output_fbx = QLabel()
+    skn_line.textChanged.connect(lambda event: output_fbx.setText(event.replace('.skn', '.fbx')))
+    layout3.addWidget(output_fbx)
+    layout2.addLayout(layout3)
+    button.clicked.connect(lambda event: lemon_fbx.skin_to_fbx(skl_line.text(), skn_line.text(), output_fbx.text()))
+
+    layout2.addSpacing(30)
+
+    # browse fbx to skin
+    layout2.addWidget(QLabel('👻 FBX to SKIN'))
+    layout3 = QGridLayout()
+    fbx_line = QLineEdit()
+    layout3.addWidget(fbx_line, 0, 0)
+    button = QToolButton()
+    button.setText('🌄 Browse FBX')    
+    button.setMinimumWidth(260)
+    button.clicked.connect(lambda event, line=fbx_line: browse(line, 'Select FBX', 'FBX'))
+    layout3.addWidget(button, 0, 1)
+    layout2.addLayout(layout3)
+    # to skin
+    layout3 = QHBoxLayout()
+    button = QToolButton()
+    button.setText('🚗 To SKN + SKL')
+    layout3.addWidget(button)
+    output_skn = QLabel()
+    fbx_line.textChanged.connect(lambda event: output_skn.setText(event.replace('.fbx', '.skn')))
+    layout3.addWidget(output_skn)
+    layout2.addLayout(layout3)
+    button.clicked.connect(lambda event: lemon_fbx.fbx_to_skin(fbx_line.text(), output_skn.text().replace('.skn', '.skl'), output_skn.text()))
+
+    layout2.addStretch()
+    tab1.setLayout(layout2)
+    tab_widget.addTab(tab1, '💦 fbx')
+
+
+    # maya
+    tab2 = QWidget()
+    layout2 = QVBoxLayout()
+    
+    tab2.setLayout(layout2)
+    tab_widget.addTab(tab2, '🔥 maya')
+    layout.addWidget(tab_widget, stretch=1)
+    widget.setLayout(layout)
 
 def build_ddsmart(widget: QWidget):
     # helper function since dont have a ddsmart.py???
@@ -1066,4 +1127,5 @@ def build_setting(widget: QWidget):
     
     layout.addStretch()
     widget.setLayout(layout)
+
 

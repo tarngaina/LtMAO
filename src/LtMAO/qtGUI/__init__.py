@@ -35,6 +35,15 @@ def before_build():
     setting.init()
     no_skin.init()
     control.qtwidgets = qtwidgets
+    set_font()
+    init_theme()
+
+def set_font():
+    id = QFontDatabase.addApplicationFont('./res/font.ttf')
+    family = QFontDatabase.applicationFontFamilies(id)[0] if id > -1 else 'Consolas'
+    qtwidgets.app.setFont(QFont(family, weight=14))
+
+def init_theme():
     # theme stuffs
     global theme_paths
     theme_name = setting.get('qtGUI.theme_name', 'raora')
@@ -48,21 +57,110 @@ def before_build():
     r, g, b = colorthief.ColorThief(theme_paths['background']).get_color(quality=1)
     f = 127 / max(r, g, b)
     qtwidgets.accent_color = (int(r*f), int(g*f), int(b*f))
+    # stylesheets
+    qtwidgets.window_stylesheet = f"""
+        QWidget {{
+            background-color: rgba(0, 0, 0, 127);        
+        }}  
+        QLabel {{
+            background-color: transparent;
+        }}  
+        QScrollArea {{
+            border: none;
+            background-color: transparent;
+        }}         
+        QToolButton {{
+            min-height: 30;
+            border-bottom: 2px solid rgb{qtwidgets.accent_color};
+        }}
+        QToolButton:hover {{ 
+            background-color: rgb{qtwidgets.accent_color}; 
+        }}
+        QToolButton:checked {{ 
+            background-color: rgb{qtwidgets.accent_color}; 
+        }}
+        QCheckBox:hover {{
+            border-bottom-color: rgb{qtwidgets.accent_color};  
+        }} 
+        QLineEdit {{
+            min-height: 30;
+        }}
+        QLineEdit:focus, QPlainTextEdit:focus {{
+            border-color: rgb{qtwidgets.accent_color};  
+        }}
+        QComboBox {{
+            border-color: rgb{qtwidgets.accent_color};
+        }}
+        QComboBox QAbstractItemView:item:hover, QComboBox QAbstractItemView:item:selected {{
+            background-color: rgb{qtwidgets.accent_color};    
+        }}
+        QTabWidget:pane {{
+            border: none;
+        }}   
+        QTabWidget:tab-bar {{
+            background-color: rgba(0, 0, 0, 127);        
+        }}    
+        QTabBar:tab {{
+            min-height: 30;
+            min-width: 120;
+            background-color: rgba(0, 0, 0, 127);        
+        }}
+        QTabBar:tab:selected {{
+            color: #ffffff;
+            border-bottom-color: rgb{qtwidgets.accent_color};
+            background-color: rgb{qtwidgets.accent_color};
+        }}
+        QTableView {{
+            selection-background-color: rgb{qtwidgets.accent_color};
+        }}
+        QHeaderView:section {{
+            background-color: transparent;
+        }}
+        QTableView QTableCornerButton::section {{
+            background-color: rgba(0, 0, 0, 127);  
+        }}
+        QHeaderView:section:checked {{
+            color: #ffffff;
+            background-color: rgb{qtwidgets.accent_color};
+        }}
+    """
+    qtwidgets.tab_stylesheet = f"""
+        QWidget {{
+            background-color: transparent;
+        }}     
+        QToolButton {{
+            min-height: 30;
+            background-color: rgba(0, 0, 0, 127);
+            border-bottom: 2px solid rgb{qtwidgets.accent_color};
+        }}
+        QLabel {{
+            background-color: transparent;
+        }}
+        QLineEdit {{
+            min-height: 30;
+            background-color: rgba(0, 0, 0, 127);
+        }}
+        QPlainTextEdit {{
+            background-color: rgba(0, 0, 0, 127);
+        }}
+        QToolButton:hover {{ 
+            background-color: rgb{qtwidgets.accent_color}; 
+        }}
+        QToolButton:checked {{ 
+            background-color: rgb{qtwidgets.accent_color}; 
+        }}
+        QTabBar::tab {{
+            border-bottom: 2px solid rgb{qtwidgets.accent_color};
+        }}
+    """
     
 
 def build_app():
-    
-    
     # set app theme
     import qdarktheme
     qdarktheme.enable_hi_dpi()
-    app = QApplication([])
+    qtwidgets.app = app = QApplication([])
     qdarktheme.setup_theme('dark', corner_shape='sharp')
-
-    # set app font
-    id = QFontDatabase.addApplicationFont('./res/font.ttf')
-    family = QFontDatabase.applicationFontFamilies(id)[0] if id > -1 else 'Consolas'
-    app.setFont(QFont(family, weight=14))
 
     before_build()
 
@@ -132,72 +230,7 @@ def build_main_window(window: QMainWindow):
     window.changeEvent = changeEvent
     
      # main stylesheet
-    window.setStyleSheet(f"""
-        QWidget {{
-            background-color: rgba(0, 0, 0, 127);        
-        }}  
-        QLabel {{
-            background-color: transparent;
-        }}  
-        QScrollArea {{
-            border: none;
-            background-color: transparent;
-        }}         
-        QToolButton {{
-            min-height: 30;
-            border-bottom: 2px solid rgb{qtwidgets.accent_color};
-        }}
-        QToolButton:hover {{ 
-            background-color: rgb{qtwidgets.accent_color}; 
-        }}
-        QToolButton:checked {{ 
-            background-color: rgb{qtwidgets.accent_color}; 
-        }}
-        QCheckBox:hover {{
-            border-bottom-color: rgb{qtwidgets.accent_color};  
-        }} 
-        QLineEdit {{
-            min-height: 30;
-        }}
-        QLineEdit:focus, QPlainTextEdit:focus {{
-            border-color: rgb{qtwidgets.accent_color};  
-        }}
-        QComboBox {{
-            border-color: rgb{qtwidgets.accent_color};
-        }}
-        QComboBox QAbstractItemView:item:hover, QComboBox QAbstractItemView:item:selected {{
-            background-color: rgb{qtwidgets.accent_color};    
-        }}
-        QTabWidget:pane {{
-            border: none;
-        }}   
-        QTabWidget:tab-bar {{
-            background-color: rgba(0, 0, 0, 127);        
-        }}    
-        QTabBar:tab {{
-            min-height: 30;
-            min-width: 120;
-            background-color: rgba(0, 0, 0, 127);        
-        }}
-        QTabBar:tab:selected {{
-            color: #ffffff;
-            border-bottom-color: rgb{qtwidgets.accent_color};
-            background-color: rgb{qtwidgets.accent_color};
-        }}
-        QTableView {{
-            selection-background-color: rgb{qtwidgets.accent_color};
-        }}
-        QHeaderView:section {{
-            background-color: transparent;
-        }}
-        QTableView QTableCornerButton::section {{
-            background-color: rgba(0, 0, 0, 127);  
-        }}
-        QHeaderView:section:checked {{
-            color: #ffffff;
-            background-color: rgb{qtwidgets.accent_color};
-        }}
-    """)
+    window.setStyleSheet(qtwidgets.window_stylesheet)
     
     print('qtGUI: Finish: Build main window.')
 
@@ -490,5 +523,3 @@ def sync_changelog(changelog):
             full_changelog_text = 'get_changelog: Error: Download changelog failed, no local changelog to read.'
     changelog.insertPlainText(full_changelog_text)
     print('qtGUI: Finish: Sync changelog.')
-
-   
