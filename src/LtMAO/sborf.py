@@ -134,7 +134,7 @@ def skin_fix(skl_path, skn_path, riotskl_path, riotskn_path='', backup=True, don
     print(f'sborf: Finish: Fix SKIN.')
 
 
-def maskdata_adapt(skl_path, riotskl_path, bin_path, riotbin_path, backup=True):
+def maskdata_adapt(skl_path, bin_path, riotskl_path, riotbin_path, backup=True):
     # read skl and bin
     print(f'sborf: Start:  Read SKL and Animation BIN.')
     skl = read_skl(skl_path)

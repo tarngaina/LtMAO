@@ -1,0 +1,24 @@
+{
+    "_comment_general": [
+        "Key starts with _ mean comment. What you put in here determine which characters and skins wont become skin0.bin (get skipped).",
+        "example: azirsoldier: all mean all skinx.bin of azisoldier wont become skin0.bin."
+    ],
+    "_azirsoldier": "crash some game for no reason",
+    "azirsoldier": "all",
+    "_ekko": "true damage ekko become transparent",
+    "ekko": [
+        "skin19.bin",
+        "skin20.bin",
+        "skin21.bin",
+        "skin22.bin",
+        "skin23.bin",
+        "skin24.bin",
+        "skin25.bin",
+        "skin26.bin",
+        "skin27.bin"
+    ],
+    "_threshlantern": "crash some game for no reason",
+    "threshlantern": [
+        "skin11.bin"
+    ]
+}

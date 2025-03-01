@@ -58,6 +58,13 @@ class CDTBHashes:
     def remote_file(filename):
         # return f'https://raw.githubusercontent.com/CommunityDragon/CDTB/master/cdragontoolbox/{filename}'
         return f'https://raw.communitydragon.org/data/hashes/lol/{filename}'
+    
+    def calculate_size():
+        total_size = 0
+        for root, dirs, files in os.walk(CDTBHashes.local_dir):
+            for file in files:
+                total_size += os.path.getsize(os.path.join(root, file))
+        return to_human(total_size)
 
     etag_path = f'{local_dir}/etag.json'
     ETAG = {}
@@ -115,8 +122,17 @@ class CDTBHashes:
 class ExtractedHashes:
     # extracted hash
     local_dir = './pref/hashes/extracted_hashes'
-    def local_file(filename): return f'{ExtractedHashes.local_dir}/{filename}'
 
+    def local_file(filename): 
+        return f'{ExtractedHashes.local_dir}/{filename}'
+
+    def calculate_size():
+        total_size = 0
+        for root, dirs, files in os.walk(ExtractedHashes.local_dir):
+            for file in files:
+                total_size += os.path.getsize(os.path.join(root, file))
+        return to_human(total_size)
+    
     def extract(*file_paths):
         wad_hash = pyRitoFile.wad_hash
 
@@ -277,7 +293,16 @@ class CustomHashes:
     # combine with CDTB and extracted hashes
     # use for all functions in this app
     local_dir = './pref/hashes/custom_hashes'
-    def local_file(filename): return f'{CustomHashes.local_dir}/{filename}'
+
+    def local_file(filename): 
+        return f'{CustomHashes.local_dir}/{filename}'
+    
+    def calculate_size():
+        total_size = 0
+        for root, dirs, files in os.walk(CustomHashes.local_dir):
+            for file in files:
+                total_size += os.path.getsize(os.path.join(root, file))
+        return to_human(total_size)
 
     @staticmethod
     def read_hashes(*filenames):
@@ -377,6 +402,13 @@ def reset_custom_hashes(*filenames):
         with open(ch_file, 'wb+') as f:
             f.write(data)
     print('hash_helper: Finish: Reset Custom Hashes to CDTB Hashes.')
+
+def clear_extract_hashes(*filenames):
+    for filename in filenames:
+        eh_file = ExtractedHashes.local_file(filename)
+        if os.path.exists(eh_file):
+            os.remove(os.path.abspath(eh_file))
+    print('hash_helper: Finish: Clear Extract Hashes.')
 
 def init():
     # load setting first

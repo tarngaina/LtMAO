@@ -11,7 +11,7 @@ def bin_hash(name):
 
 
 cache_dir = f'./pref/no_skin/_cache'
-local_dir = './resources/no_skin'
+local_dir = './res/no_skin'
 skips_file = f'{local_dir}/SKIPS.json'
 SKIPS = {}
 FANTOME_META = {
@@ -51,7 +51,7 @@ def set_skips(text):
 
 def mini_no_skin(skin0_file, otherskins_files):
     # rebuild hashes
-    print(f'no_skin: Start:  Rebuilding hashes')
+    print(f'no_skin: Start: Rebuilding hashes')
     hash_helper.CustomHashes.read_hashes('hashes.binentries.txt')
     skin0_hashes = {}
     otherskins_hashes = {}
@@ -66,6 +66,7 @@ def mini_no_skin(skin0_file, otherskins_files):
     # read bins
     skin0_bin = pyRitoFile.read_bin(skin0_file)
     otherskins_bins = [pyRitoFile.read_bin(otherskins_file) for otherskins_file in otherskins_files]
+    print(f'no_skin: Finish: Read BINs.')
     # skin0 bin
     base_scdp = None
     base_rr = None
@@ -105,8 +106,7 @@ def mini_no_skin(skin0_file, otherskins_files):
         # write file
         
         pyRitoFile.write_bin(otherskins_file, skin0_bin)
-        print(f'no_skin: Finish: Swap skin: {otherskins_file}')
-    print(f'no_skin: Finish: Swap all skinX as skin0.')
+    print(f'no_skin: Finish: Swap {len(otherskins_files)} skinX as skin0.')
 
 
 def parse(champions_dir, output_dir):
@@ -156,7 +156,6 @@ def parse(champions_dir, output_dir):
                     if character in SKIPS:
                         if SKIPS[character] == 'all' or skinx in SKIPS[character]:
                             continue
-                    print(f'no_skin: Finish: Parse: {character} {skinx}')
                     # read chunk
                     chunk.read_data(bs)
                     bin = pyRitoFile.read_bin('', raw=chunk.data)

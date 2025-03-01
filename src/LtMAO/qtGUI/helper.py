@@ -1,5 +1,4 @@
 from threading import Thread
-from PySide6.QtCore import QThreadPool
 
 class Keeper:
     def __init__(self):
@@ -7,10 +6,7 @@ class Keeper:
 
 class SafeThread:
     cached = {}
-    pool = QThreadPool()
-    pool.setMaxThreadCount(20)
     
-
     @staticmethod
     def check_safe(thread):
         if thread == None:
@@ -27,9 +23,9 @@ class SafeThread:
                     target()
                 except:
                     import traceback
-                    SafeThread.log(traceback.format_exc())
+                    print(traceback.format_exc())
                 SafeThread.cached[thread_name] = None
-            SafeThread.cached[thread_name] = cmd
-            SafeThread.pool.start(cmd)
+            SafeThread.cached[thread_name] = Thread(target=cmd)
+            SafeThread.cached[thread_name].start()
         else:
             print(f'{thread_name}: Error: Thread is already running, wait for it to end.')
