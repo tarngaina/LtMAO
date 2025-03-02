@@ -15,14 +15,32 @@ from PySide6.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QItemDelegate,
+    QTextEdit,
+    QTreeView,
+    
 )
-from PySide6.QtCore import Qt
+from PySide6.QtGui import QBrush, QColor, QStandardItem, QStandardItemModel
+from PySide6.QtCore import Qt, QObject, Signal
+
 
 import os, os.path
 from PIL import Image
 
 from . import helper
-from .. import setting, tools, Ritoddstex, winLT, hash_helper, pyRitoFile, hapiBin, no_skin, sborf, mask_viewer
+from .. import (
+    setting, 
+    tools, 
+    Ritoddstex,
+    winLT, 
+    hash_helper, 
+    pyRitoFile, 
+    hapiBin, 
+    no_skin, 
+    sborf, 
+    mask_viewer, 
+    wad_tool,
+    bnk_tool
+)
 from ..lemon3d import lemon_fbx, lemon_maya
 
 qtwidgets = None
@@ -68,7 +86,7 @@ all = [
 extras = []
 
 def build_cslmao(widget: QWidget):
-    widget.setStyleSheet(f'background-color: rgba(255, 0, 0, 127)')
+    widget.setStyleSheet(f'background-color: rgba(0, 0, 0, 127)')
 
 def build_hash_helper(widget: QWidget):
     layout = QVBoxLayout()
@@ -628,7 +646,214 @@ def build_no_skin(widget: QWidget):
     widget.setLayout(layout)
 
 def build_wad_tool(widget: QWidget):
-    widget.setStyleSheet(f'background-color: rgba(0, 0, 255, 127)')
+    layout = QVBoxLayout()
+
+    qtwidgets.text_wad_paths = []
+    qtwidgets.text_chunk_hashes = []
+    # pack, unpack wad
+    layout2 = QHBoxLayout()
+    button = QToolButton()
+    button.setText('📦 WAD to Folder')
+    def wad_to_dir():
+        dialog = QFileDialog()
+        filepath = dialog.getOpenFileName(
+            widget, 
+            'Select WAD',
+            setting.get('qtGUI.default_folder', None),
+            f'WAD Files (*.wad.client)'
+        )
+        if len(filepath[0]) > 0:
+            def wad_thrd(): 
+                hash_helper.read_wad_hashes()
+                src = filepath[0]
+                dst = src.replace('.wad.client', '.wad')
+                wad_tool.unpack(src, dst, hash_helper.HASHTABLES)
+                print(f'wad_tool: Finish: Unpack {src}')
+                hash_helper.free_wad_hashes()
+            helper.SafeThread.start('wad_tool', wad_thrd)
+    button.clicked.connect(wad_to_dir)
+    layout2.addWidget(button)
+    button = QToolButton()
+    button.setText('📁 Folder to WAD')
+    def dir_to_wad():
+        dialog = QFileDialog()
+        dirpath = dialog.getExistingDirectory(
+            widget, 
+            'Select Folder',
+            setting.get('qtGUI.default_folder', None)
+        )
+        if dirpath != '':
+            def wad_thrd(): 
+                src = dirpath
+                dst = src
+                if dst.endswith('.wad'):
+                    dst += '.client'
+                else:
+                    if not dst.endswith('.wad.client'):
+                        dst += '.wad.client'
+                wad_tool.pack(src, dst)
+                print(f'wad_tool: Finish: Pack {src}')
+            helper.SafeThread.start('wad_tool', wad_thrd)
+    button.clicked.connect(dir_to_wad)
+    layout2.addWidget(button)
+    layout2.addStretch()
+    layout.addLayout(layout2)
+
+    # bulk unpack
+    layout.addSpacing(30)
+    layout2 = QHBoxLayout()
+    add_button = QToolButton()
+    add_button.setText('💰 Add WADs')
+    layout2.addWidget(add_button)
+    scan_button = QToolButton()
+    scan_button.setText('🔎 Scan WADs in Folder')
+    layout2.addWidget(scan_button)
+    clear_button = QToolButton()
+    clear_button.setText('❌ Clear')
+    layout2.addWidget(clear_button)
+    filter_line = QLineEdit()
+    filter_line.setPlaceholderText('Include keywords, press Enter to filter')
+    layout2.addWidget(filter_line, stretch=1)
+    layout.addLayout(layout2)
+    # text view
+    layout2 = QHBoxLayout()
+    wad_text = QPlainTextEdit()
+    wad_text.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+    wad_text.setReadOnly(True)
+    layout2.addWidget(wad_text, stretch=3)
+    chunk_text = QPlainTextEdit()
+    chunk_text.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+    chunk_text.setReadOnly(True)
+    layout2.addWidget(chunk_text, stretch=7)
+    layout.addLayout(layout2, stretch=1)
+
+    unpack_button = QToolButton()
+    unpack_button.setText('🔪 Bulk Unpack')
+    unpack_button.setMinimumWidth(300)
+    layout.addWidget(unpack_button, alignment=Qt.AlignmentFlag.AlignHCenter)
+
+    class WadChunkText(QObject):
+        wad_text_singal = Signal(str)
+        chunk_text_signal = Signal(str)
+
+        def __init__(self, wad_text, chunk_text):
+            QObject.__init__(self)
+            self.wad_text_singal.connect(wad_text.setPlainText)
+            self.chunk_text_signal.connect(chunk_text.setPlainText)
+        
+        def setPlainText(self, wad_text_content, chunk_text_content):
+            if wad_text_content != None:
+                self.wad_text_singal.emit(wad_text_content)
+            if chunk_text_content != None:
+                self.chunk_text_signal.emit(chunk_text_content)
+    
+    wadchunk_text = WadChunkText(wad_text, chunk_text)
+    # add wads
+    def add_wads(isfile):
+        dialog = QFileDialog()
+        final_paths = []
+        if isfile:
+            filepaths = dialog.getOpenFileNames(
+                widget, 
+                f'Select WADs',
+                setting.get('qtGUI.default_folder', None),
+                f'WAD Files (*.wad.client)'
+            )
+            if len(filepaths[0]) > 0:
+                final_paths += filepaths[0]
+        else:
+            dirpath = dialog.getExistingDirectory(
+                widget,
+                f'Select Folder',
+                setting.get('qtGUI.default_folder', None),
+            )
+            if dirpath != '':
+                for root, dirs, files in os.walk(dirpath):
+                    for file in files:
+                        if file.endswith('.wad.client'):
+                            final_paths.append(os.path.join(root, file).replace('\\', '/'))
+        if len(final_paths) > 0:
+            def wad_thrd():
+                hash_helper.read_wad_hashes()
+                for wad_path in final_paths:
+                    try:
+                        if wad_path not in qtwidgets.text_wad_paths:
+                            wad = pyRitoFile.read_wad(wad_path)
+                            wad.un_hash(hash_helper.HASHTABLES)
+                            qtwidgets.text_wad_paths.append(wad_path)
+                            qtwidgets.text_chunk_hashes.extend(chunk.hash for chunk in wad.chunks)
+                    except:
+                        pass
+                hash_helper.free_wad_hashes()
+                
+                print('wad_tool: Finish: Load WADs.')
+                wadchunk_text.setPlainText('\n'.join(qtwidgets.text_wad_paths), '\n'.join(qtwidgets.text_chunk_hashes))
+
+            helper.SafeThread.start('wad_tool', wad_thrd)
+    add_button.clicked.connect(lambda event: add_wads(True))
+    scan_button.clicked.connect(lambda event: add_wads(False))
+    # clear wads
+    def clear_wads():
+        qtwidgets.text_wad_paths = []
+        qtwidgets.text_chunk_hashes = []
+        wad_text.clear()
+        chunk_text.clear()
+        print('wad_tool: Finish: Clear WADs.')
+    clear_button.clicked.connect(clear_wads)
+    # filter    
+    def filter_chunk(keywords):
+        new_text_chunk_hashesh = []
+        keywords = keywords.split(' ')
+        for chunk_hash in qtwidgets.text_chunk_hashes:
+            for word in keywords:
+                if word in chunk_hash:
+                    new_text_chunk_hashesh.append(chunk_hash)
+                    break
+        chunk_text.setPlainText('\n'.join(new_text_chunk_hashesh))
+        chunk_doc = chunk_text.document()
+        brush = QBrush(QColor(*qtwidgets.accent_color))
+        ess = []        
+        for word in keywords:
+            text_cursor = chunk_doc.find(word, 0)
+            if text_cursor.isNull():
+                continue
+            
+            es = QTextEdit.ExtraSelection()
+            es.cursor = text_cursor
+            es.format.setForeground(brush)
+            ess.append(es)
+            while not text_cursor.isNull():
+                text_cursor = chunk_doc.find(word, text_cursor.selectionEnd())
+                es = QTextEdit.ExtraSelection()
+                es.cursor = text_cursor
+                es.format.setForeground(brush)
+                ess.append(es)
+        chunk_text.setExtraSelections(ess)
+    filter_line.returnPressed.connect(lambda: filter_chunk(filter_line.text()))
+    # bulk unpack
+    def bulk_unpack():
+        dialog = QFileDialog()
+        dirpath = dialog.getExistingDirectory(
+            widget,
+            f'Select Output Folder',
+            setting.get('qtGUI.default_folder', None),
+        )
+        if dirpath != '':
+            wad_paths = wad_text.toPlainText().split('\n')
+            chunk_hashes = chunk_text.toPlainText().split('\n')
+            if len(chunk_hashes) == 0:
+                chunk_hashes = None
+            if len(wad_paths) > 0:
+                def bulk_unpack_thrd():
+                    hash_helper.read_wad_hashes()
+                    for wad_path in wad_paths:
+                        wad_tool.unpack(wad_path, dirpath, hash_helper.HASHTABLES, filter=chunk_hashes)
+                    hash_helper.free_wad_hashes()
+                    print(f'wad_tool: Finish: Unpack to {dirpath}')
+                helper.SafeThread.start('wad_tool', bulk_unpack_thrd)
+    unpack_button.clicked.connect(bulk_unpack)
+
+    widget.setLayout(layout)
 
 def build_sborf(widget: QWidget):
     layout = QVBoxLayout()
@@ -856,7 +1081,7 @@ def build_lemon3d(widget: QWidget):
     # maya
     tab2 = QWidget()
     layout2 = QVBoxLayout()
-    
+    layout2.addWidget(QLabel('wip'))
     tab2.setLayout(layout2)
     tab_widget.addTab(tab2, '🔥 maya')
     layout.addWidget(tab_widget, stretch=1)
@@ -978,7 +1203,284 @@ def build_ddsmart(widget: QWidget):
     widget.setLayout(layout)
 
 def build_bnk_tool(widget: QWidget):
-    widget.setStyleSheet(f'background-color: rgba(255, 127, 255, 127)')
+    layout = QVBoxLayout()
+
+    # browse layout
+    layout2 = QGridLayout()
+    # audio
+    audio_line = QLineEdit()
+    audio_line.setPlaceholderText('Require')
+    layout2.addWidget(audio_line, 0, 0)
+    button = QToolButton()
+    button.setText('🔈 Select Audio BNK/WPK')    
+    button.setMinimumWidth(260)
+    def browse_audio(line):
+        dialog = QFileDialog()
+        filepath = dialog.getOpenFileName(
+            widget, 
+            'Select Audio BNK/WPK',
+            setting.get('qtGUI.default_folder', None),
+            f'BNK/WPK Files (*.bnk *.wpk)'
+        )
+        if len(filepath[0]) > 0:
+            final_path = filepath[0]
+            line.setText(final_path)
+    button.clicked.connect(lambda event, line=audio_line: browse_audio(line))
+    layout2.addWidget(button, 0, 1)
+    # event
+    event_line = QLineEdit()
+    event_line.setPlaceholderText('Require')
+    layout2.addWidget(event_line, 1, 0)
+    button = QToolButton()
+    button.setText('📋 Select Event BNK')    
+    button.setMinimumWidth(260)
+    def browse_event(line):
+        dialog = QFileDialog()
+        filepath = dialog.getOpenFileName(
+            widget, 
+            'Select Event BNK',
+            setting.get('qtGUI.default_folder', None),
+            f'BNK Files (*.bnk)'
+        )
+        if len(filepath[0]) > 0:
+            final_path = filepath[0]
+            line.setText(final_path)
+    button.clicked.connect(lambda event, line=event_line: browse_event(line))
+    layout2.addWidget(button, 1, 1)
+    # bin
+    bin_line = QLineEdit()
+    layout2.addWidget(bin_line, 2, 0)
+    button = QToolButton()
+    button.setText('📝 Select BIN')    
+    button.setMinimumWidth(260)
+    def browse_bin(line):
+        dialog = QFileDialog()
+        filepath = dialog.getOpenFileName(
+            widget, 
+            'Select BIN',
+            setting.get('qtGUI.default_folder', None),
+            f'BIN Files (*.bin)'
+        )
+        if len(filepath[0]) > 0:
+            final_path = filepath[0]
+            line.setText(final_path)
+    button.clicked.connect(lambda event, line=bin_line: browse_bin(line))
+    layout2.addWidget(button, 2, 1)
+    layout.addLayout(layout2)
+    
+    layout2 = QHBoxLayout()
+    # treeview
+    qtwidgets.inspector = None
+    treeview = QTreeView()
+    treeview.setHeaderHidden(True)
+    model = QStandardItemModel()
+    treeview.setModel(model)
+    treeview.setSelectionMode(treeview.SelectionMode.ExtendedSelection)
+    layout2.addWidget(treeview, stretch=1)
+    # actions
+    layout3 = QVBoxLayout()
+    
+    button = QToolButton()
+    button.setText('📻 Load')
+    button.setMinimumWidth(230)
+    def load_bnk():
+        # clear cache
+        model.clear()
+        bnk_tool.Inspector.reset_cache()
+        # inspect
+        qtwidgets.inspector = inspector = bnk_tool.Inspector(
+            audio_path=audio_line.text(),
+            events_path=event_line.text(),
+            bin_path=bin_line.text()
+        )
+        inspector.unpack(inspector.get_cache_dir())
+        
+        # set root and expand
+        root_item = QStandardItem('🔈 ' + audio_line.text())
+        root_item.setEditable(False)
+        model.appendRow(root_item)
+        treeview.setExpanded(model.indexFromItem(root_item), True)
+
+        # build treeview with audio_tree
+        for event_id in inspector.audio_tree:
+            event_item = QStandardItem('📢 ' + str(event_id))
+            event_item.setEditable(False)
+            root_item.appendRow(event_item)
+            for container_id in inspector.audio_tree[event_id]:
+                container_item = QStandardItem('📣 ' + str(container_id))
+                container_item.setEditable(False)
+                event_item.appendRow(container_item)
+                for audio_id in inspector.audio_tree[event_id][container_id]:
+                    audio_item = QStandardItem('🎵 ' + str(audio_id))
+                    audio_item.setEditable(False)
+                    container_item.appendRow(audio_item)
+    button.clicked.connect(load_bnk)
+    layout3.addWidget(button)
+
+    button = QToolButton()
+    button.setText('💾 Save as')
+    button.setMinimumWidth(230)
+    def save_as():
+        if qtwidgets.inspector == None:
+            return
+        dialog = QFileDialog()
+        final_path = ''
+        if qtwidgets.inspector.is_bnk:
+            filepath = dialog.getSaveFileName(
+                widget, 
+                'Save Audio BNK as',
+                setting.get('qtGUI.default_folder', None),
+                f'BNK (*.bnk)'
+            )
+            if len(filepath[0]) > 0:
+                final_path = filepath[0]
+        else:
+            filepath = dialog.getSaveFileName(
+                widget, 
+                'Save Audio WPK as',
+                setting.get('qtGUI.default_folder', None),
+                f'WPK (*.wpk)'
+            )
+            if len(filepath[0]) > 0:
+                final_path = filepath[0]
+        if final_path != '':
+            def save_thrd():
+                qtwidgets.inspector.pack(final_path)
+                print(f'bnk_tool: Finish: Save Audio: {final_path}')
+
+            helper.SafeThread.start('bnk_tool', save_thrd)
+    button.clicked.connect(save_as)
+    layout3.addWidget(button)
+
+    button = QToolButton()
+    button.setText('❌ Clear')
+    button.setMinimumWidth(230)
+    def clear_bnk():
+        model.clear()
+        bnk_tool.Inspector.reset_cache()
+        qtwidgets.inspector = None
+    button.clicked.connect(clear_bnk)
+    layout3.addWidget(button)
+
+    button = QToolButton()
+    button.setText('📤 Extract all sound')
+    button.setMinimumWidth(230)
+    def extract_bnk():
+        if qtwidgets.inspector == None:
+            return
+        dialog = QFileDialog()
+        dirpath = dialog.getExistingDirectory(
+            widget,
+            f'Select Output Fantome Folder',
+            setting.get('qtGUI.default_folder', None),
+        )
+        if dirpath != '':
+            def extract_thrd():
+                qtwidgets.inspector.extract(dirpath)
+                print(f'bnk_tool: Finish: Extract all sounds: {dirpath}')
+            
+            helper.SafeThread.start('bnk_tool', extract_thrd)
+    button.clicked.connect(extract_bnk)
+    layout3.addWidget(button)
+
+    button = QToolButton()
+    button.setText('🎶 Replace sound')
+    button.setMinimumWidth(230)
+    def replace_sound():
+        if qtwidgets.inspector == None:
+            return
+        unique_select_wem_ids = []
+        select_model = treeview.selectionModel()
+        if select_model != None:
+            select_index = select_model.selectedIndexes()
+            if len(select_index) > 0:
+                for index in select_index:
+                    text = index.data()
+                    if text.startswith('🎵'):
+                        wem_id = text[2:]
+                        if wem_id not in unique_select_wem_ids:
+                            unique_select_wem_ids.append(wem_id)
+        if len(unique_select_wem_ids) > 0:
+            dialog = QFileDialog()
+            final_paths = []
+            filepath = dialog.getOpenFileNames(
+                widget, 
+                'Select BIN',
+                setting.get('qtGUI.default_folder', None),
+                f'BIN Files (*.bin)'
+            )
+            if len(filepath[0]) > 0:
+                final_paths = filepath[0]
+                def replace_thrd():
+                    wem_path_id = 0
+                    wem_path_count = len(final_paths)
+                    for wem_id in unique_select_wem_ids:
+                        wem_id = int(wem_id)
+                        qtwidgets.inspector.replace_wem(wem_id, final_paths[wem_path_id])
+                        wem_path_id += 1
+                        if wem_path_id == wem_path_count:
+                            wem_path_id = 0
+                    print(f'Done: bnk_tool: Replace wems: Successfully replace {len(unique_select_wem_ids)} selected wems with {wem_path_count} WEM files.')
+                helper.SafeThread.start('bnk_tool', replace_thrd)
+    button.clicked.connect(replace_sound)
+    layout3.addWidget(button)
+
+    button = QToolButton()
+    button.setText('▶️ Play selected')
+    button.setMinimumWidth(230)
+    def play_selected():
+        if qtwidgets.inspector == None:
+            return
+        select_model = treeview.selectionModel()
+        if select_model != None:
+            select_index = select_model.selectedIndexes()
+            if len(select_index) > 0:
+                text = select_index[-1].data()
+                if text.startswith('🎵'):
+                    wem_id = text[2:]
+                    qtwidgets.inspector.play(wem_id)
+        treeview.selectionModel().selectedIndexes()[-1].data
+    button.clicked.connect(play_selected)
+    layout3.addWidget(button)
+
+    button = QToolButton()
+    button.setText('⏹️ Stop playing')
+    button.setMinimumWidth(230)
+    def stop_playing():
+        if qtwidgets.inspector == None:
+            return
+        qtwidgets.inspector.stop()
+    button.clicked.connect(stop_playing)
+    layout3.addWidget(button)
+
+    checkbox = QCheckBox()
+    checkbox.setChecked(setting.get('bnk_tool.auto_play', True))
+    checkbox.setText('🔁 Auto play')
+    checkbox.setMinimumWidth(230)
+    def autoplay_checkbox():
+        setting.set('bnk_tool.auto_play', checkbox.isChecked())
+        setting.save()
+    checkbox.clicked.connect(autoplay_checkbox)
+    layout3.addWidget(checkbox)
+    def autoplay_cmd(selected, deselected):
+        if qtwidgets.inspector == None:
+            return
+        if selected != None and setting.get('bnk_tool.auto_play', True) :
+            select_range = selected.data()
+            if select_range != None:
+                select_index = select_range.indexes()
+                if len(select_index) > 0:
+                    text = select_index[-1].data()
+                    if text.startswith('🎵'): 
+                        wem_id = text[2:]
+                        qtwidgets.inspector.play(wem_id)
+    treeview.selectionModel().selectionChanged.connect(autoplay_cmd)
+    
+    layout3.addStretch()
+    layout2.addLayout(layout3)
+    
+    layout.addLayout(layout2, stretch=1)
+    widget.setLayout(layout)
 
 def build_logbox(widget: QWidget):
     layout = QVBoxLayout()

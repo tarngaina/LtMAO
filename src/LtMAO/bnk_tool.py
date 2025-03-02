@@ -7,14 +7,10 @@ import os
 import os.path
 from natsort import os_sorted
 from shutil import rmtree
-from pydub import utils, AudioSegment
-from pydub.playback import _play_with_simpleaudio
 from threading import Thread
+import pyaudio, wave
 
-AudioSegment.converter = os.path.abspath('./res/tools/ffmpeg/ffmpeg.exe')             
-utils.get_prober_name = lambda: os.path.abspath('./res/tools/ffmpeg/ffprobe.exe')
-
-INF = float('inf')
+INF = 'No container'
 
 def parse_audio_bnk(audio_bnk):
     if audio_bnk.didx == None:
@@ -145,15 +141,18 @@ def parse_audio_tree(map_bnk_objects):
                 # if action link to ranseq container object
                 if action.object_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
                     container = map_bnk_objects[BNKObjectType.RandomOrSequenceContainer][action.object_id]
-                    for sound_id in container.sound_ids:
-                        wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
-                        new_wem = True
-                        for container_name, container_wems in audio_tree[event_id].items():
-                            if wem_id in container_wems:
-                                new_wem = False
-                                break
-                        if new_wem:
-                            audio_tree[event_id][INF].append(wem_id)
+                    for sound_id in container.sound_ids: 
+                        # it not actually a sound object, can point to a blend container too
+                        # thats why we check if its in sounds
+                        if sound_id in map_bnk_objects[BNKObjectType.Sound]: 
+                            wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
+                            new_wem = True
+                            for container_name, container_wems in audio_tree[event_id].items():
+                                if wem_id in container_wems:
+                                    new_wem = False
+                                    break
+                            if new_wem:
+                                audio_tree[event_id][INF].append(wem_id)
                 # if action link to sound object
                 if action.object_id in map_bnk_objects[BNKObjectType.Sound]:
                     wem_id = map_bnk_objects[BNKObjectType.Sound][action.object_id].wem_id
@@ -230,31 +229,23 @@ def sort_audio_tree(audio_tree, event_names_by_id):
         if event_id in audio_tree:
             audio_tree[event_names_by_id[event_id]] = audio_tree.pop(event_id)
     audio_tree = dict(os_sorted(audio_tree.items()))
-    for event_id in list(audio_tree):
-        for container_id in list(audio_tree[event_id]):
-            if container_id == INF:
-                audio_tree[event_id]['No container'] = audio_tree[event_id].pop(container_id)
-        if event_id == INF:
-            audio_tree['No container'] = audio_tree.pop(event_id)
     return audio_tree
 
 
-class BNKParser:
+class Inspector:
     cache_dir = './pref/bnk_tool'
-    cached_segments = {}
     
     @staticmethod
     def reset_cache():
-        rmtree(BNKParser.cache_dir, ignore_errors=True)
-        os.makedirs(BNKParser.cache_dir, exist_ok=True)
-        BNKParser.cached_segments = {}
+        rmtree(Inspector.cache_dir, ignore_errors=True)
+        os.makedirs(Inspector.cache_dir, exist_ok=True)
 
     def __init__(self, audio_path, events_path, bin_path=''):
-        self.playbacks = []
+        self.streams = []
         self.audio_path = audio_path
         # parse audio.bnk or audio.wpk
-        self.bnk_audio_parsing = True if audio_path.endswith('.bnk') else False
-        if self.bnk_audio_parsing:
+        self.is_bnk = True if audio_path.endswith('.bnk') else False
+        if self.is_bnk:
             self.audio = read_bnk(audio_path)
             self.didx, self.data = parse_audio_bnk(self.audio)
             self.wems = self.didx.wems
@@ -273,7 +264,7 @@ class BNKParser:
         self.audio_tree = sort_audio_tree(parse_audio_tree(map_bnk_objects), self.event_names_by_id)
 
     def get_wem_offset(self, wem):
-        return self.data.start_offset+wem.offset if self.bnk_audio_parsing else wem.offset
+        return self.data.start_offset+wem.offset if self.is_bnk else wem.offset
 
     def replace_wem(self, wem_id, wem_file):
         for wem in self.wems:
@@ -284,13 +275,11 @@ class BNKParser:
                 cache_wem_file = self.get_cache_wem_file(wem_id)
                 with open(cache_wem_file, 'wb+') as f:
                     f.write(wem_data)
-                ogg_file = cache_wem_file.replace('.wem', '.ogg')
-                if os.path.exists(ogg_file):
-                    os.remove(ogg_file)
-                if ogg_file in BNKParser.cached_segments:
-                    BNKParser.cached_segments.pop(ogg_file)
+                wav_file = cache_wem_file.replace('.wem', '.wav')
+                if os.path.exists(wav_file):
+                    os.remove(wav_file)
 
-    def extract(self, output_dir, convert_ogg=False):
+    def extract(self, output_dir):
         # extract audio
         os.makedirs(output_dir, exist_ok=True)
         with self.audio.stream(self.audio_path, 'rb') as bs:
@@ -298,12 +287,12 @@ class BNKParser:
                 bs.seek(self.get_wem_offset(wem))
                 wem_data = bs.read(wem.size)
                 for event_id in self.audio_tree:
-                    if event_id not in (INF, 'No container'):
+                    if event_id != INF:
                         for container_id in self.audio_tree[event_id]:
                             if wem.id in self.audio_tree[event_id][container_id]:
                                 event_dir = os.path.join(output_dir, str(event_id))
                                 os.makedirs(event_dir, exist_ok=True)
-                                if container_id not in (INF, 'No container'):
+                                if container_id != INF:
                                     container_dir = os.path.join(event_dir, str(container_id))
                                     os.makedirs(container_dir, exist_ok=True)
                                     wem_dir = container_dir
@@ -312,25 +301,17 @@ class BNKParser:
                                 wem_file = os.path.join(wem_dir, f'{wem.id}.wem')
                                 with open(wem_file, 'wb') as f:
                                     f.write(wem_data)
-                                print(
-                                    f'bnk_tool: Finish: Extracted [{wem.size}bytes] {wem.id} of {event_id}')
-                                if convert_ogg:
-                                    ogg_file = wem_file.replace('.wem', '.ogg')
-                                    if tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
-                                        tools.REVORB.run(ogg_file,silent=True)
+                                print(f'bnk_tool: Finish: Extracted [{wem.size}bytes] {wem.id} of {event_id}')
+                                tools.VGMStream.to_wav(wem_file)
                     else:
                         for container_id in self.audio_tree[event_id]:
-                            if container_id in (INF, 'No container'):
+                            if container_id != INF:
                                 if wem.id in self.audio_tree[event_id][container_id]:
                                     wem_file = os.path.join(output_dir, f'{wem.id}.wem')
                                     with open(wem_file, 'wb') as f:
                                         f.write(wem_data)
-                                    if convert_ogg:
-                                            ogg_file = wem_file.replace('.wem', '.ogg')
-                                            if tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
-                                                tools.REVORB.run(ogg_file,silent=True)
-                                    print(
-                                        f'bnk_tool: Finish: Extracted [{wem.size}bytes] {wem.id}')
+                                    print(f'bnk_tool: Finish: Extracted [{wem.size}bytes] {wem.id}')
+                                    tools.VGMStream.to_wav(wem_file)
 
     def unpack(self, output_dir):
         os.makedirs(output_dir, exist_ok=True)
@@ -355,7 +336,7 @@ class BNKParser:
                     break
 
     def pack(self, output_file):
-        if self.bnk_audio_parsing:
+        if self.is_bnk:
             wem_datas = []
             for wem in self.wems:
                 wem_file = self.get_cache_wem_file(wem.id)
@@ -371,7 +352,7 @@ class BNKParser:
             write_wpk(output_file, self.audio, wem_datas)
 
     def get_cache_dir(self):
-        return os.path.join(BNKParser.cache_dir, os.path.basename(self.audio_path).replace('.bnk', '') if self.bnk_audio_parsing else os.path.basename(self.audio_path).replace('.wpk', ''))
+        return os.path.join(Inspector.cache_dir, os.path.basename(self.audio_path).replace('.bnk', '') if self.is_bnk else os.path.basename(self.audio_path).replace('.wpk', ''))
 
     def get_cache_wem_file(self, wem_id):
         return os.path.join(self.get_cache_dir(), f'{wem_id}.wem')
@@ -381,20 +362,28 @@ class BNKParser:
             wem_file = self.get_cache_wem_file(wem_id)
             if not os.path.exists(wem_file):
                 self.unpack_wem(self.get_cache_dir(), wem_id)
-            ogg_file = wem_file.replace('.wem', '.ogg')
-            if not os.path.exists(ogg_file):
-                if tools.WW2OGG.run(wem_file, silent=True).returncode == 0:
-                    tools.REVORB.run(ogg_file,silent=True)
-            if ogg_file not in BNKParser.cached_segments:
-                BNKParser.cached_segments[ogg_file] = AudioSegment.from_ogg(ogg_file)
-            self.playbacks.append(_play_with_simpleaudio(BNKParser.cached_segments[ogg_file]))
+            wav_file = wem_file.replace('.wem', '.wav')
+            tools.VGMStream.to_wav(wem_file)
+            with wave.open(wav_file, 'rb') as wav:
+                p = pyaudio.PyAudio()
+                stream = p.open(
+                    format=p.get_format_from_width(wav.getsampwidth()),
+                    channels=wav.getnchannels(),
+                    rate=wav.getframerate(),
+                    output=True
+                )
+                self.streams.append(stream)
+                while len(data := wav.readframes(1024)) and stream.is_active(): 
+                    stream.write(data)
+                stream.close()
+                p.terminate()
         
-        Thread(target=play_thrd,daemon=True).start()
+        Thread(target=play_thrd, daemon=True).start()
 
     def stop(self):
-        for playback in self.playbacks:
-            playback.stop()
+        for stream in self.streams:
+            stream.stop_stream()
         
 
 def init():
-    os.makedirs(BNKParser.cache_dir, exist_ok=True)
+    os.makedirs(Inspector.cache_dir, exist_ok=True)

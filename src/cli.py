@@ -148,11 +148,9 @@ class CLI:
             dst=file_4x, width=width_4x, height=height_4x
         )
 
-    def wem2ogg(src):
+    def wem2wav(src):
         from LtMAO import tools
-        dst = src.replace('.wem', '.ogg')
-        if tools.WW2OGG.run(src).returncode == 0:
-            tools.REVORB.run(dst)
+        tools.VGMStream.to_wav(src)
 
     def zipfantome(src):
         from zipfile import ZipFile
@@ -213,8 +211,8 @@ def main():
         CLI.png2dds(args.source, args.destination)
     elif args.tool == 'dds2x4x':
         CLI.dds2x4x(args.source)
-    elif args.tool == 'wem2ogg':
-        CLI.wem2ogg(args.source)
+    elif args.tool == 'wem2wav':
+        CLI.wem2wav(args.source)
     elif args.tool == 'zipfantome':
         CLI.zipfantome(args.source)
     elif args.tool == 'unzipfantome':

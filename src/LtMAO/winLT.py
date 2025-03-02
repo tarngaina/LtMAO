@@ -118,7 +118,7 @@ class Context:
         # .wem contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.wem\\shell',
-            sub_commands='LtMAO.wem2ogg;'
+            sub_commands='LtMAO.wem2wav;'
         )
         # .fantome contexts
         Context.create_submenu(
@@ -219,12 +219,12 @@ class Context:
                 cmd_desc='ImageMagick: Make 2x_, 4x_ DDS',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2x4x" -src="%V"'
             )
-            # wem2ogg
+            # wem2wav
             Context.create_command(
                 root=key,
-                cmd_name='LtMAO.wem2ogg',
-                cmd_desc='ww2ogg, ReVorb: Convert To Ogg',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wem2ogg" -src="%V"'
+                cmd_name='LtMAO.wem2wav',
+                cmd_desc='vgmstream: Convert To Wav',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wem2wav" -src="%V"'
             )
             # ZipFantome
             Context.create_command(

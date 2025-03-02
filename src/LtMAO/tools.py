@@ -160,40 +160,20 @@ class ImageMagick:
         return p
 
 
-class WW2OGG:
-    local_file = './res/tools/ww2ogg.exe'
-    pcb_file = './res/tools/packed_codebooks.bin'
+class VGMStream:
+    local_file = './res/tools/vgmstream/vgmstream-cli.exe'
 
     @staticmethod
-    def run(src, silent=False):
+    def to_wav(src):
         cmds = [
-            os.path.abspath(WW2OGG.local_file),
+            os.path.abspath(VGMStream.local_file),
+            '-o',
+            src.replace('.wem', '.wav'),
             src,
-            '--pcb',
-            os.path.abspath(WW2OGG.pcb_file)
         ]
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
             stdout=PIPE, stderr=STDOUT
         )
-        if not silent:
-            block_and_stream_process_output(p, 'ww2ogg: ')
-        else:
-            p.wait()
-        return p
-
-class REVORB:
-    local_file = './res/tools/ReVorb.exe'
-
-    @staticmethod
-    def run(src, silent=False):
-        cmds = [os.path.abspath(REVORB.local_file), src]
-        p = Popen(
-            cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
-        )
-        if not silent:
-            block_and_stream_process_output(p, 'ReVorb: ')
-        else:
-            p.wait()
+        p.wait()
         return p

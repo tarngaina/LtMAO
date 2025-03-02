@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
 )
 
 from . import control, helper, log
-from .. import setting, hash_helper, winLT, no_skin
+from .. import setting, hash_helper, winLT, no_skin, bnk_tool
 import requests
 
 qtwidgets = helper.Keeper()
@@ -55,7 +55,7 @@ def init_theme():
     # get the background accent color 
     import colorthief
     r, g, b = colorthief.ColorThief(theme_paths['background']).get_color(quality=1)
-    f = 127 / max(r, g, b)
+    f = 255*0.7 / max(r, g, b)
     qtwidgets.accent_color = (int(r*f), int(g*f), int(b*f))
     # stylesheets
     qtwidgets.window_stylesheet = f"""
@@ -78,6 +78,9 @@ def init_theme():
         }}
         QToolButton:checked {{ 
             background-color: rgb{qtwidgets.accent_color}; 
+        }}
+        QCheckBox {{
+            min-height: 30;
         }}
         QCheckBox:hover {{
             border-bottom-color: rgb{qtwidgets.accent_color};  
@@ -121,6 +124,9 @@ def init_theme():
         }}
         QHeaderView:section:checked {{
             color: #ffffff;
+            background-color: rgb{qtwidgets.accent_color};
+        }}
+        QTreeView:item:selected  {{
             background-color: rgb{qtwidgets.accent_color};
         }}
     """
@@ -201,6 +207,7 @@ def build_main_window(window: QMainWindow):
     window.setWindowFlags(Qt.Window|Qt.FramelessWindowHint|Qt.WindowMinMaxButtonsHint)
     window.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
     window.setContentsMargins(0, 0, 0, 0)
+    window.setStyleSheet(qtwidgets.window_stylesheet)
     build_grips(window)
     # set background gif
     widget = QLabel()
@@ -228,9 +235,6 @@ def build_main_window(window: QMainWindow):
                 qtwidgets.max_button.setVisible(True)
         event.accept()
     window.changeEvent = changeEvent
-    
-     # main stylesheet
-    window.setStyleSheet(qtwidgets.window_stylesheet)
     
     print('qtGUI: Finish: Build main window.')
 
@@ -474,6 +478,7 @@ def after_build():
     hash_helper.init()
     helper.SafeThread.start('sync_ctdb_hashes', hash_helper.CDTBHashes.sync_all)
     winLT.init()
+    bnk_tool.init()
     
  
 def check_version(label):
