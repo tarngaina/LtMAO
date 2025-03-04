@@ -5,7 +5,7 @@ from maya import cmds
 
 from . import helper
 from ..... import pyRitoFile
-from .....pyRitoFile.ermmm import Elf
+from .....pyRitoFile.helper import Elf
 from .....pyRitoFile.structs import Vector, Quaternion
 
 

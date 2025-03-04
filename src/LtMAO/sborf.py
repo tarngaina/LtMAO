@@ -1,5 +1,5 @@
 from .pyRitoFile import SKLJoint, read_skl, read_skn, write_skl, write_skn, read_bin, write_bin
-from .pyRitoFile.ermmm import Elf
+from .pyRitoFile.helper import Elf
 from .pyRitoFile.structs import Vector, Quaternion
 from shutil import copy
 import os.path

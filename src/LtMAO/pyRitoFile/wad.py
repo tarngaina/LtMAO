@@ -2,8 +2,13 @@ from io import BytesIO
 from .stream import BinStream
 from enum import IntEnum
 import gzip
-import pyzstd
-from xxhash import xxh64, xxh3_64
+
+# not safe because external modules
+try: 
+    import pyzstd
+    from xxhash import xxh64, xxh3_64
+except:
+    print('Warning: pyRitoFile.wad failed to import pyzstd, xxhash.')
 
 signature_to_extension = {
     b'OggS': 'ogg',

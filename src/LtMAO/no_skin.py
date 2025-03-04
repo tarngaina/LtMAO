@@ -7,7 +7,7 @@ from . import hash_helper, pyRitoFile
 from .hash_helper import cached_bin_hashes
 
 def bin_hash(name):
-    return f'{pyRitoFile.ermmm.FNV1a(name):08x}'
+    return f'{pyRitoFile.helper.FNV1a(name):08x}'
 
 
 cache_dir = f'./pref/no_skin/_cache'

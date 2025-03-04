@@ -1,6 +1,6 @@
-# LtMAO
-`LtMAO` is my toolpack to help League modding.
-![](https://i.imgur.com/RVB79rX.png)
+# LtMAO-hai
+`LtMAO-hai` is my toolpack to help League modding.
+![](https://i.imgur.com/Uffi4Hu.png)
 
 # Installation
 1. Download: [LtMAO-hai.zip](https://github.com/tarngaina/LtMAO/archive/refs/heads/hai.zip)
@@ -13,39 +13,33 @@
 3. To lazily update LtMAO: press "Update LtMAO" button from setting page. This is not recommended but if it works, it works.
 
 # Documentation
-## Shortcut & How to Run as Admin
+## Shortcut
 1. Launch shortcut: When running the app for first time, a `LtMAO.lnk` (shortcut file) will be created in same folder as `start.bat`.
 
-![](https://i.imgur.com/YRsKEVm.png)
+![](https://i.imgur.com/5eIWMKJ.png)
 
 2. Desktop shortcut: Can be created in setting tab.
 
- You can run `LtMAO` as Admin through shortcut.
 
 ## File Explorer Context menu
 Can be added/removed in setting tab.
+**Note**: You can to run `LtMAO` as Admin through shortcut if you encounter permission error. 
 
-![](https://i.imgur.com/LVJ2Cfw.png)
+![](https://i.imgur.com/f3XIP4M.png)
 
 ## cslmao
-Just [cslol-manager](https://github.com/LeagueToolkit/cslol-manager), but different UI.
+Just `cslol-manager`, but different UI.
 
-**Important**: Need to set Game folder in setting tab first to work.
+**Important**: Need to set League of Legends/Game folder in first to work.
 
-![](https://i.imgur.com/GcjDQcs.png)
+![](https://i.imgur.com/up0fEir.png)
 
-## animask_viewer
-Edit MaskData's weights inside animation BINs.
-
-![](https://i.imgur.com/m9YkgeB.png)
-
-## hash_manager
-![](https://i.imgur.com/2KTMiET.png)
+## hash_helper
+![](https://i.imgur.com/YWRnz5e.png)
 
 **Important:** Please wait for all syncing/updating/loading hashes finished before process with any `LtMAO` functions.
 1. CDTB Hashes: Auto sync [CommunityDragon](https://github.com/CommunityDragon/CDTB/tree/master/cdragontoolbox) hashes. Can also be manually downloaded at mentioned link. 
 2. Extracted Hashes: Extract personally by user.
-    
     Hashes that can be extracted:
     - binentries:
         - VfxSystemDefinitionData -> particlePath in BIN.
@@ -56,77 +50,71 @@ Edit MaskData's weights inside animation BINs.
     - game:
         - File path that starts with `assets/` or `data/` in BIN. If file type is `.dds`, extract 2x, 4x dds too.
 3. Custom Hashes:
-    - Custom Hashes is hashes that used with all LtMAO related functions: leaguefile_inspector, ritobin, wad_tool,...
+    - Custom Hashes is hashes that used with all LtMAO related functions: ritobin, wad_tool, no_skin,...
     - Custom Hashes = CDTB Hashes + Extracted Hashes + User Manually Added Hashes
 
-Also has generate wad & bin hash function. Those generated hashes can be added to Custom Hashes with `->` buttons.
-## vo_helper
-**Important**: Starting from patch 14.4, rito decided to use `en_us` for all clients/regions, so this tool is not needed anymore except for updating old mods before 14.4.
+Also has generate wad & bin hash function. Those generated hashes can be added to Custom Hashes with buttons.
 
-Make fantome work on all langs by cloning it.
-The audio inside fantome must also come with events file to make it work on other langs.
+## mask_viewer
+Edit MaskData's weights inside animation BINs.
 
-![](https://i.imgur.com/fhXoShs.png)
+![](https://i.imgur.com/kDz95rM.png)
+
+## hapiBin
+An app with multiple functions related to BIN file:
+
+![](https://i.imgur.com/DqQqodH.png)
 
 ## no_skin
 Create NO SKIN mod: Replace **almost** every League skins to default.
 
 `SKIPS.json`: Some skins cause League to crash when they get changed to base. This file tell the program to not change those skins to base.
 
-![](https://i.imgur.com/YHWYuwP.png)
+Has 2 modes:
+1. Full: make a full `NO SKIN.fantome` of all champions inside League of Legends/Game/DATA/FINAL/Champions folder.
+2. Lite: Make all selected `skinx.bin` become `skin0.bin`.
+
+![](https://i.imgur.com/pJ0ESnw.png)
 
 ![](https://i.imgur.com/AfQyzFN.png)
-
-
-## uvee
-[Uvee](https://github.com/LeagueToolkit/Uvee) but rewritten.
-Extract UVs from skn/sco/scb as png files.
-
-![](https://i.imgur.com/qYtVMge.png)
-
-## shrum
-Rename joints in ANM using old names & new names input.
-
-Can load SKL as inputs.
-
-![](https://i.imgur.com/PQrU5eO.png)
-
-## hapiBin
-An app with multiple functions related to updating BIN file:
-- Copy linked list.
-- Copy vfx colors.
-
-
-![](https://i.imgur.com/eYyYNhO.png)
 
 ## wad_tool
 Simple tool to unpack, pack WAD files.
 
 Can bulk unpack multiple WADs into same output. 
-**Example:** Bulk unpacking all voiced wad then throw into [vo_helper](https://github.com/tarngaina/LtMAO#vo_helper) is a fast way to create a champion voicepack for specific language mod.
 
-![](https://i.imgur.com/61wpQJ3.png)
-
-
-## pyntex
-[Hacksaw/bintex](https://github.com/TheMartynasXS/Hacksaw) but stolen.
-Print out mentioned & missing files in all BINs inside a WAD or a Folder.
-
-**Important**: Need to update hashes/extract hashes before using pyntex.
-
-![](https://i.imgur.com/Tj5GPV6.png)
-
+![](https://i.imgur.com/moBB7nz.png)
 
 ## sborf
 Fix skin based on rito files: moonwalk animations, layering animations,...
+Can also adapt your custom animation bin MaskData base on riot original files.
 
-![](https://i.imgur.com/kAPOapL.png)
+![](https://i.imgur.com/aOCdjtT.png)
 
+## lemon3d
+To work with League 3d files.
 
-## lol2fbx
+![](https://i.imgur.com/04B1MBR.png)
+
+1. fbx:
 Convert League files to FBX and vice versa.
+Support: SKN, SKL. Todo: ANM, SCO, SCB, MAPGEO
 
-![](https://i.imgur.com/lIpTpdJ.png)
+2. maya:
+`lol_maya` but rewritten, plugin for maya 2022+ with 3d.
+Support: SKN, SKL, ANM, SCO, SCB. Todo: MAPGEO
+
+More information on lemon3d will be in a separated page soon.
+
+## ddsmart
+Various functions related to League texture files.
+
+![](https://i.imgur.com/SP8N2xp.png)
+
+## bnk_tool
+Copy of `bnk-extract-GUI`, but extract `.wav` instead of `.ogg`.
+
+![](https://i.imgur.com/StqeP24.png)
 
 # Extra:
 - [LeagueToolKit](https://github.com/LeagueToolkit/LeagueToolkit)

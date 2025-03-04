@@ -1523,7 +1523,30 @@ def build_lemon3d(widget: QWidget):
     # maya
     tab2 = QWidget()
     layout2 = QVBoxLayout()
-    layout2.addWidget(QLabel('wip'))
+    layout2.addWidget(QLabel("""
+Maya recommend version: 2022+. 
+Steps to install lemon3d maya:
+    1. Please close maya before installing lemon3d.
+    2. Click Install button below, select Documents/maya/<version> folder to install lemon3d.
+    3. Open maya, on toolbar select Windows -> Settings/Preferences -> Plug-in Manager. 
+    4. Tick Loaded/Auto Load on lemon3d.py inside Plug-in Manager panel.
+Note: lemon3d is part of LtMAO so do not delete/move LtMAO, 
+      otherwise lemon3d need to reinstalled through below button again.                
+"""))
+    button = QToolButton()
+    button.setText('🔌Install lemon3d for maya')
+    def install_lemon3d_maya():
+        dialog = QFileDialog()
+        dirpath = dialog.getExistingDirectory(
+            widget,
+            f'Select Documents/maya/<version> Folder',
+            setting.get('qtGUI.default_folder', None),
+        )
+        if dirpath != '':
+            lemon_maya.install_plugin(dirpath.replace('\\', '/'))
+    button.clicked.connect(install_lemon3d_maya)
+    layout2.addWidget(button)
+    layout2.addStretch()
     tab2.setLayout(layout2)
     tab_widget.addTab(tab2, '🔥 maya')
     layout.addWidget(tab_widget, stretch=1)

@@ -8,7 +8,7 @@ from ..pyRitoFile.bnk import BNK, BNKObjectType
 from ..pyRitoFile.wpk import WPK
 from ..pyRitoFile.tex import TEX, TEXFormat
 from ..pyRitoFile.wad import WAD, WADChunk, WADCompressionType, name_to_hex as wad_hash, guess_extension
-from . import ermmm
+from . import helper
 from . import stream
 from json import dump, dumps, JSONEncoder
 
@@ -83,8 +83,6 @@ def read_anm(path, raw=None):
 def write_anm(path, anm):
     anm.write(path)
 
-
-
 def read_mapgeo(path, raw=None):
     mg = MAPGEO()
     mg.read(path, raw)
@@ -99,10 +97,8 @@ def read_bin(path, raw=None):
     bin.read(path, raw)
     return bin
 
-
 def write_bin(path, bin):
     bin.write(path)
-
 
 def read_bnk(path, raw=None):
     bnk = BNK()
