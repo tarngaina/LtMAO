@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
 )
 
 from . import control, helper, log
-from .. import setting, hash_helper, winLT, no_skin, bnk_tool
+from .. import setting, hash_helper, winLT, no_skin, bnk_tool, cslmao
 import requests
 
 qtwidgets = helper.Keeper()
@@ -34,6 +34,7 @@ def show():
 def before_build():
     setting.init()
     no_skin.init()
+    cslmao.init()
     control.qtwidgets = qtwidgets
     set_font()
     init_theme()
@@ -185,7 +186,6 @@ def build_app():
     # close splash and show main window
     splash.close()
     window.show()
-    window.showMaximized()
     window.activateWindow()
     app.exec()
 
