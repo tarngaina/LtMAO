@@ -94,20 +94,24 @@ Can also adapt your custom animation bin MaskData base on riot original files.
 ## lemon3d
 To work with League 3d files.
 
-![](https://i.imgur.com/04B1MBR.png)
-
 1. fbx:
+![](https://i.imgur.com/XW74g8T.png)
+
 Convert League files to FBX and vice versa.
-Support: SKN, SKL. Todo: ANM, SCO, SCB, MAPGEO
+Support: SKN, SKL, ANM. Todo: SCO, SCB, MAPGEO
 
 2. maya:
+![](https://i.imgur.com/MdMjFwO.png)
+![](https://i.imgur.com/BWuIm1y.png)
+
 `lol_maya` but rewritten, plugin for maya 2022+ with 3d.
 Support: SKN, SKL, ANM, SCO, SCB. Todo: MAPGEO
+
 
 More information on lemon3d will be in a separated page soon.
 
 ## ddsmart
-Various functions related to League texture files.
+Convert League texture files.
 
 ![](https://i.imgur.com/SP8N2xp.png)
 

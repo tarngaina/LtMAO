@@ -1462,23 +1462,40 @@ def build_lemon3d(widget: QWidget):
             final_path = filepath[0]
             line.setText(final_path)
 
+    def browse_dir(line, title):
+        dialog = QFileDialog()
+        dirpath = dialog.getExistingDirectory(
+            widget, 
+            title,
+            setting.get('qtGUI.default_folder', None)
+        )
+        if dirpath != '':
+            final_path = dirpath
+            line.setText(final_path)
     # browse skin to fbx
     layout2.addWidget(QLabel('👽 SKIN to FBX'))
     layout3 = QGridLayout()
     skn_line = QLineEdit()
     layout3.addWidget(skn_line, 0, 0)
     button = QToolButton()
-    button.setText('🧊 Browse SKN')    
+    button.setText('🧊 Select SKN')    
     button.setMinimumWidth(260)
     button.clicked.connect(lambda event, line=skn_line: browse(line, 'Select SKN', 'SKN'))
     layout3.addWidget(button, 0, 1)
     skl_line = QLineEdit()
     layout3.addWidget(skl_line, 1, 0)
     button = QToolButton()
-    button.setText('🦴 Browse SKL')    
+    button.setText('🦴 Select SKL')    
     button.setMinimumWidth(260)
     button.clicked.connect(lambda event, line=skl_line: browse(line, 'Select SKL', 'SKL'))
     layout3.addWidget(button, 1, 1)
+    anm_line = QLineEdit()
+    layout3.addWidget(anm_line, 2, 0)
+    button = QToolButton()
+    button.setText('🦴 Select ANMs Folder')    
+    button.setMinimumWidth(260)
+    button.clicked.connect(lambda event, line=anm_line: browse_dir(line, 'Select ANMs Folder'))
+    layout3.addWidget(button, 2, 1)
     layout2.addLayout(layout3)
     # to fbx
     layout3 = QHBoxLayout()
@@ -1489,7 +1506,16 @@ def build_lemon3d(widget: QWidget):
     skn_line.textChanged.connect(lambda event: output_fbx.setText(event.replace('.skn', '.fbx')))
     layout3.addWidget(output_fbx)
     layout2.addLayout(layout3)
-    button.clicked.connect(lambda event: lemon_fbx.skin_to_fbx(skl_line.text(), skn_line.text(), output_fbx.text()))
+    def to_fbx():
+        def lemon_thrd():
+            lemon_fbx.skin_to_fbx(
+                skl_line.text(), 
+                skn_line.text(), 
+                anm_line.text(),
+                output_fbx.text()
+            )
+        helper.SafeThread.start('lemon_fbx', lemon_thrd)
+    button.clicked.connect(to_fbx)
 
     layout2.addSpacing(30)
 
@@ -1499,7 +1525,7 @@ def build_lemon3d(widget: QWidget):
     fbx_line = QLineEdit()
     layout3.addWidget(fbx_line, 0, 0)
     button = QToolButton()
-    button.setText('🌄 Browse FBX')    
+    button.setText('🌄 Select FBX')    
     button.setMinimumWidth(260)
     button.clicked.connect(lambda event, line=fbx_line: browse(line, 'Select FBX', 'FBX'))
     layout3.addWidget(button, 0, 1)
@@ -1513,7 +1539,16 @@ def build_lemon3d(widget: QWidget):
     fbx_line.textChanged.connect(lambda event: output_skn.setText(event.replace('.fbx', '.skn')))
     layout3.addWidget(output_skn)
     layout2.addLayout(layout3)
-    button.clicked.connect(lambda event: lemon_fbx.fbx_to_skin(fbx_line.text(), output_skn.text().replace('.skn', '.skl'), output_skn.text()))
+    def to_skin():
+        def lemon_thrd():
+            lemon_fbx.fbx_to_skin(
+                fbx_line.text(), 
+                output_skn.text().replace('.skn', '.skl'), 
+                output_skn.text(),
+                os.path.join(os.path.dirname(output_skn.text()), 'animations')
+            )
+        helper.SafeThread.start('lemon_fbx', lemon_thrd)
+    button.clicked.connect(to_skin)
 
     layout2.addStretch()
     tab1.setLayout(layout2)

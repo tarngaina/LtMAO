@@ -1,15 +1,26 @@
-from fbx import *
-from ...pyRitoFile import SKL, SKLJoint, SKN, SKNVertex, SKNSubmesh, read_skl, read_skn, write_skl, write_skn
+from fbx import (
+    FbxManager, FbxImporter, FbxExporter, FbxIOSettings, FbxScene, FbxNode,
+    FbxSkeleton, FbxMesh, FbxSkin, FbxCluster, 
+    FbxLayerElement, FbxSurfaceLambert, 
+    FbxCriteria, FbxAnimStack, FbxAnimLayer, FbxAnimCurveDef, FbxTime, FbxTimeSpan, 
+    FbxNull, FbxVector4, FbxVector4Array, FbxQuaternion, FbxDouble3, FbxVector2, FbxAMatrix,
+)
+from ...pyRitoFile import (
+    SKL, SKLJoint, read_skl, read_skn,
+    SKN, SKNVertex, SKNSubmesh, write_skl, write_skn,
+    ANM, ANMTrack, ANMPose, read_anm, write_anm
+)
 from ...pyRitoFile.helper import Elf
 from ...pyRitoFile.structs import Vector, Quaternion
-
+import os, os.path
+import math 
 ALPHANUMERIC = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
 
 def GetName(node):
     return ''.join(c if c in ALPHANUMERIC else f'FBXASC{ord(c):03}' for c in node.GetNameOnly().Buffer())
 
 
-def mirrorX(skl=None, skn=None):
+def mirrorX(skl=None, skn=None, anm=None):
     if skl != None:
         for joint in skl.joints:
             joint.local_translate.x = -joint.local_translate.x
@@ -24,6 +35,15 @@ def mirrorX(skl=None, skn=None):
             if vertex.normal != None:
                 vertex.normal.y = -vertex.normal.y
                 vertex.normal.z = -vertex.normal.z
+    if anm != None:
+        for track in anm.tracks:
+            for time in track.poses:
+                pose = track.poses[time]
+                if pose.translate != None:
+                    pose.translate.x = -pose.translate.x
+                if pose.rotate != None:
+                    pose.rotate.y = -pose.rotate.y
+                    pose.rotate.z = -pose.rotate.z
     
 
 def dump_skl(fbx_joints):
@@ -319,7 +339,53 @@ def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_
     return skn
 
 
-def fbx_to_skin(fbx_path, skl_path='', skn_path=''):
+def dump_anm(fbx_scene, fbx_joints):
+    anms = {}
+    fbx_anim_stack_count = fbx_scene.GetSrcObjectCount(FbxCriteria.ObjectType(FbxAnimStack.ClassId))
+    print(f'lemon_fbx: Animation stacks: {fbx_anim_stack_count}')
+    for anim_stack_id in range(fbx_anim_stack_count):
+        fps = 30.0
+        fbx_anim_stack = fbx_scene.GetSrcObject(FbxCriteria.ObjectType(FbxAnimStack.ClassId), anim_stack_id)
+        fbx_scene.SetCurrentAnimationStack(fbx_anim_stack)
+        fbx_anim_stack_name = fbx_anim_stack.GetName()
+        animation_time_range = fbx_anim_stack.LocalStop.Get().GetSecondDouble() - fbx_anim_stack.LocalStart.Get().GetSecondDouble()
+        frame_range = int(animation_time_range * fps)
+        fbx_time = FbxTime()
+        tracks = {}
+        for joint_name, fbx_joint in fbx_joints.items():
+            tracks[joint_name] = track = ANMTrack()
+            track.joint_hash = Elf(joint_name)
+            track.poses = {}
+            for frame in range(frame_range):
+                track.poses[frame] = pose = ANMPose()
+                time = frame / fps
+                fbx_time.SetSecondDouble(time)
+                fbx_local_matrix = fbx_joint.EvaluateLocalTransform(fbx_time)
+                translate, rotate, scale = fbx_local_matrix.GetT(), fbx_local_matrix.GetQ(), fbx_local_matrix.GetS()
+                pose.translate = Vector(translate[0], translate[1], translate[2])
+                pose.rotate = Quaternion(rotate[0], rotate[1], rotate[2], rotate[3])
+                pose.scale = Vector(scale[0], scale[1], scale[2])
+                if math.isnan(pose.rotate.x):
+                    fbx_anim_evaluator = fbx_scene.GetAnimationEvaluator()
+                    translate = fbx_anim_evaluator.GetNodeLocalTranslation(fbx_joint, fbx_time)
+                    quat = FbxQuaternion()
+                    quat.ComposeSphericalXYZ(fbx_anim_evaluator.GetNodeLocalRotation(fbx_joint, fbx_time))
+                    scale = fbx_anim_evaluator.GetNodeLocalScaling(fbx_joint, fbx_time)
+                    pose.translate = Vector(translate[0], translate[1], translate[2])
+                    pose.rotate = Quaternion(quat[0], quat[1], quat[2], quat[3])
+                    pose.scale = Vector(scale[0], scale[1], scale[2])
+
+
+        anm = ANM()
+        anm.fps = fps
+        anm.duration = frame_range
+        anm.tracks = list(tracks.values())
+        anms[fbx_anim_stack_name] = anm
+        print(f'lemon_fbx: Finish: Dump ANM: Animation stack: {fbx_anim_stack_name}, Frame range: {frame_range}, FPS: {fps}')
+    return anms       
+
+
+def fbx_to_skin(fbx_path, skl_path, skn_path, anm_path):
     # io & load scene
     fbx_manager = FbxManager()
     fbx_importer = FbxImporter.Create(fbx_manager, 'importer')
@@ -346,24 +412,28 @@ def fbx_to_skin(fbx_path, skl_path='', skn_path=''):
     mesh_count = len(fbx_meshes)
     print(f'lemon_fbx: Joints: {joint_count}, Meshes: {mesh_count}')
 
+    # dump
     skl, blender_armature_node_name, blender_armature_node_local_matrix = dump_skl(fbx_joints)
     skn = dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_local_matrix)
-
+    anms = dump_anm(fbx_scene, fbx_joints)
     # mirror X before write
-    mirrorX(skl, skn)
+    mirrorX(skl=skl, skn=skn)
+    for anm_name, anm in anms.items():
+        mirrorX(anm=anm)
     
     # write file out after dump
-    if skl_path == '':
-        skl_path = fbx_path.replace('.fbx', '.skl')
     write_skl(skl_path, skl)
     print(f'lemon_fbx: Finish: Write SKL: {skl_path}')
-    if skn_path == '':
-        skn_path = fbx_path.replace('.fbx', '.skn')
     write_skn(skn_path, skn)
     print(f'lemon_fbx: Finish: Write SKN: {skn_path}')
-
+    os.makedirs(anm_path, exist_ok=True )
+    for anm_name, anm in anms.items():
+        anm_file = os.path.join(anm_path, anm_name).replace('\\', '/') + '.anm'
+        write_anm(anm_file, anm)
+        print(f'lemon_fbx: Finish: Write ANM: {anm_file}')
     # boom boom bakudan
     fbx_importer.Destroy()
+    print('lemon_fbx: Finish: FBX to SKIN.')
 
 
 def load_skl(fbx_root_node, fbx_scene, skl):
@@ -471,17 +541,127 @@ def load_skn(fbx_root_node, fbx_scene, skn, skl, fbx_joint_nodes):
     print(f'lemon_fbx: Finish: Load SKN.')
 
 
-def skin_to_fbx(skl_path, skn_path, fbx_path=''):
+def load_anm(fbx_scene, anms, fbx_joint_nodes):
+    for anm_file, anm in anms.items():
+        fbx_anim_stack_name = os.path.basename(anm_file).split('.anm')[0]
+        fbx_anim_stack = FbxAnimStack.Create(fbx_scene, fbx_anim_stack_name)
+        fbx_anim_layer = FbxAnimLayer.Create(fbx_scene, 'Layer0')
+        fbx_anim_stack.AddMember(fbx_anim_layer)
+        start = FbxTime()
+        start.SetSecondDouble(0.0)
+        end = FbxTime()
+        end.SetSecondDouble(anm.duration / anm.fps)
+        fbx_time_span = FbxTimeSpan()
+        fbx_time_span.Set(start, end)
+        fbx_anim_stack.SetLocalTimeSpan(fbx_time_span)
+
+        fbx_time = FbxTime()
+        tracks = {}
+        for track in anm.tracks:
+            tracks[track.joint_hash] = track
+        for joint_id, fbx_joint_node in fbx_joint_nodes.items():
+            translatex_curve = fbx_joint_node.LclTranslation.GetCurve(fbx_anim_layer, 'X', True);
+            translatey_curve = fbx_joint_node.LclTranslation.GetCurve(fbx_anim_layer, 'Y', True);
+            translatez_curve = fbx_joint_node.LclTranslation.GetCurve(fbx_anim_layer, 'Z', True);
+
+            scalex_curve = fbx_joint_node.LclScaling.GetCurve(fbx_anim_layer, 'X', True);
+            scaley_curve = fbx_joint_node.LclScaling.GetCurve(fbx_anim_layer, 'Y', True);
+            scalez_curve = fbx_joint_node.LclScaling.GetCurve(fbx_anim_layer, 'Z', True);
+
+            rotatex_curve = fbx_joint_node.LclRotation.GetCurve(fbx_anim_layer, 'X', True);
+            rotatey_curve = fbx_joint_node.LclRotation.GetCurve(fbx_anim_layer, 'Y', True);
+            rotatez_curve = fbx_joint_node.LclRotation.GetCurve(fbx_anim_layer, 'Z', True);
+
+
+            joint_hash = Elf(fbx_joint_node.GetName())
+            if joint_hash not in tracks:
+                continue
+            track = tracks[joint_hash]
+            
+            translatex_curve.KeyModifyBegin()
+            translatey_curve.KeyModifyBegin()
+            translatez_curve.KeyModifyBegin()
+            scalex_curve.KeyModifyBegin()
+            scaley_curve.KeyModifyBegin()
+            scalez_curve.KeyModifyBegin()
+            rotatex_curve.KeyModifyBegin()
+            rotatey_curve.KeyModifyBegin()
+            rotatez_curve.KeyModifyBegin()
+            for time in track.poses:
+                pose = track.poses[time]
+                time = time / anm.fps
+                fbx_time.SetSecondDouble(time)           
+                if pose.translate != None:
+                    key_index = translatex_curve.KeyAdd(fbx_time)
+                    translatex_curve.KeySetValue(key_index[0], pose.translate.x)
+                    translatex_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
+                    key_index = translatey_curve.KeyAdd(fbx_time)
+                    translatey_curve.KeySetValue(key_index[0], pose.translate.y)
+                    translatey_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
+                    key_index = translatez_curve.KeyAdd(fbx_time)
+                    translatez_curve.KeySetValue(key_index[0], pose.translate.z)
+                    translatez_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
+
+                if pose.scale != None:
+                    key_index = scalex_curve.KeyAdd(fbx_time)
+                    scalex_curve.KeySetValue(key_index[0], pose.scale.x)
+                    scalex_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
+                    key_index = scaley_curve.KeyAdd(fbx_time)
+                    scaley_curve.KeySetValue(key_index[0], pose.scale.y)
+                    scaley_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
+                    key_index = scalez_curve.KeyAdd(fbx_time)
+                    scalez_curve.KeySetValue(key_index[0], pose.scale.z)
+                    scalez_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
+                
+                if pose.rotate != None:
+                    rotate = FbxVector4()
+                    rotate.SetXYZ(FbxQuaternion(pose.rotate.x, pose.rotate.y, pose.rotate.z, pose.rotate.w))
+                
+                    key_index = rotatex_curve.KeyAdd(fbx_time)
+                    rotatex_curve.KeySetValue(key_index[0], rotate[0])
+                    rotatex_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
+                    key_index = rotatey_curve.KeyAdd(fbx_time)
+                    rotatey_curve.KeySetValue(key_index[0], rotate[1])
+                    rotatey_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
+                    key_index = rotatez_curve.KeyAdd(fbx_time)
+                    rotatez_curve.KeySetValue(key_index[0], rotate[2])
+                    rotatez_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
+
+
+            translatex_curve.KeyModifyEnd()
+            translatey_curve.KeyModifyEnd()
+            translatez_curve.KeyModifyEnd()
+            scalex_curve.KeyModifyEnd()
+            scaley_curve.KeyModifyEnd()
+            scalez_curve.KeyModifyEnd()
+            rotatex_curve.KeyModifyEnd()
+            rotatey_curve.KeyModifyEnd()
+            rotatez_curve.KeyModifyEnd()
+
+        print(f'lemon_fbx: Finish: Load animation stack: {fbx_anim_stack_name}')
+
+
+def skin_to_fbx(skl_path, skn_path, anm_path, fbx_path):
     # read skl and skn
     skl = read_skl(skl_path)
-    print(f'lemon_fbx: Finish: Read SKL: {skl_path}')
-    print(f'lemon_fbx: SKL Version: {skl.version}')
+    print(f'lemon_fbx: Finish: Read SKL: {skl_path}, Version: {skl.version}')
     skn = read_skn(skn_path)
-    print(f'lemon_fbx: Finish: Read SKN: {skn_path}')
-    print(f'lemon_fbx: SKN Version: {skn.version}')
-
+    print(f'lemon_fbx: Finish: Read SKN: {skn_path}, Version: {skn.version}')
+    # read anm
+    anm_files = []
+    if os.path.isdir(anm_path):
+        for file in os.listdir(anm_path):
+            if file.endswith('.anm'):
+                anm_files.append(os.path.join(anm_path, file).replace('\\', '/'))
+    anms = {}
+    for anm_file in anm_files:
+        anm = read_anm(anm_file)
+        anms[anm_file] = anm
+        print(f'lemon_fbx: Finish: Read ANM: {anm_file}, Version: {anm.version}')
     # flipX 
-    mirrorX(skl,skn)
+    mirrorX(skl=skl, skn=skn)
+    for anm_name, anm in anms.items():
+        mirrorX(anm=anm)
 
     # create scene
     fbx_manager = FbxManager()
@@ -495,10 +675,12 @@ def skin_to_fbx(skl_path, skn_path, fbx_path=''):
     # build mesh
     print(f'lemon_fbx: Indices: {len(skn.indices)}, Vertices: {len(skn.vertices)}, Submeshes: {len(skn.submeshes)}')
     load_skn(fbx_root_node, fbx_scene, skn, skl, fbx_joint_nodes)
+
+    # build animation
+    print(f'lemon_fbx: Animations: {len(anms)}')
+    load_anm(fbx_scene, anms, fbx_joint_nodes)
     
     # io & save scene
-    if fbx_path == '':
-        fbx_path = skn_path.replace('.skn', '.fbx')
     fbx_ios = FbxIOSettings.Create(fbx_manager, 'ios')
     fbx_manager.SetIOSettings(fbx_ios)
     fbx_exporter = FbxExporter.Create(fbx_manager, 'exporter')
@@ -508,4 +690,5 @@ def skin_to_fbx(skl_path, skn_path, fbx_path=''):
 
     # boom boom bakudan
     fbx_exporter.Destroy()
+    print('lemon_fbx: Finish: SKIN to FBX.')
 
