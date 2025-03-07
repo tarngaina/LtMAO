@@ -211,10 +211,15 @@ def build_main_window(window: QMainWindow):
     build_grips(window)
     # set background gif
     widget = QLabel()
-    qtwidgets.movie = movie = QMovie(theme_paths['background'])
-    widget.setMovie(movie)
-    widget.setScaledContents(True)
-    movie.start()
+    if setting.get('qtGUI.animated_background', True):
+        movie = QMovie(theme_paths['background'])
+        widget.setMovie(movie)
+        widget.setScaledContents(True)
+        movie.start()
+    else:
+        pixmap = QPixmap(theme_paths['background'])
+        widget.setPixmap(pixmap)
+        widget.setScaledContents(True)
     # build main layout
     layout = QVBoxLayout()
     build_main_layout(widget, layout)

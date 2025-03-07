@@ -199,7 +199,7 @@ def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_
             raise Exception(f'lemon_fbx: Error: {mesh_name}: No deformer found. Mesh is not bound?')
         fbx_deformer = fbx_mesh.GetDeformer(0)
         if type(fbx_deformer) != FbxSkin:
-            raise Exception(f'lemon_fbx: Error: {mesh_name}: Deformer is not FbxSkin?')
+           raise Exception(f'lemon_fbx: Error: {mesh_name}: Deformer is not FbxSkin? {type(fbx_deformer)}')
         fbx_clusters = [fbx_deformer.GetCluster(i) for i in range(fbx_deformer.GetClusterCount())]
         vertex_influences_weights = [[] for i in range(vertex_count)] 
         for fbx_cluster in fbx_clusters:
@@ -309,7 +309,7 @@ def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_
                 combined_submesh_vertices[submesh_name].extend(submesh_vertices[submesh_name])
             if submesh_name not in combined_submesh_names:
                 combined_submesh_names.append(submesh_name)
-
+                
     # skn
     skn = SKN()
     skn.indices = combined_submesh_indices[combined_submesh_names[0]]
@@ -339,7 +339,7 @@ def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_
     return skn
 
 
-def dump_anm(fbx_scene, fbx_joints):
+def dump_anm(fbx_scene, fbx_joints, blender_armature_node_local_matrix):
     anms = {}
     fbx_anim_stack_count = fbx_scene.GetSrcObjectCount(FbxCriteria.ObjectType(FbxAnimStack.ClassId))
     print(f'lemon_fbx: Animation stacks: {fbx_anim_stack_count}')
@@ -347,20 +347,26 @@ def dump_anm(fbx_scene, fbx_joints):
         fps = 30.0
         fbx_anim_stack = fbx_scene.GetSrcObject(FbxCriteria.ObjectType(FbxAnimStack.ClassId), anim_stack_id)
         fbx_scene.SetCurrentAnimationStack(fbx_anim_stack)
-        fbx_anim_stack_name = fbx_anim_stack.GetName()
+        fbx_anim_stack_name = fbx_anim_stack.GetName().replace('|', '_')
         animation_time_range = fbx_anim_stack.LocalStop.Get().GetSecondDouble() - fbx_anim_stack.LocalStart.Get().GetSecondDouble()
         frame_range = int(animation_time_range * fps)
         fbx_time = FbxTime()
         tracks = {}
         for joint_name, fbx_joint in fbx_joints.items():
+            parent_node = fbx_joint.GetParent()
+            parent_is_blender_armature_node = False
+            if type(parent_node.GetNodeAttribute()) == FbxNull:
+                parent_is_blender_armature_node = True
             tracks[joint_name] = track = ANMTrack()
             track.joint_hash = Elf(joint_name)
             track.poses = {}
-            for frame in range(frame_range):
-                track.poses[frame] = pose = ANMPose()
+            for frame in range(1, frame_range, 1):
+                track.poses[frame-1] = pose = ANMPose()
                 time = frame / fps
                 fbx_time.SetSecondDouble(time)
-                fbx_local_matrix = fbx_joint.EvaluateLocalTransform(fbx_time)
+                fbx_local_matrix = fbx_joint.EvaluateLocalTransform(fbx_time) 
+                if parent_is_blender_armature_node:
+                    fbx_local_matrix = fbx_local_matrix * blender_armature_node_local_matrix
                 translate, rotate, scale = fbx_local_matrix.GetT(), fbx_local_matrix.GetQ(), fbx_local_matrix.GetS()
                 pose.translate = Vector(translate[0], translate[1], translate[2])
                 pose.rotate = Quaternion(rotate[0], rotate[1], rotate[2], rotate[3])
@@ -368,11 +374,18 @@ def dump_anm(fbx_scene, fbx_joints):
                 if math.isnan(pose.rotate.x):
                     fbx_anim_evaluator = fbx_scene.GetAnimationEvaluator()
                     translate = fbx_anim_evaluator.GetNodeLocalTranslation(fbx_joint, fbx_time)
-                    quat = FbxQuaternion()
-                    quat.ComposeSphericalXYZ(fbx_anim_evaluator.GetNodeLocalRotation(fbx_joint, fbx_time))
+                    rotate = fbx_anim_evaluator.GetNodeLocalRotation(fbx_joint, fbx_time)
                     scale = fbx_anim_evaluator.GetNodeLocalScaling(fbx_joint, fbx_time)
+                    fbx_local_matrix = FbxAMatrix()
+                    fbx_local_matrix.SetTRS(translate, rotate, scale)
+                    if parent_is_blender_armature_node:
+                        fbx_local_matrix = fbx_local_matrix * blender_armature_node_local_matrix
+
+                    translate = fbx_local_matrix.GetT()
+                    rotate = fbx_local_matrix.GetQ()
+                    scale = fbx_local_matrix.GetS()
                     pose.translate = Vector(translate[0], translate[1], translate[2])
-                    pose.rotate = Quaternion(quat[0], quat[1], quat[2], quat[3])
+                    pose.rotate = Quaternion(rotate[0], rotate[1], rotate[2], rotate[3])
                     pose.scale = Vector(scale[0], scale[1], scale[2])
 
 
@@ -412,10 +425,9 @@ def fbx_to_skin(fbx_path, skl_path, skn_path, anm_path):
     mesh_count = len(fbx_meshes)
     print(f'lemon_fbx: Joints: {joint_count}, Meshes: {mesh_count}')
 
-    # dump
     skl, blender_armature_node_name, blender_armature_node_local_matrix = dump_skl(fbx_joints)
     skn = dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_local_matrix)
-    anms = dump_anm(fbx_scene, fbx_joints)
+    anms = dump_anm(fbx_scene, fbx_joints, blender_armature_node_local_matrix)
     # mirror X before write
     mirrorX(skl=skl, skn=skn)
     for anm_name, anm in anms.items():
@@ -548,9 +560,9 @@ def load_anm(fbx_scene, anms, fbx_joint_nodes):
         fbx_anim_layer = FbxAnimLayer.Create(fbx_scene, 'Layer0')
         fbx_anim_stack.AddMember(fbx_anim_layer)
         start = FbxTime()
-        start.SetSecondDouble(0.0)
+        start.SetSecondDouble(1 / anm.fps)
         end = FbxTime()
-        end.SetSecondDouble(anm.duration / anm.fps)
+        end.SetSecondDouble((anm.duration+1) / anm.fps)
         fbx_time_span = FbxTimeSpan()
         fbx_time_span.Set(start, end)
         fbx_anim_stack.SetLocalTimeSpan(fbx_time_span)
@@ -587,10 +599,9 @@ def load_anm(fbx_scene, anms, fbx_joint_nodes):
             rotatex_curve.KeyModifyBegin()
             rotatey_curve.KeyModifyBegin()
             rotatez_curve.KeyModifyBegin()
-            for time in track.poses:
-                pose = track.poses[time]
-                time = time / anm.fps
-                fbx_time.SetSecondDouble(time)           
+            for frame in track.poses:
+                pose = track.poses[frame]
+                fbx_time.SetSecondDouble((frame+1) / anm.fps)           
                 if pose.translate != None:
                     key_index = translatex_curve.KeyAdd(fbx_time)
                     translatex_curve.KeySetValue(key_index[0], pose.translate.x)

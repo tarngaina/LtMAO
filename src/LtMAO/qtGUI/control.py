@@ -1533,7 +1533,7 @@ def build_lemon3d(widget: QWidget):
     # to skin
     layout3 = QHBoxLayout()
     button = QToolButton()
-    button.setText('🚗 To SKN + SKL')
+    button.setText('🚗 To SKN + SKL + ANMs')
     layout3.addWidget(button)
     output_skn = QLabel()
     fbx_line.textChanged.connect(lambda event: output_skn.setText(event.replace('.fbx', '.skn')))
@@ -2013,6 +2013,17 @@ def build_setting(widget: QWidget):
         print('setting: Restart is require for theme changes to take effect.')
     box.currentTextChanged.connect(lambda event: change_theme(box))
     layout2.addWidget(box)
+
+    checkbox = QCheckBox()
+    checkbox.setText('🎞️ Animated background')
+    checkbox.setChecked(setting.get('qtGUI.animated_background', True))
+    def animated_background_cmd():
+        setting.set('qtGUI.animated_background', checkbox.isChecked())
+        setting.save()
+        print('setting: Restart is require for theme changes to take effect.')
+    checkbox.clicked.connect(animated_background_cmd)
+    layout2.addWidget(checkbox)
+
     layout2.addStretch()
     layout.addLayout(layout2)
     # default folder
