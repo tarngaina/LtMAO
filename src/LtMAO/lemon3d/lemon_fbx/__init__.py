@@ -360,7 +360,7 @@ def dump_anm(fbx_scene, fbx_joints, blender_armature_node_local_matrix):
             tracks[joint_name] = track = ANMTrack()
             track.joint_hash = Elf(joint_name)
             track.poses = {}
-            for frame in range(1, frame_range, 1):
+            for frame in range(1, frame_range+1, 1):
                 track.poses[frame-1] = pose = ANMPose()
                 time = frame / fps
                 fbx_time.SetSecondDouble(time)
@@ -560,9 +560,9 @@ def load_anm(fbx_scene, anms, fbx_joint_nodes):
         fbx_anim_layer = FbxAnimLayer.Create(fbx_scene, 'Layer0')
         fbx_anim_stack.AddMember(fbx_anim_layer)
         start = FbxTime()
-        start.SetSecondDouble(1 / anm.fps)
+        start.SetSecondDouble(0.0)
         end = FbxTime()
-        end.SetSecondDouble((anm.duration+1) / anm.fps)
+        end.SetSecondDouble(anm.duration / anm.fps)
         fbx_time_span = FbxTimeSpan()
         fbx_time_span.Set(start, end)
         fbx_anim_stack.SetLocalTimeSpan(fbx_time_span)
@@ -599,6 +599,46 @@ def load_anm(fbx_scene, anms, fbx_joint_nodes):
             rotatex_curve.KeyModifyBegin()
             rotatey_curve.KeyModifyBegin()
             rotatez_curve.KeyModifyBegin()
+
+            # frame 0 as bind pose first
+            fbx_time.SetSecondDouble(0.0)
+
+            translate = fbx_joint_node.LclTranslation.Get()
+            key_index = translatex_curve.KeyAdd(fbx_time)
+            translatex_curve.KeySetValue(key_index[0], translate[0])
+            translatex_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
+            key_index = translatey_curve.KeyAdd(fbx_time)
+            translatey_curve.KeySetValue(key_index[0], translate[1])
+            translatey_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
+            key_index = translatez_curve.KeyAdd(fbx_time)
+            translatez_curve.KeySetValue(key_index[0], translate[2])
+            translatez_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
+
+            rotate = fbx_joint_node.LclRotation.Get()
+            fbx_time.SetSecondDouble(0.0)           
+            key_index = rotatex_curve.KeyAdd(fbx_time)
+            rotatex_curve.KeySetValue(key_index[0], rotate[0])
+            rotatex_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
+            key_index = rotatey_curve.KeyAdd(fbx_time)
+            rotatey_curve.KeySetValue(key_index[0], rotate[1])
+            rotatey_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
+            key_index = rotatez_curve.KeyAdd(fbx_time)
+            rotatez_curve.KeySetValue(key_index[0], rotate[2])
+            rotatez_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
+
+            scale = fbx_joint_node.LclScaling.Get()
+            fbx_time.SetSecondDouble(0.0)           
+            key_index = scalex_curve.KeyAdd(fbx_time)
+            scalex_curve.KeySetValue(key_index[0], scale[0])
+            scalex_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
+            key_index = scaley_curve.KeyAdd(fbx_time)
+            scaley_curve.KeySetValue(key_index[0], scale[1])
+            scaley_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
+            key_index = scalez_curve.KeyAdd(fbx_time)
+            scalez_curve.KeySetValue(key_index[0], scale[2])
+            scalez_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
+
+            # the animations
             for frame in track.poses:
                 pose = track.poses[frame]
                 fbx_time.SetSecondDouble((frame+1) / anm.fps)           
