@@ -2,7 +2,7 @@ from fbx import (
     FbxManager, FbxImporter, FbxExporter, FbxIOSettings, FbxScene, FbxNode,
     FbxSkeleton, FbxMesh, FbxSkin, FbxCluster, 
     FbxLayerElement, FbxSurfaceLambert, 
-    FbxCriteria, FbxAnimStack, FbxAnimLayer, FbxAnimCurveDef, FbxTime, FbxTimeSpan, 
+    FbxCriteria, FbxAnimStack, FbxAnimLayer, FbxAnimCurveDef, FbxTime, FbxTimeSpan, FbxGlobalSettings,
     FbxNull, FbxVector4, FbxVector4Array, FbxQuaternion, FbxDouble3, FbxVector2, FbxAMatrix,
 )
 from ...pyRitoFile import (
@@ -554,6 +554,9 @@ def load_skn(fbx_root_node, fbx_scene, skn, skl, fbx_joint_nodes):
 
 
 def load_anm(fbx_scene, anms, fbx_joint_nodes):
+    # set 30 fps
+    fbx_global_settings = fbx_scene.GetSrcObject(FbxCriteria.ObjectType(FbxGlobalSettings.ClassId), 0)
+    fbx_global_settings.SetTimeMode(FbxTime.EMode.eNTSCFullFrame)
     for anm_file, anm in anms.items():
         fbx_anim_stack_name = os.path.basename(anm_file).split('.anm')[0]
         fbx_anim_stack = FbxAnimStack.Create(fbx_scene, fbx_anim_stack_name)
