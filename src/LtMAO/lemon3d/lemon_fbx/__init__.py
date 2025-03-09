@@ -340,15 +340,23 @@ def dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_
 
 
 def dump_anm(fbx_scene, fbx_joints, blender_armature_node_local_matrix):
+    # get fps
+    fbx_global_settings = fbx_scene.GetSrcObject(FbxCriteria.ObjectType(FbxGlobalSettings.ClassId), 0)
+    time_mode = fbx_global_settings.GetTimeMode()
+    if time_mode == FbxTime.EMode.eFrames60:
+        fps = 60.0   
+    else:
+        fps = 30.0
     anms = {}
     fbx_anim_stack_count = fbx_scene.GetSrcObjectCount(FbxCriteria.ObjectType(FbxAnimStack.ClassId))
     print(f'lemon_fbx: Animation stacks: {fbx_anim_stack_count}')
     for anim_stack_id in range(fbx_anim_stack_count):
-        fps = 30.0
         fbx_anim_stack = fbx_scene.GetSrcObject(FbxCriteria.ObjectType(FbxAnimStack.ClassId), anim_stack_id)
         fbx_scene.SetCurrentAnimationStack(fbx_anim_stack)
         fbx_anim_stack_name = fbx_anim_stack.GetName().replace('|', '_')
-        animation_time_range = fbx_anim_stack.LocalStop.Get().GetSecondDouble() - fbx_anim_stack.LocalStart.Get().GetSecondDouble()
+        start = fbx_anim_stack.LocalStop.Get().GetSecondDouble()
+        end = fbx_anim_stack.LocalStart.Get().GetSecondDouble()
+        animation_time_range = start - end
         frame_range = int(animation_time_range * fps)
         fbx_time = FbxTime()
         tracks = {}
@@ -425,24 +433,27 @@ def fbx_to_skin(fbx_path, skl_path, skn_path, anm_path):
     mesh_count = len(fbx_meshes)
     print(f'lemon_fbx: Joints: {joint_count}, Meshes: {mesh_count}')
 
+    # dump skl
     skl, blender_armature_node_name, blender_armature_node_local_matrix = dump_skl(fbx_joints)
-    skn = dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_local_matrix)
-    anms = dump_anm(fbx_scene, fbx_joints, blender_armature_node_local_matrix)
-    # mirror X before write
-    mirrorX(skl=skl, skn=skn)
-    for anm_name, anm in anms.items():
-        mirrorX(anm=anm)
-    
-    # write file out after dump
+    mirrorX(skl=skl)
     write_skl(skl_path, skl)
     print(f'lemon_fbx: Finish: Write SKL: {skl_path}')
+
+    # dump skn
+    skn = dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_local_matrix)
+    mirrorX(skn=skn)
     write_skn(skn_path, skn)
     print(f'lemon_fbx: Finish: Write SKN: {skn_path}')
+
+    # dump anm
+    anms = dump_anm(fbx_scene, fbx_joints, blender_armature_node_local_matrix)
     os.makedirs(anm_path, exist_ok=True )
     for anm_name, anm in anms.items():
+        mirrorX(anm=anm)
         anm_file = os.path.join(anm_path, anm_name).replace('\\', '/') + '.anm'
         write_anm(anm_file, anm)
         print(f'lemon_fbx: Finish: Write ANM: {anm_file}')
+
     # boom boom bakudan
     fbx_importer.Destroy()
     print('lemon_fbx: Finish: FBX to SKIN.')
@@ -556,7 +567,7 @@ def load_skn(fbx_root_node, fbx_scene, skn, skl, fbx_joint_nodes):
 def load_anm(fbx_scene, anms, fbx_joint_nodes):
     # set 30 fps
     fbx_global_settings = fbx_scene.GetSrcObject(FbxCriteria.ObjectType(FbxGlobalSettings.ClassId), 0)
-    fbx_global_settings.SetTimeMode(FbxTime.EMode.eNTSCFullFrame)
+    fbx_global_settings.SetTimeMode(FbxTime.EMode.eFrames30)
     for anm_file, anm in anms.items():
         fbx_anim_stack_name = os.path.basename(anm_file).split('.anm')[0]
         fbx_anim_stack = FbxAnimStack.Create(fbx_scene, fbx_anim_stack_name)
@@ -696,12 +707,26 @@ def load_anm(fbx_scene, anms, fbx_joint_nodes):
 
 
 def skin_to_fbx(skl_path, skn_path, anm_path, fbx_path):
-    # read skl and skn
+    # create scene
+    fbx_manager = FbxManager()
+    fbx_scene = FbxScene.Create(fbx_manager, 'export_scene')
+    fbx_root_node = fbx_scene.GetRootNode()
+    
+    # build skl
     skl = read_skl(skl_path)
     print(f'lemon_fbx: Finish: Read SKL: {skl_path}, Version: {skl.version}')
+    mirrorX(skl=skl)
+    print(f'lemon_fbx: Joints: {len(skl.joints)}, Influences: {len(skl.influences)}')
+    fbx_joint_nodes = load_skl(fbx_root_node, fbx_scene, skl)
+
+    # build skn
     skn = read_skn(skn_path)
     print(f'lemon_fbx: Finish: Read SKN: {skn_path}, Version: {skn.version}')
-    # read anm
+    mirrorX(skn=skn)
+    print(f'lemon_fbx: Indices: {len(skn.indices)}, Vertices: {len(skn.vertices)}, Submeshes: {len(skn.submeshes)}')
+    load_skn(fbx_root_node, fbx_scene, skn, skl, fbx_joint_nodes)
+
+    # build anms
     anm_files = []
     if os.path.isdir(anm_path):
         for file in os.listdir(anm_path):
@@ -710,27 +735,9 @@ def skin_to_fbx(skl_path, skn_path, anm_path, fbx_path):
     anms = {}
     for anm_file in anm_files:
         anm = read_anm(anm_file)
-        anms[anm_file] = anm
         print(f'lemon_fbx: Finish: Read ANM: {anm_file}, Version: {anm.version}')
-    # flipX 
-    mirrorX(skl=skl, skn=skn)
-    for anm_name, anm in anms.items():
         mirrorX(anm=anm)
-
-    # create scene
-    fbx_manager = FbxManager()
-    fbx_scene = FbxScene.Create(fbx_manager, 'export_scene')
-    fbx_root_node = fbx_scene.GetRootNode()
-    
-    # build skeleton
-    print(f'lemon_fbx: Joints: {len(skl.joints)}, Influences: {len(skl.influences)}')
-    fbx_joint_nodes = load_skl(fbx_root_node, fbx_scene, skl)
-
-    # build mesh
-    print(f'lemon_fbx: Indices: {len(skn.indices)}, Vertices: {len(skn.vertices)}, Submeshes: {len(skn.submeshes)}')
-    load_skn(fbx_root_node, fbx_scene, skn, skl, fbx_joint_nodes)
-
-    # build animation
+        anms[anm_file] = anm
     print(f'lemon_fbx: Animations: {len(anms)}')
     load_anm(fbx_scene, anms, fbx_joint_nodes)
     

@@ -103,7 +103,7 @@ class Context:
         # .png contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.png\\shell',
-            sub_commands='LtMAO.png2dds;'
+            sub_commands='LtMAO.png2dds;LtMAO.png2ddsmm'
         )
         # .bnk contexts
         Context.create_submenu(
@@ -211,6 +211,13 @@ class Context:
                 cmd_name='LtMAO.png2dds',
                 cmd_desc='ImageMagick: Convert To DDS (No Mipmap)',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="png2dds" -src="%V"'
+            )
+            # png2ddsmm
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.png2ddsmm',
+                cmd_desc='ImageMagick: Convert To DDS (With Mipmap 10)',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="png2ddsmm" -src="%V"'
             )
             # dds2x4x
             Context.create_command(

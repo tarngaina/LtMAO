@@ -133,7 +133,7 @@ class ImageMagick:
             '-define',
             f'dds:compression={format}',
             '-define',
-            f'dds:mipmaps={8 if mipmap else 0}',
+            f'dds:mipmaps={10 if mipmap else 0}',
             dds
         ]
         p = Popen(

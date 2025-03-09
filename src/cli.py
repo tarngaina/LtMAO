@@ -113,6 +113,19 @@ class CLI:
         )
 
     @staticmethod
+    def png2ddsmm(src, dst):
+        from LtMAO import tools
+        if dst == None:
+            dst = src.replace('.png', '.dds')
+        tools.ImageMagick.to_dds(
+            src=src,
+            dds=dst,
+            format='dxt5',
+            mipmap=True
+        )
+
+
+    @staticmethod
     def dds2png(src, dst):
         from LtMAO import tools
         if dst == None:
@@ -182,8 +195,6 @@ class CLI:
             zip.extractall(dst)
         
 
-
-
 def main():
     args = parse_arguments()
     ensure_curdir()
@@ -209,6 +220,8 @@ def main():
         CLI.dds2png(args.source, args.destination)
     elif args.tool == 'png2dds':
         CLI.png2dds(args.source, args.destination)
+    elif args.tool == 'png2ddsmm':
+        CLI.png2ddsmm(args.source, args.destination)
     elif args.tool == 'dds2x4x':
         CLI.dds2x4x(args.source)
     elif args.tool == 'wem2wav':
