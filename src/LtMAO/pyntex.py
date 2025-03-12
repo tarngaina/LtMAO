@@ -41,6 +41,8 @@ def parse_bin(bin, *, existing_files=[]):
                 for key, value in field.data.items():
                     parse_value(key, field.key_type)
                     parse_value(value, field.value_type)
+            elif field.type == pyRitoFile.BINType.Option and field.value_type == pyRitoFile.BINType.String:
+                parse_value(field.data, field.value_type)
             else:
                 parse_value(field.data, field.type)
 

@@ -202,6 +202,8 @@ class ExtractedHashes:
                     for key, value in field.data.items():
                         extract_file_value(key, field.key_type)
                         extract_file_value(value, field.value_type)
+                elif field.type == pyRitoFile.BINType.Option and field.value_type == pyRitoFile.BINType.String:
+                    extract_file_value(field.data, field.value_type)
                 else:
                     extract_file_value(field.data, field.type)
 
