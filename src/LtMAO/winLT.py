@@ -43,7 +43,7 @@ class Context:
         # folder contexts
         Context.create_submenu(
             shell='Directory\\shell',
-            sub_commands='LtMAO.RawToWad;LtMAO.ZipFantome;LtMAO.hashextract;LtMAO.PT;'
+            sub_commands='LtMAO.RawToWad;LtMAO.ZipFantome;LtMAO.hashextract;LtMAO.PT;LtMAO.RitobinDirToPy;LtMAO.RitobinDirToBin;'
         )
         # .wad (.client) contexts
         Context.create_submenu(
@@ -155,6 +155,20 @@ class Context:
                 cmd_name='LtMAO.RitobinToBin',
                 cmd_desc='ritobin: Convert To BIN',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin" -src="%V"'
+            )
+            # RitobinDirToPy
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.RitobinDirToPy',
+                cmd_desc='ritobin: Convert all BIN To PY',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobindir2py" -src="%V"'
+            )
+            # RitobinDirToBin
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.RitobinDirToBin',
+                cmd_desc='ritobin: Convert all PY To BIN',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobindir2bin" -src="%V"'
             )
             # LFI
             Context.create_command(

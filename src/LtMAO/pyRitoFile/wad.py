@@ -1,6 +1,6 @@
 from io import BytesIO
 from .stream import BinStream
-from enum import IntEnum
+from enum import Enum
 import gzip
 
 # not safe because external modules
@@ -85,7 +85,7 @@ def name_or_hex_to_hash(value):
         return name_to_hash(value)
 
 
-class WADCompressionType(IntEnum):
+class WADCompressionType(Enum):
     Raw = 0
     Gzip = 1
     Satellite = 2

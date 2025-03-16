@@ -16,30 +16,37 @@ class Helper:
 
     @staticmethod
     def run_command(src, dst, hp_command, require_dst, backup):
-        matching_src_dst_bins, src_type = Helper.read_src_dst(src, dst, require_dst)
+        map_bin_src_dst, map_wad_src_dst = Helper.read_src_dst(src, dst, require_dst)
 
         # backup dst if require dst else src
         Helper.backup(dst if backup and require_dst else src)
 
-        for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
+        for src_bin_path in map_bin_src_dst:
+            dst_bin_path, src_bin, dst_bin = map_bin_src_dst[src_bin_path]
             if require_dst:
                 print(f'hapiBin: Start:  {hp_command.__name__}: {src_bin_path} -> {dst_bin_path}.')
             else:
                 print(f'hapiBin: Start:  {hp_command.__name__}: {src_bin_path}.')
             hp_command(src_bin, dst_bin)
+        for src_wad_path in map_wad_src_dst:
+            dst_wad_path, wad_datas = map_wad_src_dst[src_wad_path]
+            for chunk_hash, src_bin, dst_bin in wad_datas:
+                if require_dst:
+                    print(f'hapiBin: Start:  {hp_command.__name__}: {src_wad_path}/{chunk_hash} -> {dst_wad_path}/{chunk_hash}.')
+                else:
+                    print(f'hapiBin: Start:  {hp_command.__name__}: {src_wad_path}/{chunk_hash}.')
+                hp_command(src_bin, dst_bin)
         
-        Helper.write_src_dst(src, dst, matching_src_dst_bins, src_type, require_dst)
+        Helper.write_src_dst(require_dst, map_bin_src_dst, map_wad_src_dst)
 
     @staticmethod
     def check_type(path):
         if os.path.isdir(path):
             return 'folder'
-        else:
-            if path.endswith('.wad.client'):
-                return 'wad'
-            elif path.endswith('.bin'):
+        else: 
+            if path.endswith('.bin'):
                 return 'bin'
-        raise Exception('hapiBin: Error: {path} is not a BIN/WAD/Folder/Fantome.')
+        raise Exception('hapiBin: Error: {path} is not a BIN/Folder.')
 
     @staticmethod
     def read_src_dst(src, dst, require_dst):
@@ -56,103 +63,92 @@ class Helper:
             if src_type != dst_type:
                 raise Exception('hapiBin: Error: Source entry\'s type is different from target entry type.')
 
-        # list of matching src_dst_bins 
-        # (src_path, dst_path, src_bin, dst_bin)
-        matching_src_dst_bins = []
+        # map_bin_src_dst[src_bin_path] = (dst_bin_path, src_bin, dst_bin)
+        map_bin_src_dst = {}
+        # map_wad_src_dst[src_wad_path] = (dst_wad_path, list[tuple(chunk_hash, src_bin, dst_bin)])
+        map_wad_src_dst = {}
         if src_type == 'bin':
-            matching_src_dst_bins.append((
-                src, 
-                dst if require_dst else None, 
-                read_bin(src), 
-                read_bin(dst) if require_dst else None
-            ))
+            if require_dst:
+                map_bin_src_dst[src] = (dst, read_bin(src), read_bin(dst))
+            else:
+                map_bin_src_dst[src] = (None, read_bin(src), None)
         elif src_type == 'folder':
+            # scan src folder
+            src_bin_paths = []
+            src_wad_paths = []
             for root, dirs, files in os.walk(src):
                 for file in files:
                     if file.endswith('.bin'):
-                        src_bin_path = os.path.join(root, file).replace('\\','/')
-                        if require_dst:
-                            dst_bin_path = os.path.join(dst, os.path.relpath(src_bin_path, src)).replace('\\','/')
-                            if os.path.exists(dst_bin_path):
-                                matching_src_dst_bins.append((
-                                    src_bin_path,
-                                    dst_bin_path, 
-                                    read_bin(src_bin_path),
-                                    read_bin(dst_bin_path)
+                        src_bin_paths.append(os.path.join(root, file).replace('\\','/'))
+                    elif file.endswith('.wad.client'):
+                        src_wad_paths.append(os.path.join(root, file).replace('\\','/'))
+            # match bin in subfolders
+            for src_bin_path in src_bin_paths:
+                if require_dst:
+                    dst_bin_path = os.path.join(dst, os.path.relpath(src_bin_path, src)).replace('\\','/')
+                    if os.path.exists(dst_bin_path):
+                        map_bin_src_dst[src_bin_path] = (dst_bin_path, read_bin(src_bin_path), read_bin(dst_bin_path))
+                else:
+                    map_bin_src_dst[src_bin_path] = (None, read_bin(src_bin_path), None)
+            # match bin in wads
+            for src_wad_path in src_wad_paths:
+                src_wad = read_wad(src_wad_path)
+                if require_dst:
+                    dst_wad_path = os.path.join(dst, os.path.relpath(src_wad_path, src)).replace('\\','/')
+                    dst_wad = read_wad(dst_wad_path)
+                    map_wad_src_dst[src_wad_path] = (dst_wad_path, [])
+                    dst_bins = {}
+                    with dst_wad.stream(dst_wad_path, 'rb') as bs:
+                        for dst_chunk in dst_wad.chunks:
+                            dst_chunk.read_data(bs)
+                            if dst_chunk.extension == 'bin':
+                                dst_bins[dst_chunk.hash] = read_bin('', raw=dst_chunk.data)
+                            dst_chunk.free_data()
+                else:
+                     map_wad_src_dst[src_wad_path] = (None, [])
+                with src_wad.stream(src_wad_path, 'rb') as bs:
+                    for src_chunk in src_wad.chunks:
+                        src_chunk.read_data(bs)
+                        if src_chunk.extension == 'bin': 
+                            if require_dst:
+                                if src_chunk.hash in dst_bins:
+                                    map_wad_src_dst[src_wad_path][1].append((
+                                        src_chunk.hash,
+                                        read_bin('', raw=src_chunk.data), 
+                                        dst_bins[src_chunk.hash]
+                                    ))
+                            else:
+                                map_wad_src_dst[src_wad_path][1].append((
+                                    src_chunk.hash,
+                                    read_bin('', raw=src_chunk.data), 
+                                    None,
                                 ))
-                        else:
-                            matching_src_dst_bins.append((
-                                src_bin_path,
-                                None,
-                                read_bin(src_bin_path),
-                                None
-                            ))
-        else:
-            src_wad = read_wad(src)
-            if require_dst:
-                prepared_dst_chunks = {}
-                dst_wad = read_wad(dst)
-                with dst_wad.stream(dst, 'rb') as bs:
-                    for chunk in dst_wad.chunks:
-                        chunk.read_data(bs)
-                        if chunk.extension == 'bin':
-                            prepared_dst_chunks[chunk.hash] = read_bin('', raw=chunk.data)
-                        chunk.free_data()
-            with src_wad.stream(src, 'rb') as bs:
-                for chunk in src_wad.chunks:
-                    chunk.read_data(bs)
-                    if chunk.extension == 'bin': 
-                        if require_dst:
-                            if chunk.hash in prepared_dst_chunks:
-                                matching_src_dst_bins.append((
-                                    os.path.join(src, chunk.hash).replace('\\','/'),
-                                    os.path.join(dst, chunk.hash).replace('\\','/'),
-                                    read_bin('', raw=chunk.data),
-                                    prepared_dst_chunks[chunk.hash]
-                                ))
-                        else:
-                            matching_src_dst_bins.append((
-                                chunk.hash,
-                                None,
-                                read_bin('', raw=chunk.data),
-                                None
-                            ))
-                    chunk.free_data()
-        return matching_src_dst_bins, src_type
+                        src_chunk.free_data()
+        return map_bin_src_dst, map_wad_src_dst
 
     @staticmethod
-    def write_src_dst(src, dst, matching_src_dst_bins, src_type, require_dst):
-        if src_type == 'bin':
-            for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
-                if require_dst:
-                    write_bin(dst_bin_path, dst_bin)
-                else:
-                    write_bin(src_bin_path, src_bin)               
-        elif src_type == 'folder':
-            for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins:
-                if require_dst:
-                    write_bin(dst_bin_path, dst_bin)
-                else:
-                    write_bin(src_bin_path, src_bin)     
-        else:
+    def write_src_dst(require_dst, map_bin_src_dst, map_wad_src_dst):
+        # write bin
+        for src_bin_path in map_bin_src_dst:
+            dst_bin_path, src_bin, dst_bin = map_bin_src_dst[src_bin_path]
             if require_dst:
-                wad_path = dst
-                wad = read_wad(wad_path)
-                chunks = [(os.path.basename(dst_bin_path), dst_bin) for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins]
+                write_bin(dst_bin_path, dst_bin)
             else:
-                wad_path = src
-                wad = read_wad(wad_path)
-                chunks = [(os.path.basename(src_bin_path), src_bin) for src_bin_path, dst_bin_path, src_bin, dst_bin in matching_src_dst_bins]
+                write_bin(src_bin_path, src_bin)
+        # write bin inside wads
+        for src_wad_path in map_wad_src_dst:
+            dst_wad_path, wad_datas = map_wad_src_dst[src_wad_path]
+            map_wad_datas = {}
+            for chunk_hash, src_bin, dst_bin in wad_datas:
+                map_wad_datas[chunk_hash] = dst_bin if require_dst else src_bin
+
+            wad_path = dst_wad_path if require_dst else src_wad_path
+            wad = read_wad(wad_path)
             with wad.stream(wad_path, 'rb+') as bs:
                 for chunk in wad.chunks:
-                    matching_chunk_hash, matching_chunk_bin_data = next(
-                        ((chunk_hash, chunk_bin_data) for chunk_hash, chunk_bin_data in chunks if chunk_hash == chunk.hash),
-                        (None, None)
-                    )
-                    if matching_chunk_hash == None:
-                        continue
-                    chunk.write_data(bs, chunk.id, chunk.hash, matching_chunk_bin_data.write('', raw=True))
-                    chunk.free_data()
+                    if chunk.hash in map_wad_datas:
+                        chunk.write_data(bs, chunk.id, chunk.hash, map_wad_datas[chunk.hash].write('', raw=True))
+                        chunk.free_data()
         print(f'hapiBin: Finish: Write source & target.')
 
     @staticmethod
@@ -163,7 +159,7 @@ class Helper:
         )
         print(f'hapiBin: Start:  Backup target {path} -> {backup_path}.')
         if os.path.isdir(path):
-            copytree(path, backup_path)
+            copytree(path, backup_path, dirs_exist_ok=True)
         else:
             copy(path, backup_path)
         print(f'hapiBin: Finish: Backup target {path} -> {backup_path}.')
@@ -425,8 +421,41 @@ def copy_vfx_colors(src_bin, dst_bin):
                                         copied_field_count += 1
     print(f'hapiBin: Finish: Copy {copied_field_count} color fields.')                          
 
+
 @Helper.create_qt_data(
-    name='✨ Add Vfx emitters: source -> target ',
+    name='🖼️ Copy Loadscreen and HUD Icon path: source -> target',
+    description='Copy loadscreen, iconCircle, iconSquare.',
+    require_dst=True
+)
+def copy_loadscreen_icon(src_bin, dst_bin):
+    dst_SkinCharacterDataProperties =  BINHelper.find_item(
+        items=dst_bin.entries,
+        compare_func=lambda entry: entry.type == cached_bin_hashes['SkinCharacterDataProperties']
+    )
+    src_SkinCharacterDataProperties = BINHelper.find_item(
+        items=src_bin.entries,
+        compare_func=lambda entry: entry.type == cached_bin_hashes['SkinCharacterDataProperties']
+    )
+    fields_to_copy = (
+        cached_bin_hashes('loadscreen'), 
+        cached_bin_hashes('iconCircle'), 
+        cached_bin_hashes('iconSquare')
+    )
+    if dst_SkinCharacterDataProperties != None and src_SkinCharacterDataProperties != None:    
+        for dst_field in dst_SkinCharacterDataProperties.fields:
+            if dst_field.hash in fields_to_copy:
+                src_field = BINHelper.find_item(
+                    items=src_SkinCharacterDataProperties.fields,
+                    compare_func=lambda field: field.hash == dst_field.hash
+                )
+                if src_field != None:
+                    dst_field.data = src_field.data
+    print(f'hapiBin: Finish: Copy loadscreen and icons.')  
+
+
+
+@Helper.create_qt_data(
+    name='✨ Add VFX emitters: source -> target ',
     description='Add all emitters inside complexEmitterDefinitionData of VfxSystemDefinitionData.',
     require_dst=True
 )
@@ -579,5 +608,4 @@ def fix_vfx_shape(src_bin, dst_bin):
                                             # Clueless, default 0x4f4e2ed7
                                             shape.hash_type = '4f4e2ed7'
                                             continue
-    print(f'hapiBin: Finish: FixVfxShape and BirthTranslation')
-
+    print(f'hapiBin: Finish: FixVfxShape and BirthTranslation.')

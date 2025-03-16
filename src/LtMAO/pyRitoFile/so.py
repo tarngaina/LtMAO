@@ -1,9 +1,9 @@
 from io import BytesIO, StringIO
 from .stream import BinStream
 from ..pyRitoFile.structs import Vector
-from enum import IntEnum
+from enum import Enum
 
-class SOFlag(IntEnum):
+class SOFlag(Enum):
     HasVcp = 1
     HasLocalOriginLocatorAndPivot = 2
 

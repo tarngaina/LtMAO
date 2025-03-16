@@ -130,6 +130,10 @@ def init_theme():
         QTreeView:item:selected  {{
             background-color: rgb{qtwidgets.accent_color};
         }}
+        QToolTip {{
+            background-color: rgba(0, 0, 0, 127);
+            border: none;   
+        }}
     """
     qtwidgets.tab_stylesheet = f"""
         QWidget {{

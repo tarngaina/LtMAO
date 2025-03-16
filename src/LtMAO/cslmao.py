@@ -165,7 +165,7 @@ def make_overlay(profile):
         overlay=os.path.abspath(overlay),
         game=setting.get('game_folder', ''),
         mods=paths,
-        noTFT=setting.get('cslmao.tft', False)
+        noTFT=not setting.get('cslmao.tft', False)
     )
 
 def run_overlay(profile):

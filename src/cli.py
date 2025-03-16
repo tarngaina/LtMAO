@@ -1,9 +1,6 @@
 import sys
 from argparse import ArgumentParser
 
-from LtMAO import tools
-
-
 def parse_arguments():
     # arg parse
     parser = ArgumentParser(
@@ -51,9 +48,14 @@ class CLI:
 
     @staticmethod
     def ritobin(src, dst):
-        from LtMAO import hash_helper
-        tools.RITOBIN.run(
-            src, dst, dir_hashes=hash_helper.CustomHashes.local_dir)
+        from LtMAO import hash_helper, tools
+        tools.RITOBIN.run(src, dst, dir_hashes=hash_helper.CustomHashes.local_dir)
+
+
+    @staticmethod
+    def ritobindir(src, dst, bin2py=True):
+        from LtMAO import hash_helper, tools
+        tools.RITOBIN.run(src, None, dir_hashes=hash_helper.CustomHashes.local_dir, recursive=True, recursive_bin2py=bin2py)
 
     @staticmethod
     def lfi(src):
@@ -204,6 +206,10 @@ def main():
         CLI.wadunpack(args.source, args.destination)
     elif args.tool == 'ritobin':
         CLI.ritobin(args.source, args.destination)
+    elif args.tool == 'ritobindir2py':
+        CLI.ritobindir(args.source, args.destination, True)
+    elif args.tool == 'ritobindir2bin':
+        CLI.ritobindir(args.source, args.destination, False)
     elif args.tool == 'lfi':
         CLI.lfi(args.source)
     elif args.tool == 'uvee':

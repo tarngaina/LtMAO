@@ -1,7 +1,7 @@
 from io import BytesIO
 from .stream import BinStream
 from .helper import FNV1a
-from enum import IntEnum
+from enum import Enum
 
 
 def hash_to_hex(hash):
@@ -30,7 +30,7 @@ def name_or_hex_to_hash(value):
     except:
         return name_to_hash(value)
 
-class BINType(IntEnum):
+class BINType(Enum):
     # basic
     Empty = 0
     Bool = 1

@@ -857,9 +857,10 @@ def build_hapiBin(widget: QWidget):
     # tutorial label + backup
     layout2 = QHBoxLayout()
     label = QLabel("""
-Target type (if needed) must match source type.
+💡 Target type (if needed) must match source type.
     📝 BIN: run functions directly on selected bin.
-    📦 WAD/📁 Folder/🗃️ Fantome: run functions on all bins inside selected WAD/Folder/Fantome.
+    📁 Folder: run functions on all bins inside Wads or Subfolders of selected Folder.
+Hover mouse on button to see functions description.
     """)
     layout2.addWidget(label, stretch=99)
     checkbox = QCheckBox()
@@ -885,15 +886,6 @@ Target type (if needed) must match source type.
             )
             if len(filepaths[0]) > 0:
                 final_path = filepaths[0]
-        elif browse_type == 'WAD':
-            filepaths = dialog.getOpenFileName(
-                widget, 
-                f'Select WADs',
-                setting.get('qtGUI.default_folder', None),
-                f'WAD Files (*.wad.client)'
-            )
-            if len(filepaths[0]) > 0:
-                final_path = filepaths[0]
         else:
             dirpath = dialog.getExistingDirectory(
                 widget,
@@ -909,7 +901,7 @@ Target type (if needed) must match source type.
     layout.addWidget(src_line)
     layout2 = QHBoxLayout()
     layout2.addStretch()
-    for browse_type in ['BIN', 'WAD', 'Folder']:
+    for browse_type in ['BIN', 'Folder']:
         button = QToolButton()
         button.setText(f'🏹 Browse Source {browse_type}')
         button.clicked.connect(lambda event, line=src_line, browse_type=browse_type: browse_cmd(line, browse_type))
@@ -920,7 +912,7 @@ Target type (if needed) must match source type.
     layout.addWidget(dst_line)
     layout2 = QHBoxLayout()
     layout2.addStretch()
-    for browse_type in ['BIN', 'WAD', 'Folder']:
+    for browse_type in ['BIN', 'Folder']:
         button = QToolButton()
         button.setText(f'🎯 Browse Target {browse_type}')
         button.clicked.connect(lambda event, line=dst_line, browse_type=browse_type: browse_cmd(line, browse_type))
@@ -940,14 +932,21 @@ Target type (if needed) must match source type.
         
         helper.SafeThread.start('hapiBin', run_hp_thrd)
     scrollarea = QScrollArea()
-    layout2 = QVBoxLayout()
+    layout2 = QGridLayout()
+    row_index = 0
+    col_index = 0
     for name, description, hp_command, require_dst in hapiBin.Helper.qt_datas: 
         button = QToolButton()
         button.setText(name)
         button.clicked.connect(lambda event, src_line=src_line, dst_line=dst_line, hp_command=hp_command, require_dst=require_dst: run_hp_command(src_line, dst_line, hp_command, require_dst))
-        layout2.addWidget(button)
-        label = QLabel(description)
-        layout2.addWidget(label)
+        button.setToolTip(description)
+        layout2.addWidget(button, row_index, col_index)
+        col_index += 1
+        if col_index > 1:
+            col_index = 0
+            row_index += 1
+    layout2.setRowStretch(layout2.rowCount(), 1)
+    layout2.setColumnStretch(layout2.columnCount(), 1)
     scrollarea.setLayout(layout2)
     layout.addWidget(scrollarea, stretch=999)
 
@@ -1609,7 +1608,7 @@ def build_ddsmart(widget: QWidget):
                 src=src,
                 dst=file_4x, width=width_4x, height=height_4x
             )
- 
+        
     def convert(isfile, title, input_type, func):
         dialog = QFileDialog()
         final_paths = []

@@ -1,7 +1,7 @@
 from io import BytesIO
 from .stream import BinStream
 from ..pyRitoFile.structs import Vector
-from enum import IntEnum, IntFlag
+from enum import Enum, IntFlag
 from random import uniform
 from math import sqrt
 
@@ -204,7 +204,7 @@ class MAPGEOModel:
         dic['indices'] = ('not write to save memory')
         return dic
     
-class MAPGEOVertexElementName(IntEnum):
+class MAPGEOVertexElementName(Enum):
     Position = 0
     BlendWeight = 1
     Normal = 2
@@ -225,7 +225,7 @@ class MAPGEOVertexElementName(IntEnum):
     def __json__(self):
         return self.name
 
-class MAPGEOVertexElementFormat(IntEnum):
+class MAPGEOVertexElementFormat(Enum):
     X_Float32 = 0
     XY_Float32 = 1
     XYZ_Float32 = 2
@@ -249,7 +249,7 @@ class MAPGEOVertexElement:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
 
-class MAPGEOVertexUsage(IntEnum):
+class MAPGEOVertexUsage(Enum):
     Static = 0
     Dynamic = 1
     Stream = 2

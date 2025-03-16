@@ -1,6 +1,6 @@
 from io import BytesIO
 from .stream import BinStream
-from enum import IntEnum
+from enum import Enum
 
 class BNKHelper:
     @staticmethod
@@ -76,7 +76,7 @@ class BNKHelper:
             bs.pad(12 * bs.read_u32()[0])
     
 
-class BNKObjectType(IntEnum):
+class BNKObjectType(Enum):
     Settings = 1
     Sound = 2
     Action = 3

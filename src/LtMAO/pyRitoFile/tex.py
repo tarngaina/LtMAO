@@ -1,9 +1,9 @@
 from io import BytesIO
 from .stream import BinStream
-from enum import IntEnum
+from enum import Enum
 
 
-class TEXFormat(IntEnum):
+class TEXFormat(Enum):
     ETC1 = 1
     ETC2 = 2
     ETC2_EAC = 3

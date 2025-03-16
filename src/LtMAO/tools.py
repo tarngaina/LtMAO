@@ -1,6 +1,6 @@
 import os
 import os.path
-from subprocess import Popen, CREATE_NO_WINDOW, PIPE, STDOUT
+from subprocess import Popen, CREATE_NO_WINDOW, PIPE
 
 EMPTY_MSG = ('', '\r', '\t', '\n')
 
@@ -27,7 +27,7 @@ class CSLOL:
             cmds.append('--noTFT')
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+            stdout=PIPE, stderr=PIPE
         )
         return p
 
@@ -41,7 +41,7 @@ class CSLOL:
             cmds.append('--noTFT')
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+            stdout=PIPE, stderr=PIPE
         )
         return p
 
@@ -59,7 +59,7 @@ class CSLOL:
             cmds.append('--ignoreConflict')
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+            stdout=PIPE, stderr=PIPE
         )
         return p
 
@@ -71,7 +71,7 @@ class CSLOL:
             cmds.append(game)
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdin=PIPE, stdout=PIPE, stderr=STDOUT
+            stdin=PIPE, stdout=PIPE, stderr=PIPE
         )
         return p
     
@@ -82,7 +82,7 @@ class CSLOL:
         cmds = [diag_file]
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdin=PIPE, stdout=PIPE, stderr=STDOUT
+            stdin=PIPE, stdout=PIPE, stderr=PIPE
         )
         block_and_stream_process_output(p, 'cslol-diag: ')
         return p
@@ -92,15 +92,21 @@ class RITOBIN:
     local_file = './res/tools/ritobin_cli.exe'
 
     @staticmethod
-    def run(src, dst=None, *, dir_hashes=None):
+    def run(src, dst=None, *, dir_hashes=None, recursive=False, recursive_bin2py=True):
         cmds = [os.path.abspath(RITOBIN.local_file), src]
         if dst:
             cmds.append(dst)
         if dir_hashes:
             cmds.extend(('--dir-hashes', dir_hashes))
+        if recursive:
+            cmds.append('--recursive')
+            if recursive_bin2py:
+                cmds.extend(('--input-format', 'bin', '--output-format', 'text'))
+            else:
+                cmds.extend(('--input-format', 'text', '--output-format', 'bin'))
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+            stdout=PIPE, stderr=PIPE
         )
         block_and_stream_process_output(p, 'ritobin: ')
         return p
@@ -118,7 +124,7 @@ class ImageMagick:
         ]
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+            stdout=PIPE, stderr=PIPE
         )
         block_and_stream_process_output(p, 'ImageMagick: ')
         return p
@@ -138,7 +144,7 @@ class ImageMagick:
         ]
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+            stdout=PIPE, stderr=PIPE
         )
         block_and_stream_process_output(p, 'ImageMagick: ')
         return p
@@ -154,7 +160,7 @@ class ImageMagick:
         ]
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+            stdout=PIPE, stderr=PIPE
         )
         block_and_stream_process_output(p, 'ImageMagick: ')
         return p
@@ -173,7 +179,7 @@ class VGMStream:
         ]
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+            stdout=PIPE, stderr=PIPE
         )
         p.wait()
         return p
