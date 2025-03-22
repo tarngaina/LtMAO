@@ -2,7 +2,6 @@ import requests
 import os
 import os.path
 import json
-from threading import Thread
 import traceback
 from . import pyRitoFile, setting
 

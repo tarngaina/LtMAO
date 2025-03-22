@@ -4,7 +4,6 @@ import json
 import datetime
 from .tools import CSLOL, block_and_stream_process_output
 from . import setting
-from threading import Thread
 from shutil import rmtree, copy
 
 

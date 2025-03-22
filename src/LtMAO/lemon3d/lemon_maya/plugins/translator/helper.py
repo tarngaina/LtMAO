@@ -4,7 +4,7 @@ from maya import cmds
 import os.path
 from random import choice
 from ..... import pyRitoFile
-from .....pyRitoFile.structs import Vector, Quaternion
+from .....pyRitoFile.structs import Vector, Quaternion, Matrix4
 
 def get_option_key_name(key):
     return 'lemon3d_'+key
@@ -50,6 +50,26 @@ def mirrorX(skn=None, skl=None, anm=None, so=None, mapgeo=None):
         so.central.x = -so.central.x
         if so.pivot != None:
             so.pivot.x = -so.pivot.x
+    if mapgeo != None:
+        for model in mapgeo.models:
+            # flip matrix
+            xref_matrix = Matrix4(
+                -1, 0, 0, 0, 
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            )
+            model.matrix = model.matrix * xref_matrix
+            model.matrix[12] = -model.matrix[12]
+            # flip vertex
+            for vertex in model.vertices:
+                if pyRitoFile.MAPGEOVertexElementName.Position.name in vertex.value:
+                    position = vertex.value[pyRitoFile.MAPGEOVertexElementName.Position.name]
+                    position.x = -position.x
+                if pyRitoFile.MAPGEOVertexElementName.Normal.name in vertex.value:
+                    normal = vertex.value[pyRitoFile.MAPGEOVertexElementName.Normal.name]
+                    normal.y = -normal.y
+                    normal.z = -normal.z
 
 # compose and decompose transformation matrix
 class MayaTransformMatrix:

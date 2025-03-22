@@ -1,10 +1,7 @@
-import json
-import os
-import os.path
-import zipfile
-import shutil
+import json, os, os.path, zipfile, shutil, time
 from . import hash_helper, pyRitoFile
 from .hash_helper import cached_bin_hashes
+from threading import Thread
 
 def bin_hash(name):
     return f'{pyRitoFile.helper.FNV1a(name):08x}'
@@ -21,7 +18,6 @@ FANTOME_META = {
     'Description': ''
 }
 
-
 def delete_cache():
     shutil.rmtree(cache_dir)
 
@@ -35,6 +31,7 @@ def load_skips():
 def save_skips():
     with open(skips_file, 'w+') as f:
         json.dump(SKIPS, f, indent=4)
+    print(f'no_skin: Finish: Write {skips_file}')
 
 
 def get_skips():
@@ -104,12 +101,11 @@ def mini_no_skin(skin0_file, otherskins_files):
             base_rr.hash = skin_rr_hash
             base_mrr.data = skin_rr_hash
         # write file
-        
         pyRitoFile.write_bin(otherskins_file, skin0_bin)
     print(f'no_skin: Finish: Swap {len(otherskins_files)} skinX as skin0.')
 
 
-def parse(champions_dir, output_dir):
+def parse(champions_dir, output_dir, pool_size=4):
     # filter wads
     files = os.listdir(champions_dir)
     wad_files = []
@@ -120,22 +116,21 @@ def parse(champions_dir, output_dir):
     if len(wad_files) == 0:
         raise Exception(
             'no_skin: Error: Create NO SKIN mod: Invalid Champions folder?')
-    print(f'no_skin: Start:  Create NO SKIN mod')
+    print(f'no_skin: Start: Create NO SKIN mod')
     swapped_chunks = []  # list of (chunk_hash, chunk_data)
     # read hashes
     hash_helper.read_wad_hashes()
     # rebuild smaller hash for faster comparsion
-    print(f'no_skin: Start:  Rebuilding hashes')
+    print(f'no_skin: Start: Rebuilding hashes')
     hashtables = {}
     hashtables['hashes.game.txt'] = {}
     for key, value in hash_helper.HASHTABLES['hashes.game.txt'].items():
         if '.bin' in value and 'data/characters/' in value and '/skins/' in value and 'root.bin' not in value:
             hashtables['hashes.game.txt'][key] = value
     hash_helper.free_wad_hashes()
-    # start parsing each wad
-    for wad_file in wad_files:
+    # parse wad func
+    def parse_wad(wad_file):    
         # read wad
-        print(f'no_skin: Start:  Parse: {wad_file}')
         wad = pyRitoFile.read_wad(wad_file)
         # only unhash skinx.bin with rebuild hashtables
         wad.un_hash(hashtables)
@@ -214,6 +209,30 @@ def parse(champions_dir, output_dir):
                 swapped_chunks.append(
                     (chunk_hashes[character][id], base_bin[character].write('', raw=True)))
             print(f'no_skin: Finish: Swap: {character}')
+    
+    
+    # pools stuffs
+    pools = [None] * pool_size
+    def work_cmd(target, pool_index):
+        try:
+            target()
+        except Exception as e:
+            import traceback
+            print(traceback.format_exc())
+            print(f'no_skin: Error: {e}')
+        pools[pool_index] = None
+    # pool start
+    target = len(wad_files)
+    current = 0
+    while current < target:
+        for i in range(pool_size):
+            if pools[i] == None:
+                wad_file = wad_files[current]
+                pools[i] = Thread(target=lambda: work_cmd(lambda: parse_wad(wad_file), i), daemon=True)
+                pools[i].start()
+                current += 1
+        time.sleep(0.166)
+
     # build new wad from swapped_chunks
     os.makedirs(cache_dir, exist_ok=True)
     wad_file = f'{cache_dir}/Annie.wad.client'

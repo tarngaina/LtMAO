@@ -133,7 +133,7 @@ class MAPGEOLayer(IntFlag):
     def __json__(self):
         return self.__str__()
     
-
+    
 class MAPGEOSubmesh:
     __slots__ = (
         'name', 'hash',

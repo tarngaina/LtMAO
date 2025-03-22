@@ -25,7 +25,7 @@ class SafeThread:
                     import traceback
                     print(traceback.format_exc())
                 SafeThread.cached[thread_name] = None
-            SafeThread.cached[thread_name] = Thread(target=cmd)
+            SafeThread.cached[thread_name] = Thread(target=cmd, daemon=True)
             SafeThread.cached[thread_name].start()
         else:
-            print(f'{thread_name}: Error: Thread is already running, wait for it to end.')
+            print(f'{thread_name}: Error: Thread5 is already running, wait for it to end.')

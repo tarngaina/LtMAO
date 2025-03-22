@@ -1,6 +1,7 @@
 from PySide6.QtCore import (
     Qt, 
     QEvent,
+    QRect,
 )
 from PySide6.QtGui import (
     QFontDatabase,
@@ -20,6 +21,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QStatusBar,
     QToolButton, 
+    QSizeGrip,
 )
 
 from . import control, helper, log
@@ -163,6 +165,9 @@ def init_theme():
         QTabBar::tab {{
             border-bottom: 2px solid rgb{qtwidgets.accent_color};
         }}
+        QComboBox {{
+            background-color: rgba(0, 0, 0, 127);
+        }}
     """
     
 
@@ -279,16 +284,24 @@ def build_grips(window: QMainWindow):
         edge_grip.mouseReleaseEvent = mouseReleaseEvent
         return edge_grip
 
-    right_side_grip = build_edge_grip(Qt.Edge.RightEdge)
-    bot_side_grip = build_edge_grip(Qt.Edge.BottomEdge)
+    def build_corner_grip():
+        corner_grip = QSizeGrip(window)
+        corner_grip.setStyleSheet('background-color: transparent')
+        return corner_grip
+
+    right_edge_grip = build_edge_grip(Qt.Edge.RightEdge)
+    bot_edge_grip = build_edge_grip(Qt.Edge.BottomEdge)
+    bot_right_corner_grip = build_corner_grip()
     grip_size = 6
     def resizeEvent(event):
         out_rect = window.rect()
         in_rect = out_rect.adjusted(grip_size, grip_size,-grip_size, -grip_size)
-        right_side_grip.setGeometry(in_rect.left() + in_rect.width(), in_rect.top(), grip_size, in_rect.height())
-        bot_side_grip.setGeometry(grip_size, in_rect.top() + in_rect.height(), in_rect.width(), grip_size)
-        right_side_grip.raise_()
-        bot_side_grip.raise_()
+        right_edge_grip.setGeometry(in_rect.left() + in_rect.width(), in_rect.top(), grip_size, in_rect.height())
+        bot_edge_grip.setGeometry(grip_size, in_rect.top() + in_rect.height(), in_rect.width(), grip_size)
+        bot_right_corner_grip.setGeometry(QRect(out_rect.bottomRight(), in_rect.bottomRight()).normalized())
+        right_edge_grip.raise_()
+        bot_edge_grip.raise_()
+        bot_right_corner_grip.raise_()
         event.accept()
     window.resizeEvent = resizeEvent
 
@@ -351,6 +364,7 @@ def build_title_bar(widget: QWidget, layout: QBoxLayout):
     
     qtwidgets.nor_button = nor_button = QToolButton()
     nor_button.setText('🟡 Restore')
+    nor_button.setVisible(False)
     nor_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
     nor_button.clicked.connect(qtwidgets.main_window.showNormal)
     layout.addWidget(nor_button, stretch=3)
@@ -358,14 +372,13 @@ def build_title_bar(widget: QWidget, layout: QBoxLayout):
     qtwidgets.max_button = max_button = QToolButton()
     max_button.setText('🔵 Maximize')
     max_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-    max_button.setVisible(False)
     max_button.clicked.connect(qtwidgets.main_window.showMaximized)
     layout.addWidget(max_button, stretch=3)
     
     close_button = QToolButton()
     close_button.setText('🔴 Close')
     close_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-    close_button.clicked.connect(qtwidgets.main_window.close)
+    close_button.clicked.connect(qtwidgets.app.quit)
     layout.addWidget(close_button, stretch=3)
 
     # events

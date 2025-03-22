@@ -962,14 +962,14 @@ def build_no_skin(widget: QWidget):
     layout2 = QVBoxLayout()
 
     layout3 = QHBoxLayout()
-    line = QLineEdit()
-    layout3.addWidget(line, stretch=1)
+    champs_line = QLineEdit()
+    layout3.addWidget(champs_line, stretch=1)
     game_folder = setting.get('game_folder', '')
     if game_folder != '':
-        line.setText(game_folder)
-    button = QToolButton()
-    button.setText('📁 Select Champions folder')
-    def select_champions_folder(line):
+        champs_line.setText(game_folder+'/DATA/FINAL/Champions')
+    browse_button = QToolButton()
+    browse_button.setText('📁 Select Champions folder')
+    def select_champions_folder():
         dialog = QFileDialog()
         dirpath = dialog.getExistingDirectory(
             widget,
@@ -978,19 +978,32 @@ def build_no_skin(widget: QWidget):
         )
         if dirpath != '':
             final_path = dirpath
-            line.setText(final_path)
-    button.clicked.connect(lambda event: select_champions_folder(line))
-    layout3.addWidget(button)
+            champs_line.setText(final_path)
+    browse_button.clicked.connect(select_champions_folder)
+    layout3.addWidget(browse_button)
     layout2.addLayout(layout3)
     
     layout3 = QHBoxLayout()
-    button = QToolButton()
-    button.setText('💾 Save SKIPS.json')
-    layout3.addWidget(button)
+    save_button = QToolButton()
+    save_button.setText('💾 Save SKIPS.json')
+    layout3.addWidget(save_button)
+
+    label = QLabel('🦺 Thread: ')
+    layout3.addWidget(label)
+    thread_box = QComboBox()
+    thread_box.setMinimumWidth(50)
+    thread_box.addItems(['1', '2', '4', '6', '8', '16'])
+    thread_box.setCurrentText(setting.get('no_skin.pool_size', '4'))
+    def change_thread_num():
+        setting.set('no_skin.pool_size', thread_box.currentText())
+        setting.save()
+    thread_box.currentTextChanged.connect(change_thread_num)
+    layout3.addWidget(thread_box)
+
     layout3.addStretch()
-    button = QToolButton()
-    button.setText('🐧 Make NO SKIN.fantome')
-    def no_skin_full(line):
+    full_button = QToolButton()
+    full_button.setText('🐧 Make NO SKIN.fantome')
+    def no_skin_full():
         dialog = QFileDialog()
         dirpath = dialog.getExistingDirectory(
             widget,
@@ -1000,21 +1013,22 @@ def build_no_skin(widget: QWidget):
         if dirpath != '':
             def no_skin_thrd():
                 final_path = dirpath
-                no_skin.parse(line.text(), final_path)
+                no_skin.parse(champs_line.text(), final_path, pool_size=int(setting.get('no_skin.pool_size', '4')))
     
             helper.SafeThread.start('no_skin', no_skin_thrd)
-    button.clicked.connect(lambda event: no_skin_full(line))
-    layout3.addWidget(button)
+    full_button.clicked.connect(no_skin_full)
+    layout3.addWidget(full_button)
     layout2.addLayout(layout3)
 
     # skips
-    text = QPlainTextEdit()
-    text.setPlainText(no_skin.get_skips())
-    layout2.addWidget(text, stretch=1)
-    def save_skips(text):
-        no_skin.set_skips(text.toPlainText())
+    skips_text = QPlainTextEdit()
+    skips_text.setPlainText(no_skin.get_skips())
+    layout2.addWidget(skips_text, stretch=1)
+    def save_skips():
+        no_skin.set_skips(skips_text.toPlainText())
         no_skin.save_skips()
-    button.clicked.connect(lambda event: save_skips(text))
+    save_button.clicked.connect(save_skips)
+
 
     tab1.setLayout(layout2)
     tab_widget.addTab(tab1, '🔴 Full')
@@ -1023,12 +1037,13 @@ def build_no_skin(widget: QWidget):
     layout2 = QVBoxLayout()
 
     layout3 = QHBoxLayout()
-    label = QLabel()
-    layout3.addWidget(label,stretch=99)
-    button = QToolButton()
-    button.setMinimumWidth(220)
-    button.setText('📝 Select Skin0 BIN')
-    def select_skin0(label):
+    skin0_line = QLineEdit()
+    skin0_line.setReadOnly(True)
+    layout3.addWidget(skin0_line, stretch=99)
+    skin0_button = QToolButton()
+    skin0_button.setMinimumWidth(220)
+    skin0_button.setText('📝 Select Skin0 BIN')
+    def select_skin0():
         dialog = QFileDialog()
         filepaths = dialog.getOpenFileName(
             widget, 
@@ -1038,19 +1053,19 @@ def build_no_skin(widget: QWidget):
         )
         if len(filepaths[0]) > 0:
             final_path = filepaths[0]
-            label.setText(final_path)
-    button.clicked.connect(lambda event: select_skin0(label)) 
-    layout3.addWidget(button)
+            skin0_line.setText(final_path)
+    skin0_button.clicked.connect(select_skin0)
+    layout3.addWidget(skin0_button)
     layout2.addLayout(layout3)
 
     layout3 = QHBoxLayout()
-    text = QPlainTextEdit()
-    text.setReadOnly(True)
-    layout3.addWidget(text, stretch=99)
-    button = QToolButton()
-    button.setMinimumWidth(220)
-    button.setText('📝 Select SkinX BINs')
-    def select_skinx(text):
+    skinx_text = QPlainTextEdit()
+    skinx_text.setReadOnly(True)
+    layout3.addWidget(skinx_text, stretch=99)
+    skinx_button = QToolButton()
+    skinx_button.setMinimumWidth(220)
+    skinx_button.setText('📝 Select SkinX BINs')
+    def select_skinx():
         dialog = QFileDialog()
         filepaths = dialog.getOpenFileNames(
             widget, 
@@ -1060,23 +1075,23 @@ def build_no_skin(widget: QWidget):
         )
         if len(filepaths[0]) > 0:
             final_paths = filepaths[0]
-        text.setPlainText('\n'.join(final_paths))
-    button.clicked.connect(lambda event: select_skinx(text))
-    layout3.addWidget(button, alignment=Qt.AlignmentFlag.AlignTop)
+        skinx_text.setPlainText('\n'.join(final_paths))
+    skinx_button.clicked.connect(select_skinx)
+    layout3.addWidget(skinx_button, alignment=Qt.AlignmentFlag.AlignTop)
     layout2.addLayout(layout3, stretch=999)
 
-    button = QToolButton()
-    button.setText('🦭 Make all Skinx BIN same as Skin0 BIN')
+    mini_button = QToolButton()
+    mini_button.setText('🦭 Make all Skinx BIN same as Skin0 BIN')
     def no_skin_lite(label, text):
         def no_skin_thrd():
             no_skin.mini_no_skin(
-                skin0_file=label.text(), 
-                otherskins_files=text.toPlainText().split('\n')
+                skin0_file=skin0_line.text(), 
+                otherskins_files=skinx_text.toPlainText().split('\n')
             )
         
         helper.SafeThread.start('no_skin', no_skin_thrd)
-    button.clicked.connect(lambda event: no_skin_lite(label, text))
-    layout2.addWidget(button)
+    mini_button.clicked.connect(lambda event: no_skin_lite(skin0_line, skinx_text))
+    layout2.addWidget(mini_button)
     
     #layout2.addStretch()
     tab2.setLayout(layout2)
@@ -2071,11 +2086,9 @@ def build_setting(widget: QWidget):
     button = QToolButton()
     button.setText('🚀 Restart LtMAO')
     def restart_cmd():
-        import sys
         print(f'Running: Restart LtMAO')
         os.system(os.path.join(os.path.abspath(os.path.curdir),'start.bat'))
-        qtwidgets.main_window.close()
-        sys.exit(0)
+        qtwidgets.app.quit()
         
     button.clicked.connect(restart_cmd)
     layout2.addWidget(button)

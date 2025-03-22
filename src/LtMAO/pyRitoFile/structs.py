@@ -123,7 +123,7 @@ class Matrix4:
         )[index]
 
     def __setitem__(self, index, value):
-        values = self[:]
+        values = list(self[:])
         values[index] = value
         (
             self.a, self.b, self.c, self.d,

@@ -65,16 +65,6 @@ class BINType(Enum):
         return self.name
 
 class BINHelper:
-    size_offsets = []
-    legacy_read = False
-
-    @staticmethod
-    def fix_type(bin_type):
-        if BINHelper.legacy_read:
-            if bin_type >= 129:
-                bin_type += 1
-        return BINType(bin_type)
-
     @staticmethod
     def find_item(*, items=[], compare_func=None, return_func=None):
         if compare_func != None and len(items) > 0:
@@ -123,6 +113,13 @@ class BINHelper:
     }
 
     @staticmethod
+    def fix_type(bs, bin_type):
+        if bs.legacy_read:
+            if bin_type >= 129:
+                bin_type += 1
+        return BINType(bin_type)
+
+    @staticmethod
     def read_value(bs, value_type):
         return BINHelper.read_value_dict[value_type](bs)
 
@@ -133,7 +130,7 @@ class BINHelper:
 
     @staticmethod
     def read_list_or_list2(bs, field):
-        field.value_type = BINHelper.fix_type(bs.read_u8()[0])
+        field.value_type = BINHelper.fix_type(bs, bs.read_u8()[0])
         bs.pad(4)  # size
         count, = bs.read_u32()
         field.data = [
@@ -158,7 +155,7 @@ class BINHelper:
     
     @staticmethod
     def read_option(bs, field):
-        field.value_type = BINHelper.fix_type(bs.read_u8()[0])
+        field.value_type = BINHelper.fix_type(bs, bs.read_u8()[0])
         count, = bs.read_u8()
         if count != 0:
             field.data = BINHelper.read_value(bs, field.value_type)
@@ -168,8 +165,8 @@ class BINHelper:
 
     @staticmethod
     def read_map(bs, field):
-        field.key_type = BINHelper.fix_type(bs.read_u8()[0])
-        field.value_type = BINHelper.fix_type(bs.read_u8()[0])
+        field.key_type = BINHelper.fix_type(bs, bs.read_u8()[0])
+        field.value_type = BINHelper.fix_type(bs, bs.read_u8()[0])
         bs.pad(4)  # size
         count, = bs.read_u32()
         field.data = {
@@ -195,7 +192,7 @@ class BINHelper:
     def read_field(bs):
         field = BINField(
             hash=hash_to_hex(bs.read_u32()[0]),
-            type=BINHelper.fix_type(bs.read_u8()[0])
+            type=BINHelper.fix_type(bs, bs.read_u8()[0])
         )
         return BINHelper.read_field_dict[field.type](bs, field)
 
@@ -249,7 +246,7 @@ class BINHelper:
         for value in field.data:
             content_size += BINHelper.write_value(bs,
                                                     value, field.value_type, header_size=False)
-        BINHelper.size_offsets.append((return_offset, content_size))
+        bs.size_offsets.append((return_offset, content_size))
 
         size += content_size
         return None, size
@@ -273,7 +270,7 @@ class BINHelper:
             for value in field.data:
                 content_size += BINHelper.write_field(
                     bs, value, header_size=True)
-            BINHelper.size_offsets.append((return_offset, content_size))
+            bs.size_offsets.append((return_offset, content_size))
 
             size += content_size
         return None, size
@@ -308,7 +305,7 @@ class BINHelper:
                                                     key, field.key_type, header_size=False)
             content_size += BINHelper.write_value(bs,
                                                     value, field.value_type, header_size=False)
-        BINHelper.size_offsets.append((return_offset, content_size))
+        bs.size_offsets.append((return_offset, content_size))
 
         size += content_size
         return None, size
@@ -439,6 +436,7 @@ class BIN:
             entry_types = bs.read_u32(entry_count)
             entry_offset = bs.tell()
             try:
+                bs.legacy_read = False
                 # read as new bin
                 self.entries = [BINEntry() for i in range(entry_count)]
                 for entry_id, entry in enumerate(self.entries):
@@ -451,7 +449,7 @@ class BIN:
             except ValueError:
                 # legacy bin, fall back
                 bs.seek(entry_offset)
-                BINHelper.legacy_read = True
+                bs.legacy_read = True
                 self.entries = [BINEntry() for i in range(entry_count)]
                 for entry_id, entry in enumerate(self.entries):
                     entry.type = hash_to_hex(entry_types[entry_id])
@@ -460,7 +458,6 @@ class BIN:
                     field_count, = bs.read_u16()
                     entry.data = [BINHelper.read_field(
                         bs) for i in range(field_count)]
-                BINHelper.legacy_read = False
             except Exception as e:
                 # raise any other errors
                 raise e
@@ -471,7 +468,7 @@ class BIN:
                 for patch in self.patches:
                     patch.hash = hash_to_hex(bs.read_u32()[0])
                     bs.pad(4)  # size
-                    patch.type = BINHelper.fix_type(bs.read_u8()[0])
+                    patch.type = BINHelper.fix_type(bs, bs.read_u8()[0])
                     patch.path, = bs.read_s_sized16(encoding='utf-8')
                     patch.data = BINHelper.read_value(bs, patch.type)
 
@@ -491,7 +488,7 @@ class BIN:
             bs.write_u32(len(self.entries))
             for entry in self.entries:
                 bs.write_u32(name_or_hex_to_hash(entry.type))
-            BINHelper.size_offsets = []  # this help to write sizes
+            bs.size_offsets = []  # this help to write sizes
             for entry in self.entries:
                 return_offset = bs.tell()
 
@@ -503,7 +500,7 @@ class BIN:
                 for field in entry.data:
                     entry_size += BINHelper.write_field(
                         bs, field, header_size=True)
-                BINHelper.size_offsets.append((return_offset, entry_size))
+                bs.size_offsets.append((return_offset, entry_size))
             # patches
             if self.is_patch:
                 bs.write_u32(len(self.patches))
@@ -518,10 +515,10 @@ class BIN:
                     bs.write_s_sized16(patch.path, encoding='utf-8')
                     patch_size += BINHelper.write_value(
                         bs, patch.type, header_size=False)
-                    BINHelper.size_offsets.append(
+                    bs.size_offsets.append(
                         (return_offset, patch_size))
             # jump around and write size
-            for offset, size in BINHelper.size_offsets:
+            for offset, size in bs.size_offsets:
                 bs.seek(offset)
                 bs.write_u32(size)
             return bs.raw() if raw else None

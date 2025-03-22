@@ -9,17 +9,21 @@ pythonpaths = [f'{ltmao_dir}/src', f'{ltmao_dir}/epython/Lib/site-packages']
 for pythonpath in pythonpaths:
     if pythonpath not in sys.path:
         sys.path.append(pythonpath)
-
+version_file = ltmao_dir+'/version'
 
 from maya.OpenMaya import *
 from maya.OpenMayaMPx import *
 from LtMAO.lemon3d.lemon_maya.plugins.translator.skin import SKNTranslator, SKLTranslator, SkinTranslator
 from LtMAO.lemon3d.lemon_maya.plugins.translator.anm import ANMTranslator
 from LtMAO.lemon3d.lemon_maya.plugins.translator.so import SCOTranslator, SCBTranslator
+from LtMAO.lemon3d.lemon_maya.plugins.translator.mapgeo import MAPGEOTranslator
 
 AUTHOR = 'tarngaina'
-VERSION = '5.0.0'
-
+try: 
+    with open(version_file, 'r') as f:
+        VERSION = f.read()
+except:
+    VERSION = 'Unknown'
 
 def register_file_translator(plugin, translator_name, translator_creator):
     plugin.registerFileTranslator(
@@ -44,6 +48,7 @@ def initializePlugin(obj):
     register_file_translator(plugin, ANMTranslator.name, ANMTranslator.creator)
     register_file_translator(plugin, SCOTranslator.name, SCOTranslator.creator)
     register_file_translator(plugin, SCBTranslator.name, SCBTranslator.creator)
+    register_file_translator(plugin, MAPGEOTranslator.name, MAPGEOTranslator.creator)
     
 def uninitializePlugin(obj):
     plugin = MFnPlugin(obj)
@@ -53,3 +58,4 @@ def uninitializePlugin(obj):
     plugin.deregisterFileTranslator(ANMTranslator.name)
     plugin.deregisterFileTranslator(SCOTranslator.name)
     plugin.deregisterFileTranslator(SCBTranslator.name)
+    plugin.deregisterFileTranslator(MAPGEOTranslator.name)
