@@ -308,29 +308,28 @@ class SO:
         )
 
         # material
-        # lambert material
-        lambert = MFnLambertShader()
-        lambert.create()
-        lambert.setName(so.material)
-        lambert_name = lambert.name()
+        material = MFnStandardSurfaceShader()
+        material.create()
+        material.setName(so.material)
+        material_name = material.name()
         # shading group
         # create renderable, independent shading group
         cmds.sets(
             renderable=True,
             noSurfaceShader=True,
             empty=True,
-            name=f'{lambert_name}_SG'
+            name=f'{material_name}_SG'
         )
         # add submesh faces to shading group
         cmds.sets(
             f'{mesh_name}.f[0:{face_count}]',
-            forceElement=f'{lambert_name}_SG',
+            forceElement=f'{material_name}_SG',
             e=True
         )
-        # connect lambert to shading group
+        # connect material to shading group
         cmds.connectAttr(
-            f'{lambert_name}.outColor',
-            f'{lambert_name}_SG.surfaceShader',
+            f'{material_name}.outColor',
+            f'{material_name}_SG.surfaceShader',
             force=True
         )
 
@@ -508,7 +507,7 @@ class SO:
                     f'SO Expoter ({mesh.name()}): Material name is too long: {so.material} with {len(so.material)} chars, max allowed: 64 chars.')
         else:
             # its only allow 1 material anyway
-            so.material = 'lambert69'
+            so.material = 'standardSurface69'
         
         # set flags
         so.flags = pyRitoFile.SOFlag.HasLocalOriginLocatorAndPivot

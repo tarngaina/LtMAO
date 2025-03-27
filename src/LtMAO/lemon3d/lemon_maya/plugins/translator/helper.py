@@ -66,6 +66,9 @@ def mirrorX(skn=None, skl=None, anm=None, so=None, mapgeo=None):
                 if pyRitoFile.MAPGEOVertexElementName.Position.name in vertex.value:
                     position = vertex.value[pyRitoFile.MAPGEOVertexElementName.Position.name]
                     position.x = -position.x
+                if pyRitoFile.MAPGEOVertexElementName.Texcoord5.name in vertex.value:
+                    bush_vertex_animation = vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord5.name]
+                    bush_vertex_animation.x = -bush_vertex_animation.x
                 if pyRitoFile.MAPGEOVertexElementName.Normal.name in vertex.value:
                     normal = vertex.value[pyRitoFile.MAPGEOVertexElementName.Normal.name]
                     normal.y = -normal.y
@@ -179,3 +182,9 @@ class LemonANMTrack(pyRitoFile.ANMTrack):
         self.ik_joint = None
         self.curve_times = {}
         self.curve_values = {}
+
+class LemonMAPGEOVertex(pyRitoFile.MAPGEOVertex):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.uv_index = None

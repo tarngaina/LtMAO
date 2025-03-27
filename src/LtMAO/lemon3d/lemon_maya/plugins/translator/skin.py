@@ -388,11 +388,11 @@ class SKN:
                     if match_joint != None:
                         submesh.name = submesh.name.lower()
 
-                # lambert material
-                lambert = MFnLambertShader()
-                lambert.create()
-                lambert.setName(submesh.name)
-                lambert_name = lambert.name()
+                # material
+                material = MFnStandardSurfaceShader()
+                material.create()
+                material.setName(submesh.name)
+                material_name = material.name()
                 # shading group
                 face_start = submesh.index_start // 3
                 face_end = (submesh.index_start + submesh.index_count) // 3
@@ -401,18 +401,18 @@ class SKN:
                     renderable=True,
                     noSurfaceShader=True,
                     empty=True,
-                    name=f'{lambert_name}_SG'
+                    name=f'{material_name}_SG'
                 )
                 # add submesh faces to shading group
                 cmds.sets(
                     f'{mesh_name}.f[{face_start}:{face_end}]',
-                    forceElement=f'{lambert_name}_SG',
+                    forceElement=f'{material_name}_SG',
                     e=True
                 )
-                # connect lambert to shading group
+                # connect material to shading group
                 cmds.connectAttr(
-                    f'{lambert_name}.outColor',
-                    f'{lambert_name}_SG.surfaceShader',
+                    f'{material_name}.outColor',
+                    f'{material_name}_SG.surfaceShader',
                     force=True
                 )
 
@@ -549,28 +549,28 @@ class SKN:
                     if match_joint != None:
                         submesh.name = submesh.name.lower()
 
-                # lambert material
-                lambert = MFnLambertShader()
-                lambert.create()
-                lambert.setName(submesh.name)
-                lambert_name = lambert.name()
+                # material
+                material = MFnStandardSurfaceShader()
+                material.create()
+                material.setName(submesh.name)
+                material_name = material.name()
                 # create renderable, independent shading group
                 cmds.sets(
                     renderable=True,
                     noSurfaceShader=True,
                     empty=True,
-                    name=f'{lambert_name}_SG'
+                    name=f'{material_name}_SG'
                 )
                 # add submesh faces to shading group
                 cmds.sets(
                     f'{mesh_name}.f[0:{face_count}]',
-                    forceElement=f'{lambert_name}_SG',
+                    forceElement=f'{material_name}_SG',
                     e=True
                 )
-                # connect lambert to shading group
+                # connect material to shading group
                 cmds.connectAttr(
-                    f'{lambert_name}.outColor',
-                    f'{lambert_name}_SG.surfaceShader',
+                    f'{material_name}.outColor',
+                    f'{material_name}_SG.surfaceShader',
                     force=True
                 )
 
@@ -1012,8 +1012,7 @@ class SKN:
         # sort submesh to match riot.skn submeshes order
         riot_skn = dump_options['riot_skn']
         if riot_skn != None:
-            print(
-                'SKN Exporter: Found riot.skn, sorting materials...')
+            print('SKN Exporter: Found riot.skn, sorting materials...')
 
             new_submeshes = []
             submesh_count = len(skn.submeshes)
@@ -1027,16 +1026,14 @@ class SKN:
                 for i in range(submesh_count):
                     if flags[i] and skn.submeshes[i].name.lower() == riot_submesh_name:
                         new_submeshes.append(skn.submeshes[i])
-                        print(
-                            f'SKN Exporter: Found material: {skn.submeshes[i].name}')
+                        print( f'SKN Exporter: Found material: {skn.submeshes[i].name}')
                         flags[i] = False
                         found = True
                         break
 
                 # submesh that not found
                 if not found:
-                    print(
-                        f'SKN Exporter: Missing riot material: {riot_submesh.name}')
+                    print(f'SKN Exporter: Missing riot material: {riot_submesh.name}')
 
             # add extra/addtional materials to the end of list
             for i in range(submesh_count):

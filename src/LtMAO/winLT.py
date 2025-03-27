@@ -43,7 +43,7 @@ class Context:
         # folder contexts
         Context.create_submenu(
             shell='Directory\\shell',
-            sub_commands='LtMAO.RawToWad;LtMAO.ZipFantome;LtMAO.hashextract;LtMAO.PT;LtMAO.RitobinDirToPy;LtMAO.RitobinDirToBin;'
+            sub_commands='LtMAO.RawToWad;LtMAO.AllWadToRaw;LtMAO.ZipFantome;LtMAO.hashextract;LtMAO.PT;LtMAO.RitobinDirToPy;LtMAO.RitobinDirToBin;'
         )
         # .wad (.client) contexts
         Context.create_submenu(
@@ -141,6 +141,13 @@ class Context:
                 cmd_name='LtMAO.WadToRaw',
                 cmd_desc='wad_tool: Unpack to Folder',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wadunpack" -src="%V"'
+            )
+            # AllWadToRaw
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.AllWadToRaw',
+                cmd_desc='wad_tool: Unpack All WADs',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wadunpack_all" -src="%V"'
             )
             # RitobinToPy
             Context.create_command(

@@ -1,20 +1,17 @@
-from PySide6.QtWidgets import QApplication
-from PySide6.QtOpenGL import QOpenGLWindow
 
-import f3d
+class V:
+    def __init__(self):
+        pass
 
-app = QApplication()
-window = QOpenGLWindow()
-#window.setTitle('hello')
-window.setGeometry(0, 0, 800, 600)
+v = [V(), V(), V()]
+v[0].a = { 'hello': 'hi' }
+v[1].a = { 'yes': 'sir' }
+v[2].a = { 'wassup': 'nigg' }
 
-window.initializeGL()
-engine = f3d.Engine.create_external_wgl()
-engine.window.width = 800
-engine.window.height = 600
-engine.scene.add('D:/test/akali.fbx')
-engine.window.camera.pitch(10)
-window.paintGL = engine.window.render
+v[0].i = 5
+v[1].i = 23
+v[2].i = 0
 
-window.show()
-app.exec()
+v.sort(key=lambda vertex: vertex.i)
+
+a = 5

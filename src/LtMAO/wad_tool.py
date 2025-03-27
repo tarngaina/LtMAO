@@ -16,7 +16,13 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
     # read wad
     wad = pyRitoFile.read_wad(wad_file)
     wad.un_hash(hashtables)
-    hashed_bins = {}
+    hashed_files = {}
+    # create dirs first
+    with wad.stream(wad_file, 'rb') as bs:
+        for chunk in wad.chunks:
+            file_path = os.path.join(raw_dir, chunk.hash)
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    # actual extract
     with wad.stream(wad_file, 'rb') as bs:
         for chunk in wad.chunks:
             if filter != None and chunk.hash not in filter:
@@ -25,30 +31,33 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
             chunk.read_data(bs)
             # output file path of this chunk
             file_path = os.path.join(raw_dir, chunk.hash)
-            # add extension to file path if know
-            if chunk.extension != None:
+            # add extension to hashed file if know
+            if check_hashed_name(chunk.hash) and chunk.extension != None:
                 ext = f'.{chunk.extension}'
                 if not file_path.endswith(ext):
                     file_path += ext
             file_path = file_path.replace('\\', '/')
             # handle hashed bin
             if os.path.dirname(file_path).endswith('data') and chunk.extension == 'bin':
-                hashed_bin = os.path.join(
-                    raw_dir, pyRitoFile.wad_hash(chunk.hash)+'.bin')
-                hashed_bins[os.path.basename(
-                    hashed_bin)] = 'data/'+os.path.basename(file_path)
+                hashed_bin = os.path.join(raw_dir, pyRitoFile.wad_hash(chunk.hash)+'.bin')
+                hashed_files[os.path.basename(hashed_bin)] = chunk.hash
                 file_path = hashed_bin
-            # ensure folder of this file
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            
+            # if there is a same name dir already
+            if os.path.exists(file_path) and os.path.isdir(file_path):
+                hashed_file =  os.path.join(raw_dir, pyRitoFile.wad_hash(chunk.hash))
+                hashed_files[os.path.basename(hashed_file)] = chunk.hash
+                file_path = hashed_file
+
             # write out chunk data to file
             with open(file_path, 'wb') as fo:
                 fo.write(chunk.data)
             chunk.free_data()
             print(f'wad_tool: Finish: Unpack: {chunk.hash}')
     # write hashed bins json
-    if len(hashed_bins) > 0:
-        with open(os.path.join(raw_dir, 'hashed_bins.json'), 'w+') as f:
-            json.dump(hashed_bins, f, indent=4)
+    if len(hashed_files) > 0:
+        with open(os.path.join(raw_dir, 'hashed_files.json'), 'w+') as f:
+            json.dump(hashed_files, f, indent=4)
 
 
 def pack(raw_dir, wad_file):
@@ -59,7 +68,7 @@ def pack(raw_dir, wad_file):
     for root, dirs, files in os.walk(raw_dir):
         for file in files:
             # skip hashed bins json
-            if file == 'hashed_bins.json':
+            if file == 'hashed_files.json':
                 continue
             # prepare chunk datas
             file_path = os.path.join(root, file).replace('\\', '/')

@@ -85,6 +85,13 @@ class BINHelper:
                     result.append(item)
         return result
     
+    @staticmethod
+    def fix_type(bs, bin_type):
+        if bs.legacy_read:
+            if bin_type >= 129:
+                bin_type += 1
+        return BINType(bin_type)
+    
     # read related stuffs
     read_value_dict = {
         BINType.Empty:      lambda bs: bs.read_u16(3),
@@ -111,13 +118,6 @@ class BINHelper:
         BINType.Link:       lambda bs: hash_to_hex(bs.read_u32()[0]),
         BINType.Flag:       lambda bs: bs.read_u8()[0],
     }
-
-    @staticmethod
-    def fix_type(bs, bin_type):
-        if bs.legacy_read:
-            if bin_type >= 129:
-                bin_type += 1
-        return BINType(bin_type)
 
     @staticmethod
     def read_value(bs, value_type):

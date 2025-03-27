@@ -47,6 +47,19 @@ class CLI:
         hash_helper.free_wad_hashes()
 
     @staticmethod
+    def wadunpack_all(src, dst):
+        from LtMAO import wad_tool, hash_helper
+        import os, os.path
+        hash_helper.read_wad_hashes()
+        for root, dirs, files in os.walk(src):
+            for file in files:
+                if file.endswith('.wad.client'):
+                    wad = os.path.join(root, file)
+                    dir = wad.replace('.wad.client', '.wad')
+                    wad_tool.unpack(wad, dir, hash_helper.HASHTABLES)
+        hash_helper.free_wad_hashes()
+
+    @staticmethod
     def ritobin(src, dst):
         from LtMAO import hash_helper, tools
         tools.RITOBIN.run(src, dst, dir_hashes=hash_helper.CustomHashes.local_dir)
@@ -204,6 +217,8 @@ def main():
         CLI.wadpack(args.source, args.destination)
     elif args.tool == 'wadunpack':
         CLI.wadunpack(args.source, args.destination)
+    elif args.tool == 'wadunpack_all':
+        CLI.wadunpack_all(args.source, args.destination)
     elif args.tool == 'ritobin':
         CLI.ritobin(args.source, args.destination)
     elif args.tool == 'ritobindir2py':

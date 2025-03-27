@@ -233,8 +233,9 @@ class MAPGEOVertexElementFormat(Enum):
     BGRA_Packed8888 = 4
     ZYXW_Packed8888 = 5
     RGBA_Packed8888 = 6
-    XYZW_Packed8888 = 7
-    XY_Float32_2 = 8
+    XY_Packed1616  = 7
+    XYZ_Packed161616 = 8
+    XYZW_Packed16161616 = 9
 
     def __json__(self):
         return self.name
@@ -277,8 +278,9 @@ class MAPGEOHelper:
         MAPGEOVertexElementFormat.BGRA_Packed8888: ('4B', 4, 4, tuple), 
         MAPGEOVertexElementFormat.ZYXW_Packed8888: ('4B', 4, 4, tuple), 
         MAPGEOVertexElementFormat.RGBA_Packed8888: ('4B', 4, 4, tuple), 
-        MAPGEOVertexElementFormat.XYZW_Packed8888: ('4B', 4, 4, tuple),  
-        MAPGEOVertexElementFormat.XY_Float32_2: ('2f', 8, 2, Vector)  
+        MAPGEOVertexElementFormat.XY_Packed1616: ('2e', 4, 2, Vector),
+        MAPGEOVertexElementFormat.XYZ_Packed161616: ('4e', 8, 4, Vector), # yes its 8 bytes not 6
+        MAPGEOVertexElementFormat.XYZW_Packed16161616: ('4e', 8, 4, Vector)  
     }
 
 class MAPGEO:
@@ -383,7 +385,6 @@ class MAPGEO:
             model_count, = bs.read_u32()
             self.models = [MAPGEOModel() for i in range(model_count)]
             for model_id, model in enumerate(self.models):
-                print(f'read {model_id}')
                 # model name
                 if self.version < 12:
                     model.name, = bs.read_s_sized32()
@@ -420,13 +421,12 @@ class MAPGEO:
                     # return to model reading after read vertices
                     bs.seek(return_offset)
                 # now with unpacked vbs, set values for vertex
-                model.vertices = [MAPGEOVertex() for i in range(model.vertex_count)]
+                model.vertices = [MAPGEOVertex(value={}) for i in range(model.vertex_count)]
                 for i, vertex_buffer_id in enumerate(model.vertex_buffer_ids):
                     vertex_description = self.vertex_descriptions[model.vertex_description_id+i]
                     unpacked_vb = unpacked_vertex_buffers[vertex_buffer_id]
                     current_index = 0
                     for vertex in model.vertices:
-                        vertex.value = {}
                         for element in vertex_description.elements:
                             _, _, unpacked_item_size, unpacked_type = MAPGEOHelper.MGVertexFormatToPyValues[element.format]
                             unpacked_item_value = unpacked_vb[current_index:current_index+unpacked_item_size]
@@ -629,7 +629,7 @@ class MAPGEO:
                 boudingbox_max = Vector(float("-inf"), float("-inf"), float("-inf"))
                 for vertex in model.vertices:
                     for element in vertex_description.elements:
-                        vertex_value = vertex.value[element.name]
+                        vertex_value = vertex.value[element.name.name]
                         vertex_values.extend(
                             value for value in vertex_value
                         )
@@ -703,7 +703,6 @@ class MAPGEO:
             # model
             bs.write_u32(len(self.models))
             for model_id, model in enumerate(self.models):
-                print(f'write {model_id}')
                 bs.write_u32(
                     len(model.vertices),  # vertex count
                     1,  # vertex buffer count
@@ -768,39 +767,41 @@ class MAPGEO:
                     bs.write_u32(0)
                     bs.write_f32(0.0, 0.0, 0.0, 0.0)
 
+
             # bucket grid
-            bucket_grid_count = len(self.bucket_grids)
-            if bucket_grid_count > 0:
-                if self.version > 13:
-                    bs.write_u32(bucket_grid_count)
-                for bucket_grid in self.bucket_grids:
+            if self.bucket_grids != None:
+                bucket_grid_count = len(self.bucket_grids)
+                if bucket_grid_count > 0:
                     if self.version > 13:
-                        bs.write_u32(bucket_grid.hash)
-                    bs.write_f32(
-                        bucket_grid.min_x, 
-                        bucket_grid.min_z, 
-                        bucket_grid.max_x, 
-                        bucket_grid.max_z, 
-                        bucket_grid.max_stickout_x, 
-                        bucket_grid.max_stickout_z, 
-                        bucket_grid.bucket_size_x, 
-                        bucket_grid.bucket_size_z
-                    ) 
-                    bs.write_u16(int(sqrt(len(bucket_grid.buckets)//20))) # bucket size
-                    bs.write_b(bucket_grid.is_disabled)
-                    bs.write_u8(bucket_grid.bucket_grid_flags.value)
-                    bs.write_u32(len(bucket_grid.vertices)//12)
-                    bs.write_u32(len(bucket_grid.indices)//2)
-                    if not bucket_grid.is_disabled:
-                        bs.write_vec3(*bucket_grid.vertices)
-                        bs.write_u16(*bucket_grid.indices)
-                        for bucket_row in bucket_grid.buckets:
-                            for bucket in bucket_row:
-                                bs.write_f32(bucket.max_stickout_x, bucket.max_stickout_z)
-                                bs.write_u32(bucket.start_index, bucket.base_vertex)
-                                bs.write_u16(bucket.inside_face_count, bucket.sticking_out_face_count)
-                        if MAPGEOBUcketGridFlag.HasFaceVisibilityFlags in bucket_grid.bucket_grid_flags:
-                            bs.write_u8(*[face_layer.value for face_layer in bucket_grid.face_layers])
+                        bs.write_u32(bucket_grid_count)
+                    for bucket_grid in self.bucket_grids:
+                        if self.version > 13:
+                            bs.write_u32(bucket_grid.hash)
+                        bs.write_f32(
+                            bucket_grid.min_x, 
+                            bucket_grid.min_z, 
+                            bucket_grid.max_x, 
+                            bucket_grid.max_z, 
+                            bucket_grid.max_stickout_x, 
+                            bucket_grid.max_stickout_z, 
+                            bucket_grid.bucket_size_x, 
+                            bucket_grid.bucket_size_z
+                        ) 
+                        bs.write_u16(int(sqrt(len(bucket_grid.buckets)//20))) # bucket size
+                        bs.write_b(bucket_grid.is_disabled)
+                        bs.write_u8(bucket_grid.bucket_grid_flags.value)
+                        bs.write_u32(len(bucket_grid.vertices)//12)
+                        bs.write_u32(len(bucket_grid.indices)//2)
+                        if not bucket_grid.is_disabled:
+                            bs.write_vec3(*bucket_grid.vertices)
+                            bs.write_u16(*bucket_grid.indices)
+                            for bucket_row in bucket_grid.buckets:
+                                for bucket in bucket_row:
+                                    bs.write_f32(bucket.max_stickout_x, bucket.max_stickout_z)
+                                    bs.write_u32(bucket.start_index, bucket.base_vertex)
+                                    bs.write_u16(bucket.inside_face_count, bucket.sticking_out_face_count)
+                            if MAPGEOBUcketGridFlag.HasFaceVisibilityFlags in bucket_grid.bucket_grid_flags:
+                                bs.write_u8(*[face_layer.value for face_layer in bucket_grid.face_layers])
 
             if self.planar_reflectors != None:
                 bs.write_u32(len(self.planar_reflectors))
