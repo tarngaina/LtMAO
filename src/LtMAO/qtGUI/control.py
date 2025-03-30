@@ -809,7 +809,7 @@ def build_mask_viewer(widget: QWidget):
     def load_table(skl_line, anm_bin_line, table: QTableWidget):
         hash_helper.read_bin_hashes()
         skl_file = pyRitoFile.read_skl(skl_line.text())
-        joint_names = [joint.name for joint in skl_file.joints]
+        joint_names = [f'[{joint_id}] {joint.name}' for joint_id, joint in enumerate(skl_file.joints)]
         hash_helper.free_bin_hashes()
         qtwidgets.mask_viewer_bin_file = bin_file = pyRitoFile.read_bin(anm_bin_line.text())
         mask_data = mask_viewer.get_weights(bin_file)

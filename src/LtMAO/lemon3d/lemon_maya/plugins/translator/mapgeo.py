@@ -681,6 +681,8 @@ class MAPGEO:
                 # dump MAPGEO data: submeshes, indices and vertices
                 submesh = model.submeshes[shader_index]
                 submesh.name = shader_node.name()
+                if submesh.name == 'missing_environment':
+                    submesh.name = '-missing@environment-'
                 submesh.index_start = index_start
                 submesh.index_count = index_count
                 submesh.min_vertex = min(shader_indices[shader_index])

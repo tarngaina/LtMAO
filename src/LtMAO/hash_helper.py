@@ -1,4 +1,7 @@
-import requests
+try: 
+    import requests
+except: 
+    print('Warning: hash_helper failed to import requests.')
 import os
 import os.path
 import json
