@@ -185,7 +185,7 @@ global proc shelf_lemon3d_General () {
         -backgroundColor 0 0 0 
         -highlightColor 0.321569 0.521569 0.65098 
         -align "center" 
-        -label "Add namespace" 
+        -label "Add fake namespace" 
         -labelOffset 0
         -rotation 0
         -flipX 0
@@ -200,7 +200,7 @@ global proc shelf_lemon3d_General () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "from maya import cmds\nfrom maya.OpenMaya import MGlobal\n\nselected = cmds.ls(sl = True)\nnodes = []\nfor item in selected:\n    nodes.append(item)\n    des = cmds.listRelatives(item, ad=True)\n    if des:\n        nodes += des\nfor node in nodes:\n    old = node\n    if 'Fake_namespace_' not in old:\n        new = 'Fake_namespace_' + old\n        try:\n            cmds.rename(old, new)\n        except:\n            pass\n\nMGlobal.displayInfo('Added fake namespace.')" 
+        -command "from maya import cmds\nfrom maya.OpenMaya import MGlobal\n\nselected = cmds.ls(sl = True)\nnodes = []\nfor item in selected:\n    nodes.append(item)\n    des = cmds.listRelatives(item, ad=True)\n    if des:\n        nodes += des\nfor node in nodes:\n    old = node\n    if 'Fnp_' not in old:\n        new = 'Fnp_' + old\n        try:\n            cmds.rename(old, new)\n        except:\n            pass\n\nMGlobal.displayInfo('Added fake namespace.')" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1
@@ -215,7 +215,7 @@ global proc shelf_lemon3d_General () {
         -manage 1
         -visible 1
         -preventOverride 0
-        -annotation "Remove temporary namespace on selected objects." 
+        -annotation "Remove namespace on selected objects." 
         -enableBackground 0
         -backgroundColor 0 0 0 
         -highlightColor 0.321569 0.521569 0.65098 
@@ -235,7 +235,7 @@ global proc shelf_lemon3d_General () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "from maya import cmds\nfrom maya.OpenMaya import MGlobal\n\nselected = cmds.ls(sl = True)\nnodes = []\nfor item in selected:\n    nodes.append(item)\n    des = cmds.listRelatives(item, ad=True)\n    if des:\n        nodes += des\nfor node in nodes:\n    old = node\n    if 'Fake_namespace_' in old:\n        new = old.replace('Fake_namespace_', '')\n        try:\n            cmds.rename(old, new)\n        except:\n            pass\n    elif ':' in old:\n        new = old.split(':')[1]\n        try:\n            cmds.rename(old, new)\n        except:\n            pass\n\nMGlobal.displayInfo('Removed fake namespace.')" 
+        -command "from maya import cmds\nfrom maya.OpenMaya import MGlobal\n\nselected = cmds.ls(sl = True)\nnodes = []\nfor item in selected:\n    nodes.append(item)\n    des = cmds.listRelatives(item, ad=True)\n    if des:\n        nodes += des\nfor node in nodes:\n    old = node\n    if 'Fnp_' in old:\n        new = old.replace('Fnp_', '')\n        try:\n            cmds.rename(old, new)\n        except:\n            pass\n    elif ':' in old:\n        new = old.split(':')[1]\n        try:\n            cmds.rename(old, new)\n        except:\n            pass\n\nMGlobal.displayInfo('Removed all namespace.')" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1
@@ -368,7 +368,7 @@ global proc shelf_lemon3d_General () {
         -manage 1
         -visible 1
         -preventOverride 0
-        -annotation "Delete unused node in Hypershade." 
+        -annotation "Delete unused materials." 
         -enableBackground 0
         -backgroundColor 0 0 0 
         -highlightColor 0.321569 0.521569 0.65098 

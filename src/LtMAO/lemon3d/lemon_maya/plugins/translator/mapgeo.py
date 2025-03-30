@@ -101,12 +101,15 @@ class MAPGEO:
         if not os.path.exists(riot_mapgeo_path):
             riot_mapgeo_path = ''
 
+        if not cmds.optionVar(exists='lemon3d_mapgeo_version'):
+            cmds.optionVar(sv=('lemon3d_mapgeo_version', '17'), default=True)
         mapgeo_export_options = {
-            'version': '17',
+            'version': cmds.optionVar(query='lemon3d_mapgeo_version'),
             'riot_mapgeo_path': riot_mapgeo_path
         } 
         def set_value_cmd(key, value):
             mapgeo_export_options[key] = value
+
 
         def ui_cmd():
             cmds.columnLayout()
@@ -117,9 +120,13 @@ class MAPGEO:
             cmds.setParent('..')
 
             cmds.rowLayout(numberOfColumns=1, adjustableColumn=1)
-            cmds.optionMenu(label='Version: ')
+            def change_cmd(item):
+                set_value_cmd('version', item)
+                cmds.optionVar(sv=('lemon3d_mapgeo_version', item))
+            option_menu = cmds.optionMenu(label='Version: ', changeCommand=change_cmd)
             cmds.menuItem(label = '17')
             cmds.menuItem(label = '13')
+            cmds.optionMenu(option_menu, edit=True, value=mapgeo_export_options['version'])
             cmds.setParent('..')
 
             cmds.rowLayout(numberOfColumns=3, adjustableColumn=3)
@@ -469,7 +476,7 @@ class MAPGEO:
             # ignore other sets
             lightmap_flag = False
             if len(uv_names) > 1:
-                model.baked_light = MAPGEOChannel()
+                model.baked_light = pyRitoFile.MAPGEOChannel()
                 if group_name.startswith('riot_'):
                     model.baked_light.path = group_name.replace('riot_', '').replace('__', '/')+'/'+uv_names[1]
                 else:
