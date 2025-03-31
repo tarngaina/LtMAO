@@ -52,15 +52,15 @@ def mirrorX(skn=None, skl=None, anm=None, so=None, mapgeo=None):
             so.pivot.x = -so.pivot.x
     if mapgeo != None:
         for model in mapgeo.models:
-            # flip matrix
-            xref_matrix = Matrix4(
-                -1, 0, 0, 0, 
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1
-            )
-            model.matrix = model.matrix * xref_matrix
-            model.matrix[12] = -model.matrix[12]
+            # flip matrix 
+            matrix = MMatrix()
+            MScriptUtil.createMatrixFromList([value for value in model.matrix], matrix)
+            translate, rotate, scale = MayaTransformMatrix.decompose(MTransformationMatrix(matrix), MSpace.kWorld)
+            translate.x = -translate.x
+            rotate.y = -rotate.y
+            rotate.z = -rotate.z
+            matrix = MayaTransformMatrix.compose(translate, rotate, scale, MSpace.kWorld).asMatrix()
+            model.matrix = Matrix4(*[matrix(i, j) for i in range(4) for j in range(4)]) 
             # flip vertex
             for vertex in model.vertices:
                 if pyRitoFile.MAPGEOVertexElementName.Position.name in vertex.value:
@@ -79,7 +79,7 @@ class MayaTransformMatrix:
     
     @staticmethod
     def decompose(matrix, space):
-        # get translation, scale and rotation (quaternion) out of transformation matrix
+        # get translate, scale and rotate (quaternion) out of transformation matrix
         translate = matrix.getTranslation(space)
 
         rotate = matrix.rotation()
@@ -108,14 +108,14 @@ class MayaTransformMatrix:
 
     @staticmethod
     def compose(translate, rotate, scale, space):
-        # set translation, scale and rotation (quaternion) into a transformation matrix
+        # set translate, scale and rotate (quaternion) into a transformation matrix
         matrix = MTransformationMatrix()
 
-        # translation
+        # translate
         matrix.setTranslation(
             MVector(translate.x, translate.y, translate.z), space)
         
-        # easy rotation (quaternion)
+        # easy rotate (quaternion)
         matrix.setRotationQuaternion(
             rotate.x, rotate.y, rotate.z, rotate.w, space)
 

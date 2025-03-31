@@ -29,6 +29,8 @@ def install_plugin(maya_pref_dir):
         if key not in maya_env:
             maya_env[key] = ''
         if value not in maya_env[key]:
+            if not maya_env[key].endswith(';'):
+                maya_env[key] += ';'
             maya_env[key] += value
     # save maya.env
     with open(maya_env_file, 'w+') as f:

@@ -188,7 +188,7 @@ def parse_audio_tree(map_bnk_objects):
                                     if wem_id in audio_tree[event_id][INF]:
                                         audio_tree[event_id][INF].remove(wem_id)
                 # if action link to a music switch container
-                elif action.object_id in map_bnk_objects[BNKObjectType.MusicSwitchContainer]:
+                if action.object_id in map_bnk_objects[BNKObjectType.MusicSwitchContainer]:
                     for music_playlist_container_id, music_playlist_container in map_bnk_objects[BNKObjectType.MusicPlaylistContainer].items():
                         if music_playlist_container.sound_id == action.object_id:
                             for music_track_id in music_playlist_container.music_track_ids:
@@ -201,7 +201,7 @@ def parse_audio_tree(map_bnk_objects):
                                             if wem_id not in audio_tree[event_id][music_segment_id]:
                                                 audio_tree[event_id][music_segment_id].append(wem_id)
                                             if wem_id in audio_tree[event_id][INF]:
-                                                audio_tree[event_id][INF].remove(wem_id)                            
+                                                audio_tree[event_id][INF].remove(wem_id)             
     for music_track_id, music_track in map_bnk_objects[BNKObjectType.MusicTrack].items():
         for wem_id in music_track.wem_ids:
             new_wem = True
