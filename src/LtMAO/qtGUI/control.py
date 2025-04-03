@@ -2134,7 +2134,7 @@ def build_setting(widget: QWidget):
             # remove update file
             os.remove(local_file)
             # restat ltmao
-            restart_cmd()
+            print(f'update_ltmao: Restart is require for updates to take effect.')
 
         helper.SafeThread.start('update_ltmao', redownload_thrd)
     button.clicked.connect(redownload_ltmao)

@@ -167,8 +167,6 @@ class MAPGEO:
             layer_models[i] = []
         # bushes
         bush_models = []
-        # baron models
-        baron_models = []
 
         # map submeshes by name
         submesh_names = []
@@ -321,7 +319,7 @@ class MAPGEO:
                 bush_models.append(transform_name)
 
             # extra attributes
-            # create bucket hash attribute (for baron related stuff)
+            # create bucket hash attribute
             if not cmds.attributeQuery(
                 'buckethash',
                 exists=True,
@@ -333,13 +331,10 @@ class MAPGEO:
                 cmds.addAttr(
                     transform_name,
                     longName='buckethash',
-                    niceName='Bucket Hash',
+                    niceName='Bucket Grid Hash',
                     dataType='string'
                 )
             cmds.setAttr(f'{transform_name}.buckethash', f"{model.bucket_grid_hash:08x}", type='string')
-            # baron models
-            if model.bucket_grid_hash > 0:
-                baron_models.append(transform_name)
             group_transform.addChild(transform.object())
 
         group_transform.setName(group_name)
@@ -362,14 +357,6 @@ class MAPGEO:
         cmds.sets(
             *bush_models,
             addElement='setBushes'
-        )
-    
-        # create baron set
-        if not cmds.objExists('setBaron'):
-            cmds.sets(name='setBaron') 
-        cmds.sets(
-            *baron_models,
-            addElement='setBaron'
         )
         cmds.select(clear=True)
 
@@ -446,7 +433,7 @@ class MAPGEO:
             model.layer = pyRitoFile.MAPGEOLayer(int(model.layer, 2))
             # bush
             model.is_bush = True if model.name in bush_models else False
-            # baron bucket hash
+            # bucket hash
             try:
                 if cmds.attributeQuery(
                     'buckethash',

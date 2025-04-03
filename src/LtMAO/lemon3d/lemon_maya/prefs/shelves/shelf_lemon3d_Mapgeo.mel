@@ -555,19 +555,6 @@ global proc shelf_lemon3d_Mapgeo () {
         -commandRepeatable 1
         -flat 1
     ;
-    separator
-        -enable 1
-        -width 34
-        -height 35
-        -manage 1
-        -visible 1
-        -preventOverride 0
-        -enableBackground 0
-        -backgroundColor 0 0 0 
-        -highlightColor 0.321569 0.521569 0.65098 
-        -style "shelf" 
-        -horizontal 0
-    ;
     shelfButton
         -enableCommandRepeat 1
         -flexibleWidthType 3
@@ -603,6 +590,19 @@ global proc shelf_lemon3d_Mapgeo () {
         -commandRepeatable 1
         -flat 1
     ;
+    separator
+        -enable 1
+        -width 34
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -style "shelf" 
+        -horizontal 0
+    ;
     shelfButton
         -enableCommandRepeat 1
         -flexibleWidthType 3
@@ -613,27 +613,62 @@ global proc shelf_lemon3d_Mapgeo () {
         -manage 1
         -visible 1
         -preventOverride 0
-        -annotation "Assign/remove selected objects to setBaron." 
+        -annotation "Show and edit mapgeo mesh info." 
         -enableBackground 0
         -backgroundColor 0 0 0 
         -highlightColor 0.321569 0.521569 0.65098 
         -align "center" 
-        -label "Baron" 
+        -label "Edit mesh info" 
         -labelOffset 0
         -rotation 0
         -flipX 0
         -flipY 0
         -useAlpha 1
         -font "plainLabelFont" 
-        -imageOverlayLabel "Baron" 
+        -imageOverlayLabel "INFO" 
         -overlayLabelColor 0.8 0.8 0.8 
-        -overlayLabelBackColor 0 0 0 1 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "lemon3d/mesh_info.png" 
+        -image1 "lemon3d/mesh_info.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "from maya import cmds\n\ndef create_ui_mapgeo_model_info(transform_name, mesh_name, mesh_materials, layers, is_bush, bucket_grid_hash):\n    ui_values  =  {\n    }\n\n    def ui_cmd():\n        cmds.columnLayout()\n        cmds.rowColumnLayout(numberOfColumns = 2, width = 800)\n\n        cmds.text(label = 'Mesh name:', width = 150, height = 30)\n        cmds.text(label = mesh_name, width = 650, height = 30)\n\n        cmds.text(label = 'Materials:', width = 150, height = 30)\n        cmds.columnLayout(height = 30)\n        for material in mesh_materials:\n            cmds.text(material, width = 650)\n        cmds.setParent('..')\n        cmds.text(label = 'Layer:', width = 150, height = 30)\n        cmds.rowLayout(numberOfColumns = 8, height = 30)\n        layers_checkbox = [None] * 8\n        for i in range(8):\n            layers_checkbox[i] = cmds.checkBox(label = f'{i+1}', value = layers[i])\n        cmds.setParent('..')\n\n        cmds.text(label = 'Is bush:', width = 150, height = 30)\n        bush_checkbox = cmds.checkBox(label = 'Yes', height = 30, value = is_bush)\n\n        cmds.text(label = 'Bucket grid hash:', width = 150, height = 30)\n        cmds.rowLayout(numberOfColumns = 2, height = 30)\n        option_items  =  {\n            'f4968631': 'Enable on Baron Base',\n            'c11c84e8': 'Enable on Baron Walled',\n            '1b3399aa': 'Enable on Baron Tunnel',\n            '68fe7644': 'Enable on Baron Upgraded',\n            'd1a17399': 'Enable on Dragon Infernal',\n            '9f32344a': 'Enable on Dragon Infernal',\n            'e94a0c8c': 'Enable on Dragon Mountain',\n            '48106271': 'Enable on Dragon Mountain',\n            '84543212': 'Enable on Dragon Ocean',\n            '3c5b24f7': 'Enable on Dragon Ocean',\n            '8c67e893': 'Enable on Dragon Cloud',\n            '4f0b2a3e': 'Enable on Dragon Cloud',\n            '86fb6b5b': 'Enable on Dragon Hextech',\n            '2b8dbdee': 'Enable on Dragon Hextech',\n            '8e6a128e': 'Enable on Dragon Chemtech',\n            '189a3295': 'Enable on Dragon Chemtech',\n            '7acdec29': 'Enable on Athakhan Top',\n            'd5adc7f7': 'Enable on Athakhan Bottom',\n\n            '00000000': 'Base Default',\n            '21d36b37': 'Disable on Baron Tunnel',\n            '3ea0f6af': 'Disable on Dragon Mountain, Hextech, Chemtech',\n            '5e652742': 'Disable on Dragon Infernal, Mountain, Ocean, Cloud, Hextech, Chemtech',\n            '6f187e01': 'Disable on Dragon Infernal, Hextech, Chemtech',\n            '72a6d263': 'Disable on Dragon Ocean',\n            '789a0ddf': 'Disable on Dragon Infernal, Hextech, Chemtech',\n            '7af438ae': 'Disable on Dragon Infernal',\n            '8b933f10': 'Disable on Dragon Infernal',\n            'a7b30f31': 'Disable on Baron Base, Baron Upgraded',\n            '0c210e40': 'Disable on Dragon Mountain',\n            '98689027': 'Disable on Dragon Mountain, Infernal',\n        }\n        buckethash_field = cmds.textField(width = 400, text = bucket_grid_hash)\n        option_menu = cmds.optionMenu(width = 250)\n        for item, desc in option_items.items():\n            cmds.menuItem(label = f'{item} ({desc})')\n        if bucket_grid_hash in option_items:\n            value_to_set = f'{bucket_grid_hash} ({option_items[bucket_grid_hash]})'\n        else:\n            value_to_set = f'00000000 (Base Default)'\n        def option_menu_change(v):\n            cmds.textField(buckethash_field, edit = True, text = v.split(' ')[0])\n        cmds.optionMenu(option_menu, edit = True, value = value_to_set, changeCommand=option_menu_change)\n        cmds.setParent('..')\n\n        cmds.setParent('..')\n        def dismiss(result):\n            layers = [False] * 8\n            for i in range(8):\n                layers[i] = cmds.checkBox(layers_checkbox[i], query=True, value=True)\n                if layers[i]: \n                    if not cmds.sets(transform_name, isMember = f'set{i+1}'):\n                        cmds.sets(transform_name, addElement = f'set{i+1}')\n                else:\n                    if cmds.sets(transform_name, isMember = f'set{i+1}'):\n                        cmds.sets(transform_name, remove = f'set{i+1}')\n\n            is_bush = cmds.checkBox(bush_checkbox, query=True, value=True)\n            if is_bush: \n                if not cmds.sets(transform_name, isMember = 'setBushes'):\n                    cmds.sets(transform_name, addElement = 'setBushes')\n            else:\n                if cmds.sets(transform_name, isMember = 'setBushes'):\n                    cmds.sets(transform_name, remove = 'setBushes')\n\n            bucket_grid_hash = cmds.textField(buckethash_field, query=True, text=True)\n            if not cmds.attributeQuery(\n                'buckethash',\n                exists=True,\n                node=transform_name\n            ):\n                cmds.addAttr(\n                    transform_name,\n                    longName='buckethash',\n                    niceName='Bucket Hash',\n                    dataType='string'\n                )\n            cmds.setAttr(f'{transform_name}.buckethash', bucket_grid_hash, type='string')\n\n\n            cmds.layoutDialog(dismiss = result)\n        cmds.rowLayout(numberOfColumns = 2)\n        cmds.text(label = '', w = 700)\n        cmds.button(label = 'Apply', width = 100, height = 30, align = 'right', command = lambda e: dismiss('Apply'))\n        cmds.setParent('..')\n    \n    return cmds.layoutDialog(title = 'Mapgeo mesh info', ui = ui_cmd)\n\n\nmeshes = cmds.ls(selection = True, dagObjects = True, shapes = True)\nif meshes:\n    mesh_name = meshes[0]\n    transform_name = cmds.listRelatives(mesh_name, parent=True)[0]\n    scope = cmds.listConnections(mesh_name, type = 'shadingEngine')\n    mesh_materials = []\n    if scope:\n        for shading_engine in scope:\n            if cmds.sets(shading_engine, query = True):\n                mesh_materials += cmds.ls(cmds.listConnections(shading_engine), materials = True)\n        mesh_materials = list(set(mesh_materials))   \n    \n    layers = [False] * 8\n    for i in range(8):\n        layers[i] = cmds.sets(transform_name, isMember = f'set{i+1}')\n    is_bush = cmds.sets(transform_name, isMember = 'setBushes')\n\n    bucket_grid_hash = '00000000'\n    try:\n        if cmds.attributeQuery(\n            'buckethash',\n            exists=True,\n            node=transform_name\n        ):\n            bucket_grid_hash = cmds.getAttr(f'{transform_name}.buckethash')\n    except:\n        pass\n\n    create_ui_mapgeo_model_info(transform_name, mesh_name, mesh_materials, layers, is_bush, bucket_grid_hash)" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Select all meshes that has non-zero bucket hash value." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Select non-zero bucket hash meshes" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "SelBH" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
         -image "lemon3d/baron.png" 
         -image1 "lemon3d/baron.png" 
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "from maya import cmds\nfrom maya.OpenMaya import MGlobal\n\nselected = cmds.ls(sl = True)\nif not cmds.objExists(f'setBaron'):\n    cmds.sets(name=f'setBaron')\n    MGlobal.displayInfo('Created setBaron.')\nelse:\n    if cmds.sets(im=f'setBaron'):\n        for obj in selected:\n            flag = cmds.attributeQuery('buckethash', node=obj, ex=True)\n            if not flag:\n                cmds.addAttr(longName='buckethash', niceName='Bucket Hash', dataType='string')\n                cmds.setAttr(f'{obj}.buckethash', '00000000', type='string')\n        cmds.sets(remove=f'setBaron')\n        MGlobal.displayInfo('Removed selected from setBushes.')\n    else:\n        for obj in selected:\n            flag = cmds.attributeQuery('buckethash', node=obj, ex=True)\n            if not flag:\n                cmds.addAttr(longName='buckethash', niceName='Bucket Hash', dataType='string')\n                cmds.setAttr(f'{obj}.buckethash', '00000000', type='string')\n        cmds.sets(addElement=f'setBaron')\n        MGlobal.displayInfo('Assigned selected to setBaron.')" 
+        -command "from maya import cmds\n\ntransforms = cmds.ls(transforms = True)\nif transforms:\n    to_selected = []\n    for tranform in transforms:\n        mesh = cmds.listRelatives(tranform, shapes=True)\n        if mesh:\n            try:\n                if cmds.attributeQuery(\n                    'buckethash',\n                    exists=True,\n                    node=tranform\n                ):\n                   bucket_grid_hash = cmds.getAttr(f'{tranform}.buckethash')\n                   if bucket_grid_hash != '00000000':\n                    to_selected.append(tranform)\n            except:\n                pass\n    if len(to_selected) > 0:\n        cmds.select(to_selected)" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1
@@ -682,6 +717,41 @@ global proc shelf_lemon3d_Mapgeo () {
         -marginWidth 0
         -marginHeight 1
         -command "HypershadeWindow" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Delete unused materials." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Hypershade Delete unused node" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Del" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 1 
+        -image "lemon3d/hypershade.png" 
+        -image1 "lemon3d/hypershade.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "MLdeleteUnused;\nprint \"Deleted unused nodeds in hypershade.\"" 
         -sourceType "mel" 
         -commandRepeatable 1
         -flat 1
