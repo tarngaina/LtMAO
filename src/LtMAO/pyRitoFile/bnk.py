@@ -4,6 +4,19 @@ from enum import Enum
 
 class BNKHelper:
     @staticmethod
+    def skip_fx(bs, bkhd_version):
+        bs.pad(1)
+        fx_count, = bs.read_u8()
+        if fx_count > 0:
+            bs.pad(1 + fx_count * (7 if bkhd_version <= 145 else 6))
+        if bkhd_version > 136:
+            bs.pad(1)
+            fx_count, = bs.read_u8()
+            bs.pad(fx_count * 6)
+        if bkhd_version > 89 and bkhd_version <= 145: 
+            bs.pad(1)
+
+    @staticmethod
     def skip_init_params(bs):
         bs.pad(bs.read_u8()[0] * 5)
         bs.pad(bs.read_u8()[0] * 9)
@@ -31,14 +44,18 @@ class BNKHelper:
             bs.pad(9 if bkhd_version <= 89 else 5)
             bs.pad(16 * bs.read_u32()[0])
             bs.pad((16 if bkhd_version <= 89 else 20) * bs.read_u32()[0])
-        elif bkhd_version <= 59:
+        elif bkhd_version <= 89:
             bs.pad(1)
-
-    
+  
     @staticmethod 
-    def skip_aux(bs):
+    def skip_aux(bs, bkhd_version):
         has_aux = (bs.read_u8()[0] >> 3) & 1
         if has_aux: bs.pad(16)
+        if bkhd_version > 135:
+            bs.pad(4)
+
+    @staticmethod 
+    def skip_state_groups(bs):
         bs.pad(6)
         bs.pad(3 * bs.read_u8()[0])
         for i in range(bs.read_u8()[0]):
@@ -52,22 +69,20 @@ class BNKHelper:
             bs.pad(13 if bkhd_version <= 89 else 12)
             bs.pad(12 * bs.read_u16()[0])
 
-
     @staticmethod
     def skip_base_params(bs, bkhd_version):
-        bs.pad(1)
-        fx_count, = bs.read_u8()
-        bs.pad(5 + int(fx_count != 0) - int(bkhd_version <= 89) + (fx_count * 7))
+        BNKHelper.skip_fx(bs, bkhd_version)
+        
 
-        parent_id, = bs.read_u32()
-    
+        bus_id, parent_id = bs.read_u32(2)
         bs.pad(2 if bkhd_version <= 89 else 1)
         BNKHelper.skip_init_params(bs)
         BNKHelper.skip_pos_params(bs, bkhd_version)
-        BNKHelper.skip_aux(bs)
+        BNKHelper.skip_aux(bs, bkhd_version)
+        BNKHelper.skip_state_groups(bs)
         BNKHelper.skip_rtpc(bs, bkhd_version)
 
-        return parent_id
+        return parent_id, bus_id
     
     @staticmethod
     def skip_clip_automation(bs):
@@ -254,18 +269,13 @@ class BNK:
                             event.action_ids = bs.read_u32(action_id_count)
                         elif obj.type == BNKObjectType.RandomOrSequenceContainer:
                             container = obj.data
-                            container.switch_container_id = BNKHelper.skip_base_params(bs, self.bkhd.version)
+                            container.switch_container_id, _ = BNKHelper.skip_base_params(bs, self.bkhd.version)
                             bs.pad(24)
                             container.sound_ids = bs.read_u32(bs.read_u32()[0])
                         elif obj.type in (BNKObjectType.MusicSegment, BNKObjectType.MusicPlaylistContainer):
                             segment = obj.data
-                            bs.pad(4)
-                            segment.music_switch_id, segment.sound_id = bs.read_u32(2)
                             bs.pad(1)
-                            BNKHelper.skip_init_params(bs)
-                            BNKHelper.skip_pos_params(bs, self.bkhd.version)
-                            BNKHelper.skip_aux(bs)
-                            BNKHelper.skip_rtpc(bs, self.bkhd.version)
+                            segment.sound_id, segment.music_switch_id = BNKHelper.skip_base_params(bs, self.bkhd.version)
                             segment.music_track_ids = bs.read_u32(bs.read_u32()[0])
                         elif obj.type == BNKObjectType.MusicTrack:
                             track = obj.data 
@@ -283,7 +293,7 @@ class BNK:
                                 track.wem_ids[track_index] = wem_id
                             bs.pad(4)
                             BNKHelper.skip_clip_automation(bs)
-                            track.parent_id = BNKHelper.skip_base_params(bs, self.bkhd.version)
+                            track.parent_id, _ = BNKHelper.skip_base_params(bs, self.bkhd.version)
                             if bs.read_u8()[0] == 3:
                                 track.has_switch_ids = True
                                 bs.pad(1)

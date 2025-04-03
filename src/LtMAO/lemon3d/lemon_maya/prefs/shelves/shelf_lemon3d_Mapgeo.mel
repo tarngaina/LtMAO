@@ -627,7 +627,7 @@ global proc shelf_lemon3d_Mapgeo () {
         -font "plainLabelFont" 
         -imageOverlayLabel "INFO" 
         -overlayLabelColor 0.8 0.8 0.8 
-        -overlayLabelBackColor 0 0 0 0.5 
+        -overlayLabelBackColor 0 0 0 1 
         -image "lemon3d/mesh_info.png" 
         -image1 "lemon3d/mesh_info.png" 
         -style "iconOnly" 
@@ -662,7 +662,7 @@ global proc shelf_lemon3d_Mapgeo () {
         -font "plainLabelFont" 
         -imageOverlayLabel "SelBH" 
         -overlayLabelColor 0.8 0.8 0.8 
-        -overlayLabelBackColor 0 0 0 0.5 
+        -overlayLabelBackColor 0 0 0 1 
         -image "lemon3d/baron.png" 
         -image1 "lemon3d/baron.png" 
         -style "iconOnly" 

@@ -218,6 +218,18 @@ def parse_audio_tree(map_bnk_objects):
     return audio_tree
 
 
+def remove_missing_but_mentioned_wems(audio_tree, actual_wems):
+    actual_wems_ids = [wem.id for wem in actual_wems]
+    for event_id in audio_tree:
+        for container_id in audio_tree[event_id]:
+            new_wem_ids = []
+            for wem_id in audio_tree[container_id]:
+                if wem_id in actual_wems_ids:
+                    new_wem_ids.append(wem_id)
+            audio_tree[container_id] = new_wem_ids
+    return audio_tree
+
+
 def sort_audio_tree(audio_tree, event_names_by_id):
     for event_id in audio_tree:
         for container_id in audio_tree[event_id]:
@@ -262,6 +274,7 @@ class Inspector:
             self.event_names_by_id = parse_bin(bin)
         # parse audio tree
         self.audio_tree = sort_audio_tree(parse_audio_tree(map_bnk_objects), self.event_names_by_id)
+        # self.audio_tree = remove_missing_but_mentioned_wems(self.audio_tree, self.wems)
 
     def get_wem_offset(self, wem):
         return self.data.start_offset+wem.offset if self.is_bnk else wem.offset
