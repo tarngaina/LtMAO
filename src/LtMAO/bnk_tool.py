@@ -10,7 +10,38 @@ from shutil import rmtree
 from threading import Thread
 import pyaudio, wave
 
-INF = 'No container'
+def to_human(size): return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) + \
+    ["", " KB", " MB", " GB", " TB", " PB",
+        " EB"][max(size.bit_length()-1, 0)//10]
+
+class BankTree:
+    __slots__ = ('events', 'wems')
+
+    def __init__(self):
+        self.events = {}
+        self.wems = {}
+
+class BankEvent:
+    __slots__ = ('id', 'containers', 'wems')
+
+    def __init__(self, id):
+        self.id = id
+        self.containers = {}
+        self.wems = {}
+
+class BankContainer:
+    __slots__ = ('id', 'wems')
+
+    def __init__(self, id):
+        self.id = id
+        self.wems = {}
+
+class BankWem:
+    __slots__ = ('id')
+
+    def __init__(self, id):
+        self.id = id
+
 
 def parse_audio_bnk(audio_bnk):
     if audio_bnk.didx == None:
@@ -122,22 +153,19 @@ def parse_bin(bin):
                                     continue
                                 for event in events.data:
                                     event_names_by_id[FNV1(event)] = event
-    event_names_by_id[INF] = INF
     return event_names_by_id
 
 
-def parse_audio_tree(map_bnk_objects):
-    audio_tree = {}
-    audio_tree[INF] = {}
-    audio_tree[INF][INF] = []
+def parse_bank_tree(map_bnk_objects, existed_wems):
+    bank_tree = BankTree()
     for event_id, event in map_bnk_objects[BNKObjectType.Event].items():
-        audio_tree[event_id] = {}
-        audio_tree[event_id][INF] = []
+        bank_tree.events[event_id] = bank_event = BankEvent(event_id)
         for action_id in event.action_ids:
             action = map_bnk_objects[BNKObjectType.Action][action_id]
             if hasattr(action, 'object_id'):
                 if action.type != 4: # play 
                     continue
+
                 # if action link to ranseq container object
                 if action.object_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
                     container = map_bnk_objects[BNKObjectType.RandomOrSequenceContainer][action.object_id]
@@ -146,34 +174,49 @@ def parse_audio_tree(map_bnk_objects):
                         # thats why we check if its in sounds
                         if sound_id in map_bnk_objects[BNKObjectType.Sound]: 
                             wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
-                            new_wem = True
-                            for container_name, container_wems in audio_tree[event_id].items():
-                                if wem_id in container_wems:
+                            if wem_id not in existed_wems:
+                                continue
+                            # check if wem already in containers, if not add to non containers
+                            new_wem = True                 
+                            for bank_container in bank_event.containers:
+                                if wem_id in bank_container.wems:
                                     new_wem = False
                                     break
                             if new_wem:
-                                audio_tree[event_id][INF].append(wem_id)
+                                bank_event.wems[wem_id] = BankWem(wem_id)
+                            
                 # if action link to sound object
                 if action.object_id in map_bnk_objects[BNKObjectType.Sound]:
                     wem_id = map_bnk_objects[BNKObjectType.Sound][action.object_id].wem_id
-                    new_wem = True
-                    for container_name, container_wems in audio_tree[event_id].items():
-                        if wem_id in container_wems:
+                    if wem_id not in existed_wems:
+                        continue
+                    # check if wem already in containers, if not add to non containers
+                    new_wem = True                 
+                    for bank_container in bank_event.containers:
+                        if wem_id in bank_container.wems:
                             new_wem = False
                             break
                     if new_wem:
-                        audio_tree[event_id][INF].append(wem_id)
+                        bank_event.wems[wem_id] = BankWem(wem_id)
+
                 # if action link to a ranseq container object switch container 
                 for container_id, container in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer].items():
                     if container.switch_container_id == action.object_id:
                         for sound_id in container.sound_ids:
                             wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
-                            if container_id not in audio_tree[event_id]:
-                                audio_tree[event_id][container_id] = []
-                            if wem_id not in audio_tree[event_id][container_id]:
-                                audio_tree[event_id][container_id].append(wem_id)
-                            if wem_id in audio_tree[event_id][INF]:
-                                audio_tree[event_id][INF].remove(wem_id)
+                            if wem_id not in existed_wems:
+                                continue
+                            # create container if need
+                            if container_id not in bank_event.containers:
+                                bank_event.containers[container_id] = BankContainer(container_id)
+                            # add wem to container
+                            bank_container = bank_event.containers[container_id]
+                            if wem_id not in bank_container.wems:
+                                bank_container.wems[wem_id] = BankWem(wem_id)
+                            # remove wem if they in non containers 
+                            if wem_id in bank_event.wems:
+                                bank_event.wems.pop(wem_id)
+
                 # if action link to a music segment sound id   
                 if action.object_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer]:
                     for music_track_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer][action.object_id].music_track_ids:
@@ -181,68 +224,91 @@ def parse_audio_tree(map_bnk_objects):
                             music_segment_id = music_track_id
                             for real_music_track_id in map_bnk_objects[BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
                                 for wem_id in map_bnk_objects[BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
-                                    if music_segment_id not in audio_tree[event_id]:
-                                        audio_tree[event_id][music_segment_id] = []
-                                    if wem_id not in audio_tree[event_id][music_segment_id]:
-                                        audio_tree[event_id][music_segment_id].append(wem_id)
-                                    if wem_id in audio_tree[event_id][INF]:
-                                        audio_tree[event_id][INF].remove(wem_id)
-                # if action link to a music switch container
+                                    if wem_id not in existed_wems:
+                                        continue
+                                    # create container if need
+                                    if music_segment_id not in bank_event.containers:
+                                        bank_event.containers[music_segment_id] = BankContainer(music_segment_id)
+                                    # add wem to container
+                                    bank_container = bank_event.containers[music_segment_id]
+                                    if wem_id not in bank_container.wems:
+                                        bank_container.wems[wem_id] = BankWem(wem_id)
+                                    # remove wem if they in non containers 
+                                    if wem_id in bank_event.wems:
+                                        bank_event.wems.pop(wem_id)
+
+                # if action link to a music switch container  
                 if action.object_id in map_bnk_objects[BNKObjectType.MusicSwitchContainer]:
-                    for music_playlist_container_id, music_playlist_container in map_bnk_objects[BNKObjectType.MusicPlaylistContainer].items():
-                        if music_playlist_container.sound_id == action.object_id:
-                            for music_track_id in music_playlist_container.music_track_ids:
-                                if music_track_id in map_bnk_objects[BNKObjectType.MusicSegment]:
-                                    music_segment_id = music_track_id
-                                    for real_music_track_id in map_bnk_objects[BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
-                                        for wem_id in map_bnk_objects[BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
-                                            if music_segment_id not in audio_tree[event_id]:
-                                                audio_tree[event_id][music_segment_id] = []
-                                            if wem_id not in audio_tree[event_id][music_segment_id]:
-                                                audio_tree[event_id][music_segment_id].append(wem_id)
-                                            if wem_id in audio_tree[event_id][INF]:
-                                                audio_tree[event_id][INF].remove(wem_id)             
+                    def find_music_playlist_container_child(switch_container_id):
+                        switch_container = map_bnk_objects[BNKObjectType.MusicSwitchContainer][switch_container_id]
+                        for child_id in switch_container.child_ids:
+                            if child_id in map_bnk_objects[BNKObjectType.MusicSwitchContainer]:
+                                find_music_playlist_container_child(child_id)
+                            elif child_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer]:
+                                music_playlist_container = map_bnk_objects[BNKObjectType.MusicPlaylistContainer][child_id]
+                                for music_track_id in music_playlist_container.music_track_ids:
+                                    if music_track_id in map_bnk_objects[BNKObjectType.MusicSegment]:
+                                        music_segment_id = music_track_id
+                                        for real_music_track_id in map_bnk_objects[BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
+                                            for wem_id in map_bnk_objects[BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
+                                                if wem_id not in existed_wems:
+                                                    continue
+                                                # create container if need
+                                                if child_id not in bank_event.containers:
+                                                    bank_event.containers[child_id] = BankContainer(child_id)
+                                                # add wem to container
+                                                bank_container = bank_event.containers[child_id]
+                                                if wem_id not in bank_container.wems:
+                                                    bank_container.wems[wem_id] = BankWem(wem_id)
+                                                # remove wem if they in non containers 
+                                                if wem_id in bank_event.wems:
+                                                    bank_event.wems.pop(wem_id)    
+
+                    find_music_playlist_container_child(action.object_id)
+
+    # list music track wems that dont link to anything????
     for music_track_id, music_track in map_bnk_objects[BNKObjectType.MusicTrack].items():
         for wem_id in music_track.wem_ids:
+            if wem_id not in existed_wems:
+                continue
             new_wem = True
-            for event_id in audio_tree:
-                for container_id in audio_tree[event_id]:
-                    if wem_id in audio_tree[event_id][container_id]:
+            for event_id in bank_tree.events:
+                bank_event = bank_tree.events[event_id]
+                for container_id in bank_event.containers:
+                    bank_container = bank_event.containers[container_id]
+                    if wem_id in bank_container.wems:
                         new_wem = False
-            if new_wem and wem_id not in audio_tree[INF][INF]:
-                audio_tree[INF][INF].append(wem_id)
-    # clean up empty event                                   
-    for event_id in list(audio_tree):
-        if event_id != INF and len(audio_tree[event_id]) == 1 and len(audio_tree[event_id][INF]) == 0:
-            audio_tree.pop(event_id)
-    return audio_tree
+            if new_wem and wem_id not in bank_tree.wems:
+                bank_tree.wems[wem_id] = BankWem(wem_id)
+    # clean up empty event           
+    empty_event_ids = []                 
+    for event_id in bank_tree.events:
+        if len(bank_tree.events[event_id].containers) == 0 and len(bank_tree.events[event_id].wems) == 0:
+            empty_event_ids.append(event_id)
+    for event_id in empty_event_ids:
+        bank_tree.events.pop(event_id)
+    return bank_tree
 
+def unhash_bank_tree(bank_tree, event_names_by_id):
+    for event_id, event_name in event_names_by_id.items():
+        if event_id in bank_tree.events:
+            bank_tree.events[event_name] = bank_tree.events.pop(event_id)
 
-def remove_missing_but_mentioned_wems(audio_tree, actual_wems):
-    actual_wems_ids = [wem.id for wem in actual_wems]
-    for event_id in audio_tree:
-        for container_id in audio_tree[event_id]:
-            new_wem_ids = []
-            for wem_id in audio_tree[container_id]:
-                if wem_id in actual_wems_ids:
-                    new_wem_ids.append(wem_id)
-            audio_tree[container_id] = new_wem_ids
-    return audio_tree
-
-
-def sort_audio_tree(audio_tree, event_names_by_id):
-    for event_id in audio_tree:
-        for container_id in audio_tree[event_id]:
-            audio_tree[event_id][container_id] = os_sorted(audio_tree[event_id][container_id])
-    for event_id in audio_tree:
-        audio_tree[event_id] = dict(os_sorted(audio_tree[event_id].items()))
-    event_names_by_id = dict(os_sorted(event_names_by_id.items(), key=lambda x:x[1]))
-    for event_id in event_names_by_id:
-        if event_id in audio_tree:
-            audio_tree[event_names_by_id[event_id]] = audio_tree.pop(event_id)
-    audio_tree = dict(os_sorted(audio_tree.items()))
-    return audio_tree
-
+def sort_bank_tree(bank_tree):
+    for event_id in bank_tree.events:
+        bank_event = bank_tree.events[event_id]
+        for container_id in bank_event.containers:
+            bank_container = bank_event.containers[container_id]
+            # sort wems inside container
+            bank_container.wems = dict(os_sorted(bank_container.wems.items()))
+        # sort containers inside event
+        bank_event.containers = dict(os_sorted(bank_event.containers.items()))
+        # sort wems inside event
+        bank_event.wems = dict(os_sorted(bank_event.wems.items()))
+    # sort events inside tree
+    bank_tree.events = dict(os_sorted(bank_tree.events.items()))
+    # sort wems inside tree
+    bank_tree.wems = dict(os_sorted(bank_tree.wems.items()))
 
 class Inspector:
     cache_dir = './pref/bnk_tool'
@@ -268,13 +334,14 @@ class Inspector:
         events_bnk = read_bnk(events_path)
         map_bnk_objects = parse_events_bnk(events_bnk)
         # parse bin
-        self.event_names_by_id = {}
+        event_names_by_id = {}
         if bin_path != '':
             bin = read_bin(bin_path)
-            self.event_names_by_id = parse_bin(bin)
-        # parse audio tree
-        self.audio_tree = sort_audio_tree(parse_audio_tree(map_bnk_objects), self.event_names_by_id)
-        # self.audio_tree = remove_missing_but_mentioned_wems(self.audio_tree, self.wems)
+            event_names_by_id = parse_bin(bin)
+        # parse bank tree
+        self.bank_tree = parse_bank_tree(map_bnk_objects, [wem.id for wem in self.wems])
+        unhash_bank_tree(self.bank_tree, event_names_by_id)
+        sort_bank_tree(self.bank_tree)
 
     def get_wem_offset(self, wem):
         return self.data.start_offset+wem.offset if self.is_bnk else wem.offset
@@ -293,38 +360,44 @@ class Inspector:
                     os.remove(wav_file)
 
     def extract(self, output_dir):
-        # extract audio
-        os.makedirs(output_dir, exist_ok=True)
+        map_wem_paths = {}
+        for wem in self.wems:
+            map_wem_paths[wem.id] = []
+        # read tree -> create dirs first -> map wem path to extract
+        bank_tree = self.bank_tree
+        tree_dir = output_dir
+        os.makedirs(tree_dir, exist_ok=True)
+        for event_id in bank_tree.events:
+            bank_event = bank_tree.events[event_id]
+            event_dir = os.path.join(output_dir, str(event_id))
+            os.makedirs(event_dir, exist_ok=True)
+            for container_id in bank_event.containers:
+                bank_container = bank_event.containers[container_id]
+                container_dir = os.path.join(event_dir, str(container_id))
+                os.makedirs(container_dir, exist_ok=True)
+                # map wems inside container
+                for wem_id in bank_container.wems:
+                    wem_file = os.path.join(container_dir, f'{wem_id}.wem')
+                    map_wem_paths[wem_id].append(wem_file)
+            # map wems inside event
+            for wem_id in bank_event.wems:
+                wem_file = os.path.join(event_dir, f'{wem_id}.wem')
+                map_wem_paths[wem_id].append(wem_file)
+        # map wems inside tree
+        for wem_id in bank_tree.wems:
+            wem_file = os.path.join(tree_dir, f'{wem_id}.wem')
+            map_wem_paths[wem_id].append(wem_file)
+        # extract wems with map
         with self.audio.stream(self.audio_path, 'rb') as bs:
             for wem in self.wems:
                 bs.seek(self.get_wem_offset(wem))
                 wem_data = bs.read(wem.size)
-                for event_id in self.audio_tree:
-                    if event_id != INF:
-                        for container_id in self.audio_tree[event_id]:
-                            if wem.id in self.audio_tree[event_id][container_id]:
-                                event_dir = os.path.join(output_dir, str(event_id))
-                                os.makedirs(event_dir, exist_ok=True)
-                                if container_id != INF:
-                                    container_dir = os.path.join(event_dir, str(container_id))
-                                    os.makedirs(container_dir, exist_ok=True)
-                                    wem_dir = container_dir
-                                else:
-                                    wem_dir = event_dir
-                                wem_file = os.path.join(wem_dir, f'{wem.id}.wem')
-                                with open(wem_file, 'wb') as f:
-                                    f.write(wem_data)
-                                print(f'bnk_tool: Finish: Extracted [{wem.size}bytes] {wem.id} of {event_id}')
-                                tools.VGMStream.to_wav(wem_file)
-                    else:
-                        for container_id in self.audio_tree[event_id]:
-                            if container_id != INF:
-                                if wem.id in self.audio_tree[event_id][container_id]:
-                                    wem_file = os.path.join(output_dir, f'{wem.id}.wem')
-                                    with open(wem_file, 'wb') as f:
-                                        f.write(wem_data)
-                                    print(f'bnk_tool: Finish: Extracted [{wem.size}bytes] {wem.id}')
-                                    tools.VGMStream.to_wav(wem_file)
+                for wem_file in map_wem_paths[wem.id]:
+                    with open(wem_file, 'wb') as f:
+                        f.write(wem_data)
+                    tools.VGMStream.to_wav(wem_file)
+                print(f'bnk_tool: Finish: Extracted [{to_human(wem.size)}] {wem.id}.wem')
+                    
 
     def unpack(self, output_dir):
         os.makedirs(output_dir, exist_ok=True)
@@ -386,8 +459,9 @@ class Inspector:
                     output=True
                 )
                 self.streams.append(stream)
-                while len(data := wav.readframes(1024)) and stream.is_active(): 
-                    stream.write(data)
+                while len(data := wav.readframes(1024)):
+                    if stream.is_active(): 
+                        stream.write(data)
                 stream.close()
                 p.terminate()
         

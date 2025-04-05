@@ -1816,18 +1816,31 @@ def build_bnk_tool(widget: QWidget):
         treeview.setExpanded(model.indexFromItem(root_item), True)
 
         # build treeview with audio_tree
-        for event_id in inspector.audio_tree:
+        for event_id in inspector.bank_tree.events:
+            bank_event = inspector.bank_tree.events[event_id]
             event_item = QStandardItem('📢 ' + str(event_id))
             event_item.setEditable(False)
             root_item.appendRow(event_item)
-            for container_id in inspector.audio_tree[event_id]:
+            for container_id in bank_event.containers:
+                container = bank_event.containers[container_id]
                 container_item = QStandardItem('📣 ' + str(container_id))
                 container_item.setEditable(False)
                 event_item.appendRow(container_item)
-                for audio_id in inspector.audio_tree[event_id][container_id]:
-                    audio_item = QStandardItem('🎵 ' + str(audio_id))
-                    audio_item.setEditable(False)
-                    container_item.appendRow(audio_item)
+                for wem_id in container.wems:
+                    wem_item = QStandardItem('🎵 ' + str(wem_id))
+                    wem_item.setEditable(False)
+                    container_item.appendRow(wem_item)
+            
+            for wem_id in bank_event.wems:
+                wem_item = QStandardItem('🎵 ' + str(wem_id))
+                wem_item.setEditable(False)
+                event_item.appendRow(wem_item)
+        for wem_id in inspector.bank_tree.wems:
+            wem_item = QStandardItem('🎵 ' + str(wem_id))
+            wem_item.setEditable(False)
+            root_item.appendRow(wem_item)
+    
+    
     button.clicked.connect(load_bnk)
     layout3.addWidget(button)
 
@@ -1871,6 +1884,8 @@ def build_bnk_tool(widget: QWidget):
     button.setMinimumWidth(230)
     def clear_bnk():
         model.clear()
+        if qtwidgets.inspector != None:
+            qtwidgets.inspector.stop()
         bnk_tool.Inspector.reset_cache()
         qtwidgets.inspector = None
     button.clicked.connect(clear_bnk)

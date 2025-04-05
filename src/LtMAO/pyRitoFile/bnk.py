@@ -301,7 +301,33 @@ class BNK:
                                 bs.pad(4+4)
                                 track.switch_ids = bs.read_u32(track.track_count)
 
-                                
+                        elif obj.type == BNKObjectType.MusicSwitchContainer:
+                            container = obj.data 
+                            bs.pad(1)
+                            container.parent_id, _ = BNKHelper.skip_base_params(bs, self.bkhd.version)
+                            child_count, = bs.read_u32()
+                            container.child_ids = bs.read_u32(child_count)
+                            bs.pad(23)
+                            bs.pad(24 * bs.read_u32()[0])
+                            rule_count, = bs.read_u32()
+                            for i in range(rule_count):
+                                bs.pad(4 * bs.read_u32()[0])
+                                bs.pad(4 * bs.read_u32()[0])
+                                bs.pad(45 if self.bkhd.version <= 0x84 else 47)
+                                trans_obj, = bs.read_u8()
+                                if trans_obj > 0: bs.pad(30)
+                            bs.pad(1)
+                            argument_count, = bs.read_u32()
+                            container.argument_group_ids = bs.read_u32(argument_count)
+                            container.argument_group_type = bs.read_u8(argument_count)
+                            tree_size, = bs.read_u32()
+                            bs.pad(1)
+                            container.node_count = tree_size // 12
+                            container.nodes = []
+                            for i in range(container.node_count):
+                                container.nodes.append(bs.read_u32(2))
+                                bs.pad(4)
+
                         obj_size = bs.tell() - obj_offset + 4
                         if obj_size < obj.size:
                             bs.pad(obj.size-obj_size)

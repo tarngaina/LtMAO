@@ -1,3 +1,4 @@
 from LtMAO import pyRitoFile
 
-bnk = pyRitoFile.read_bnk('D:/test/pbe.bnk')
+bnk = pyRitoFile.helper.FNV1('Play_mus_EkkoSkin19_InteractiveMusic')
+print(bnk)
