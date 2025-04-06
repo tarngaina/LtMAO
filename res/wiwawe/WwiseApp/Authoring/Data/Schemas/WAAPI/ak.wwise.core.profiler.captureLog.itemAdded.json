@@ -1,0 +1,113 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.profiler.captureLog.itemAdded",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.startCapture",
+                "ak.wwise.core.profiler.enableProfilerData"
+            ],
+            "description": "Sent when a new entry is added to the capture log. Note that all entries are being sent. No filtering is applied as opposed to the Capture Log view.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "types": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "Notification",
+                                "InteractiveMusic",
+                                "Midi",
+                                "ExternalSource",
+                                "Marker",
+                                "State",
+                                "Switch",
+                                "SetParameter",
+                                "ParameterChanged",
+                                "Bank",
+                                "Prepare",
+                                "Event",
+                                "DialogueEventResolved",
+                                "ActionTriggered",
+                                "ActionDelayed",
+                                "Message",
+                                "APICall",
+                                "GameObjectRegistration"
+                            ]
+                        },
+                        "description": "Defines which types of capture log items to receive. This filter can help to reduce the amount of data serialized. When no types are specified, all types are being sent."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "description": "The entry type. Equivalent to the Type column in the Capture Log."
+                    },
+                    "time": {
+                        "$ref": "common_definitions.json#/definitions/int32",
+                        "description": "The time at which the event occurred. This is the elapsed time in milliseconds since the initialization of the sound engine."
+                    },
+                    "objectId": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID (GUID) of the object for the entry."
+                    },
+                    "objectName": {
+                        "type": "string",
+                        "description": "The name of the object for the entry."
+                    },
+                    "objectShortId": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "The short ID (32-bit) of the object for the entry."
+                    },
+                    "gameObjectId": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "The game object ID for the entry."
+                    },
+                    "gameObjectName": {
+                        "type": "string",
+                        "description": "The game object name for the entry."
+                    },
+                    "playingId": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "The playing ID for the entry."
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "The description for the entry. Equivalent to the Description column in the Capture Log."
+                    },
+                    "severity": {
+                        "type": "string",
+                        "enum": [
+                            "Normal",
+                            "Message",
+                            "Error"
+                        ],
+                        "description": "Normal: normal execution. \nMessage: Shown in yellow in the capture log. \nError: Shown in red in the capture log."
+                    },
+                    "errorCodeName": {
+                        "type": "string",
+                        "description": "The error code name for the entry."
+                    }
+                },
+                "required": [
+                    "time",
+                    "type",
+                    "description",
+                    "severity"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

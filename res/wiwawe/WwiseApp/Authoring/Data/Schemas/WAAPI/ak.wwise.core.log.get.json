@@ -1,0 +1,85 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.log.get",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.log.itemAdded",
+                "ak.wwise.core.log.addItem"
+            ],
+            "description": "Retrieves the latest log for a specific channel. Refer to \\ref ak_wwise_core_log_itemadded to be notified when an item is added to the log. The log is empty when used in WwiseConsole.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "channel": {
+                        "$ref": "waapi_definitions.json#/definitions/logCentralChannel",
+                        "description": "The log channel."
+                    }
+                },
+                "required": [
+                    "channel"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/logCentralItem"
+                        },
+                        "description": "The entries of the log."
+                    }
+                },
+                "required": [
+                    "items"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Retrieving the SoundBank log",
+                    "description": "Uses the channel 'soundbankGenerate' to retrieve the latest SoundBank generation log.",
+                    "args": {
+                        "channel": "soundbankGenerate"
+                    },
+                    "result": {
+                        "items": [
+                            {
+                                "severity": "Warning",
+                                "time": 1523563779,
+                                "messageId": "ParamControlIntegrityIssue",
+                                "message": "RTPC : object New Audio Bus, property PositioningType cannot be resolved; the RTPC is ignored.",
+                                "platform": {
+                                    "id": "{F546017D-201A-49BD-8D4E-0A28F5DBB28D}",
+                                    "name": "Windows"
+                                },
+                                "parameters": [
+                                    "Init"
+                                ]
+                            },
+                            {
+                                "severity": "Message",
+                                "time": 1523563779,
+                                "messageId": "",
+                                "message": "2 message(s), 2 warning(s), 0 error(s), 0 fatal error(s)"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

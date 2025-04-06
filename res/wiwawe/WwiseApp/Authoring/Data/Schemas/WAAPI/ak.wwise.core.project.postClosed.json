@@ -1,0 +1,28 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.project.postClosed",
+            "restrict": [
+                "userInterface",
+				"commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.project.close"
+            ],
+            "description": "Sent when the after the project is completely closed.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

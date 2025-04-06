@@ -1,0 +1,62 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.model.setState",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.model.getState"
+            ],
+            "description": "Sets the state of widgets.",
+            "visibility": "private",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "handleID": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID of the handle."
+                    },
+                    "state": {
+                        "type": "array",
+                        "description": "The widgets and attributes to set.",
+                        "items": {
+                            "type": "object",
+                            "description": "The widget and attributes to set.",
+                            "properties": {
+                                "widgetID": {
+                                    "type": "string",
+                                    "description": "The ID of the widget."
+                                },
+                                "state": {
+                                    "type": "array",
+                                    "description": "The new state to apply to the widget.",
+                                    "items": {
+                                        "$ref": "waapi_ui_definitions.json#/definitions/widgetAttributeEntry"
+                                    }
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [ "handleID", "state" ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": []
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="ExternalSourcesList">
+    <xs:complexType>
+      <xs:sequence>        
+        <xs:element name="Source" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:attribute name="Path" type="xs:string" use="required"/>
+            <xs:attribute name="Destination" type="xs:string" />
+            <xs:attribute name="Conversion" type="xs:string" />
+            <xs:attribute name="AnalysisTypes" type="xs:integer" />
+            <xs:attribute name="IncludeEnvelope" type="xs:boolean" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="SchemaVersion" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:integer">
+            <xs:minInclusive value="1" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+	  <xs:attribute name="Root" type="xs:string"/>        	        
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,51 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.profiler.stateChanged",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.switchChanged",
+                "ak.wwise.core.profiler.enableProfilerData"
+            ],
+            "description": "Sent when a state group state has been changed. This subscription does not require the profiler capture log to be started.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "$ref": "waapi_definitions.json#/definitions/returnExpression",
+                        "description": "Data to be returned for every object."
+                    },
+                    "platform": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID (GUID) of the platform."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "stateGroup": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The state group object that changed. Default return is id and name."
+                    },
+                    "state": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The state object that changed. Default return is id and name."
+                    }
+                },
+                "required": [
+                    "stateGroup",
+                    "state"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

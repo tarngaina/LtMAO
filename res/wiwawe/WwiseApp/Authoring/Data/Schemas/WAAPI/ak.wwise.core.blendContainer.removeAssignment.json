@@ -1,0 +1,59 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.blendContainer.removeAssignment",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.blendContainer.addTrack",
+                "ak.wwise.core.blendContainer.addAssignment",
+                "ak.wwise.core.blendContainer.getAssignments"
+            ],
+            "description": "Removes an assignment from a Blend Track. Equivalent to deleting an entry in the Blend Tracks Editor.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID (GUID) of the Blend Track."
+                    },
+                    "child": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to unassign."
+                    }
+                },
+                "required": [
+                    "object",
+                    "child"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Removing a Blend Track assignment.",
+                    "description": "Equivalent to deleting an entry in the Blend Tracks Editor.",
+                    "args": {
+                        "object": "{7A12D08F-B0D9-4403-9EFA-2E6338C197C1}",
+                        "child": "{A076AA65-B71A-45BB-8841-5A20C52CE727}"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

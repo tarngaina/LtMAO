@@ -1,0 +1,44 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.waapi.getFunctions",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.waapi.getTopics",
+                "ak.wwise.waapi.getSchema"
+            ],
+            "description": "Retrieves the list of functions.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "functions": {
+                        "type": "array",
+                        "description": "An array of Function URIs.",
+                        "items": {
+                            "type": "string",
+                            "description": "Function URIs retrieved from the Wwise Authoring API schema."
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": []
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

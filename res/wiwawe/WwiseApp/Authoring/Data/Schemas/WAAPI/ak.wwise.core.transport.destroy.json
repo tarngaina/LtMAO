@@ -1,0 +1,52 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.transport.destroy",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.transport.create",
+                "ak.wwise.core.transport.getList"
+            ],
+            "description": "Destroys the given transport object.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "transport": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "The transport object ID to be used with all other ak.wwise.core.transport functions."
+                    }
+                },
+                "required": [
+                    "transport"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Destroying a transport object",
+                    "description": "Destroys the given transport object.",
+                    "args": {
+                        "transport": 1234
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

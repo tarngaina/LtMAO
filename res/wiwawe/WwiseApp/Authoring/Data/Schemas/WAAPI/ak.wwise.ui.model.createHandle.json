@@ -1,0 +1,50 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.model.createHandle",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.window.create",
+                "ak.wwise.ui.model.registerWafm",
+                "ak.wwise.ui.model.destroyHandle"
+            ],
+            "description": "Creates a frontend handle and instantiates its widgets.",
+            "visibility": "private",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "container": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID of the parent container (e.g. window)."
+                    },
+                    "template": {
+                        "type": "string",
+                        "description": "The template name (from WAFM)."
+                    }
+                },
+                "required": [ "container", "template" ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "handleID": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID of the handle."
+                    }
+                }
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": []
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

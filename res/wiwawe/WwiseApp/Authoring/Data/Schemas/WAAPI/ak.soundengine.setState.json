@@ -1,0 +1,66 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.setState",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.setSwitch"
+            ],
+            "description": "Sets the State of a State Group. See <tt>AK::SoundEngine::SetState</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "stateGroup": {
+                        "$ref": "waapi_definitions.json#/definitions/soundEngineObjectArg",
+                        "description": "Either the ID (GUID), name, or Short ID of the State Group."
+                    },
+                    "state": {
+                        "$ref": "waapi_definitions.json#/definitions/soundEngineObjectArg",
+                        "description": "Either the ID (GUID), name, or Short ID of the State."
+                    }
+                },
+                "required": [
+                    "stateGroup",
+                    "state"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting the State Group to another State using names",
+                    "description": "Sets \"stateGroup\" to \"state\".",
+                    "args": {
+                        "stateGroup": "Character",
+                        "state": "Happy"
+                    },
+                    "return": {}
+                },
+                {
+                    "title": "Setting the State Group to another State using Short IDs",
+                    "description": "Sets \"stateGroup\" to \"state\".",
+                    "args": {
+                        "stateGroup": 1270826848,
+                        "state": 1208172755
+                    },
+                    "return": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

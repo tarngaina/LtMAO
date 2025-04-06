@@ -1,0 +1,9 @@
+{
+    "version": 1,
+    "validators": [
+        {
+            "id": "ak.wwise.ui.model.wafmSchema",
+            "$ref": "wafm_definitions.json#/definitions/wafm"
+        }
+    ]
+}

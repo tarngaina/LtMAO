@@ -1,0 +1,53 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.undo.endGroup",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.undo.beginGroup",
+                "ak.wwise.core.undo.cancelGroup",
+                "ak.wwise.core.undo.undo"
+            ],
+            "description": "Ends the last undo group.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "displayName": {
+                        "type": "string",
+                        "description": "The name that is displayed in the history for this undo group."
+                    }
+                },
+                "required": [
+                    "displayName"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Ending an undo group",
+                    "description": "Ends an undo group.",
+                    "args": {
+                        "displayName": "My Undo Group"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

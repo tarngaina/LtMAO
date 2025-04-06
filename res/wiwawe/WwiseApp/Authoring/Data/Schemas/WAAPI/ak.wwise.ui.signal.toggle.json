@@ -1,0 +1,48 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.ui.signal.toggle",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.signal.emit"
+            ],
+            "description": "Emitted when a toggle button or a checkbox gets toggled.",
+            "visibility": "private",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "handleID": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID of the handle."
+                    },
+                    "widgetID": {
+                        "type": "string",
+                        "description": "The ID of the widget."
+                    }
+                },
+                "required": [ "handleID", "widgetID" ],
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "handleID": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID of the handle."
+                    },
+                    "widgetID": {
+                        "type": "string",
+                        "description": "The ID of the widget."
+                    }
+                },
+                "required": [ "handleID", "widgetID" ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

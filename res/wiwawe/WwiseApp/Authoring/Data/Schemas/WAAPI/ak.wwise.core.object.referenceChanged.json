@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.object.referenceChanged",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.setReference"
+            ],
+            "description": "Sent when an object reference is changed.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "$ref": "waapi_definitions.json#/definitions/returnExpression",
+                        "description": "Data to be returned for the object, the old reference and the new reference."
+                    },
+                    "platform": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID (GUID) of the platform."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The object which had its reference changed."
+                    },
+                    "old": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The previous referenced object."
+                    },
+                    "new": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The new referenced object."
+                    },
+                    "reference": {
+                        "type": "string",
+                        "description": "The name of the reference that was changed. See the object's description in wobjects.xml for an object's possible references."
+                    },
+                    "platform": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID (GUID) of the platform if the reference was changed for a single platform. When not provided, the reference is changed for all platforms."
+                    }
+                },
+                "required": [
+                    "object",
+                    "old",
+                    "new",
+                    "reference"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

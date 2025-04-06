@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.getSelectedObjects",
+            "restrict": [
+                "userInterface"
+            ],
+            "description": "Retrieves the list of objects currently selected by the user in the active view.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "objects": {
+                        "type": "array",
+                        "description": "The selected objects, in the format specified in the options. Can be empty if no object is selected.",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                            "description": "The selected objects. Use the options to specify which data to return. Default returns id and name."
+                        }
+                    }
+                },
+                "required": [
+                    "objects"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturnOptions",
+                "description": "Specifies the return options for every object returned."
+            },
+            "examples": [
+                {
+                    "title": "Getting the selected object",
+                    "description": "Retrieves the GUID of the selected object",
+                    "args": {},
+                    "result": {
+                        "objects": [
+                            {
+                                "id": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                                "name": "MySound"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

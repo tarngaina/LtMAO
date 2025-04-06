@@ -1,0 +1,49 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.sourceControl.checkOut",
+            "seeAlso": [
+                "ak.wwise.core.sourceControl.commit"
+            ],
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Check out files from source control. Equivalent to Check Out for Perforce.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "files": {
+                        "$ref": "common_definitions.json#/definitions/arrayOfString",
+                        "description": "Array of files to check out. File paths must be absolute."
+                    }
+                },
+                "required": [
+                    "files"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "log": {
+                        "$ref": "waapi_definitions.json#/definitions/arrayOfLogCentralItem",
+                        "description": "Array of log entries generated during the request."
+                    }
+                },
+                "required": [
+                    "log"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

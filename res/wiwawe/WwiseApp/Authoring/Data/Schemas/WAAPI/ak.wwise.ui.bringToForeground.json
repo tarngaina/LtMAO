@@ -1,0 +1,40 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.bringToForeground",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.getInfo"
+            ],
+            "description": "Bring Wwise main window to foreground. Refer to SetForegroundWindow and AllowSetForegroundWindow on MSDN for more information on the restrictions. Refer to ak.wwise.core.getInfo to obtain the Wwise process ID for AllowSetForegroundWindow.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Bringing the currently connected Wwise to foreground",
+                    "description": "Brings the currently connected Wwise to the foreground.",
+                    "args": {},
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

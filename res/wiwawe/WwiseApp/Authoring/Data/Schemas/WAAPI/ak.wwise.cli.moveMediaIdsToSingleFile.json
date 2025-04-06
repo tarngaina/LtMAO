@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.cli.moveMediaIdsToSingleFile",
+            "restrict": [
+                "commandLine"
+            ],
+            "description": "Moves the project's media IDs from its work units (.wwu) to a single file, <project-name>.mediaid.  This command forces a save of all the project's work units.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "project": {
+                        "$ref": "waapi_definitions.json#/definitions/projectCliArg"
+                    }
+                },
+                "required": [
+                    "project"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "$ref": "waapi_definitions.json#/definitions/processResultCli"
+                    }
+                },
+                "required": [
+                    "result"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Moving a project's media IDs out of work units",
+                    "description": "Moving a project's media IDs from its work units to a single xml file, <project-name>.mediaid.",
+                    "args": {
+                        "project": "C:\\MyProject\\MyProject.wproj"
+                    },
+                    "result": {
+						"result": 0
+					}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

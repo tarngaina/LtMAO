@@ -1,0 +1,96 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.cli.tabDelimitedImport",
+            "restrict": [
+                "commandLine"
+            ],
+            "description": "Imports a tab-delimited file to create and modify different object hierarchies. The project is automatically migrated (if required). It is also automatically saved following the import.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "project": {
+                        "$ref": "waapi_definitions.json#/definitions/projectCliArg"
+                    },
+                    "verbose": {
+                        "$ref": "waapi_definitions.json#/definitions/verboseCliArg"
+                    },
+                    "quiet": {
+                        "$ref": "waapi_definitions.json#/definitions/quietCliArg"
+                    },
+                    "continue-on-error": {
+                        "$ref": "waapi_definitions.json#/definitions/continueOnErrorCliArg"
+                    },
+                    "custom-global-closing-cmd": {
+                        "$ref": "waapi_definitions.json#/definitions/customGlobalClosingCmdCliArg"
+                    },
+                    "custom-global-opening-cmd": {
+                        "$ref": "waapi_definitions.json#/definitions/customGlobalOpeningCmdCliArg"
+                    },
+                    "audio-source-from-original": {
+                        "$ref": "waapi_definitions.json#/definitions/audioSourceFromOriginalCliArg"
+                    },
+                    "import-language": {
+                        "$ref": "waapi_definitions.json#/definitions/importLanguageCliArg"
+                    },
+                    "tab-delimited-operation": {
+                        "$ref": "waapi_definitions.json#/definitions/tabDelimitedOperationCli"
+                    },
+                    "tab-delimited-import-file": {
+                        "type": "string",
+                        "description": "The tab delimited file to import.",
+                        "synopsis": [
+                            "FILE"
+                        ]
+                    },
+                    "no-source-control": {
+                        "type": "boolean",
+                        "description": "Skip automatic addition and checkout (if supported by project's source control plugin) of new and modified files to source control.",
+                        "synopsis": [
+                            "--no-source-control"
+                        ]
+                    }
+                },
+                "required": [
+                    "project",
+                    "tab-delimited-import-file"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "$ref": "waapi_definitions.json#/definitions/processResultCli"
+                    }
+                },
+                "required": [
+                    "result"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Importing a tab delimited file",
+                    "description": "Imports a tab delimited file using default \"useExisting\" operation with quiet logging.",
+                    "args": {
+                        "project": "C:\\MyProject\\MyProject.wproj",
+                        "tab-delimited-import-file": "C:\\fileToImport.tsv",
+                        "quiet": true
+                    },
+                    "result": {
+                        "result": 0
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

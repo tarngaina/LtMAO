@@ -1,0 +1,61 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.soundbank.processDefinitionFiles",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.audio.import",
+                "ak.wwise.cli.tabDelimitedImport",
+                "ak.wwise.core.log.get"
+            ],
+            "description": "Imports SoundBank definitions from the specified file. Multiple files can be specified. See the WAAPI log for status messages.",
+            "argsSchema": {
+                "type": "object",
+                "description": "The path to the SoundBank Definition File.",
+                "properties": {
+                    "files": {
+                        "type": "array",
+                        "description": "An array of SoundBank definition files.",
+                        "minItems": 1,
+                        "items": {
+                            "type": "string",
+                            "description": "SoundBank Definition Files"
+                        }
+                    }
+                },
+                "required": [
+                    "files"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Import SoundBank Definitions from file.",
+                    "description": "Imports the SoundBank Definitions from the specified text files.",
+                    "args": {
+                        "files": [
+                            "soundbank_definitions_1-3.txt",
+                            "soundbank_definitions_4-401"
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

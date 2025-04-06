@@ -1,0 +1,51 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.ui.commands.executed",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.commands.execute"
+            ],
+            "description": "Sent when a command is executed. The objects for which the command is executed are sent in the publication.",
+            "optionsSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturnOptions",
+                "description": "Specifies the return options for every object returned."
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "description": "The command ID that was executed."
+                    },
+                    "objects": {
+                        "type": "array",
+                        "description": "The objects for which the command was executed. The objects are usually the selected objects. They are returned in the format specified in the options. Can be empty if no object is used.",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                            "description": "The objects. Use the options to specify which data to return. Default returns id and name."
+                        }
+                    },
+                    "platforms": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/platformArg"
+                        },
+                        "description": "An array of platform for which the command is executed. Each platform is an ID (GUID)."
+                    }
+                },
+                "required": [
+                    "command",
+                    "objects",
+                    "platforms"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

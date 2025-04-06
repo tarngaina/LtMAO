@@ -1,0 +1,61 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.layout.getViewTypes",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [],
+            "description": "Retrieves a list of all view types registered in Wwise.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "viewTypes": {
+                        "type": "array",
+                        "description": "Array of all view types registered in Wwise.",
+                        "items": {
+                            "$ref": "waapi_ui_definitions.json#/definitions/viewTypeToName"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Retrieving all view types",
+                    "description": "Returns a list of all available view types (just a few are listed in this example).",
+                    "args": {},
+                    "result": {
+                        "viewTypes": [
+                            {
+                                "viewName": "ProjectExplorer",
+                                "viewDisplayName": "Project Explorer"
+                            },
+                            {
+                                "viewName": "MasterMixerConsole",
+                                "viewDisplayName": "Master-Mixer Console"
+                            },
+                            {
+                                "viewName": "GameObject3DViewer",
+                                "viewDisplayName": "Game Object 3D Viewer"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

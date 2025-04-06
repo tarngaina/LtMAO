@@ -1,0 +1,44 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.audio.resetMute",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+				"ak.wwise.core.audio.mute",
+				"ak.wwise.core.audio.solo",
+				"ak.wwise.core.audio.resetSolo"
+            ],
+            "description": "Unmute all muted objects.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Unmute all objects",
+                    "description": "Unmute all muted objects in Wwise.",
+                    "args": {},
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

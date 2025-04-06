@@ -1,0 +1,116 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.commands.execute",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.commands.executed",
+                "ak.wwise.ui.commands.getCommands"
+            ],
+            "description": "Executes a command. Some commands can take a list of objects as parameters. Refer to \\ref globalcommandsids for the available commands.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "description": "The ID of the command to execute. Refer to \\ref globalcommandsids for the lists of commands."
+                    },
+                    "objects": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/objectArg"
+                        },
+                        "description": "An array of objects. Each object is an ID (GUID), name, or path of the object. Some commands can take objects as arguments. Refer to the commands for more information."
+                    },
+                    "platforms": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/platformArg"
+                        },
+                        "description": "An array of platform. Each platform is an ID (GUID) or a unique name. Some commands can take platforms as arguments. Refer to the commands for more information."
+                    },
+                    "value": {
+                        "$ref": "common_definitions.json#/definitions/propertyValue",
+                        "description": "A value to pass to the command. Some commands can take a value as an argument. Refer to the commands for more information."
+                    }
+                },
+                "required": [
+                    "command"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Finding and selecting objects in Project Explorer",
+                    "description": "Finds the specified objects in the Project Explorer view (Selection Channel 1), and selects them.",
+                    "args": {
+                        "command": "FindInProjectExplorerSyncGroup1",
+                        "objects": [
+                            "{83D27335-6B94-4939-A01F-F00BEEB36E24}",
+                            "{A076AA65-B71A-45BB-8841-5A20C52CE727}"
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Executing a command requiring the object's parameter",
+                    "description": "Executes \"ConvertCurrentPlatform\" on objects defined by \"objects\" GUID's.",
+                    "args": {
+                        "command": "ConvertCurrentPlatform",
+                        "objects": [
+                            "{83D27335-6B94-4939-A01F-F00BEEB36E24}",
+                            "{A076AA65-B71A-45BB-8841-5A20C52CE727}"
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Executing a command not requiring the object's parameter",
+                    "description": "Executes the \"ResetAllMutes\" command.",
+                    "args": {
+                        "command": "ResetAllMutes"
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Muting the specified object",
+                    "description": "Executes the \"Mute\" command and specify the mute state.",
+                    "args": {
+                        "command": "Mute",
+                        "objects": [
+                            "\\Actor-Mixer Hierarchy\\Default Work Unit\\MySound"
+                        ],
+                        "value": true
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Toggling the Mute state on the specified object",
+                    "description": "Executes the \"Mute\" command without specifying a value to toggle the current state.",
+                    "args": {
+                        "command": "Mute",
+                        "objects": [
+                            "\\Actor-Mixer Hierarchy\\Default Work Unit\\MySound"
+                        ]
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

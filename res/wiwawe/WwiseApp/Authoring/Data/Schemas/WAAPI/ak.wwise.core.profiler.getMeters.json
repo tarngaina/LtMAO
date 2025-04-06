@@ -1,0 +1,184 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.getMeters",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.getCursorTime",
+                "ak.wwise.core.profiler.registerMeter",
+                "ak.wwise.core.profiler.unregisterMeter",
+                "ak.wwise.core.profiler.enableProfilerData"
+            ],
+            "description": "Retrieves the Meter data for all registered busses, aux busses and devices. Only the master audio bus is registered by default. Use \\ref ak_wwise_core_profiler_registermeter for other busses, before retrieval of the meter data.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "time": {
+                        "$ref": "waapi_definitions.json#/definitions/cursorTime",
+                        "description": "Time in milliseconds to query for Performance Monitor data, or a Time Cursor from which to acquire the time. The User Time Cursor is the one that can be manipulated by the user, while the Capture Time Cursor represents the latest time of the current capture."
+                    }
+                },
+                "required": [
+                    "time"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "meters": {
+                        "type": "array",
+                        "description": "Array of registered meters.",
+                        "items": {
+                            "type":"object",
+                            "properties":{
+                                "object":{
+                                    "description": "The metered object.",
+                                    "$ref": "waapi_definitions.json#/definitions/objectReturn"
+                                },
+                                "source": {
+                                    "type":"string",
+                                    "enum":["Bus", "DeviceMainMix", "DevicePassthrough", "DeviceSystemAudioObjects"],
+                                    "description":"The type of meter data."
+                                },
+                                "configurationName": {
+                                    "type": "string",
+                                    "description":"The name of the channel configuration."
+                                },
+                                "configurationMask": {
+                                    "type": "integer",
+                                    "description":"The bit field of the channel configuration."
+                                },
+                                "configurationType": {
+                                    "type": "string",
+                                    "enum":[
+                                        "Anonymous",
+                                        "Standard",
+                                        "Ambisonic",
+                                        "Objects"
+                                    ],
+                                    "description":"The type of the configuration for the meter."
+                                },
+                                "channels":
+                                {
+                                    "type":"array",
+                                    "items":
+                                    {
+                                        "type":"object",
+                                        "properties":{
+                                            "name":{
+                                                "type":"string",
+                                                "description":"The name of the channel."
+                                            },
+                                            "value":{
+                                                "type":"number",
+                                                "description": "The channel value in decibels."
+                                            }
+           
+                                        },
+                                        "required":["name", "value"],
+                                        "additionalProperties": false,
+                                        "description": "The channel value with corresponding name."
+                                    },
+                                    "description":"An array of channels for this object, in the same order as the Meter in Wwise."
+                                }
+                            },
+                            "required":["object","source", "configurationName", "configurationMask", "configurationType", "channels"],
+                            "additionalProperties": false,
+                            "description": "The meter information."
+                        }
+                    }
+                },
+                "required": [ "meters" ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturnOptions",
+                "description": "Specifies the return options for the meter object field. The defaults are name and ID."
+            },
+            "examples": [
+                {
+                    "title": "Retrieving the meter values after registering a bus for meter",
+                    "description": "Gets the meter values for all registered busses. In this example, one of the busses is configured in 7.1 and is registered with \\ref ak_wwise_core_profiler_registermeter.",
+                    "args": {
+                        "time": "capture"
+                    },
+                    "result": {
+                        "meters": [
+                            {
+                                "object": {
+                                    "id": "{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}",
+                                    "name": "Master Audio Bus"
+                                },
+                                "source": "Bus",
+                                "channels": [
+                                    {
+                                        "name": "L",
+                                        "value": 0.00794849544763565
+                                    },
+                                    {
+                                        "name": "R",
+                                        "value": -764.6162109375
+                                    }
+                                ],
+                                "configurationType": "Standard",
+                                "configurationMask": 3,
+                                "configurationName": "2.0"
+                            },
+                            {
+                                "object": {
+                                    "id": "{0DE372C2-4E96-4096-9E61-781BC76313F3}",
+                                    "name": "Bus"
+                                },
+                                "source": "Bus",
+                                "channels": [
+                                    {
+                                        "name": "L",
+                                        "value": 0.00794849544763565
+                                    },
+                                    {
+                                        "name": "R",
+                                        "value": -764.6162109375
+                                    },
+                                    {
+                                        "name": "C",
+                                        "value": -764.6162109375
+                                    },
+                                    {
+                                        "name": "BL",
+                                        "value": -764.6162109375
+                                    },
+                                    {
+                                        "name": "BR",
+                                        "value": -764.6162109375
+                                    },
+                                    {
+                                        "name": "SL",
+                                        "value": -764.6162109375
+                                    },
+                                    {
+                                        "name": "SR",
+                                        "value": -764.6162109375
+                                    },
+                                    {
+                                        "name": "LFE",
+                                        "value": -764.6162109375
+                                    }
+                                ],
+                                "configurationType": "Standard",
+                                "configurationMask": 1599,
+                                "configurationName": "7.1"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

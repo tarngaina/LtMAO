@@ -1,0 +1,60 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.sourceControl.revert",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Revert changes to files in source control.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "files": {
+                        "$ref": "common_definitions.json#/definitions/arrayOfString",
+                        "description": "Single file or array of files to revert. File paths must be absolute."
+                    }
+                },
+                "required": [
+                    "files"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "log": {
+                        "$ref": "waapi_definitions.json#/definitions/arrayOfLogCentralItem",
+                        "description": "Array of log entries generated during the request."
+                    }
+                },
+                "required": [
+                    "log"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Reverting a file modification in the source control.",
+                    "description": "The modification is canceled and the contents of the file return to what was before the checkout.",
+                    "args": {
+                        "files": [
+                            "//projet-file//Originals/SFX/existingFile.wav"
+                        ]
+                    },
+                    "result": {
+                        "log": []
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

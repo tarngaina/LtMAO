@@ -1,0 +1,46 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.project.save",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.project.saved"
+            ],
+            "description": "Saves the current project.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "autoCheckOutToSourceControl": {
+                        "type": "boolean",
+                        "description": "Determines if Wwise automatically performs a Checkout source control operation for affected work units and for the project. Defaults to true."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Saving the current project",
+                    "description": "Saves the current project.",
+                    "args": {},
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

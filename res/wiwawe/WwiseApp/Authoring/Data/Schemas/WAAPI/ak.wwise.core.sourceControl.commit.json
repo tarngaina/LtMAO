@@ -1,0 +1,72 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.sourceControl.commit",
+            "seeAlso": [
+                "ak.wwise.core.sourceControl.add",
+                "ak.wwise.core.sourceControl.delete",
+                "ak.wwise.core.sourceControl.move",
+                "ak.wwise.core.sourceControl.checkOut"
+            ],
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Commit files to source control. Equivalent to Submit Changes for Perforce.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "files": {
+                        "$ref": "common_definitions.json#/definitions/arrayOfString",
+                        "description": "Array of files to commit. File paths must be absolute."
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "Description message for the commit."
+                    }
+                },
+                "required": [
+                    "files",
+                    "message"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "log": {
+                        "$ref": "waapi_definitions.json#/definitions/arrayOfLogCentralItem",
+                        "description": "Array of log entries generated during the request."
+                    }
+                },
+                "required": [
+                    "log"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Commiting a file modification in the source control.",
+                    "description": "The modification and the message on it is sent to the source file.",
+                    "args": {
+                        "files": [
+                            "//projet-file//Originals/SFX/existingFile.wav"
+                        ],
+                        "message": "some comments about this commit"
+                    },
+					"result": {
+						"log": []
+					}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

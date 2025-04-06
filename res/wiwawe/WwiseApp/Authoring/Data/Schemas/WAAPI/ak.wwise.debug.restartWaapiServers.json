@@ -1,0 +1,33 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.debug.restartWaapiServers",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+            ],
+            "description": "Restart WAAPI servers. For internal use only.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

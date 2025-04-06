@@ -1,0 +1,72 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.cli.dumpObjects",
+            "restrict": [
+                "commandLine"
+            ],
+            "description": "Dump the objects model of a project as a JSON file.",
+            "visibility": "private",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "project": {
+                        "$ref": "waapi_definitions.json#/definitions/projectCliArg"
+                    },
+                    "output": {
+                        "type": "string",
+                        "description": "Full path of the output file",
+                        "synopsis": [
+                            "OUTPUT"
+                        ]
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "Content to output from the object model. Default is 'name'.",
+                        "enum": [
+                            "name",
+                            "propertyset"
+                        ],
+                        "synopsis": [
+                            "--content name",
+                            "--content propertyset"
+                        ]
+                    },
+                    "no-session": {
+                        "type": "boolean",
+                        "description": "Specify to skip objects with session lifetime.",
+                        "synopsis": [
+                            "--no-session"
+                        ]
+                    }
+                },
+                "required": [
+                    "project",
+                    "output"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "$ref": "waapi_definitions.json#/definitions/processResultCli"
+                    }
+                },
+                "required": [
+                    "result"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": []
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

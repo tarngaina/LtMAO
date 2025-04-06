@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:element name="CmdLine">
+	  <xs:complexType>
+	    <xs:simpleContent>
+	      <xs:extension base="xs:string">
+	        <xs:attribute name="Description" type="xs:string" />
+	      </xs:extension>
+	    </xs:simpleContent>
+	  </xs:complexType>
+  </xs:element>
+
+</xs:schema>

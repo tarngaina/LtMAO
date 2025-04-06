@@ -1,0 +1,48 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.layout.getCurrentLayoutName",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.layout.switchLayout"
+            ],
+            "description": "Retrieves the current layout name.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                },
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The current layout name, an empty string means no layout."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Retrieving the current layout's name",
+                    "description": "Returns the current layout's name as a string.",
+                    "args": {},
+                    "result": {
+                        "name": "Designer"
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

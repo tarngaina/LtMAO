@@ -1,0 +1,86 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.switchContainer.getAssignments",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.switchContainer.addAssignment",
+                "ak.wwise.core.switchContainer.removeAssignment"
+            ],
+            "description": "Returns the list of assignments between a Switch Container's children and states.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the Switch Container."
+                    }
+                },
+                "required": [
+                    "id"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "description": "List of assignments (pairs of child and state).",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "description": "Assignment (pair of child and state).",
+                            "properties": {
+                                "child": {
+                                    "$ref": "waapi_definitions.json#/definitions/objectArg",
+                                    "description": "The ID (GUID), name, or path of the child assigned to a State."
+                                },
+                                "stateOrSwitch": {
+                                    "$ref": "waapi_definitions.json#/definitions/objectArg",
+                                    "description": "The ID (GUID), name, or path of the State or Switch to which the child is assigned."
+                                }
+                            },
+                            "required": [
+                                "child",
+                                "stateOrSwitch"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                }
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Getting the assignments of a Switch Container",
+                    "description": "Gets the list of assignments for a Switch Container.",
+                    "args": {
+                        "id": "{7A12D08F-B0D9-4403-9EFA-2E6338C197C1}"
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "child": "{7A12D08F-B0D9-4403-9EFA-2E6338C197C1}",
+                                "stateOrSwitch": "{A076AA65-B71A-45BB-8841-5A20C52CE727}"
+                            },
+                            {
+                                "child": "{8B12D08F-B0D9-4403-9EFA-2E6338C197D1}",
+                                "stateOrSwitch": "{B076BB65-B71A-45BB-8841-5A20C52CE738}"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

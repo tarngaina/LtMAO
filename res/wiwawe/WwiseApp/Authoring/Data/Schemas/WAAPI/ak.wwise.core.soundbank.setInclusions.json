@@ -1,0 +1,115 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.soundbank.setInclusions",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.soundbank.getInclusions"
+            ],
+            "description": "Modifies a SoundBank's inclusion list. The 'operation' argument determines how the 'inclusions' argument modifies the SoundBank's inclusion list; 'inclusions' may be added to / removed from / replace the SoundBank's inclusion list.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "soundbank": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the SoundBank to add an inclusion to."
+                    },
+                    "operation": {
+                        "type": "string",
+                        "enum": [
+                            "add",
+                            "remove",
+                            "replace"
+                        ],
+                        "description": "Determines how the 'inclusions' argument is used to modify the SoundBank's inclusion list; 'inclusions' may be used to add to / remove from / replace the SoundBank's inclusion list."
+                    },
+                    "inclusions": {
+                        "type": "array",
+                        "description": "An array of SoundBank inclusions.",
+                        "items": {
+                            "type": "object",
+                            "description": "A SoundBank inclusion.",
+                            "properties": {
+                                "object": {
+                                    "$ref": "waapi_definitions.json#/definitions/objectArg",
+                                    "description": "The ID (GUID), name, or path of the object to add to / remove from the SoundBank's inclusion list."
+                                },
+                                "filter": {
+                                    "type": "array",
+                                    "description": "An array of inclusion types defining what to include.",
+                                    "maxItems": 3,
+                                    "items": {
+                                        "type": "string",
+                                        "description": "One of the possible inclusion types.",
+                                        "enum": [
+                                            "events",
+                                            "structures",
+                                            "media"
+                                        ]
+                                    }
+                                }
+                            },
+                            "required": [
+                                "object",
+                                "filter"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [
+                    "soundbank",
+                    "inclusions",
+                    "operation"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Adding an object to the inclusion list",
+                    "description": "Adds an object to the SoundBank's inclusion list.  The 'media' filter is left out.",
+                    "args": {
+                        "soundbank": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "operation": "add",
+                        "inclusions": [
+                            {
+                                "object": "{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}",
+                                "filter": [
+                                    "events",
+                                    "structures"
+                                ]
+                            }
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Clearing the inclusion list",
+                    "description": "The SoundBank's inclusion list is cleared via the 'replace' operation and an empty 'inclusions' list.",
+                    "args": {
+                        "soundbank": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "operation": "replace",
+                        "inclusions": []
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

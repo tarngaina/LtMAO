@@ -1,0 +1,74 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.remote.connect",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.remote.disconnect",
+                "ak.wwise.core.remote.getAvailableConsoles",
+                "ak.wwise.core.remote.getConnectionStatus",
+                "ak.wwise.core.profiler.saveCapture"
+            ],
+            "description": "Connects the Wwise Authoring application to a Wwise Sound Engine running executable or to a saved profile file. The host must be running code with communication enabled. If only \"host\" is provided, Wwise connects to the first Sound Engine instance found. To distinguish between different instances, you can also provide the name of the application to connect to.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "host": {
+                        "type": "string",
+                        "description": "The host to connect to. The host can be a computer name, an IPv4 address, an IP:PORT pair, or a full path to a saved capture (.prof file). Use 127.0.0.1 to connect to localhost."
+                    },
+                    "appName": {
+                        "type": "string",
+                        "description": "The value in the Application Name column from the Remote Connection dialog in Wwise, or from from ak.wwise.core.remote.getAvailableConsoles. If you are running more than one Sound Engine instance, you can specify the name of the application to connect to."
+                    },
+                    "commandPort": {
+                        "$ref": "common_definitions.json#/definitions/uint16",
+                        "description": "The command port. If you are running two or more Sound Engine instances that use the same application name, you can specify the command port to distinguish between different applications sharing the same name. You don't need to use this if the application name is unique. When using this, you must also provide appName. You can obtain this information from ak.wwise.core.remote.getAvailableConsoles."
+                    },
+                    "notificationPort": {
+                        "$ref": "common_definitions.json#/definitions/uint16",
+                        "description": "Unused."
+                    }
+                },
+                "required": [
+                    "host"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Connecting to Cube",
+                    "description": "Connects to a game named Cube on the same computer.",
+                    "args": {
+                        "host": "127.0.0.1",
+                        "appName": "Cube"
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Connecting to a profile",
+                    "description": "Connects to a saved profile (.prof file) via a specified full path.",
+                    "args": {
+                        "host": "C:\\WwiseProjects\\WwiseProject\\ProfilingSession12.prof"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

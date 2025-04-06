@@ -2061,53 +2061,6 @@ def build_bnk_tool(widget: QWidget):
 
 def build_wiwawe(widget: QWidget):
     layout = QVBoxLayout()
-    # wwise path
-    layout2 = QHBoxLayout()
-    button = QToolButton()
-    button.setText('📟 Select WWise Folder')
-    layout2.addWidget(button)
-    wwise_label = QLabel()
-    wwise_label.setText(setting.get('wiwawe.wwise_path', 'Please select WWise/Wwise{version} folder. (example: Wwise/Wwise2024.1.3.8749)'))
-    layout2.addWidget(wwise_label, stretch=1)
-    def select_wwise_dir():
-        dialog = QFileDialog()
-        dirpath = dialog.getExistingDirectory(
-            widget,
-            'Select WWise/Wwise{version} folder',
-            setting.get('qtGUI.default_folder', None)
-        )
-        if dirpath != '':
-            final_path = dirpath.replace('\\', '/')
-            if not os.path.exists(os.path.join(final_path, 'Authoring/x64/Release/bin/WwiseConsole.exe')):
-                raise Exception(f'wiwawe: Error: Select wwise path: No "WwiseConsole.exe" found.')
-            setting.set('wiwawe.wwise_path', final_path)
-            setting.save()
-            wwise_label.setText(final_path)
-    button.clicked.connect(select_wwise_dir)
-    layout.addLayout(layout2)
-    # project path
-    layout2 = QHBoxLayout()
-    button = QToolButton()
-    button.setText('🗂️ Select Project File')
-    layout2.addWidget(button)
-    project_label = QLabel()
-    project_label.setText(setting.get('wiwawe.wproj_path', 'Please select .wproj file of your Wwise project. (example: Documents/WwiseProjects/lol/lol.wproj)'))
-    layout2.addWidget(project_label, stretch=1)
-    def select_proj_file():
-        dialog = QFileDialog()
-        filepaths = dialog.getOpenFileName(
-            widget, 
-            f'Select WPROJ',
-            setting.get('qtGUI.default_folder', None),
-            f'WPROJ Files (*.wproj)'
-        )
-        if len(filepaths[0]) > 0:
-            final_path = filepaths[0].replace('\\', '/')
-            setting.set('wiwawe.wproj_path', final_path)
-            setting.save()
-            project_label.setText(final_path)
-    button.clicked.connect(select_proj_file)
-    layout.addLayout(layout2)
     # convert 
     def convert(isfile, title, input_type, func):
         dialog = QFileDialog()
@@ -2144,11 +2097,7 @@ def build_wiwawe(widget: QWidget):
             'title': 'WAV to WEM',
             'input_type': 'WAV',
             'icon': '🎶',
-            'func': lambda src: wiwawe.wav2wem(
-                src, 
-                setting.get('wiwawe.wwise_path', None), 
-                setting.get('wiwawe.wproj_path', None)
-            )
+            'func': lambda src: wiwawe.wav2wem(src)
         },
         { 
             'title': 'WEM to WAV',

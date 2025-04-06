@@ -1,0 +1,81 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.copy",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.move",
+                "ak.wwise.core.object.childAdded",
+                "ak.wwise.core.object.childRemoved"
+            ],
+            "description": "Copies an object to the given parent. Note that if a Work Unit is copied, the operation cannot be undone and the project will be saved.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to be copied."
+                    },
+                    "parent": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object's new parent."
+                    },
+                    "onNameConflict": {
+                        "type": "string",
+                        "description": "The action to take if \"parent\" already has a child with the same name. Default value is \"fail\".",
+                        "enum": [
+                            "rename",
+                            "replace",
+                            "fail"
+                        ]
+                    },
+                    "autoCheckOutToSourceControl": {
+                        "type": "boolean",
+                        "description": "Determines if Wwise automatically performs a Checkout source control operation for affected work units and for the project. Defaults to true."
+                    },
+                    "autoAddToSourceControl": {
+                        "type": "boolean",
+                        "description": "Determines if Wwise automatically performs an Add source control operation for affected work units. Defaults to true."
+                    }
+                },
+                "required": [
+                    "object",
+                    "parent"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "description": "The copied object.",
+                "$ref": "waapi_definitions.json#/definitions/objectReturn"
+            },
+            "optionsSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturnOptions",
+                "description": "Specifies the return options for every object created."
+            },
+            "examples": [
+                {
+                    "title": "Copying an object to the given parent",
+                    "description": "Copies the object specified by the \"object\" ID and makes that copy a child of \"parent\". The object is renamed if \"parent\" already contains a child with the same name.",
+                    "args": {
+                        "object": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "parent": "{66666666-7777-8888-9999-AAAAAAAAAAAA}",
+                        "onNameConflict": "rename"
+                    },
+                    "result": {
+                        "id": "{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}",
+                        "name": "new_object_name",
+                        "type": "Sound",
+                        "path": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Sound1",
+                        "shortId": 1234
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

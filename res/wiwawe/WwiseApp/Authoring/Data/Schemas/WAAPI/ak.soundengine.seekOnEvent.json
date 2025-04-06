@@ -1,0 +1,105 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.seekOnEvent",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.postEvent",
+                "ak.soundengine.registerGameObj"
+            ],
+            "description": "Seeks inside all playing objects that are referenced in Play Actions of the specified Event. See <tt>AK::SoundEngine::SeekOnEvent</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "event": {
+                        "$ref": "waapi_definitions.json#/definitions/soundEngineObjectArg",
+                        "description": "Either the ID (GUID), name, or Short ID of the Event."
+                    },
+                    "gameObject": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Associated game object ID; use <tt>AK_INVALID_GAME_OBJECT</tt> to affect all game objects."
+                    },
+                    "position": {
+                        "$ref": "common_definitions.json#/definitions/int32",
+                        "description": "Desired position where playback should restart, in milliseconds."
+                    },
+                    "percent": {
+                        "type": "number",
+                        "description": "Desired position where playback should restart, expressed in a percentage of the file's total duration, between 0 and 1.f. See note above about infinite looping sounds."
+                    },
+                    "seekToNearestMarker": {
+                        "type": "boolean",
+                        "description": "If true, the final seeking position is made equal to the nearest marker."
+                    },
+                    "playingId": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "Specifies the playing ID for which the seek is to be applied. This results in the seek being applied only to active actions of the playing ID. Use \\c AK_INVALID_PLAYING_ID or nothing, to seek on all active Actions of this Event ID."
+                    }
+                },
+                "oneOf": [
+                    {
+                        "required": [
+                            "event",
+                            "gameObject",
+                            "position",
+                            "seekToNearestMarker",
+                            "playingId"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "event",
+                            "gameObject",
+                            "percent",
+                            "seekToNearestMarker",
+                            "playingId"
+                        ]
+                    }
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Seeking to position 1 s",
+                    "description": "Seeks on \"gameObject\" referenced in the Play Action of \"event\" at 1 second.",
+                    "args": {
+                        "event": "MyEventName",
+                        "gameObject": 1122334,
+                        "position": 1000,
+                        "seekToNearestMarker": false,
+                        "playingId": 0
+                    },
+                    "return": {}
+                },
+                {
+                    "title": "Seeking to 35% of duration",
+                    "description": "Seeks on \"gameObject\" referenced in the Play Action of \"event\" at 35% of the duration.",
+                    "args": {
+                        "event": 5566123,
+                        "gameObject": 1122334,
+                        "percent": 0.35,
+                        "seekToNearestMarker": false,
+                        "playingId": 321654
+                    },
+                    "return": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

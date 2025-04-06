@@ -1,0 +1,49 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.layout.switchLayout",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.layout.getCurrentLayoutName"
+            ],
+            "description": "Switches the current layout.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the layout to load."
+                    }
+                },
+                "required": ["name"],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Switching the current layout",
+                    "description": "Activates a new layout, identified by its name.",
+                    "args": {
+                        "name": "Profiler"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

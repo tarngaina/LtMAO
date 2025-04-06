@@ -1,0 +1,72 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.setSwitch",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.setState"
+            ],
+            "description": "Sets the State of a Switch Group. See <tt>AK::SoundEngine::SetSwitch</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "switchGroup": {
+                        "$ref": "waapi_definitions.json#/definitions/soundEngineObjectArg",
+                        "description": "Either the ID (GUID), name, or short ID of the Switch Group."
+                    },
+                    "switchState": {
+                        "$ref": "waapi_definitions.json#/definitions/soundEngineObjectArg",
+                        "description": "Either the ID (GUID), name, or Short ID of the Switch State."
+                    },
+                    "gameObject": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Associated game object ID. Its default value is the transport game object."
+                    }
+                },
+                "required": [
+                    "switchGroup",
+                    "switchState"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting the Switch Group to another State using names",
+                    "description": "Sets \"switchGroup\" to the \"switchState\" for \"gameObject\".",
+                    "args": {
+                        "switchGroup": "Ground",
+                        "switchState": "Gravel",
+                        "gameObject": 1122334
+                    },
+                    "return": {}
+                },
+                {
+                    "title": "Setting the Switch Group to another State using Short IDs",
+                    "description": "Sets \"switchGroup\" to the \"switchState\" for \"gameObject\".",
+                    "args": {
+                        "switchGroup": 1270826848,
+                        "switchState": 1208172755,
+                        "gameObject": 1122334
+                    },
+                    "return": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

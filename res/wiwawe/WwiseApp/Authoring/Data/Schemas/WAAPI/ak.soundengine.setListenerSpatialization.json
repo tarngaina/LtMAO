@@ -1,0 +1,77 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.setListenerSpatialization",
+            "seeAlso": [
+                "ak.soundengine.setListeners"
+            ],
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Sets a listener's spatialization parameters. This lets you define listener-specific volume offsets for each audio channel. See <tt>AK::SoundEngine::SetListenerSpatialization</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "listener": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Listener game object ID."
+                    },
+                    "spatialized": {
+                        "type": "boolean",
+                        "description": "Spatialization toggle (true: enable spatialization, false: disable spatialization)."
+                    },
+                    "channelConfig": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "Channel configuration associated with volumeOffsets. Use <tt>AK::AkChannelConfig::Serialize</tt> to serialize the value."
+                    },
+                    "volumeOffsets": {
+                        "type": "array",
+                        "maxItems": 4294967295,
+                        "items": {
+                            "type": "number",
+                            "description": "Per-speaker volume offset."
+                        },
+                        "description": "Array of per-speaker volume offsets, in dB. See AkSpeakerVolumes.h for how to manipulate this array."
+                    }
+                },
+                "required": [
+                    "listener",
+                    "spatialized",
+                    "channelConfig",
+                    "volumeOffsets"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting the listener spatialization",
+                    "description": "Sets the spatialization for \"listener\" using \"volumeOffsets\" to pan to the left.",
+                    "args": {
+                        "listener": 555,
+                        "spatialized": false,
+                        "channelConfig": 12546,
+                        "volumeOffsets": [
+                            0,
+                            -96.3
+                        ]
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

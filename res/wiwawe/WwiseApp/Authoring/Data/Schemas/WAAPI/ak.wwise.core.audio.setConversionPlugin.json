@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.audio.setConversionPlugin",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.audio.convert"
+            ],
+            "description": "Changes the plug-in to use for audio file conversion.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "conversion": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The object used for conversion. An object is an ID (GUID)."
+                    },
+                    "platform": {
+                        "$ref": "waapi_definitions.json#/definitions/platformArg",
+                        "description": "The platform to which the settings apply. A platform is an ID (GUID) or a unique name."
+                    },
+                    "plugin": {
+                        "type": "string",
+                        "description": "Name of the plug-in to use for future conversions"
+                    }
+                },
+                "required": [
+                    "conversion",
+                    "platform",
+                    "plugin"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Set conversion plugin.",
+                    "description": "Changes an object's or project's conversion plug-in to the one specified (Vorbis).",
+                    "args": {
+                        "conversion": "{6D1B890C-9826-4384-BF07-C15223E9FB56}",
+                        "platform": "Windows",
+                        "plugin": "Vorbis"
+                    },
+                    "result": {
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

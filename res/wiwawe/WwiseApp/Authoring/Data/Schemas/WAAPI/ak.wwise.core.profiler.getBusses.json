@@ -1,0 +1,88 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.getBusses",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.getVoices",
+                "ak.wwise.core.profiler.getCursorTime",
+                "ak.wwise.core.profiler.getVoiceContributions"
+            ],
+            "description": "Retrieves the busses at a specific profiler capture time.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "time": {
+                        "$ref": "waapi_definitions.json#/definitions/cursorTime",
+                        "description": "Time in milliseconds to query for busses, or a Time Cursor from which to acquire the time. The User Time Cursor is the one that can be manipulated by the user, while the Capture Time Cursor represents the latest time of the current capture."
+                    },
+                    "busPipelineID": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "The pipeline ID of a single bus instance to get."
+                    }
+                },
+                "required": [
+                    "time"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "type": "array",
+                        "description": "Array of busses.",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/busReturn",
+                            "description": "Bus item."
+                        }
+                    }
+                },
+                "required": [
+                    "return"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "$ref": "waapi_definitions.json#/definitions/busReturnOptions",
+                        "description": "Members to return for each bus. Defaults to Pipeline ID, Game Object ID, and Object GUID."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Querying the bus names at a point in time",
+                    "description": "Queries the bus in the current capture session at 30 secs (30,000 milliseconds).",
+                    "args": {
+                        "time": 30000
+                    },
+                    "options": {
+                        "return": [
+                            "objectName"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "objectName": "Master Audio Bus"
+                            },
+                            {
+                                "objectName": "My Aux Bus"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

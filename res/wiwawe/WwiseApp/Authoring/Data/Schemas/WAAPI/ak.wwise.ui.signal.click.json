@@ -1,0 +1,48 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.ui.signal.click",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.signal.emit"
+            ],
+            "description": "Emitted when a push button or a radio button gets clicked.",
+            "visibility": "private",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "handleID": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID of the handle."
+                    },
+                    "widgetID": {
+                        "type": "string",
+                        "description": "The ID of the widget."
+                    }
+                },
+                "required": [ "handleID", "widgetID" ],
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "handleID": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID of the handle."
+                    },
+                    "widgetID": {
+                        "type": "string",
+                        "description": "The ID of the widget."
+                    }
+                },
+                "required": [ "handleID", "widgetID" ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

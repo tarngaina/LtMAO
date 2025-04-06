@@ -1,0 +1,85 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.diff",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.pasteProperties"
+            ],
+            "description": "Compares properties and lists of the source object with those in the target object.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "source": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the source object."
+                    },
+                    "target": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the target object."
+                    }
+                },
+                "required": [
+                    "source",
+                    "target"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "properties": {
+                        "type": "array",
+                        "description": "Array of names of properties and references that differ.",
+                        "items": {
+                            "type": "string",
+                            "description": "Property or Reference name. Refer to \\ref wobjects_index for more information on the properties and references for all types available."
+                        }
+                    },
+                    "lists": {
+                        "type": "array",
+                        "description": "Array of names of lists that differ.",
+                        "items": {
+                            "type": "string",
+                            "description": "List name."
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Returning the property and list differences",
+                    "description": "Returns the property and list differences between 2 objects.",
+                    "args": {
+                        "source": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Source Sound",
+                        "target": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Target Sound"
+                    },
+                    "result": {
+                        "lists": [
+                            "Metadata",
+                            "RTPC"
+                        ],
+                        "properties": [
+                            "OverridePositioning",
+                            "OutputBus",
+                            "Volume",
+                            "OverrideOutput"
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

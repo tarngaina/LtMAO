@@ -1,0 +1,668 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2006 Audiokinetic Inc. -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	
+	<!--								-->
+	<!-- Properties						-->
+	<xs:complexType name="PropertiesType">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="Property">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="PropertyType" />
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Reference">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="ReferenceType" />
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="PropertyType">
+		<xs:all>
+			<xs:element name="Dependencies" type="DependenciesType" minOccurs="0"/>
+			<xs:element name="Restrictions" type="RestrictionsType" minOccurs="0"/>
+			<xs:element name="DefaultValue" type="xs:string" />
+			<xs:element name="AudioEnginePropertyID" type="xs:integer" minOccurs="0"/>
+			<xs:element name="UserInterface" minOccurs="0">
+				<xs:complexType>
+					<xs:attribute name="DisplayName" type="xs:string"/> <!--Deprecated-->
+					<xs:attribute name="ControlClass" type="xs:string"/>
+					<xs:attribute name="DropDown" type="DropDownType" />
+					<xs:attribute name="Decimals" type="xs:integer" />
+					<xs:attribute name="Step" type="xs:float" />
+					<xs:attribute name="Fine" type="xs:float" />
+					<xs:attribute name="SliderType" type="xs:integer" />
+					<xs:attribute name="Mid" type="xs:float" />
+					<xs:attribute name="UIMin" type="xs:float" />
+					<xs:attribute name="UIMax" type="xs:float" />
+					<xs:attribute name="InfiniteValue" type="xs:float" />
+					<xs:attribute name="AutoUpdate" type="xs:boolean" />
+					<xs:attribute name="LRMixDisplay" type="xs:boolean" />
+					<xs:attribute name="MusicNoteDisplay" type="xs:boolean" />
+					<xs:attribute name="BitfieldDisplay" type="xs:boolean" />
+					<xs:attribute name="PercentageDisplay" type="xs:boolean" />
+					<xs:attribute name="ShowFeedback" type="xs:boolean" />
+					<xs:attribute name="ShowDefaultWhenDefault" type="xs:boolean" />
+				</xs:complexType>
+			</xs:element>
+		</xs:all>
+		<xs:attribute name="Name" type="xs:string" use="required"/>
+		<xs:attribute name="Type" type="TypeType" use="required"/>
+		<xs:attribute name="DisplayName" type="xs:string"/>
+		<xs:attribute name="ShortDisplayName" type="xs:string"/>
+		<xs:attribute name="DisplayGroup" type="xs:string"/>
+		<xs:attribute name="DisplayCategory" type="xs:string"/>
+		<xs:attribute name="SettingsGroup" type="xs:string"/>
+		<xs:attribute name="DocId" type="xs:string"/>
+		<xs:attribute name="IsVisible" type="xs:boolean" default="true" />
+		<xs:attribute name="SupportLink" type="xs:boolean" default="false"/>
+		<xs:attribute name="SupportModifier" type="xs:boolean" default="false"/>
+		<xs:attribute name="SupportRTPCType" type="RTPCTypeType" />
+		<xs:attribute name="SupportStates" type="xs:boolean" />
+		<xs:attribute name="ForceRTPCCurveSegmentShape" type="ForceRTPCCurveSegmentShapeType" />
+		<xs:attribute name="DataMeaning" type="DataMeaningType" />
+		<xs:attribute name="Advanced" type="xs:boolean" default="false" />
+	</xs:complexType>
+
+	<!--								-->
+	<!-- ObjectLists					-->
+	<xs:complexType name="ObjectListsType">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="ObjectList">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="Restrictions">
+							<xs:complexType>
+								<xs:all>
+									<xs:element name="TypeEnumerationRestriction" minOccurs="0">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="Type" maxOccurs="unbounded">
+													<xs:complexType>
+														<xs:simpleContent>
+															<xs:extension base="xs:string">
+																<xs:attribute name="Name" type="xs:string" />
+															</xs:extension>
+														</xs:simpleContent>
+													</xs:complexType>
+												</xs:element>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="ObjectMustChildOf" minOccurs="0">
+									</xs:element>
+								</xs:all>
+							</xs:complexType>
+						</xs:element>
+					</xs:all>
+					<xs:attribute name="Name" type="xs:string" use="required"/>
+					<xs:attribute name="DisplayName" type="xs:string"/>
+					<xs:attribute name="DisplayGroup" type="xs:string"/>
+					<xs:attribute name="DisplayCategory" type="xs:string"/>
+					<xs:attribute name="SettingsGroup" type="xs:string"/>
+					<xs:attribute name="SupportListOperations" type="xs:boolean"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!--								-->
+	<!-- Restrictions					-->
+	<xs:complexType name="RestrictionsType">
+		<xs:all>
+			<xs:element name="ValueRestriction" type="RestrictionType" />
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="RestrictionType">
+		<xs:choice>
+			<xs:element name="Enumeration" type="EnumerationType" />
+			<xs:element name="Range" type="RangeType" />
+		</xs:choice>
+	</xs:complexType>
+
+	<xs:complexType name="EnumerationType">
+		<xs:sequence>
+			<xs:element name="Value" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="DisplayName" type="xs:string" />
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="Type" type="TypeType" use="required" />
+	</xs:complexType>
+	<xs:complexType name="RangeType">
+		<xs:sequence>
+			<xs:element name="Min" type="xs:string" />
+			<xs:element name="Max" type="xs:string" />
+		</xs:sequence>
+		<xs:attribute name="Type" type="TypeType" use="required" />
+	</xs:complexType>
+
+	<xs:simpleType name="TypeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="bool" />
+			<xs:enumeration value="int16" />
+			<xs:enumeration value="int32" />
+			<xs:enumeration value="int64" />
+			<xs:enumeration value="Uint16" />
+			<xs:enumeration value="Uint32" />
+			<xs:enumeration value="Uint64" />
+			<xs:enumeration value="Real32" />
+			<xs:enumeration value="Real64" />
+			<xs:enumeration value="string" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PlatformType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Any"/>
+			<xs:enumeration value="Windows" />
+			<xs:enumeration value="PS3" />
+			<xs:enumeration value="Xbox360" />
+			<xs:enumeration value="Wii" />
+			<xs:enumeration value="Mac" />
+			<xs:enumeration value="VitaSW" />
+			<xs:enumeration value="VitaHW" />
+			<xs:enumeration value="PS4" />
+			<xs:enumeration value="iOS" />
+			<xs:enumeration value="3DS" />
+      		<xs:enumeration value="WiiUHW" />
+			<xs:enumeration value="WiiUSW" />
+			<xs:enumeration value="Android" />
+			<xs:enumeration value="XboxOne"/>
+			<xs:enumeration value="Linux"/>
+			<xs:enumeration value="WindowsPhone"/>
+			<xs:enumeration value="Switch"/>
+			<xs:enumeration value="Lumin"/>
+			<xs:enumeration value="Emscripten"/>
+			<xs:enumeration value="PS5"/>
+			<xs:enumeration value="XboxSeriesX"/>
+			<xs:enumeration value="Web"/>
+			<xs:enumeration value="OpenHarmony"/>
+			<xs:enumeration value="Orca"/>
+    </xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="RTPCTypeType">
+		<xs:restriction base="xs:string">
+      		<xs:enumeration value="Additive" />
+      		<xs:enumeration value="Multiplicative" />
+	  		<xs:enumeration value="Boolean" />
+	  		<xs:enumeration value="Exclusive" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ForceRTPCCurveSegmentShapeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Constant" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="DataMeaningType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Decibels" />
+			<xs:enumeration value="PitchCents" />
+			<xs:enumeration value="Frequency" />
+			<xs:enumeration value="FilePath" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="DropDownType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Normal" />
+			<xs:enumeration value="Menu" />
+			<xs:enumeration value="CurveIn" />
+			<xs:enumeration value="CurveOut" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!--								-->
+	<!-- Reference						-->
+	<xs:complexType name="ReferenceType">
+		<xs:all>
+			<xs:element name="Dependencies" type="DependenciesType" minOccurs="0"/>
+			<xs:element name="Restrictions" minOccurs="0">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="TypeEnumerationRestriction" minOccurs="0">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Type" maxOccurs="unbounded">
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attribute name="Name" type="xs:string" />
+													<xs:attribute name="SupportCustom" type="xs:boolean" default="false" />
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="CategoryEnumerationRestriction" minOccurs="0">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Category" maxOccurs="unbounded">
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attribute name="Name" type="xs:string" />
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="PlayableRestriction" minOccurs="0"/>
+						<xs:element name="NotNullRestriction" minOccurs="0"/>
+						<xs:element name="IsChildOfReferenceRestriction" minOccurs="0">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Reference" maxOccurs="1">
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attribute name="Name" type="xs:string" />
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+                    </xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="AudioEnginePropertyID" type="xs:integer" minOccurs="0"/>
+		</xs:all>
+		<xs:attribute name="Name" type="xs:string" />
+		<xs:attribute name="DisplayName" type="xs:string" />
+		<xs:attribute name="ShortDisplayName" type="xs:string" />		
+		<xs:attribute name="DisplayGroup" type="xs:string"/>
+		<xs:attribute name="DisplayCategory" type="xs:string"/>
+		<xs:attribute name="SettingsGroup" type="xs:string"/>
+		<xs:attribute name="DocId" type="xs:string"/>
+		<xs:attribute name="IsVisible" type="xs:boolean" default="true" />		
+		<xs:attribute name="SupportLink" type="xs:boolean" default="false"/>
+		<xs:attribute name="SupportCustom" type="xs:boolean" default="false"/>
+		<xs:attribute name="PersistWhenDefault" type="xs:boolean" default="true"/>
+	</xs:complexType>
+
+	<!--								-->
+	<!-- AttachablesType				-->
+	<xs:complexType name="AttachablesType">
+		<xs:sequence maxOccurs="unbounded">
+			<xs:element name="Attachable">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element minOccurs="0" name="Properties" type="PropertiesType" />
+					</xs:sequence>
+					<xs:attribute name="Name" type="xs:string" use="required" />
+					<xs:attribute name="CompanyID" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:unsignedInt">
+								<xs:minInclusive value="0" />
+								<xs:maxInclusive value="4095" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+					<xs:attribute name="PluginID" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:unsignedInt">
+								<xs:minInclusive value="0" />
+								<xs:maxInclusive value="65535" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!--								-->
+	<!-- InnerTypesType					-->
+	<xs:complexType name="InnerTypesType">
+		<xs:sequence maxOccurs="unbounded">
+			<xs:element name="InnerType">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element minOccurs="0" name="Properties" type="PropertiesType" />
+					</xs:sequence>
+					<xs:attribute name="Name" type="xs:string" use="required" />
+					<xs:attribute name="CompanyID" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:unsignedInt">
+								<xs:minInclusive value="0" />
+								<xs:maxInclusive value="4095" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+					<xs:attribute name="PluginID" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:unsignedInt">
+								<xs:minInclusive value="0" />
+								<xs:maxInclusive value="65535" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+					<xs:attribute name="DisplayCategory" use="optional" type="xs:string"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!--								-->
+	<!-- ObjectBase						-->
+	<xs:complexType name="ObjectBaseType">
+		<xs:sequence maxOccurs="unbounded">
+			<xs:element minOccurs="0" name="ObjectBaseRef" type="ObjectBaseRefType" />
+			<xs:element minOccurs="0" name="Dependencies" type="DependenciesType" />
+			<xs:element minOccurs="0" name="Properties" type="PropertiesType" />
+			<xs:element minOccurs="0" name="ObjectLists" type="ObjectListsType" />
+		</xs:sequence>
+		<xs:attribute name="Name" use="required" type="xs:string"/>
+		<xs:attribute name="DisplayGroup" use="optional" type="xs:string"/>
+		<xs:attribute name="DisplayCategory" use="optional" type="xs:string"/>
+		<xs:attribute name="SettingsGroup" use="optional" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="ObjectBaseRefType">
+		<xs:attribute name="Name" type="xs:string"/>
+	</xs:complexType>
+	<xs:element name="ObjectBase" type="ObjectBaseType">
+	</xs:element>
+
+	<!--								-->
+	<!-- Dependencies					-->
+	<xs:complexType name="DependenciesType">
+		<xs:choice minOccurs="1" maxOccurs="unbounded">
+			<xs:element name="PropertyDependency" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Condition" minOccurs="1" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:choice minOccurs="1" maxOccurs="1">
+									<xs:element name="Enumeration" type="EnumerationType" minOccurs="0" maxOccurs="1" />
+									<xs:element name="Range" type="RangeType" minOccurs="0" maxOccurs="1" />
+								</xs:choice>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="Name" type="xs:string" use="required" />
+					<xs:attribute name="Action" type="xs:string" use="required" />
+					<xs:attribute name="Context" type="xs:string" use="optional" />
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ReferenceDependency" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Condition" minOccurs="1" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:choice minOccurs="1" maxOccurs="1">
+									<xs:element name="ReferenceIsSet" minOccurs="0" maxOccurs="1">
+										<xs:complexType>
+											<xs:attribute name="Value" type="xs:boolean" use="optional" default="true" />
+										</xs:complexType>
+									</xs:element>
+								</xs:choice>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="Name" type="xs:string" use="required" />
+					<xs:attribute name="Action" type="xs:string" use="required" />
+					<xs:attribute name="Context" type="xs:string" use="optional" />
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="OverrideDependency" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="Name" type="xs:string" use="required" />
+					<xs:attribute name="Context" type="xs:string" use="optional" />
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="IsMasterBusDependency" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="Value" type="xs:string" use="optional" />
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ObjectTypeDependency" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Condition" minOccurs="1" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:choice minOccurs="1" maxOccurs="1">
+									<xs:element name="Enumeration" type="EnumerationType" minOccurs="0" maxOccurs="1" />
+									<xs:element name="Range" type="RangeType" minOccurs="0" maxOccurs="1" />
+								</xs:choice>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="Action" type="xs:string" use="required" />
+					<xs:attribute name="Context" type="xs:string" use="optional" />
+				</xs:complexType>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+
+	<!--								-->
+	<!-- PluginModule					-->
+	<xs:element name="PluginModule">		
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element ref="ObjectBase" />
+					<xs:element ref="Plugin" />
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Plugin" type="PluginType" abstract="true"/>
+	<xs:complexType name="PluginType">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="ObjectBaseRef" type="ObjectBaseRefType" />
+			<xs:element minOccurs="0" name="PluginInfo" type="PluginInfoType" />
+			<xs:element minOccurs="0" name="Properties" type="PropertiesType" />
+			<xs:element minOccurs="0" name="ObjectLists" type="ObjectListsType" />
+			<xs:element minOccurs="0" name="Attachables" type="AttachablesType" />
+			<xs:element minOccurs="0" name="InnerTypes" type="InnerTypesType" />
+		</xs:sequence>
+		<xs:attribute name="Name" type="xs:string" use="required" />
+		<xs:attribute name="DisplayName" type="xs:string" use="optional"/>
+		<xs:attribute name="EngineDllName" type="xs:string" use="optional"/>
+		<xs:attribute name="EngineStaticLibName" type="xs:string" use="optional"/>
+		<xs:attribute name="DisplayGroup" use="optional" type="xs:string"/>
+		<xs:attribute name="DisplayCategory" use="optional" type="xs:string"/>
+		<xs:attribute name="SettingsGroup" use="optional" type="xs:string"/>
+		<xs:attribute name="CompanyID" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:unsignedInt">
+					<xs:minInclusive value="0" />
+					<xs:maxInclusive value="4095" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="PluginID" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:unsignedInt">
+					<xs:minInclusive value="0" />
+					<xs:maxInclusive value="65535" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="PluginInfoType">
+		<xs:sequence>
+			<xs:element name="PlatformSupport" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Platform" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="CanBeInsertOnAudioDevices" type="xs:boolean" default="false" minOccurs="0"/>
+									<xs:element name="CanBeInsertOnBusses" type="xs:boolean" default="false" minOccurs="0"/>
+									<xs:element name="CanBeInsertOnAuxBusses" type="xs:boolean" default="false" minOccurs="0"/>
+									<xs:element name="CanBeInsertOnAudioObjects" type="xs:boolean" default="false" minOccurs="0"/>
+									<xs:element name="CanBeRendered" type="xs:boolean" default="false" minOccurs="0"/>
+									<xs:element name="CanBeEnvironmental" type="xs:boolean" default="false" minOccurs="0"/><!-- Deprecated. This value is ignored. -->
+									<xs:element name="CanBeInsertForFeedback" type="xs:boolean" default="false" minOccurs="0"/><!-- Deprecated. This value is ignored. -->
+									<xs:element name="CanReferenceDataFile" type="xs:boolean" default="false" minOccurs="0"/>
+									<xs:element name="CanReferenceSourceFile" type="xs:boolean" default="false" minOccurs="0"/>
+									<xs:element name="CanSendMonitorData" type="xs:boolean" default="false" minOccurs="0"/>
+									<xs:element name="RequiresDeviceMem" type="xs:boolean" default="false" minOccurs="0"/>
+									<xs:element name="AlignmentRequirement" type="xs:integer" default="16" minOccurs="0"/>
+									<xs:element name="CanBeSourceOnSound" type="xs:boolean" default="true" minOccurs="0"/>
+									<xs:element name="ExecuteOnSystem" type="xs:boolean" default="true" minOccurs="0"/>
+								</xs:sequence>
+								<xs:attribute name="Name" type="PlatformType" use="required" />
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="CanUnlink" type="xs:boolean" /> <!-- Deprecated. This value is ignored. -->
+		<xs:attribute name="CanBeMasterSink" type="xs:boolean" />
+		<xs:attribute name="PreviewMode" type="xs:boolean" />
+		<xs:attribute name="EnableAnalytics" type="xs:boolean" />
+		<xs:attribute name="MenuPath" type="xs:string"/>
+	</xs:complexType>
+	<xs:simpleType name="RequirementTypeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ChannelConfig" />
+			<xs:enumeration value="SampleRate" />
+			<xs:enumeration value="BitDepth" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="PreConversionRequirementsType">
+		<xs:sequence minOccurs="0" maxOccurs="4">
+			<xs:element name="Requirement">
+				<xs:complexType>
+					<xs:sequence minOccurs="0">
+						<xs:element name="Restriction" type="RestrictionType" />
+						<xs:element name="DefaultValue" minOccurs="0">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="Type" type="TypeType" use="required" />
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="Type" type="RequirementTypeType" />
+					<xs:attribute name="Platform" type="PlatformType" use="optional" />
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!--								-->
+	<!-- Wwise objects					-->
+	<xs:element name="WwiseObject" substitutionGroup="Plugin">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="PluginType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<!--								-->
+	<!-- Conversion plugin 				-->
+	<xs:element name="ConversionPlugin" substitutionGroup="Plugin">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="PluginType">
+					<xs:sequence>
+						<xs:element name="PreConversionRequirements" type="PreConversionRequirementsType" />
+						<xs:element name="UIRestrictions" type="PreConversionRequirementsType" minOccurs="0"/>
+						<xs:element name="ConversionInfo" type="ConversionInfoType" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="ConversionInfoType">
+		<xs:sequence>
+			<xs:element name="CanShowUI" type="xs:boolean" />
+			<xs:element name="NeedFixLoopPoints" type="xs:boolean" />
+			<xs:element name="GeneratesDecodedFile" type="xs:boolean" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!--								-->
+	<!-- Source plug-in					-->
+	<xs:element name="SourcePlugin" substitutionGroup="Plugin">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="PluginType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- Mixer plug-in					-->
+	<xs:element name="MixerPlugin" substitutionGroup="Plugin">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="PluginType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>	
+
+	<!-- Sink plug-in					-->
+	<xs:element name="SinkPlugin" substitutionGroup="Plugin">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="PluginType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>	
+
+	<!--								-->
+	<!-- Effect plug-in					-->
+	<xs:element name="EffectPlugin" substitutionGroup="Plugin">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="PluginType">
+					<xs:attribute name="SupportsIsSendModeEffect" type="xs:boolean" use="optional" />
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="FeedbackBusPlugin" substitutionGroup="Plugin">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="PluginType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="FeedbackSourcePlugin" substitutionGroup="Plugin">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="PluginType">
+					<xs:sequence minOccurs="0">
+						<xs:element name="File">
+							<xs:complexType>
+								<xs:attribute name="Extension" type="xs:string" use="required" />
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="DataType" type="xs:string" use="required" />
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<!--								-->
+	<!-- Metadata plug-in					-->
+	<xs:element name="MetadataPlugin" substitutionGroup="Plugin">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="PluginType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

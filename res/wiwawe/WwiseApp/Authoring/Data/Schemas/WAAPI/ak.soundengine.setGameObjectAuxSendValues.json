@@ -1,0 +1,94 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.setGameObjectAuxSendValues",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.setListeners",
+                "ak.soundengine.registerGameObj"
+            ],
+            "description": "Sets the Auxiliary Busses to route the specified game object. See <tt>AK::SoundEngine::SetGameObjectAuxSendValues</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "gameObject": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Associated game object ID."
+                    },
+                    "auxSendValues": {
+                        "type": "array",
+                        "maxItems": 4,
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "listener": {
+                                    "$ref": "waapi_definitions.json#/definitions/gameObject",
+                                    "description": "Game object ID of the listener associated with this send."
+                                },
+                                "auxBus": {
+                                    "$ref": "waapi_definitions.json#/definitions/soundEngineObjectArg",
+                                    "description": "Either the ID (GUID), name or Short ID of the auxiliary bus."
+                                },
+                                "controlValue": {
+                                    "type": "number",
+                                    "description": "Value in the range [0.0f:1.0f], send level to auxiliary bus."
+                                }
+                            },
+                            "description": "AkAuxSendValue structure.",
+                            "required": [
+                                "listener",
+                                "auxBus",
+                                "controlValue"
+                            ],
+                            "additionalProperties": false
+                        },
+                        "description": "Array of AkAuxSendValue structures."
+                    }
+                },
+                "required": [
+                    "gameObject",
+                    "auxSendValues"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting the Auxiliary Busses for a game object",
+                    "description": "Sets the Auxiliary Busses of \"emitter\" for \"listener\"s specifying the bus name and value for each.",
+                    "args": {
+                        "gameObject": 1122334,
+                        "auxSendValues": [
+                            {
+                                "listener": 5566123,
+                                "auxBus": "AuxBus1",
+                                "controlValue": 0.6
+                            },
+                            {
+                                "listener": 226486,
+                                "auxBus": "AuxBus2",
+                                "controlValue": 0.4
+                            }
+                        ]
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

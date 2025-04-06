@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="SoundBanksInfo">
+		<xs:annotation>
+			<xs:documentation>Copyright (C) Audiokinetic Inc.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="RootPaths" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="ProjectRoot" type="xs:string"/>
+							<xs:element name="SourceFilesRoot" type="xs:string"/>
+							<xs:element name="SoundBanksRoot" type="xs:string"/>
+							<xs:element name="ExternalSourcesInputFile" type="xs:string"/>
+							<xs:element name="ExternalSourcesOutputRoot" type="xs:string"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="DialogueEvents" minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+							<xs:element name="DialogueEvent" type="DialogueEventType"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="SoundBanks">
+					<xs:complexType>
+						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+							<xs:element name="SoundBank">
+								<xs:complexType>
+									<xs:complexContent mixed="false">
+										<xs:extension base="BankDescriptorType">
+											<xs:sequence>
+												<xs:element name="Media" minOccurs="0">
+													<xs:complexType>
+														<xs:complexContent mixed="false">
+															<xs:extension base="MediaDescriptorList" />
+														</xs:complexContent>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="ExternalSources" minOccurs="0">
+													<xs:complexType>
+														<xs:sequence minOccurs="0" maxOccurs="unbounded">
+															<xs:element name="Source">
+																<xs:complexType>
+																	<xs:complexContent mixed="false">
+																		<xs:extension base="NameCookie" />
+																	</xs:complexContent>
+																</xs:complexType>
+															</xs:element>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="Plugins" type="PluginGroup" minOccurs="0" maxOccurs="1" />
+												<xs:element name="Events" minOccurs="0">
+													<xs:complexType>
+														<xs:sequence minOccurs="0" maxOccurs="unbounded">
+															<xs:element name="Event">
+																<xs:complexType>
+																	<xs:complexContent mixed="false">
+																		<xs:extension base="NameID" >
+																			<xs:sequence>
+																				<xs:element name="MediaRefs" type="MediaReferenceList" minOccurs="0" />
+																				<xs:element name="ExternalSourceRefs" type="ExternalSourceReferenceList" minOccurs="0" />
+																				<xs:element name="PluginRefs" type="PluginReferenceGroup" minOccurs="0" />
+																				<xs:element name="AuxBusRefs" type="AuxBusReferenceList" minOccurs="0" />
+																				<xs:element name="SwitchContainers" minOccurs="0">
+																					<xs:complexType>
+																						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+																							<xs:element name="SwitchContainer">
+																								<xs:complexType>
+																									<xs:complexContent mixed="false">
+																										<xs:extension base="SwitchContainerType" />
+																									</xs:complexContent>
+																								</xs:complexType>
+																							</xs:element>
+																						</xs:sequence>
+																					</xs:complexType>
+																				</xs:element>
+																				<xs:element name="ActionPostEvent" minOccurs="0">
+																					<xs:complexType>
+																						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+																							<xs:element name="ActionPostEventEntry">
+																								<xs:complexType>
+																									<xs:complexContent mixed="false">
+																										<xs:extension base="NameID" />
+																									</xs:complexContent>
+																								</xs:complexType>
+																							</xs:element>
+																						</xs:sequence>
+																					</xs:complexType>
+																				</xs:element>
+																				<xs:element name="ActionSetState" minOccurs="0">
+																					<xs:complexType>
+																						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+																							<xs:element name="ActionSetStateEntry">
+																								<xs:complexType>
+																									<xs:complexContent mixed="false">
+																										<xs:extension base="GroupNameID" />
+																									</xs:complexContent>
+																								</xs:complexType>
+																							</xs:element>
+																						</xs:sequence>
+																					</xs:complexType>
+																				</xs:element>
+																				<xs:element name="ActionSetSwitch" minOccurs="0">
+																					<xs:complexType>
+																						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+																							<xs:element name="ActionSetSwitchEntry">
+																								<xs:complexType>
+																									<xs:complexContent mixed="false">
+																										<xs:extension base="GroupNameID" />
+																									</xs:complexContent>
+																								</xs:complexType>
+																							</xs:element>
+																						</xs:sequence>
+																					</xs:complexType>
+																				</xs:element>
+																				<xs:element name="ActionTrigger" minOccurs="0">
+																					<xs:complexType>
+																						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+																							<xs:element name="ActionTriggerEntry">
+																								<xs:complexType>
+																									<xs:complexContent mixed="false">
+																										<xs:extension base="NameID" />
+																									</xs:complexContent>
+																								</xs:complexType>
+																							</xs:element>
+																						</xs:sequence>
+																					</xs:complexType>
+																				</xs:element>
+																				<xs:element name="ActionSetFX" minOccurs="0">
+																					<xs:complexType>
+																						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+																							<xs:element name="ActionSetFXEntry">
+																								<xs:complexType>
+																									<xs:complexContent mixed="false">
+																										<xs:extension base="NameID" />
+																									</xs:complexContent>
+																								</xs:complexType>
+																							</xs:element>
+																						</xs:sequence>
+																					</xs:complexType>
+																				</xs:element>
+																			</xs:sequence>
+																			<xs:attribute name="MaxAttenuation" type="xs:double" use="optional" />
+																			<xs:attribute name="DurationType" type="xs:string" use="optional" />
+																			<xs:attribute name="DurationMin" type="xs:string" use="optional" />
+																			<xs:attribute name="DurationMax" type="xs:string" use="optional" />
+																		</xs:extension>
+																	</xs:complexContent>
+																</xs:complexType>
+															</xs:element>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="DialogueEvents" minOccurs="0" maxOccurs="1">
+													<xs:complexType>
+														<xs:sequence minOccurs="0" maxOccurs="unbounded">
+															<xs:element name="DialogueEvent" type="DialogueEventType"/>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="Busses" minOccurs="0">
+													<xs:complexType>
+														<xs:sequence minOccurs="0" maxOccurs="unbounded">
+															<xs:element name="Bus">
+																<xs:complexType>
+																	<xs:complexContent mixed="false">
+																		<xs:extension base="BusType" />
+																	</xs:complexContent>
+																</xs:complexType>
+															</xs:element>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="AuxBusses" minOccurs="0">
+													<xs:complexType>
+														<xs:sequence minOccurs="0" maxOccurs="unbounded">
+															<xs:element name="AuxBus">
+																<xs:complexType>
+																	<xs:complexContent mixed="false">
+																		<xs:extension base="BusType" />
+																	</xs:complexContent>
+																</xs:complexType>
+															</xs:element>	
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="GameParameters" minOccurs="0">
+													<xs:complexType>
+														<xs:sequence minOccurs="0" maxOccurs="unbounded">
+															<xs:element name="GameParameter">
+																<xs:complexType>
+																	<xs:complexContent mixed="false">
+																		<xs:extension base="NameID" />
+																	</xs:complexContent>
+																</xs:complexType>
+															</xs:element>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="StateGroups" minOccurs="0">
+													<xs:complexType>
+														<xs:sequence minOccurs="0" maxOccurs="unbounded">
+															<xs:element name="StateGroup">
+																<xs:complexType>
+																	<xs:complexContent mixed="false">
+																		<xs:extension base="NameID">
+																			<xs:sequence minOccurs="0" maxOccurs="unbounded">
+																				<xs:element name="States">
+																					<xs:complexType>
+																						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+																							<xs:element name="State">
+																								<xs:complexType>
+																									<xs:complexContent mixed="false">
+																										<xs:extension base="NameID" />
+																									</xs:complexContent>
+																								</xs:complexType>
+																							</xs:element>
+																						</xs:sequence>
+																					</xs:complexType>
+																				</xs:element>
+																			</xs:sequence>
+																		</xs:extension>
+																	</xs:complexContent>
+																</xs:complexType>
+															</xs:element>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="SwitchGroups" minOccurs="0">
+													<xs:complexType>
+														<xs:sequence minOccurs="0" maxOccurs="unbounded">
+															<xs:element name="SwitchGroup">
+																<xs:complexType>
+																	<xs:complexContent mixed="false">
+																		<xs:extension base="NameID">
+																			<xs:sequence minOccurs="0" maxOccurs="unbounded">
+																				<xs:element name="GameParameterRef" minOccurs="0" maxOccurs="1">
+																					<xs:complexType>
+																						<xs:attribute name="Id" type="xs:unsignedInt" use="required" />
+																					</xs:complexType>
+																				</xs:element>
+																				<xs:element name="Switches">
+																					<xs:complexType>
+																						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+																							<xs:element name="Switch">
+																								<xs:complexType>
+																									<xs:complexContent mixed="false">
+																										<xs:extension base="NameID" />
+																									</xs:complexContent>
+																								</xs:complexType>
+																							</xs:element>
+																						</xs:sequence>
+																					</xs:complexType>
+																				</xs:element>
+																			</xs:sequence>
+																		</xs:extension>
+																	</xs:complexContent>
+																</xs:complexType>
+															</xs:element>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="Triggers" minOccurs="0">
+													<xs:complexType>
+														<xs:sequence minOccurs="0" maxOccurs="unbounded">
+															<xs:element name="Trigger">
+																<xs:complexType>
+																	<xs:complexContent mixed="false">
+																		<xs:extension base="NameID" />
+																	</xs:complexContent>
+																</xs:complexType>
+															</xs:element>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="AcousticTextures" minOccurs="0">
+													<xs:complexType>
+														<xs:sequence minOccurs="0" maxOccurs="unbounded">
+															<xs:element name="AcousticTexture">
+																<xs:complexType>
+																	<xs:complexContent mixed="false">
+																		<xs:extension base="NameID">
+																			<xs:sequence minOccurs="1" maxOccurs="1">
+																				<xs:element name="Properties">
+																					<xs:complexType>
+																						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+																							<xs:element name="Property">
+																								<xs:complexType>
+																									<xs:attribute name="Name" type="xs:string" use="required" />
+																									<xs:attribute name="Type" type="xs:string" use="required" />
+																									<xs:attribute name="Value" type="xs:double" use="required" />
+																								</xs:complexType>
+																							</xs:element>
+																						</xs:sequence>
+																					</xs:complexType>
+																				</xs:element>
+																			</xs:sequence>
+																		</xs:extension>
+																	</xs:complexContent>
+																</xs:complexType>
+															</xs:element>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+											</xs:sequence>
+											<xs:attribute name="Hash" type="xs:string" use="optional" />
+											<xs:attribute name="Type" type="xs:string" use="required" />
+										</xs:extension>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="FileHash" type="xs:string" minOccurs="1"/>
+			</xs:sequence>
+			<xs:attribute name="Platform" type="xs:string" use="required" />
+			<xs:attribute name="BasePlatform" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="Windows" />
+						<xs:enumeration value="Mac" />
+						<xs:enumeration value="PS4" />
+						<xs:enumeration value="iOS" />
+						<xs:enumeration value="Android" />
+						<xs:enumeration value="XboxOne"/>
+						<xs:enumeration value="Linux"/>
+						<xs:enumeration value="Switch"/>
+						<xs:enumeration value="PS5"/>
+						<xs:enumeration value="XboxSeriesX"/>
+						<xs:enumeration value="Web"/>
+						<xs:enumeration value="OpenHarmony"/>
+						<xs:enumeration value="Orca"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="SchemaVersion" type="xs:unsignedInt" use="required" />
+			<xs:attribute name="SoundBankVersion" type="xs:unsignedInt" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="FileDescriptorType">
+		<xs:sequence>
+			<xs:element name="ObjectPath" type="xs:string" minOccurs="0"/>
+			<xs:element name="ShortName" type="xs:string" minOccurs="0"/>
+			<xs:element name="Path" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="Id" type="xs:unsignedInt" use="required" />
+		<xs:attribute name="Language" type="xs:string" use="required" />
+		<xs:attribute name="Align" type="xs:unsignedInt" use="optional" default="0" />
+		<xs:attribute name="DeviceMemory" type="xs:boolean" use="optional" default="false" />
+</xs:complexType>
+	<xs:complexType name="BankDescriptorType">
+		<xs:complexContent mixed="false">
+			<xs:extension base="FileDescriptorType">
+				<xs:attribute name="GUID" type="xs:string" use="optional" />
+				<xs:attribute name="Color" type="xs:unsignedInt" use="optional" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="MediaDescriptorType">
+		<xs:complexContent mixed="false">
+			<xs:extension base="FileDescriptorType">
+				<xs:sequence>
+					<xs:element name="CachePath" type="xs:string" minOccurs="0"/>
+					<xs:element name="PrefetchSize" type="xs:unsignedInt" minOccurs="0"/>
+				</xs:sequence>
+				<xs:attribute name="Streaming" type="xs:boolean" use="optional" default="false" />
+				<xs:attribute name="Location" type="Location" use="optional" default="Loose" />
+				<xs:attribute name="UsingReferenceLanguage" type="xs:boolean" use="optional" default="false" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="MediaDescriptorList">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="File">
+				<xs:complexType>
+					<xs:complexContent mixed="false">
+						<xs:extension base="MediaDescriptorType" />
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MediaReferenceType">
+		<xs:attribute name="Id" type="xs:unsignedInt" use="required" />
+	</xs:complexType>
+	<xs:complexType name="MediaReferenceList">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="MediaRef">
+				<xs:complexType>
+					<xs:complexContent mixed="false">
+						<xs:extension base="MediaReferenceType" />
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ExternalSourceReferenceType">
+		<xs:attribute name="Cookie" type="xs:unsignedInt" use="required" />
+	</xs:complexType>
+	<xs:complexType name="ExternalSourceReferenceList">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="ExternalSourceRef">
+				<xs:complexType>
+					<xs:complexContent mixed="false">
+						<xs:extension base="ExternalSourceReferenceType" />
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PluginType">
+		<xs:complexContent mixed="false">
+			<xs:extension base="NameID" >
+				<xs:sequence>
+					<xs:element name="MediaRefs" type="MediaReferenceList" minOccurs="0" />
+					<xs:element name="PluginRefs" type="PluginReferenceGroup" minOccurs="0" />
+				</xs:sequence>
+				<xs:attribute name="LibName" type="xs:string" use="optional" />
+				<xs:attribute name="LibId" type="xs:unsignedInt" use="required" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="PluginList">
+		<xs:sequence>
+			<xs:element name="Plugin" type="PluginType" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PluginGroup">
+		<xs:sequence>
+			<xs:element name="Custom" type="PluginList" minOccurs="0" maxOccurs="1" />
+			<xs:element name="ShareSets" type="PluginList" minOccurs="0" maxOccurs="1" />
+			<xs:element name="AudioDevices" type="PluginList" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PluginReferenceType">
+		<xs:attribute name="Id" type="xs:unsignedInt" use="required" />
+	</xs:complexType>
+	<xs:complexType name="PluginReferenceList">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="PluginRef" type="PluginReferenceType" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PluginReferenceGroup">
+		<xs:sequence>
+			<xs:element name="Custom" type="PluginReferenceList" minOccurs="0" maxOccurs="1" />
+			<xs:element name="ShareSets" type="PluginReferenceList" minOccurs="0" maxOccurs="1" />
+			<xs:element name="AudioDevices" type="PluginReferenceList" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BusType">
+		<xs:complexContent mixed="false">
+			<xs:extension base="NameID" >
+				<xs:sequence>
+					<xs:element name="PluginRefs" type="PluginReferenceGroup" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="AuxBusRefs" type="AuxBusReferenceList" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+				<xs:attribute name="MaxAttenuation" type="xs:double" use="optional" />	
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AuxBusReferenceType">
+		<xs:complexContent mixed="false">
+			<xs:extension base="NameID" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AuxBusReferenceList">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="AuxBusRef">
+				<xs:complexType>
+					<xs:complexContent mixed="false">
+						<xs:extension base="AuxBusReferenceType" />
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DialogueEventType">
+		<xs:complexContent mixed="false">
+			<xs:extension base="NameID">
+				<xs:sequence minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="Arguments" minOccurs="0" maxOccurs="1">
+						<xs:complexType>
+							<xs:sequence minOccurs="0" maxOccurs="unbounded">
+								<xs:element name="Argument" type="NameID" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="SwitchValueType">
+		<xs:attribute name="GroupType" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="Switch" />
+					<xs:enumeration value="State" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="GroupId" type="xs:unsignedInt" use="required" />
+		<xs:attribute name="Id" type="xs:unsignedInt" use="required" />
+		<xs:attribute name="GUID" type="xs:string" use="optional" />
+		<xs:attribute name="Color" type="xs:unsignedInt" use="optional" />
+		<xs:attribute name="Default" type="xs:boolean" use="optional" default="false" />
+	</xs:complexType>
+	<xs:complexType name="SwitchContainerType">
+		<xs:sequence>
+			<xs:element name="SwitchValue" type="SwitchValueType" minOccurs="1" maxOccurs="1" />
+			<xs:element name="MediaRefs" type="MediaReferenceList" minOccurs="0" />
+			<xs:element name="ExternalSourceRefs" type="ExternalSourceReferenceList" minOccurs="0" />
+			<xs:element name="PluginRefs" type="PluginReferenceGroup" minOccurs="0" />
+			<xs:element name="Children" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence minOccurs="0" maxOccurs="unbounded">
+						<xs:element name="SwitchContainer">
+							<xs:complexType>
+								<xs:complexContent mixed="false">
+									<xs:extension base="SwitchContainerType" />
+								</xs:complexContent>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="NameID">
+		<xs:attribute name="Id" type="xs:unsignedInt" use="required" />
+		<xs:attribute name="Name" type="xs:string" use="required" />
+		<xs:attribute name="ObjectPath" type="xs:string" use="optional" />
+		<xs:attribute name="GUID" type="xs:string" use="optional" />
+		<xs:attribute name="Color" type="xs:unsignedInt" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="GroupNameID">
+		<xs:complexContent mixed="false">
+			<xs:extension base="NameID">
+				<xs:attribute name="GroupId" type="xs:unsignedInt" use="required" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="NameCookie">
+		<xs:attribute name="Cookie" type="xs:unsignedInt" use="required" />
+		<xs:attribute name="Name" type="xs:string" use="required" />
+		<xs:attribute name="ObjectPath" type="xs:string" use="optional" />
+		<xs:attribute name="GUID" type="xs:string" use="optional" />
+		<xs:attribute name="Color" type="xs:unsignedInt" use="optional" />
+	</xs:complexType>
+	<xs:simpleType name="Location" final="restriction" >
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Memory" />
+			<xs:enumeration value="Loose" />
+			<xs:enumeration value="OtherBank" />
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

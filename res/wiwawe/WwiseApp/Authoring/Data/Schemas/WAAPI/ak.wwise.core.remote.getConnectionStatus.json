@@ -1,0 +1,97 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.remote.getConnectionStatus",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.remote.connect",
+                "ak.wwise.core.remote.getAvailableConsoles"
+            ],
+            "description": "Retrieves the connection status.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "isConnected": {
+                        "type": "boolean",
+                        "description": "Indicates if the Wwise Authoring application is connected to a Wwise Sound Engine process."
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "The current connection status in text."
+                    },
+                    "console": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Name of the remote console as returned by the executable."
+                            },
+                            "platform": {
+                                "type": "string",
+                                "description": "Platform of the remote console as returned by the executable."
+                            },
+                            "customPlatform": {
+                                "type": "string",
+                                "description": "Platform, as defined in the project platforms of the remote console, as returned by the executable."
+                            },
+                            "host": {
+                                "type": "string",
+                                "description": "The IPv4 of the connected host. This can also be a file path if Wwise is connected to a local file (profiler session)."
+                            },
+                            "appName": {
+                                "type": "string",
+                                "description": "The name of the connected application as returned by the executable."
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "platform",
+                            "customPlatform",
+                            "host",
+                            "appName"
+                        ],
+                        "description": "Describe the remote process."
+                    }
+                },
+                "required": [
+                    "isConnected",
+                    "status"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Getting the connection status",
+                    "description": "Retrieves the current connection status. In this example, Wwise is connected to the Integration Demo.",
+                    "args": {},
+                    "result": {
+                        "isConnected": true,
+                        "console": {
+                            "name": "PC-USERNAME",
+                            "platform": "Windows",
+                            "host": "127.0.0.1",
+                            "customPlatform": "Windows",
+                            "appName": "Integration Demo"
+                        },
+                        "status": "Connected to PC-USERNAME (Windows - Local host) Integration Demo"
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

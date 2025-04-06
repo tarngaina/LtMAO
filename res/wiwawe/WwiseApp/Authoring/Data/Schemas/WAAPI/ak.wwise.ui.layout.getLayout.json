@@ -1,0 +1,63 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.layout.getLayout",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.layout.getLayoutNames"
+            ],
+            "description": "Serializes a specific layout into a JSON format.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the layout to serialize."
+                    }
+                },
+                "required": ["name"],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "Layout": {
+                        "$ref": "waapi_ui_definitions.json#/definitions/Layout",
+                        "additionalProperties": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Serializing a specific layout",
+                    "description": "Returns a layout serialized in a JSON format.",
+                    "args": {
+                        "name": "Designer"
+                    },
+                    "result": {
+                        "Layout": {
+                            "Name": "SerializedLayout",
+                            "StackPanel": {
+                                "Name": "StackPanel",
+                                "ID": "0000",
+                                "Orientation": "Vertical",
+                                "@Children": []
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

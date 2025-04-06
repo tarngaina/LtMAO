@@ -1,0 +1,71 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.log.addItem",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.log.itemAdded",
+                "ak.wwise.core.log.get",
+                "ak.wwise.core.log.clear"
+            ],
+            "description": "Adds a new item to the logs on the specified channel.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "The text of the message to add."
+                    },
+                    "severity": {
+                        "$ref": "waapi_definitions.json#/definitions/logCentralSeverity",
+                        "description": "The severity of the message to add. Default is 'Message'."
+                    },
+                    "channel": {
+                        "$ref": "waapi_definitions.json#/definitions/logCentralChannel",
+                        "description": "The channel on which to add the message. Default is 'general'."
+                    }
+                },
+                "required": [
+                    "message"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Adding a message to the logs",
+                    "description": "Adds a message to the logs on channel 'general'.",
+                    "args": {
+                        "message": "This is a message."
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Adding a warning to the SoundBank Generation channel",
+                    "description": "Adds a warning to the logs on channel 'soundbankGenerate'.",
+                    "args": {
+                        "message": "This is a warning.",
+                        "severity": "Warning",
+                        "channel": "soundbankGenerate"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,96 @@
+{
+    "version": 1,
+    "definitions": {
+        "int8": {
+            "type": "integer",
+            "description": "Integer 8-bit.",
+            "minimum": -128,
+            "maximum": 127
+        },
+        "uint16": {
+            "type": "integer",
+            "description": "Unsigned Integer 16-bit.",
+            "minimum": 0,
+            "maximum": 65535
+        },
+        "int32": {
+            "type": "integer",
+            "description": "Integer 32-bit.",
+            "minimum": -2147483648,
+            "maximum": 2147483647
+        },
+        "uint32": {
+            "type": "integer",
+            "description": "Unsigned Integer 32-bit.",
+            "minimum": 0,
+            "maximum": 4294967295
+        },
+        "int64": {
+            "type": "integer",
+            "description": "Integer 64-bit.",
+            "minimum": -9223372036854775808,
+            "maximum": 9223372036854775807
+        },
+        "uint64": {
+            "type": "integer",
+            "description": "Unsigned Integer 64-bit.",
+            "minimum": 0,
+            "maximum": 18446744073709551615
+        },
+        "id64bits": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/uint64"
+                },
+                {
+                    "$ref": "#/definitions/int64"
+                }
+            ]
+        },
+        "guid": {
+            "type": "string",
+            "pattern": "^\\{[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\\}$",
+            "description": "An object GUID of the form: {aabbcc00-1122-3344-5566-77889900aabb}."
+        },
+        "arrayOfString": {
+            "type": "array",
+            "description": "Several values provided for the option.",
+            "items": {
+                "type": "string",
+                "description": "A value for the option."
+            }
+        },
+        "stringOrArrayOfString": {
+            "oneOf": [
+                {
+                    "type": "string",
+                    "description": "A single value provided for the option."
+                },
+                {
+                    "$ref": "#/definitions/arrayOfString"
+                }
+            ]
+        },
+        "propertyValue": {
+            "description": "The value of a property.",
+            "anyOf": [
+                {
+                    "type": "null",
+                    "description": "A null value. No reference to an object."
+                },
+                {
+                    "type": "string",
+                    "description": "A string value."
+                },
+                {
+                    "type": "number",
+                    "description": "A numerical value."
+                },
+                {
+                    "type": "boolean",
+                    "description": "A boolean value."
+                }
+            ]
+        }
+    }
+}

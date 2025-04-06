@@ -1,0 +1,46 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.signal.emit",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [],
+            "description": "Emits a signal on a widget.",
+            "visibility": "private",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "handleID": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID of the handle."
+                    },
+                    "widgetID": {
+                        "type": "string",
+                        "description": "The ID of the widget."
+                    },
+                    "signal": {
+                        "type": "string",
+                        "description": "The topic URI of the signal."
+                    }
+                },
+                "required": [ "handleID", "widgetID", "signal" ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": []
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

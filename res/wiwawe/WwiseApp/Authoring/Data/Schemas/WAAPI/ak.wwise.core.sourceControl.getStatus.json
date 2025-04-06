@@ -1,0 +1,71 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.sourceControl.getStatus",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Get the source control status of the specified files.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "files": {
+                        "$ref": "common_definitions.json#/definitions/arrayOfString",
+                        "description": "Array of files for which to retrieve source control status. File paths must be absolute."
+                    }
+                },
+                "required": [
+                    "files"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "$ref": "waapi_definitions.json#/definitions/arrayOfSourceControlStatus",
+                        "description": "Array of source control statuses."
+                    },
+                    "log": {
+                        "$ref": "waapi_definitions.json#/definitions/arrayOfLogCentralItem",
+                        "description": "Array of log entries generated during the request."
+                    }
+                },
+                "required": [
+                    "result",
+                    "log"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Getting the source control status of a file",
+                    "description": "Returns the source control status and owner of the file.",
+                    "args": {
+                        "files": [
+                            "//projet-file//Originals/SFX/existingFile.wav"
+                        ]
+                    },
+                    "result": {
+                        "result": [
+                            {
+                                "owner": "user",
+                                "status": "add"
+                            }
+                        ],
+                        "log": []
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

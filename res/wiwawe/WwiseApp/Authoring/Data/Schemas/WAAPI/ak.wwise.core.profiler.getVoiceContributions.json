@@ -1,0 +1,87 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.getVoiceContributions",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.getCursorTime",
+                "ak.wwise.core.profiler.getVoices",
+                "ak.wwise.core.profiler.getBusses"
+            ],
+            "description": "Retrieves all parameters affecting voice volume, highpass and lowpass for a voice path, resolved from pipeline IDs.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "voicePipelineID": {
+                        "$ref": "waapi_definitions.json#/definitions/pipelineID",
+                        "description": "The pipeline ID of the voice to get contributions from."
+                    },
+                    "bussesPipelineID": {
+                        "type": "array",
+                        "description": "An array of bus pipeline IDs.",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/pipelineID",
+                            "description": "The pipeline IDs of busses belonging to a common voice path. An empty array defaults to the dry path."
+                        }
+                    },
+                    "time": {
+                        "$ref": "waapi_definitions.json#/definitions/cursorTime",
+                        "description": "Time in milliseconds to query for voices, or a Time Cursor from which to acquire the time. The User Time Cursor is the one that can be manipulated by the user, while the Capture Time Cursor represents the latest time of the current capture."
+                    }
+                },
+                "required": [
+                    "voicePipelineID",
+                    "time"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "return": {
+                        "type": "object",
+                        "description": "The hierarchy of objects with parameters contributing to the voice, ordered from top-level parent to the voice object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "volume": {
+                                "type": "number",
+                                "description": "The volume difference applied as a contribution."
+                            },
+                            "LPF": {
+                                "type": "number",
+                                "description": "The LPF difference applied as a contribution."
+                            },
+                            "HPF": {
+                                "type": "number",
+                                "description": "The HPF difference applied as a contribution."
+                            },
+                            "objects": {
+                                "type": "array",
+                                "description": "A tree of contribution objects.",
+                                "items": {
+                                    "$ref": "waapi_definitions.json#/definitions/voiceContributionsObject"
+                                }
+                            }
+                        },
+						"required": [
+							"volume", "LPF", "HPF", "objects"
+						],
+						"additionalProperties": false
+                    }
+                }
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

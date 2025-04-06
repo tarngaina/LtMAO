@@ -1,0 +1,57 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.setLinked",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.isLinked"
+            ],
+            "description": "Link or unlink a property/reference or object list to a particular platform.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to set value."
+                    },
+                    "property": {
+                        "type": "string",
+                        "description": "The name of the property. For more information, refer to the property list of Wwise Objects listed in \\ref wobjects_index .",
+                        "$ref": "waapi_definitions.json#/definitions/propertyName"
+                    },
+                    "platform": {
+                        "$ref": "waapi_definitions.json#/definitions/platformArg",
+                        "description": "The ID (GUID) or unique name of the platform."
+                    },
+                    "linked": {
+                        "type": "boolean",
+                        "description": "Is it linked."
+                    }
+                },
+                "required": [
+                    "object",
+                    "property",
+                    "platform",
+                    "linked"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,83 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.setProperty",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.get",
+                "ak.wwise.core.object.propertyChanged",
+                "ak.wwise.core.object.setReference",
+                "ak.wwise.core.object.set",
+                "ak.wwise.core.undo.beginGroup"
+            ],
+            "description": "Sets a property value of an object for a specific platform. Refer to \\ref wobjects_index for more information on the properties available on each object type. Refer to \\ref ak_wwise_core_object_setreference to set a reference to an object. Refer to \\ref ak_wwise_core_object_get to obtain the value of a property for an object.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to set value."
+                    },
+                    "property": {
+                        "type": "string",
+                        "description": "The name of the property. For more information, refer to the property list of Wwise Objects listed in \\ref wobjects_index .",
+                        "$ref": "waapi_definitions.json#/definitions/propertyName"
+                    },
+                    "platform": {
+                        "$ref": "waapi_definitions.json#/definitions/platformArg",
+                        "description": "The ID (GUID) or unique name of the platform. This is used to set values for unlinked properties. This is an optional argument. When not specified, the current platform is used to set the property."
+                    },
+                    "value": {
+                        "$ref": "common_definitions.json#/definitions/propertyValue",
+                        "description": "The value of the object."
+                    }
+                },
+                "required": [
+                    "object",
+                    "property",
+                    "value"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting the volume",
+                    "description": "Sets the \"Volume\" property of the object defined by \"object\" to \"Value\".",
+                    "args": {
+                        "object": "\\Master-Mixer Hierarchy\\Default Work Unit\\Master Audio Bus",
+                        "property": "Volume",
+                        "value": -3
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Setting the value of a specified property on the specified platform",
+                    "description": "Sets the \"Volume\" property of the object defined by \"object\" to \"Value\".",
+                    "args": {
+                        "object": "\\Master-Mixer Hierarchy\\Default Work Unit\\Master Audio Bus",
+                        "property": "Volume",
+                        "platform": "Windows",
+                        "value": 5.7
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

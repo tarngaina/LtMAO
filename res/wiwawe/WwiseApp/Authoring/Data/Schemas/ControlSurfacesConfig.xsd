@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<!--Control Surface Configuration-->
+	<xs:element name="ControlSurfacesConfig">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Device" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:attribute name="DeviceType" type="xs:string" use="required"/>
+						<xs:attribute name="InputName" type="xs:string" use="optional"/>
+						<xs:attribute name="OutputName" type="xs:string" use="optional"/>
+						<xs:attribute name="DeviceName" type="xs:string" use="required"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="Version" type="xs:string" />
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

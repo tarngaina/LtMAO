@@ -1,0 +1,1741 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.set",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.create",
+                "ak.wwise.core.object.setName",
+                "ak.wwise.core.object.setNotes",
+                "ak.wwise.core.object.setProperty",
+                "ak.wwise.core.object.setReference",
+                "ak.wwise.core.object.created",
+                "ak.wwise.core.object.nameChanged",
+                "ak.wwise.core.object.notesChanged",
+                "ak.wwise.core.object.propertyChanged",
+                "ak.wwise.core.object.referenceChanged",
+                "ak.wwise.core.audio.import"
+            ],
+            "description": "Allows for batch processing of the following operations: Object creation in a child hierarchy, Object creation in a list, Setting name, notes, properties and references. Refer to \\ref waapi_import for more information about creating objects. Also refer to \\ref ak_wwise_core_audio_import to import audio files to Wwise.",
+            "argsSchema": {
+                "definitions": {
+                    "object": {
+                        "type": "object",
+                        "description": "Child object to be created.",
+                        "properties": {
+                            "platform": {
+                                "$ref": "waapi_definitions.json#/definitions/platformArg",
+                                "description": "The ID (GUID) or unique name of the platform used when setting properties and references via this operation. Not specifying a platform sets the value for all linked platforms."
+                            },
+                            "type": {
+                                "type": "string",
+                                "description": "The type of the new object. Refer to \\ref wobjects_index for possible object types or \\ref wobjectnodetypes for possible node types."
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "The name of the new object."
+                            },
+                            "id": {
+                                "$ref": "common_definitions.json#/definitions/guid",
+                                "description": "For internal use only! The ID (GUID) to assign to the newly created Object."
+                            },
+                            "notes": {
+                                "type": "string",
+                                "description": "The notes or comments of the new object."
+                            },
+                            "classId": {
+                                "$ref": "common_definitions.json#/definitions/uint32",
+                                "description": "The ID (class ID) of the plug-in. Only specify for Effect or Source plug-ins. Refer to \\ref wobjects_index for possible ClassId values."
+                            },
+                            "language": {
+                                "$ref": "waapi_definitions.json#/definitions/languageArg",
+                                "description": "The ID (GUID) or name of the language. Only use this argument when creating Sound Voice objects."
+                            },
+                            "children": {
+                                "$ref": "#/definitions/objectArray",
+                                "description": "An array of child objects to be created (Recursive)."
+                            },
+                            "import": {
+                                "$ref": "waapi_definitions.json#/definitions/importArg"
+                            }
+                        },
+                        "patternProperties": {
+                            "^@[:_a-zA-Z0-9]+$": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/objectArray",
+                                        "description": "Objects to create in list \\@listName. Refer to \\ref wobjects_index for the possible list names for each Wwise object."
+                                    },
+                                    {
+                                        "type": "null",
+                                        "description": "A null value. No reference to an object."
+                                    },
+                                    {
+                                        "type": "string",
+                                        "description": "A string value."
+                                    },
+                                    {
+                                        "$ref": "common_definitions.json#/definitions/arrayOfString",
+                                        "description": "An array of object references."
+                                    },
+                                    {
+                                        "type": "number",
+                                        "description": "A numerical value."
+                                    },
+                                    {
+                                        "type": "boolean",
+                                        "description": "A boolean value."
+                                    },
+                                    {
+                                        "$ref": "#/definitions/object",
+                                        "description": "Object to create and assign to a reference. Refer to \\ref wobjects_index for the possible object types."
+                                    },
+                                    {
+                                        "$ref": "common_definitions.json#/definitions/arrayOfString",
+                                        "description": "Array of Ref Objects."
+                                    },
+                                    {
+                                        "$ref": "waapi_definitions.json#/definitions/curveObjectDefinition"
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "name"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "objectArray": {
+                        "type": "array",
+                        "description": "An array of child objects to be created.",
+                        "items": {
+                            "$ref": "#/definitions/object",
+                            "description": "Child objects to be created."
+                        }
+                    }
+                },
+                "type": "object",
+                "properties": {
+                    "objects": {
+                        "type": "array",
+                        "description": "An array of objects on which to set values and create child or list objects.",
+                        "items": {
+                            "type": "object",
+                            "description": "The object specification, values to set, objects to create, and overriding options applicable to this object.",
+                            "properties": {
+                                "object": {
+                                    "$ref": "waapi_definitions.json#/definitions/objectArg",
+                                    "description": "The ID (GUID), name, or path of the existing object on which to set the name, notes, properties or references and under which to create children or create objects in a list."
+                                },
+                                "platform": {
+                                    "$ref": "waapi_definitions.json#/definitions/platformArg",
+                                    "description": "The ID (GUID) or unique name of the platform used when setting properties and references via this operation. Not specifying a platform sets the value for all linked platforms."
+                                },
+                                "onNameConflict": {
+                                    "type": "string",
+                                    "description": "The action to take if \"object\" already has a child with the same name. Default value is \"fail\". Refer to \\ref waapi_create_objects_modes for more information.",
+                                    "enum": [
+                                        "rename",
+                                        "replace",
+                                        "fail",
+                                        "merge"
+                                    ]
+                                },
+                                "listMode": {
+                                    "type": "string",
+                                    "description": "The action to take if \"object\" already has objects in a specified list. Default value is \"append\". Refer to \\ref waapi_set_lists_modes for more information.",
+                                    "enum": [
+                                        "replaceAll",
+                                        "append"
+                                    ]
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "The new name of \"object\"."
+                                },
+                                "notes": {
+                                    "type": "string",
+                                    "description": "The new notes or comments of \"object\"."
+                                },
+                                "children": {
+                                    "$ref": "#/definitions/objectArray"
+                                },
+                                "import": {
+                                    "$ref": "waapi_definitions.json#/definitions/importArg"
+                                }
+                            },
+                            "patternProperties": {
+                                "^@[:_a-zA-Z0-9]+$": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/definitions/objectArray",
+                                            "description": "Objects to create in list \\@listName. Refer to \\ref wobjects_index for the possible list names for each Wwise object."
+                                        },
+                                        {
+                                            "type": "null",
+                                            "description": "A null value. No reference to an object."
+                                        },
+                                        {
+                                            "type": "string",
+                                            "description": "A string value."
+                                        },
+                                        {
+                                            "$ref": "common_definitions.json#/definitions/arrayOfString"
+                                        },
+                                        {
+                                            "type": "number",
+                                            "description": "A numerical value."
+                                        },
+                                        {
+                                            "type": "boolean",
+                                            "description": "A boolean value."
+                                        },
+                                        {
+                                            "$ref": "waapi_definitions.json#/definitions/curveObjectDefinition"
+                                        },
+                                        {
+                                            "$ref": "#/definitions/object"
+                                        },
+                                        {
+                                            "$ref": "common_definitions.json#/definitions/arrayOfString",
+                                            "description": "Array of Ref Objects."
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "object"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    "platform": {
+                        "$ref": "waapi_definitions.json#/definitions/platformArg",
+                        "description": "Unless overriden by an individual \"object\", the ID (GUID) or unique name of the platform used when setting properties and references via this operation. Not specifying a platform sets the value for all linked platforms."
+                    },
+                    "onNameConflict": {
+                        "type": "string",
+                        "description": "Unless overriden by an individual \"object\", the action to take if \"object\" already has a child with the same name. Default value is \"fail\". Refer to \\ref waapi_create_objects_modes for more information.",
+                        "enum": [
+                            "rename",
+                            "replace",
+                            "fail",
+                            "merge"
+                        ]
+                    },
+                    "listMode": {
+                        "type": "string",
+                        "description": "Unless overriden by an individual \"object\", the action to take if \"object\" already has objects in a specified list. Default value is \"append\". Refer to \\ref waapi_set_lists_modes for more information.",
+                        "enum": [
+                            "replaceAll",
+                            "append"
+                        ]
+                    },
+                    "autoAddToSourceControl": {
+                        "type": "boolean",
+                        "description": "Determines if Wwise automatically performs an Add source control operation for affected work units. Defaults to true."
+                    }
+                },
+                "required": [
+                    "objects"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "objects": {
+                        "type": "array",
+                        "description": "Array of {object, created objects} associations for each parent object.",
+                        "items": {
+                            "type": "object",
+                            "description": "Objects created as children of, or in lists of, \"object\".",
+                            "properties": {
+                                "id": {
+                                    "$ref": "common_definitions.json#/definitions/guid",
+                                    "description": "The ID (GUID) of the parent."
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "The name of the parent."
+                                },
+                                "children": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                                        "description": "A created object."
+                                    },
+                                    "description": "The child objects created."
+                                }
+                            },
+                            "patternProperties": {
+                                "^@[_:a-zA-Z0-9]+$": {
+                                    "oneOf": [
+                                        {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                                                "description": "A created object."
+                                            },
+                                            "description": "The objects to be created."
+                                        },
+                                        {
+                                            "$ref": "waapi_definitions.json#/definitions/objectReturn"
+                                        }
+                                    ],
+                                    "description": "The objects created and inserted in the specified list."
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "optionsSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturnOptions",
+                "description": "Specifies the return options for every object created."
+            },
+            "examples": [
+                {
+                    "title": "Creating multiple child hierarchies of objects in batch",
+                    "description": "In one operation, create child hierarchies under multiple objects: #1. Creates a new Sound object called 'Boom' under the specified parent, #2. Creates a new virtual folder called 'Guns' under the default work unit. If a folder with the same name already exists, it automatically finds a unique name, #3. Creates an event called 'Play_SFX' under the virtual folder 'WAAPI', with Play action on the SFX sound object, #4. Creates a Random Container called 'Boom' under the specified parent, with two Sound objects 'A' and 'B', #5. Creates a Custom Cue inside an existing Music Segment with the specified name and time in milliseconds. See the examples for \\ref ak_wwise_core_object_create to compare the two schemas.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "{7A12D08F-B0D9-4403-9EFA-2E6338C197C1}",
+                                "children": [
+                                    {
+                                        "type": "Sound",
+                                        "name": "Boom"
+                                    }
+                                ]
+                            },
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Default Work Unit",
+                                "children": [
+                                    {
+                                        "type": "Folder",
+                                        "name": "Guns"
+                                    }
+                                ],
+                                "onNameConflict": "rename"
+                            },
+                            {
+                                "object": "\\Events\\Default Work Unit",
+                                "onNameConflict": "merge",
+                                "children": [
+                                    {
+                                        "type": "Folder",
+                                        "name": "WAAPI",
+                                        "children": [
+                                            {
+                                                "type": "Event",
+                                                "name": "Play_SFX",
+                                                "children": [
+                                                    {
+                                                        "name": "",
+                                                        "type": "Action",
+                                                        "@ActionType": 1,
+                                                        "@Target": "\\Actor-Mixer Hierarchy\\Default Work Unit\\SFX"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "object": "{7A12D08F-B0D9-4403-9EFA-2E6338C197C1}",
+                                "children": [
+                                    {
+                                        "type": "RandomSequenceContainer",
+                                        "name": "Boom",
+                                        "@RandomOrSequence": 1,
+                                        "children": [
+                                            {
+                                                "type": "Sound",
+                                                "name": "A"
+                                            },
+                                            {
+                                                "type": "Sound",
+                                                "name": "B"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "object": "\\Interactive Music Hierarchy\\Default Work Unit\\My Segment",
+                                "@Cues": [
+                                    {
+                                        "name": "My Music Cue",
+                                        "type": "MusicCue",
+                                        "@TimeMs": 1200,
+                                        "@CueType": 2
+                                    }
+                                ]
+                            }
+                        ],
+                        "onNameConflict": "fail"
+                    },
+                    "result": {
+                        "objects": [
+                            {
+                                "id": "{7A12D08F-B0D9-4403-9EFA-2E6338C197C1}",
+                                "name": "Default Work Unit",
+                                "children": [
+                                    {
+                                        "id": "{66666666-7777-8888-9999-AAAAAAAAAAAA}",
+                                        "name": "Boom"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "{7A12D08F-B0D9-4403-9EFA-2E6338C197C1}",
+                                "name": "Default Work Unit",
+                                "children": [
+                                    {
+                                        "id": "{66666666-7777-8888-9999-AAAAAAAAAAAA}",
+                                        "name": "Guns"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "{C6C4338E-99E1-44C2-B881-F98612FEDF5F}",
+                                "name": "Default Work Unit",
+                                "children": [
+                                    {
+                                        "id": "{6114659F-9274-4031-B90E-F369568532E0}",
+                                        "name": "WAAPI",
+                                        "children": [
+                                            {
+                                                "id": "{F546017D-201A-49BD-8D4E-0A28F5DBB28D}",
+                                                "name": "Play_SFX",
+                                                "children": [
+                                                    {
+                                                        "id": "{400D0354-0FDB-48B4-B341-9DFA0B76078D}",
+                                                        "name": ""
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "{7A12D08F-B0D9-4403-9EFA-2E6338C197C1}",
+                                "name": "Default Work Unit",
+                                "children": [
+                                    {
+                                        "id": "{66666666-7777-8888-9999-AAAAAAAAAAAA}",
+                                        "name": "Boom",
+                                        "children": [
+                                            {
+                                                "id": "{46813545-2168-3547-8328-681AB678D6F5}",
+                                                "name": "A"
+                                            },
+                                            {
+                                                "id": "{68465134-2548-2377-3541-321354318ABD}",
+                                                "name": "B"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "{9111F89B-8227-4766-9FEF-BBE6CE5B9F6E}",
+                                "name": "My Segment",
+                                "@Cues": [
+                                    {
+                                        "id": "{1629938A-24F7-451F-B01F-49F448CED8FF}",
+                                        "name": "My Music Cue"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Creating a music hierarchy",
+                    "description": "In one operation, create a Music Switch Container, a Music Playlist Container, a Music Segment, and a Music Track with one imported WAV file.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Switches\\Default Work Unit",
+                                "children": [
+                                    {
+                                        "type": "SwitchGroup",
+                                        "name": "MySwitchGroup",
+                                        "children": [
+                                            {
+                                                "type": "Switch",
+                                                "name": "Switch1",
+                                                "children": []
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "object": "\\Interactive Music Hierarchy\\Default Work Unit",
+                                "children": [
+                                    {
+                                        "type": "MusicSwitchContainer",
+                                        "name": "MyMusicSwitchContainer",
+                                        "@Arguments": [
+                                            "\\Switches\\Default Work Unit\\MySwitchGroup"
+                                        ],
+                                        "@Entries": [
+                                            {
+                                                "type": "MultiSwitchEntry",
+                                                "name": "",
+                                                "@EntryPath": [
+                                                    "\\Switches\\Default Work Unit\\MySwitchGroup\\Switch1"
+                                                ],
+                                                "@AudioNode": "\\Interactive Music Hierarchy\\Default Work Unit\\MyMusicSwitchContainer\\MyMusicPlaylistContainer",
+                                                "children": []
+                                            }
+                                        ],
+                                        "children": [
+                                            {
+                                                "type": "MusicPlaylistContainer",
+                                                "name": "MyMusicPlaylistContainer",
+                                                "@PlaylistRoot": {
+                                                    "type": "MusicPlaylistItem",
+                                                    "name": "",
+                                                    "@LoopCount": 0,
+                                                    "children": [
+                                                        {
+                                                            "type": "MusicPlaylistItem",
+                                                            "name": "",
+                                                            "@Segment": "\\Interactive Music Hierarchy\\Default Work Unit\\MyMusicSwitchContainer\\MyMusicPlaylistContainer\\MySegment",
+                                                            "@PlaylistItemType": 1,
+                                                            "children": []
+                                                        }
+                                                    ]
+                                                },
+                                                "children": [
+                                                    {
+                                                        "type": "MusicSegment",
+                                                        "name": "MySegment",
+                                                        "children": [
+                                                            {
+                                                                "type": "MusicTrack",
+                                                                "name": "MyMusicTrack",
+                                                                "import": {
+                                                                    "files": [
+                                                                        {
+                                                                            "audioFile": "C:\\SFX_400.wav"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "onNameConflict": "merge",
+                        "listMode": "replaceAll"
+                    },
+                    "result": {
+                        "objects": [
+                            {
+                                "id": "{6F067572-23CF-4E99-962B-562B441CB4CA}",
+                                "name": "Default Work Unit",
+                                "children": [
+                                    {
+                                        "id": "{0641A054-EE2C-480B-A25C-71D64FE5D232}",
+                                        "name": "MySwitchGroup",
+                                        "children": [
+                                            {
+                                                "id": "{70B9E9D1-D61F-4355-8E95-447C842249CA}",
+                                                "name": "Switch1"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "{0E873F51-7FAA-419A-882C-041C140E5498}",
+                                "name": "Default Work Unit",
+                                "children": [
+                                    {
+                                        "id": "{C49874C1-497D-4A7E-99F1-0B9C959DFDBE}",
+                                        "name": "MyMusicSwitchContainer",
+                                        "children": [
+                                            {
+                                                "id": "{7A8F2FA4-6D97-46CA-8F23-ED40C223759B}",
+                                                "name": "MyMusicPlaylistContainer",
+                                                "children": [
+                                                    {
+                                                        "id": "{D4DB8A92-5DAD-43BD-A428-F38DCA0049D3}",
+                                                        "name": "MySegment",
+                                                        "children": [
+                                                            {
+                                                                "id": "{ED751B21-54C8-43E4-9A10-E7FB2F41E4F4}",
+                                                                "name": "MyMusicTrack",
+                                                                "import": {
+                                                                    "objects": [
+                                                                        {
+                                                                            "id": "{0755079B-46C1-4B41-B1EB-BEAE5DB06629}",
+                                                                            "name": "SFX_400"
+                                                                        }
+                                                                    ],
+                                                                    "logs": [
+                                                                        {
+                                                                            "severity": "Message",
+                                                                            "message": "Finalizing Importation..."
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "@PlaylistRoot": {
+                                                    "id": "{7F61EF00-6470-4C71-8ABD-7645AA3CF2B0}",
+                                                    "name": "",
+                                                    "children": [
+                                                        {
+                                                            "id": "{C134EC33-DD74-4C08-B687-9CF9D6C75327}",
+                                                            "name": ""
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ],
+                                        "@Arguments": [
+                                            {}
+                                        ],
+                                        "@Entries": [
+                                            {
+                                                "id": "{06F963DC-169C-464B-92FB-7ABB303852DA}",
+                                                "name": "",
+                                                "@EntryPath": [
+                                                    {}
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Importing a WAV file into a new Sound SFX and creating the associated Event",
+                    "description": "Creates a new Sound object, imports a WAV file into it, and then creates an Event with a Play action on the Sound.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Import",
+                                "children": [
+                                    {
+                                        "type": "Sound",
+                                        "name": "MySound",
+                                        "import": {
+                                            "files": [
+                                                {
+                                                    "audioFile": "C:\\MySound.wav",
+                                                    "originalsSubFolder": "SUB"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "object": "\\Events\\Default Work Unit",
+                                "onNameConflict": "merge",
+                                "children": [
+                                    {
+                                        "type": "Event",
+                                        "name": "Play_MySound",
+                                        "children": [
+                                            {
+                                                "name": "",
+                                                "type": "Action",
+                                                "@ActionType": 1,
+                                                "@Target": "\\Actor-Mixer Hierarchy\\Import\\MySound"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "onNameConflict": "merge",
+                        "listMode": "replaceAll"
+                    },
+                    "options": {},
+                    "result": {
+                        "objects": [
+                            {
+                                "children": [
+                                    {
+                                        "id": "{4314DDF5-F4EB-477B-A414-DB724A3FC0CC}",
+                                        "import": {
+                                            "logs": [
+                                                {
+                                                    "message": "Finalizing Importation...",
+                                                    "severity": "Message"
+                                                }
+                                            ],
+                                            "objects": [
+                                                {
+                                                    "id": "{F72DD400-91D1-4305-B14E-31113A28FF1C}",
+                                                    "name": "MySound"
+                                                }
+                                            ]
+                                        },
+                                        "name": "MySound"
+                                    }
+                                ],
+                                "id": "{64EE1D88-F322-4BD8-AA18-21852859CBCF}",
+                                "name": "Import"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "id": "{8A8A7BC0-C62B-4986-BCCF-F98EFB92A697}",
+                                                "name": ""
+                                            }
+                                        ],
+                                        "id": "{CAA381F1-A9C7-4846-AAFB-696C1C9F00F5}",
+                                        "name": "Play_MySound"
+                                    }
+                                ],
+                                "id": "{C1F6AE1D-03CF-448A-8DE9-EE25FC6F459C}",
+                                "name": "Default Work Unit"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Adding an RTPC with curve to an object",
+                    "description": "In an object's \"RTPC\" list, this function creates an RTPC on a property using the specified <tt>ControlInput</tt> and curve points. The <tt>ControlInput</tt> is the game parameter, Modulator, or MIDI object assigned to the x axis of the RTPC. If you use a game parameter, you are passing a reference, and therefore the game parameter that you want to link to <tt>ControlInput</tt> must be created before you pass it to the parameter.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "{BAE891BA-E025-43ED-A4D1-4DC55C68E7CA}",
+                                "@RTPC": [
+                                    {
+                                        "type": "RTPC",
+                                        "name": "",
+                                        "@Curve": {
+                                            "type": "Curve",
+                                            "points": [
+                                                {
+                                                    "x": 0,
+                                                    "y": -20.82785,
+                                                    "shape": "Linear"
+                                                },
+                                                {
+                                                    "x": 1000,
+                                                    "y": 21.8509,
+                                                    "shape": "Linear"
+                                                }
+                                            ]
+                                        },
+                                        "notes": "a new rtpc",
+                                        "@PropertyName": "OutputBusVolume",
+                                        "@ControlInput": "{E31BAE21-CFA6-4655-81F6-E6FBDC802E9D}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "options": {
+                        "return": [
+                            "id",
+                            "name",
+                            "type",
+                            "@Curve"
+                        ]
+                    },
+                    "result": {
+                        "objects": [
+                            {
+                                "id": "{BAE891BA-E025-43ED-A4D1-4DC55C68E7CA}",
+                                "name": "Sound",
+                                "@RTPC": [
+                                    {
+                                        "id": "{31DA7AE1-B215-4689-A5F7-67A9C5B3DFDC}",
+                                        "name": "",
+                                        "type": "RTPC",
+                                        "@Curve": {
+                                            "id": "{676ECEEC-9FF5-46CD-B2C7-A6D5C9370620}",
+                                            "points": [
+                                                {
+                                                    "x": 0,
+                                                    "y": -20.82785,
+                                                    "shape": "Linear"
+                                                },
+                                                {
+                                                    "x": 1000,
+                                                    "y": 21.8509,
+                                                    "shape": "Linear"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Adding an RTPC with curve to an object and creates a new Custom ControlInput",
+                    "description": "In the \"RTPC\" list of an object, creates an RTPC on a property using the given ControlInput and curve points.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "{BAE891BA-E025-43ED-A4D1-4DC55C68E7CA}",
+                                "@RTPC": [
+                                    {
+                                        "type": "RTPC",
+                                        "name": "",
+                                        "@Curve": {
+                                            "type": "Curve",
+                                            "points": [
+                                                {
+                                                    "x": 0,
+                                                    "y": -20.82785,
+                                                    "shape": "Linear"
+                                                },
+                                                {
+                                                    "x": 1000,
+                                                    "y": 21.8509,
+                                                    "shape": "Linear"
+                                                }
+                                            ]
+                                        },
+                                        "notes": "a new rtpc",
+                                        "@PropertyName": "OutputBusVolume",
+                                        "@ControlInput": {
+                                            "type": "ModulatorTime",
+                                            "name": "TimeMod",
+                                            "@TimeModDuration": 5,
+                                            "@EnvelopeStopPlayback": false
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "options": {
+                        "return": [
+                            "id",
+                            "name",
+                            "type",
+                            "@Curve"
+                        ]
+                    },
+                    "result": {
+                        "objects": [
+                            {
+                                "id": "{BAE891BA-E025-43ED-A4D1-4DC55C68E7CA}",
+                                "name": "Sound",
+                                "@RTPC": [
+                                    {
+                                        "id": "{31DA7AE1-B215-4689-A5F7-67A9C5B3DFDC}",
+                                        "name": "",
+                                        "type": "RTPC",
+                                        "@Curve": {
+                                            "id": "{676ECEEC-9FF5-46CD-B2C7-A6D5C9370620}",
+                                            "points": [
+                                                {
+                                                    "x": 0,
+                                                    "y": -20.82785,
+                                                    "shape": "Linear"
+                                                },
+                                                {
+                                                    "x": 1000,
+                                                    "y": 21.8509,
+                                                    "shape": "Linear"
+                                                }
+                                            ]
+                                        },
+                                        "@ControlInput": {
+                                            "id": "{2D7084B6-2AA7-45B0-94B4-4976E886627A}",
+                                            "name": "TimeMod"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                  "title": "Setting an effect plug-in",
+                  "description": "Sets the effects of a Sound to a newly created Custom RoomVerb Effect plug-in.",
+                  "args": {
+                    "objects": [
+                      {
+                        "object": "\\Actor-Mixer Hierarchy\\Default Work Unit\\MySound",
+                        "@Effects": [
+                          {
+                            "type": "EffectSlot",
+                            "name": "",
+                            "@Effect": {
+                              "type": "Effect",
+                              "name": "myCustomEffect",
+                              "classId": 7733251,
+                              "@PreDelay": 24,
+                              "@RoomShape": 99
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "options": {},
+                  "result": {
+                    "objects": [
+                      {
+                        "id": "{5BA74442-2DEC-4370-AD70-97FC17EBF05D}",
+                        "name": "MySound",
+                        "@Effects": [
+                          {
+                            "id": "{3891F5A9-6DB9-4C26-A84C-03E93121DD76}",
+                            "name": "",
+                            "@Effect": {
+                              "id": "{5B759989-53F7-4355-944D-C2C604927D18}",
+                              "name": "myCustomEffect"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                    "title": "Creating new Source Plug-ins for a Voice",
+                    "description": "Creates two new Source objects for a Voice using plug-in Silence and SoundSeed Grain for the languages \"English(US)\" and \"French\".",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Default Work Unit\\MyVoice",
+                                "children": [
+                                    {
+                                        "type": "Source",
+                                        "name": "source1",
+                                        "language": "English(US)",
+                                        "classId": 6619138
+                                    },
+                                    {
+                                        "type": "Source",
+                                        "name": "source2",
+                                        "language": "French",
+                                        "classId": 11993090
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "options": {
+                        "return": [
+                            "id",
+                            "name"
+                        ]
+                    },
+                    "result": {
+                        "objects": [
+                            {
+                                "id": "{7ACD763F-2E44-4D07-AA7F-E6C9C60B2DDC}",
+                                "name": "VO",
+                                "children": [
+                                    {
+                                        "id": "{DAEC2A58-4605-4553-AA67-1090716691DC}",
+                                        "name": "source1"
+                                    },
+                                    {
+                                        "id": "{92A79310-38E6-4C89-9A06-DA59668E79A4}",
+                                        "name": "source2"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Setting the \"Curve\" reference of an RTPC",
+                    "description": "Sets the curve points of a specified RTPC.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "{5A1EC9A4-5C47-4555-82EF-50722C168C0C}",
+                                "@Curve": {
+                                    "type": "Curve",
+                                    "points": [
+                                        {
+                                            "x": 100,
+                                            "y": 20.82785,
+                                            "shape": "Linear"
+                                        },
+                                        {
+                                            "x": 1000,
+                                            "y": -21.8509,
+                                            "shape": "Linear"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Setting the values of the name, notes, a property and a reference",
+                    "description": "Setting the name, notes, \"Volume\" property and \"OutputBus\" reference of the object defined by \"object\" . See the examples for \\ref ak_wwise_core_object_setname , \\ref ak_wwise_core_object_setnotes , \\ref ak_wwise_core_object_setproperty and \\ref ak_wwise_core_object_setreference to compare the two schemas.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Default Work Unit\\MySound",
+                                "name": "new name",
+                                "notes": "This object's notes are set.",
+                                "@Volume": 5.7,
+                                "@OutputBus": "\\Master-Mixer Hierarchy\\Default Work Unit\\Master Audio Bus\\Environment Bus"
+                            }
+                        ],
+                        "platform": "{66666666-7777-8888-9999-AAAAAAAAAAAA}"
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Importing a WAV file to create a Sound SFX object",
+                    "description": "Creates a Source SFX object and an audio file source object and imports its wave file.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Default Work Unit",
+                                "import": {
+                                    "files": [
+                                        {
+                                            "audioFile": "c:\\path\\file.wav"
+                                        }
+                                    ]
+                                }
+                            }
+                        ],
+                        "onNameConflict": "merge"
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Importing Base64 content to create a Sound SFX object",
+                    "description": "Creates a Source SFX object and an audio file source object and imports the specified base64 content as a WAV file.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Default Work Unit",
+                                "import": {
+                                    "files": [
+                                        {
+                                            "audioFileBase64": "Sine.wav|UklGRpgDAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YXQDAAAAAAAAjgKOAhoFGgWmB6YHMQoxCrkMuQw+Dz4PwRHBEUAUQBS6FroWMBkwGaAboBsLHgsecCBwIM4iziIkJSQlcydzJ7opuin4K/grLC4sLlgwWDB5MnkykDSQNJs2mzacOJw4kDqQOnk8eTxVPlU+JEAkQOVB5UGZQ5lDP0U/RddG10ZgSGBI2UnZSURLREueTJ5M6U3pTSRPJE9OUE5QZ1FnUXBScFJnU2dTTlROVCJVIlXlVeVVllaWVjVXNVfCV8JXPVg9WKVYpVj7WPtYPlk+WW9Zb1mNWY1ZmVmZWZJZkll4WXhZTFlMWQ1ZDVm8WLxYWFhYWOJX4ldaV1pXv1a/VhNWE1ZUVVRVhFSEVKNTo1OwUrBSq1GrUZZQllBwT3BPOU45TvNM80ycS5xLNUo1Sr9Iv0g6RzpHp0WnRQREBERUQlRClkCWQMo+yj7xPPE8DDsMOxo5GjkdNx03FDUUNQAzADPhMOEwuC64LoYshixKKkoqBSgFKLkluSVkI2QjCCEIIaUepR48HDwczBnMGVgXWBffFN8UYRJhEt8P3w9bDVsN0wrTCkkISQi+Bb4FMQMxA6MAowAW/hb+ifuJ+/z4/Phy9nL26fPp82PxY/Hf7t/uYOxg7OTp5Olt523n++T75I/ij+Ip4Cngyd3J3XHbcdsg2SDZ19bX1pfUl9Rg0mDSMtAy0A7ODs71y/XL58nnyePH48fsxezFAMQAxCHCIcJPwE/Air6KvtK80rwpuym7jrmOuQG4AbiEtoS2FbUVtbezt7NosmiyKbEpsfuv+6/drt2u0a3RrdWs1azqq+qrEasRq0qqSqqVqZWp8ajxqGCoYKjgp+CndKd0pxmnGafRptGmnKacpnmmeaZopmima6ZrpoCmgKanpqem4abhpi6nLqeNp42n/6f/p4KogqgYqRipwKnAqXqqeqpGq0arI6wjrBKtEq0SrhKuI68jr0WwRbB3sXexurK6sg20DbRwtXC14rbitmO4Y7jzufO5kruSuz+9P736vvq+wsDCwJfCl8J6xHrEaMZoxmPIY8hpymnKesx6zJbOls690L3Q7dLt0ibVJtVp12nXs9mz2QbcBtxh3mHewuDC4CnjKeOX5ZflCugK6IPqg+r/7P/sgO+A7wTyBPKL9Iv0FPcU95/5n/ks/Cz8uf65/g=="
+                                        }
+                                    ]
+                                }
+                            }
+                        ],
+                        "onNameConflict": "merge"
+                    },
+                    "result": {
+                        "objects": [
+                            {
+                                "id": "{811AE2DB-9EA3-4749-A8B9-CB89588D1925}",
+                                "import": {
+                                    "logs": [
+                                        {
+                                            "message": "Finalizing Importation...",
+                                            "severity": "Message"
+                                        }
+                                    ],
+                                    "objects": [
+                                        {
+                                            "id": "{46295B27-A02A-4FAB-9BCB-69018995F41C}",
+                                            "name": "Sine"
+                                        },
+                                        {
+                                            "id": "{64C7AA03-7C5C-4554-A5E4-0866DDA133C1}",
+                                            "name": "Sine"
+                                        }
+                                    ]
+                                },
+                                "name": "Default Work Unit"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Importing two WAV files to create two Sound SFX objects",
+                    "description": "Creates two Sound SFX objects and two audio file source objects and imports their wave files.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Default Work Unit",
+                                "import": {
+                                    "files": [
+                                        {
+                                            "audioFile": "c:\\path\\file1.wav"
+                                        },
+                                        {
+                                            "audioFile": "c:\\path\\file2.wav"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Importing a WAV file into a Sound Voice",
+                    "description": "Creates a Sound Voice object and an audio file source object and imports its wave file for English localization.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Default Work Unit",
+                                "children": [
+                                    {
+                                        "type": "Sound Voice",
+                                        "name": "New Voice",
+                                        "import": {
+                                            "files": [
+                                                {
+                                                    "audioFile": "c:\\path\\file1.wav",
+                                                    "language": "English(US)"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Importing a WAV file into an Audio File Source",
+                    "description": "Creates a Sound SFX object and its audio source. The property field Sound object is also set.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Default Work Unit",
+                                "children": [
+                                    {
+                                        "type": "Sound",
+                                        "name": "New Sound",
+                                        "children": [
+                                            {
+                                                "name": "mySource",
+                                                "type": "AudioFileSource",
+                                                "notes": "newNotes",
+                                                "import": {
+                                                    "files": [
+                                                        {
+                                                            "audioFile": "c:\\path\\file1.wav"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Importing a MIDI file into a Music Segment to create a Music Track",
+                    "description": "Creates a Music Segment from the imported MIDI file. A Music Track and a Music Clip are also created.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Interactive Music Hierarchy\\Default Work Unit",
+                                "children": [
+                                    {
+                                        "type": "MusicSegment",
+                                        "name": "New Segment",
+                                        "import": {
+                                            "files": [
+                                                {
+                                                    "audioFile": "c:\\path\\music.mid"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        "onNameConflict": "merge"
+                    },
+                    "result": {
+                        "objects": [
+                            {
+                                "children": [
+                                    {
+                                        "id": "{3B6C9C17-1F33-40DB-80EF-9509C5358334}",
+                                        "import": {
+                                            "logs": [
+                                                {
+                                                    "message": "Finalizing Importation...",
+                                                    "severity": "Message"
+                                                }
+                                            ],
+                                            "objects": [
+                                                {
+                                                    "id": "{E69EBE64-BE37-4E37-90A1-5B3FBE6BDA8C}",
+                                                    "name": "music"
+                                                },
+                                                {
+                                                    "id": "{A114365D-1393-4429-9823-12B11A7755DC}",
+                                                    "name": "music"
+                                                }
+                                            ]
+                                        },
+                                        "name": "New Segment"
+                                    }
+                                ],
+                                "id": "{6128CF6C-DE55-4E1C-A582-BD27EAD90A13}",
+                                "name": "Default Work Unit"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Importing two WAV files into a Music Segment to create two Music Tracks",
+                    "description": "Creates a Music Segment, and imports two WAV files. Two new Music Tracks and two Music Clips are also created.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Interactive Music Hierarchy\\Default Work Unit",
+                                "children": [
+                                    {
+                                        "type": "MusicSegment",
+                                        "name": "MultiTrack Segment",
+                                        "import": {
+                                            "files": [
+                                                {
+                                                    "audioFile": "c:\\path\\track1.wav"
+                                                },
+                                                {
+                                                    "audioFile": "c:\\path\\track2.wav"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        "onNameConflict": "merge"
+                    },
+                    "result": {
+                        "objects": [
+                            {
+                                "children": [
+                                    {
+                                        "id": "{7367EE35-EF2E-4EBC-81AC-6B7C23260BF2}",
+                                        "import": {
+                                            "logs": [
+                                                {
+                                                    "message": "Finalizing Importation...",
+                                                    "severity": "Message"
+                                                }
+                                            ],
+                                            "objects": [
+                                                {
+                                                    "id": "{DB365588-EDE7-4DF3-8473-9DE29F78B077}",
+                                                    "name": "track1"
+                                                },
+                                                {
+                                                    "id": "{8CE8D07A-F7E0-4A6E-9FD8-1CD2A2B7BBA3}",
+                                                    "name": "track1"
+                                                },
+                                                {
+                                                    "id": "{6D7EE38E-A8B7-4A90-B7B5-EED543C0B396}",
+                                                    "name": "track2"
+                                                },
+                                                {
+                                                    "id": "{D9CCB1A3-FAF7-46F8-A14C-18679F78B56E}",
+                                                    "name": "track2"
+                                                }
+                                            ]
+                                        },
+                                        "name": "MultiTrack Segment"
+                                    }
+                                ],
+                                "id": "{6128CF6C-DE55-4E1C-A582-BD27EAD90A13}",
+                                "name": "Default Work Unit"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Importing a WAV file into a Music Track to create a Music Clip",
+                    "description": "Creates a Music Segment, a Music Track, and imports its WAV file. A Music Track is also created.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Interactive Music Hierarchy\\Default Work Unit",
+                                "children": [
+                                    {
+                                        "type": "MusicSegment",
+                                        "name": "New Segment",
+                                        "children": [
+                                            {
+                                                "type": "MusicTrack",
+                                                "name": "New Track",
+                                                "import": {
+                                                    "files": [
+                                                        {
+                                                            "audioFile": "c:\\path\\file1.wav"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Importing a WAV file into a Convolution Reverb effect plug-in",
+                    "description": "Creates a Sound and a Convolution Reverb effect plug-in, then imports a WAV file as an impulse response.",
+                  "args": {
+                    "objects": [
+                      {
+                        "object": "\\Actor-Mixer Hierarchy\\Default Work Unit",
+                        "children": [
+                          {
+                            "type": "Sound",
+                            "name": "Reverb",
+                            "@Effects": [
+                              {
+                                "type": "EffectSlot",
+                                "name": "",
+                                "@Effect": {
+                                  "type": "Effect",
+                                  "name": "Reverb",
+                                  "classId": 8323075,
+                                  "import": {
+                                    "files": [
+                                      {
+                                        "audioFile": "C:\\ImpulseResponse.wav"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ],
+                            "import": {
+                              "files": [
+                                {
+                                  "audioFile": "C:\\wave\\cues\\30.wav"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "onNameConflict": "merge"
+                  },
+                  "result": {
+                    "objects": [
+                      {
+                        "id": "{88012962-D6A8-4400-BC86-DF1A5980EDFA}",
+                        "name": "Default Work Unit",
+                        "children": [
+                          {
+                            "id": "{2DF8A2CA-E676-4A66-B7D4-EEA3CEC818D7}",
+                            "name": "Reverb",
+                            "import": {
+                              "objects": [
+                                {
+                                  "id": "{B0110790-DB1A-4AFA-A0C2-A90E7350D441}",
+                                  "name": "30"
+                                }
+                              ],
+                              "logs": [
+                                {
+                                  "severity": "Message",
+                                  "message": "Finalizing Importation..."
+                                }
+                              ]
+                            },
+                            "@Effects": [
+                              {
+                                "id": "{494D2556-01CF-4E46-BC4E-5DA41CA1FF0D}",
+                                "name": "",
+                                "@Effect": {
+                                  "id": "{4349C021-EE84-4AA7-8D28-617B48DF1065}",
+                                  "name": "Reverb",
+                                  "import": {}
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                    "title": "Importing WAV files into Impacter source plug-in",
+                    "description": "Creates a Sound and an Impacter source plug-in, then imports WAV files.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Default Work Unit",
+                                "children": [
+                                    {
+                                        "type": "Sound",
+                                        "name": "Impacter",
+                                        "children": [
+                                            {
+                                                "type": "SourcePlugin",
+                                                "name": "Impacter",
+                                                "classId": 12058626,
+                                                "import": {
+                                                    "files": [
+                                                        {
+                                                            "audioFile": "C:\\Sound1.wav"
+                                                        },
+                                                        {
+                                                            "audioFile": "C:\\Sound2.wav"
+                                                        },
+                                                        {
+                                                            "audioFile": "C:\\Sound3.wav"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "onNameConflict": "merge"
+                    },
+                    "result": {
+                        "objects": [
+                            {
+                                "id": "{FF8CD9E6-627F-4760-B0A9-F9AD3B3EB477}",
+                                "name": "Default Work Unit",
+                                "children": [
+                                    {
+                                        "id": "{5EB1DA04-E70C-450A-87C1-EFA673466B6E}",
+                                        "name": "Impacter",
+                                        "children": [
+                                            {
+                                                "id": "{0DF0AE5B-48E0-44B9-A9BB-23296814AE78}",
+                                                "name": "Impacter",
+                                                "import": {}
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Importing a WAV file into Soundseed Grain source plug-in",
+                    "description": "Creates a Sound and a Soundseed Grain source plug-in, then imports a WAV file.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Default Work Unit",
+                                "children": [
+                                    {
+                                        "type": "Sound",
+                                        "name": "Grain",
+                                        "children": [
+                                            {
+                                                "type": "SourcePlugin",
+                                                "name": "Grain",
+                                                "classId": 11993090,
+                                                "import": {
+                                                    "files": [
+                                                        {
+                                                            "audioFile": "C:\\Sound1.wav"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "onNameConflict": "merge"
+                    },
+                    "result": {
+                        "objects": [
+                            {
+                                "id": "{FF8CD9E6-627F-4760-B0A9-F9AD3B3EB477}",
+                                "name": "Default Work Unit",
+                                "children": [
+                                    {
+                                        "id": "{54129975-8649-42C5-B5AE-BE5871C4D373}",
+                                        "name": "Grain",
+                                        "children": [
+                                            {
+                                                "id": "{4A8356D6-C925-4945-8C84-9F67D0B774EB}",
+                                                "name": "Grain",
+                                                "import": {}
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Changing the playlist of a Random Sequence object",
+                    "description": "The playlist added to the Random Sequence object is composed of the '1st number' object followed by two times '2nd Number'.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\External Sources\\Three Numbers in a Row",
+                                "@Playlist": [
+                                    "\\Actor-Mixer Hierarchy\\External Sources\\Three Numbers in a Row\\1st Number",
+                                    "\\Actor-Mixer Hierarchy\\External Sources\\Three Numbers in a Row\\2nd Number",
+                                    "\\Actor-Mixer Hierarchy\\External Sources\\Three Numbers in a Row\\2nd Number"
+                                ]
+                            }
+                        ],
+                        "onNameConflict": "merge",
+                        "listMode": "replaceAll"
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Setting the trigger of a MusicStinger.",
+                    "description": "The object field contains the id of the MusicStinger we want to change.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "{66666666-7777-8888-9999-AAAAAAAAAAAA}",
+                                "@Trigger": "\\Triggers\\Default Work Unit\\UniqueTriggerName"
+                            }
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Adding a Marker to an Audio Source",
+                    "description": "In the \"Markers\" list of an audio source, appends a Marker using the given Time and Label properties.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Default Work Unit\\MySoundSFX\\MyAudioSource",
+                                "@MarkerInputMode": 2,
+                                "@Markers": [
+                                    {
+                                        "type": "Marker",
+                                        "name": "",
+                                        "@Time": 1,
+                                        "@Label": "Waapi Generated"
+                                    }
+                                ],
+                                "listMode": "append"
+                            }
+                        ]
+                    },
+                    "options": {
+                        "return": [
+                            "id",
+                            "name",
+                            "@Time",
+                            "@Label"
+                        ]
+                    },
+                    "result": {
+                        "objects": [
+                            {
+                                "id": "{5A1EC9A4-5C47-4555-82EF-50722C168C0C}",
+                                "name": "AudioSource",
+                                "@Markers": [
+                                    {
+                                        "id": "{DAEC2A58-4605-4553-AA67-1090716691DC}",
+                                        "name": "",
+                                        "@Time": 1,
+                                        "@Label": "Waapi Generated"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Create a Music Playlist Container with segment and playlist",
+                    "description": "Creates a new Music Playlist Container, import a wav file in a Music Segment and create a playlist.",
+                    "args": {
+						"objects": [
+							{
+								"object": "\\Interactive Music Hierarchy\\Default Work Unit",
+								"children":[
+									{
+										"type":"MusicPlaylistContainer",
+										"name":"MySequence",
+										"children":[
+											{
+												"type":"MusicSegment",
+												"name":"Segment1",
+												"import":{ "files":[ {  "audioFile":"C:\\wave\\music.wav" } ] }
+											}
+										],
+										"@PlaylistRoot": {
+											"type": "MusicPlaylistItem",
+											"name":"",
+											"children":[
+												{
+													"type": "MusicPlaylistItem",
+													"name":"",
+													"@PlaylistItemType": 1,
+													"@Segment": "\\Interactive Music Hierarchy\\Default Work Unit\\MySequence\\Segment1"
+												}
+											]
+										}
+									}
+								]
+							}
+						],
+						"onNameConflict": "merge",
+						"listMode": "replaceAll"
+					},
+                    "options": {
+                    },
+                    "result": {
+						"objects": [
+							{
+								"id": "{78C8AE0D-6F8F-4FD3-BF65-436C7647C433}",
+								"name": "Default Work Unit",
+								"children": [
+									{
+										"id": "{8719EFDC-914D-4E95-9017-3DE5A0000E8E}",
+										"name": "MySequence",
+										"children": [
+											{
+												"id": "{69CA2921-725B-4D1D-BD7E-2674E70B9CA7}",
+												"name": "Segment1",
+												"import": {
+													"objects": [
+														{
+															"id": "{C736DC34-45A9-463F-AAD3-80503B1EAD9F}",
+															"name": "music"
+														}
+													],
+													"logs": [
+														{
+															"message": "Finalizing Importation...",
+															"severity": "Message"
+														}
+													]
+												}
+											}
+										],
+										"@PlaylistRoot": {
+											"id": "{97E6D2CD-940D-4CF1-9D41-32FC626711B5}",
+											"name": "",
+											"children": [
+												{
+													"id": "{DA859307-B176-46E8-8A8A-98D359667C49}",
+													"name": ""
+												}
+											]
+										}
+									}
+								]
+							}
+						]
+					}
+                },
+                {
+                    "title": "Create a Sound with Source Plug-in",
+                    "description": "Creates a new Sound with a Synth One Source Plug-in.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Default Work Unit",
+                                "children": [
+                                    {
+                                        "type": "Sound",
+                                        "name": "MySynthOne",
+                                        "children": [
+                                            {
+                                                "type": "SourcePlugin",
+                                                "name": "SynthOne",
+                                                "classId": 9699330,
+                                                "@BaseFrequency": 100,
+                                                "@Osc1Waveform": 0,
+                                                "@Osc2Waveform": 1
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "onNameConflict": "merge"
+                    },
+                    "options": {
+                    },
+                    "result": {
+                        "objects": [
+                            {
+                                "id": "{8D358F4E-6BF1-4C72-9EE7-5B1A53C69E1B}",
+                                "name": "Default Work Unit",
+                                "children": [
+                                    {
+                                        "id": "{32E53900-803E-4067-8F65-E32D8B32CCDB}",
+                                        "name": "MySynthOne",
+                                        "children": [
+                                            {
+                                                "id": "{0B743757-7744-4393-8E2A-D65793CDDD6D}",
+                                                "name": "SynthOne"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Clear an attenuation reference",
+                    "description": "Clears the attenuation reference on the specified object by setting a null GUID.",
+                    "args": {
+                        "objects": [
+                            {
+                                "object": "\\Actor-Mixer Hierarchy\\Default Work Unit\\MySound",
+                                "@Attenuation": "{00000000-0000-0000-0000-000000000000}"
+                            }
+                        ]
+                    },
+                    "options": {
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

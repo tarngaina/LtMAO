@@ -1,0 +1,80 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.cli.addNewPlatform",
+            "restrict": [
+                "commandLine"
+            ],
+            "description": "Adds a new platform to a project. The platform must not already exist.",
+            "visibility": "private",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "project": {
+                        "$ref": "waapi_definitions.json#/definitions/projectCliArg"
+                    },
+                    "new-platform-base": {
+                        "type": "string",
+                        "description": "The base platform to create.",
+                        "synopsis": [
+                            "--new-platform-base PLATFORM"
+                        ]
+                    },
+                    "copy-from-platform": {
+                        "type": "string",
+                        "description": "The platform to copy settings from.",
+                        "synopsis": [
+                            "--copy-from-platform PLATFORM"
+                        ]
+                    },
+                    "new-platform-name": {
+                        "type": "string",
+                        "description": "The name of the new platform.",
+                        "synopsis": [
+                            "--new-platform-name PLATFORM"
+                        ]
+                    }
+                },
+                "required": [
+                    "project"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "$ref": "waapi_definitions.json#/definitions/processResultCli"
+                    }
+                },
+                "required": [
+                    "result"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Adding a new platform to a project",
+                    "description": "Adds a new Lumin platform named Lumin1 and copies settings from Android.",
+                    "args": {
+                        "project": "C:\\MyProject\\MyProject.wproj",
+                        "new-platform-base": "Lumin",
+                        "copy-from-platform": "Android",
+                        "new-platform-name": "Lumin1"
+                    },
+                    "result": {
+                        "result": 0
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

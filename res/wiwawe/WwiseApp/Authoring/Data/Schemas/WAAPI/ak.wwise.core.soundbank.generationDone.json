@@ -1,0 +1,40 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.soundbank.generationDone",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.soundbank.generate"
+            ],
+            "description": "Sent when all SoundBanks are generated. Note: This notification is only sent when SoundBanks have been generated, it is not a reliable way to determine when \\ref ak_wwise_core_soundbank_generate has completed.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "logs": {
+                        "description": "The SoundBank generation log. The log is empty when used in WwiseConsole.",
+						"type": "array",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/logCentralItem"
+                        }
+                    },
+                    "error": {
+                        "type": "string",
+                        "description": "(DEPRECATED) The error message if an error occurred. Only present if an error occurred. You should check logs instead now."
+                    }
+                },
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

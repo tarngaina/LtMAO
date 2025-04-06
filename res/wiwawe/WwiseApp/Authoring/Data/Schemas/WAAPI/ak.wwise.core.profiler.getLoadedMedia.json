@@ -1,0 +1,108 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.getLoadedMedia",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.getCursorTime",
+                "ak.wwise.core.profiler.enableProfilerData",
+                "ak.wwise.core.profiler.getStreamedMedia"
+            ],
+            "description": "Retrieves the loaded media at a specific profiler capture time. This data can also be found in the Advanced Profiler, under the Loaded Media tab. To ensure the Loaded Media data is received, refer to \\ref ak_wwise_core_profiler_enableprofilerdata.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "time": {
+                        "$ref": "waapi_definitions.json#/definitions/cursorTime",
+                        "description": "Time in milliseconds to query for media, or a Time Cursor from which to acquire the time. The User Time Cursor is the one that can be manipulated by the user, while the Capture Time Cursor represents the latest time of the current capture."
+                    }
+                },
+                "required": [
+                    "time"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "type": "array",
+                        "description": "Array of Loaded Media.",
+                        "items": {
+                            "type": "object",
+                            "description": "Information about a media file loaded into memory as a result of the PrepareEvent() and PrepareGameSyncs() functions.",
+                            "properties": {
+								"mediaId": {
+                                    "type": "integer",
+                                    "description": "The short ID of the media file"
+                                },
+                                "fileName": {
+                                    "type": "string",
+                                    "description": "The name of the media file."
+                                },
+                                "format": {
+                                    "type": "string",
+                                    "description": "The audio format of the media file."
+                                },
+                                "size": {
+                                    "type": "integer",
+                                    "description": "The size (in bytes) of the media file."
+                                },
+                                "soundBank": {
+                                    "type": "string",
+                                    "description": "The name of the SoundBank that contains the media file."
+                                }
+                            },
+							"required": [
+								"mediaId", "fileName", "format", "size", "soundBank"
+							],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [
+                    "return"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Querying the Loaded Media at a point in time.",
+                    "description": "Queries the active Loaded Media in the current capture session at the latest capture time.",
+                    "args": {
+                        "time": "capture"
+                    },
+                    "result": {
+                        "return": [
+                            {
+								"mediaId" : 34223551,
+                                "fileName": "mySound1.wav",
+                                "format": "ptADPCM",
+                                "size": 1745238,
+                                "soundBank": "mySoundBank1"
+                            },
+                            {
+								"mediaId" : 66326472,
+                                "fileName": "mySound2.wav",
+                                "format": "VORBIS",
+                                "size": 36522,
+                                "soundBank": "mySoundBank2"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

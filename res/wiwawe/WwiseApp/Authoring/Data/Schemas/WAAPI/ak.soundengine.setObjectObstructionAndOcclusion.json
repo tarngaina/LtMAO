@@ -1,0 +1,69 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.setObjectObstructionAndOcclusion",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.setListeners"
+            ],
+            "description": "Set a game object's obstruction and occlusion levels. This function is used to affect how an object should be heard by a specific listener. See <tt>AK::SoundEngine::SetObjectObstructionAndOcclusion</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "emitter": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Emitter game object ID."
+                    },
+                    "listener": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Listener game object ID"
+                    },
+                    "obstructionLevel": {
+                        "type": "number",
+                        "description": "ObstructionLevel: [0.0f..1.0f]."
+                    },
+                    "occlusionLevel": {
+                        "type": "number",
+                        "description": "OcclusionLevel: [0.0f..1.0f]."
+                    }
+                },
+                "required": [
+                    "emitter",
+                    "listener",
+                    "obstructionLevel",
+                    "occlusionLevel"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting the obstruction and occlusion level of a game object",
+                    "description": "Sets the \"emitter\"'s \"obstructionLevel\" and \"occlusionLevel\" for the \"listener\".",
+                    "args": {
+                        "emitter": 1122334,
+                        "listener": 4455667,
+                        "obstructionLevel": 0.3,
+                        "occlusionLevel": 0.3
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,31 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.cli.launch",
+            "restrict": [ "userInterface" ],
+            "description": "Launch the main window of WwiseXP.",
+            "visibility": "private",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                },
+                "required": [],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+ }

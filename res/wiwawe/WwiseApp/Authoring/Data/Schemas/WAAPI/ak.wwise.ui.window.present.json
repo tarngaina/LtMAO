@@ -1,0 +1,42 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.window.present",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.model.createHandle",
+                "ak.wwise.ui.window.create",
+                "ak.wwise.ui.window.close"
+            ],
+            "description": "Presents a window and realizes its widgets.",
+            "visibility": "private",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "windowID": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID of the window."
+                    }
+                },
+                "required": [ "windowID" ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": []
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

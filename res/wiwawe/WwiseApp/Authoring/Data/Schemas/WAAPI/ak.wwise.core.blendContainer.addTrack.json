@@ -1,0 +1,82 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.blendContainer.addTrack",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.blendContainer.addAssignment",
+                "ak.wwise.core.blendContainer.removeAssignment",
+                "ak.wwise.core.blendContainer.getAssignments"
+            ],
+            "description": "Adds a new Blend Track to a Blend Container. Equivalent to clicking New Blend Track in the Blend Track Editor. To get the list of Blend Tracks, use the function ak.wwise.core.object.get with {return = \"blendTracks\"}.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the Blend Container."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the Blend Track."
+                    },
+                    "id": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "For internal use only! The ID (GUID) to assign to the newly created Object."
+                    }
+                },
+                "required": [
+                    "object",
+                    "name"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID (GUID) of the Blend Track."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the Blend Track."
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "The type of the object. Refer to \\ref wobjects_index for more information on the types available."
+                    },
+                    "shortId": {
+                        "type": "integer",
+                        "description": "The Short ID of the object."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Adding a Blend Track to a Blend Container",
+                    "description": "Equivalent to clicking New Blend Track in the Blend Track Editor.",
+                    "args": {
+                        "object": "{7A12D08F-B0D9-4403-9EFA-2E6338C197C1}",
+                        "name":  "newBlendTrack"
+                    },
+                    "result": {
+                        "id": "{D7126155-914E-4248-A8C1-4DABCCACA016}"
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,30 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.debug.testCrash",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Private use only.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

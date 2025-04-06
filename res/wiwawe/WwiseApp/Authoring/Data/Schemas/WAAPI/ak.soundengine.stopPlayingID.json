@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.stopPlayingID",
+            "restrict": [
+                "userInterface", "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.postEvent"
+            ],
+            "description": "Stops the current content, associated to the specified playing ID, from playing. See <tt>AK::SoundEngine::StopPlayingID</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "playingId": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "Playing ID to be stopped."
+                    },
+                    "transitionDuration": {
+                        "$ref": "common_definitions.json#/definitions/int32",
+                        "description": "Fade duration (ms)."
+                    },
+                    "fadeCurve": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9,
+                        "description": "Curve type to be used for the transition. Uses values from \\ref AkCurveInterpolation ."
+                    }
+                },
+                "required": [
+                    "playingId",
+                    "transitionDuration",
+                    "fadeCurve"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Stopping a current content playing",
+                    "description": "Stops the content, specified by \"playingId\", by using \"transitionDuration\" with a Linear Curve.",
+                    "args": {
+                        "playingId": 5566998,
+                        "transitionDuration": 2000,
+                        "fadeCurve": 4
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,60 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.setStateGroups",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+				"ak.wwise.core.object.setStateProperties"
+            ],
+			"description": "Sets the State Group objects associated with an object. Note, this will remove any previously associated State Group.",
+			"argsSchema": {
+				"type": "object",
+				"properties": {
+				"object": {
+					"$ref": "waapi_definitions.json#/definitions/objectArg",
+					"description": "The ID (GUID), name, or path of the object to which to add a State Group."
+				},
+				"stateGroups": {
+					"type": "array",
+					"description": "An array of State Group objects to set.",
+					"items": {
+						"$ref": "waapi_definitions.json#/definitions/objectArg"
+					}
+				}
+			},
+			"required": [
+				"object",
+				"stateGroups"
+			],
+			"additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Adding a State Group to a Sound",
+                    "description": "Adds a State Group to a Sound.",
+                    "args": {
+                        "object": "\\Actor-Mixer Hierarchy\\Default Work Unit\\MySound",
+                        "stateGroups": [ "\\States\\Default Work Unit\\MyStateGroup" ]
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,41 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.debug.enableAutomationMode",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.debug.enableAsserts"
+            ],
+            "description": "Enables or disables the automation mode for Wwise. This reduces the potential interruptions caused by message boxes and dialogs. For instance, enabling the automation mode silently accepts: project migration, project load log, EULA acceptance, project licence display and generic message boxes.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "enable": {
+                        "type": "boolean",
+                        "description": "When set to true, the automation mode reduces the blocking of dialogs and popups. When set to false, it reverts to the normal mode."
+                    }
+                },
+                "required": [
+                    "enable"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,41 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.startCapture",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.stopCapture",
+                "ak.wwise.core.profiler.getCursorTime",
+                "ak.wwise.core.profiler.getVoices",
+                "ak.wwise.core.profiler.captureLog.itemAdded"
+            ],
+            "description": "Starts the profiler capture and returns the time at the beginning of the capture, in milliseconds.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "type": "integer",
+                        "description": "The value of the Capture Time Cursor in ms."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

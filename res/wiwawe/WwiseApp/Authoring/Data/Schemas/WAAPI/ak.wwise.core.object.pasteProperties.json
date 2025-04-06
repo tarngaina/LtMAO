@@ -1,0 +1,168 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.pasteProperties",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.diff"
+            ],
+            "description": "Pastes properties, references and lists from one object to any number of target objects. Only those properties, references and lists which differ between source and target are pasted. Refer to \\ref wobjects_index for more information on the properties, references and lists available on each object type.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "source": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the source object."
+                    },
+                    "targets": {
+                        "type": "array",
+                        "description": "Array of target objects to paste into.",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/objectArg",
+                            "description": "The ID (GUID), name, or path of the target object."
+                        }
+                    },
+                    "pasteMode": {
+                        "type": "string",
+                        "description": "Paste mode for lists. Default value is \"replaceEntire\". With \"replaceEntire\" all elements in the lists of a target object are removed and all selected elements from the source's lists are copied. Conversely, with \"addReplace\" and \"addKeep\" elements in a target which are not in the source are not removed. Elements in the source's list which are not in a target's list are added to the target. For elements which are common to the source and a target \"addReplace\" will copy the one from the source, replacing the target's element, whereas \"addKeep\" will retain the element in the target.",
+                        "enum": [
+                            "replaceEntire",
+                            "addReplace",
+                            "addKeep"
+                        ]
+                    },
+                    "inclusion": {
+                        "type": "array",
+                        "description": "Array of properties, references and lists to include in the paste operation. When not specified, all properties, references and lists are included, and the exclusion defines which ones to exclude",
+                        "items": {
+                            "type": "string",
+                            "description": "property, reference or list name."
+                        }
+                    },
+                    "exclusion": {
+                        "type": "array",
+                        "description": "Array of properties, references and lists to exclude from the paste operation. When not specified, no properties, references and lists are excluded.",
+                        "items": {
+                            "type": "string",
+                            "description": "property, reference or list name."
+                        }
+                    }
+                },
+                "required": [
+                    "source",
+                    "targets"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Pasting with defaults",
+                    "description": "Paste the property, reference and list differences from the source object to the target object. All differences will be pasted.",
+                    "args": {
+                        "source": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Source Sound",
+                        "targets": [
+                            "\\Actor-Mixer Hierarchy\\Default Work Unit\\Target Sound"
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Pasting with inclusion",
+                    "description": "Paste the property, reference and list differences from the source object to the target objects. Paste only the \"Volume\" property and \"RTPC\" list.",
+                    "args": {
+                        "source": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Source Sound",
+                        "targets": [
+                            "\\Actor-Mixer Hierarchy\\Default Work Unit\\Target Sound",
+                            "\\Actor-Mixer Hierarchy\\Default Work Unit\\Target Sound2"
+                        ],
+                        "inclusion": [
+                            "Volume",
+                            "RTPC"
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Pasting with exclusion",
+                    "description": "Paste the property, reference and list differences from the source object to the target objects. Select a non-default paste mode for the lists and paste everything except for the \"Volume\" property and \"RTPC\" list.",
+                    "args": {
+                        "source": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Source Sound",
+                        "targets": [
+                            "\\Actor-Mixer Hierarchy\\Default Work Unit\\Target Sound",
+                            "\\Actor-Mixer Hierarchy\\Default Work Unit\\Target Sound2"
+                        ],
+                        "pasteMode": "addReplace",
+                        "exclusion": [
+                            "Volume",
+                            "RTPC"
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Pasting a list",
+                    "description": "Paste the property, reference and list differences from the source object to the target objects. Only the selected \"RTPC\" list will be pasted, no property or reference differences will be pasted.",
+                    "args": {
+                        "source": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Source Sound",
+                        "targets": [
+                            "\\Actor-Mixer Hierarchy\\Default Work Unit\\Target Sound",
+                            "\\Actor-Mixer Hierarchy\\Default Work Unit\\Target Sound2"
+                        ],
+                        "inclusion": [
+                            "RTPC"
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Pasting a list and all properties and references",
+                    "description": "Paste the property, reference and list differences from the source object to the target objects. Only the \"RTPC\" list will be pasted along with all properties and references. The source object only has \"RTPC\" and \"Metadata\" lists.",
+                    "args": {
+                        "source": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Source Sound",
+                        "targets": [
+                            "\\Actor-Mixer Hierarchy\\Default Work Unit\\Target Sound",
+                            "\\Actor-Mixer Hierarchy\\Default Work Unit\\Target Sound2"
+                        ],
+                        "exclusion": [
+                            "Metadata"
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Pasting a property and all lists",
+                    "description": "Paste the property, reference and list differences from the source object to the target objects. Only the \"Volume\" property will be pasted along with all lists for the source object. The source object only has \"RTPC\" and \"Metadata\" lists.",
+                    "args": {
+                        "source": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Source Sound",
+                        "targets": [
+                            "\\Actor-Mixer Hierarchy\\Default Work Unit\\Target Sound",
+                            "\\Actor-Mixer Hierarchy\\Default Work Unit\\Target Sound2"
+                        ],
+                        "inclusion": [
+                            "Volume",
+                            "RTPC",
+                            "Metadata"
+                        ]
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

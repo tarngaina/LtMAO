@@ -1,0 +1,65 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.window.create",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.model.createHandle",
+                "ak.wwise.ui.window.present",
+                "ak.wwise.ui.window.close"
+            ],
+            "description": "Creates a window in which a frontend handle can be instantiated.",
+            "visibility": "private",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "The name of the window."
+                    },
+                    "size": {
+                        "type": "object",
+                        "description": "The size of the window.",
+                        "properties": {
+                            "width": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "description": "The width of the window."
+                            },
+                            "height": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "description": "The height of the window."
+                            }
+                        },
+                        "required": [ "width", "height" ],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [ "title", "size" ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "windowID": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID of the window."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": []
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

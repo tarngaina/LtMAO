@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Modify s_ulLayoutVersion to increase the saved layout version. -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+	<!-- ***************
+	           Layout
+	*************** -->
+
+	<xs:element name="Layout">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Element" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UnDocked" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="LastPositions" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="ObjectTypeLastTabPositions" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="EffectLastTabPositions" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="SourcePluginLastTabPositions" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="AudioDeviceLastTabPositions" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="PluginInnerObjectLastTabPositions" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="MetadataLastTabPositions" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="FallbackLastTabPositions" minOccurs="0" maxOccurs="1"/>
+			</xs:sequence>
+			<xs:attribute name="Name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- ***************
+	      Element types
+	*************** -->
+
+	<xs:complexType name="ElementType">
+		<!-- See https://www.audiokinetic.com/en/library/edge/?source=SDK&id=globalviewsids.html for the list of all available view names. -->
+		<xs:attribute name="Name" type="xs:string" use="optional"/>
+    <xs:attribute name="ID" type="xs:string" use="optional"/>
+		<xs:attribute name="Width" type="xs:float" use="optional"/>
+		<xs:attribute name="Height" type="xs:float" use="optional"/>
+	</xs:complexType>
+	
+	<xs:element name="Element" type="ElementType" abstract="true"/>
+	
+	<xs:element name="StackPanel" substitutionGroup="Element">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ElementType">
+					<xs:sequence>
+						<xs:element ref="Element" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+					<xs:attribute name="Orientation" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="Horizontal"/>
+								<xs:enumeration value="Vertical"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+
+	<!-- ***************
+	    ObjectPanel types
+	*************** -->
+
+	<xs:simpleType name="EditorState">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Normal"/>
+			<xs:enumeration value="Maximized"/>
+			<xs:enumeration value="Minimized"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="EditorId">
+		<xs:complexType>
+			<xs:attribute name="UniqueViewId" type="xs:string" use="required"/>
+			<xs:attribute name="PluginId" type="xs:unsignedInt" use="required"/>
+			<xs:attribute name="EffectIndex" type="xs:unsignedInt" use="required"/>		
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="EditorPriority">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="EditorId" minOccurs="0" maxOccurs="unbounded"/>			
+			</xs:sequence>		
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="PrimaryEditorHistory">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="EditorId" minOccurs="0" maxOccurs="unbounded"/>			
+			</xs:sequence>		
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="PreferredHeight">
+		<xs:complexType>
+			<xs:attribute name="EditorUniqueViewId" type="xs:string" use="required"/>
+			<xs:attribute name="EditorPluginId" type="xs:unsignedInt" use="required"/>
+			<xs:attribute name="EditorEffectIndex" type="xs:unsignedInt" use="required"/>		
+			<xs:attribute name="Height" type="xs:float" use="required"/>		
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="PreferredHeights">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="PreferredHeight" minOccurs="0" maxOccurs="unbounded"/>			
+			</xs:sequence>		
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="SideBar">
+		<xs:attribute name="Width" type="xs:float" use="optional"/>
+		<xs:attribute name="CollapseState" type="xs:int" use="optional"/>
+		<xs:attribute name="Visibility" type="xs:string" use="optional"/>
+	</xs:complexType>
+
+  <xs:element name="ObjectPanel" substitutionGroup="Element">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="ElementType">
+          <xs:sequence>
+            <xs:element ref="Element" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="EditorPriority" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="PrimaryEditorHistory" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="PreferredHeights" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="SideBarRight" type="SideBar" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="SideBarLeft" type="SideBar" minOccurs="0" maxOccurs="1"/>
+          </xs:sequence>
+          <xs:attribute name="BottomEditorState" type="EditorState" use="optional" />
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TabPanel" substitutionGroup="Element">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ElementType">
+					<xs:sequence>
+						<xs:element ref="Element" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="ObjectTabPanel" substitutionGroup="Element">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ElementType">
+					<xs:sequence>
+						<xs:element ref="Element" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+					<xs:attribute name="SelectionChannel" type="xs:unsignedInt" use="optional"/>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>	
+
+	<xs:element name="Splitter" substitutionGroup="Element">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ElementType"/>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="View" substitutionGroup="Element">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ElementType">
+					<xs:sequence>
+						<xs:element name="ViewData" minOccurs="0">
+							<xs:complexType>
+								<xs:sequence minOccurs="0" maxOccurs="unbounded">
+									<xs:any processContents="skip"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="SelectionChannel" type="xs:unsignedInt" use="optional"/>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- ***************
+	     Undocked views
+	*************** -->
+
+	<xs:element name="UnDocked">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ViewHolder" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="ViewHolder">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Element" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="WindowPlacement_Flags" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_ShowCmd" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="Normal"/>
+						<xs:enumeration value="Maximized"/>
+						<xs:enumeration value="Minimized"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="WindowPlacement_MinPos_X" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_MinPos_Y" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_MaxPos_X" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_MaxPos_Y" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_NormalPos_Left" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_NormalPos_Top" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_NormalPos_Right" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_NormalPos_Bottom" type="xs:int" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- ***************
+	     Undocked views last position
+	*************** -->
+
+	<xs:element name="LastPositions">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ViewPosition" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+
+	<xs:element name="ObjectTypeLastTabPositions">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ViewPosition" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+
+	<xs:element name="EffectLastTabPositions">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ViewPosition" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+
+	<xs:element name="SourcePluginLastTabPositions">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ViewPosition" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+
+	<xs:element name="AudioDeviceLastTabPositions">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ViewPosition" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+
+	<xs:element name="PluginInnerObjectLastTabPositions">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ViewPosition" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+
+	<xs:element name="MetadataLastTabPositions">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ViewPosition" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="FallbackLastTabPositions">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ViewPosition" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="ViewPosition">
+		<xs:complexType>
+			<xs:attribute name="Name" type="xs:string" use="required"/>
+			<xs:attribute name="WindowPlacement_Flags" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_ShowCmd" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="Normal"/>
+						<xs:enumeration value="Maximized"/>
+						<xs:enumeration value="Minimized"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="WindowPlacement_MinPos_X" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_MinPos_Y" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_MaxPos_X" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_MaxPos_Y" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_NormalPos_Left" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_NormalPos_Top" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_NormalPos_Right" type="xs:int" use="required"/>
+			<xs:attribute name="WindowPlacement_NormalPos_Bottom" type="xs:int" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	
+</xs:schema>

@@ -1,0 +1,82 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.waapi.getSchema",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.waapi.getFunctions",
+                "ak.wwise.waapi.getTopics"
+            ],
+            "description": "Retrieves the JSON schema of a Waapi URI.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "uri": {
+                        "type": "string",
+                        "description": "Waapi URI (see ak.wwise.waapi.getTopics, ak.wwise.waapi.getFunctions)."
+                    },
+					"includeExamples": {
+						"type": "boolean",
+						"description": "Include the examples provided in the schema. Default value is false."
+					}
+                },
+                "required": [
+                    "uri"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "argsSchema": {
+                        "type": "object",
+                        "description": "The argument schema. Only possible for functions.",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "optionsSchema": {
+                        "type": "object",
+                        "description": "The option schema.",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "resultSchema": {
+                        "type": "object",
+                        "description": "The result schema. Only possible for functions.",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "publishSchema": {
+                        "type": "object",
+                        "description": "The publish schema. Only possible for topics.",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+					"examples": {
+						"type": "array",
+                        "description": "The examples provided in the schema.",
+						"items" : {
+							"type": "object",
+							"description": "The example.",
+							"properties": {},
+							"additionalProperties": true
+						}
+					}
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": []
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

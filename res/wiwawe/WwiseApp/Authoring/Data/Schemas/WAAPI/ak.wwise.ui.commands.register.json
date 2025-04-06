@@ -1,0 +1,100 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.commands.register",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.commands.unregister",
+                "ak.wwise.ui.commands.execute",
+                "ak.wwise.ui.commands.executed"
+            ],
+            "description": "Registers an array of add-on commands. Registered commands remain until the Wwise process is terminated. Refer to \\ref defining_custom_commands for more information about registering commands. Also refer to \\ref ak_wwise_ui_commands_executed.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "commands": {
+                        "$ref": "waapi_definitions.json#/definitions/addOnsCommands",
+                        "description": "Data for the commands to be registered."
+                    }
+                },
+                "required": [
+                    "commands"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Registering a command with no program",
+                    "description": "Registers a command that has no program. Typically used as a callback in Waapi. Simplest example.",
+                    "args": {
+                        "commands": [
+                            {
+                                "id": "sample.programlessregistration",
+                                "displayName": "Programless registration"
+                            }
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Registering a command to edit in Visual Studio Code",
+                    "description": "Registers a command that's shown in a new Extra menu.",
+                    "args": {
+                        "commands": [
+                            {
+                                "id": "ak.edit_in_vscode",
+                                "displayName": "Edit in Visual Studio Code",
+                                "defaultShortcut": "C",
+                                "program": "code",
+                                "startMode": "MultipleSelectionSingleProcessSpaceSeparated",
+                                "args": "${filePath}",
+                                "cwd": "",
+                                "contextMenu": {
+                                    "basePath": "Editors",
+                                    "enabledFor": "Sound,ActorMixer,SwitchContainer,RandomSequenceContainer"
+                                },
+                                "mainMenu": {
+                                    "basePath": "Extra"
+                                }
+                            }
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Registering a command to edit in Wavosaur",
+                    "description": "Registers a command that's shown in the contextual menu only",
+                    "args": {
+                        "commands": [
+                            {
+                                "id": "ak.open_in_wavosaur",
+                                "displayName": "Edit in Wavosaur",
+                                "defaultShortcut": "W",
+                                "program": "c:\\Wavosaur.1.1.0.0-x64(en)\\Wavosaur.exe",
+                                "args": "${originalWavFilePath}",
+                                "cwd": "",
+                                "contextMenu": {}
+                            }
+                        ]
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,93 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.move",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.copy",
+                "ak.wwise.core.object.childAdded",
+                "ak.wwise.core.object.childRemoved"
+            ],
+            "description": "Moves an object to the given parent. Returns the moved object.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to be moved."
+                    },
+                    "parent": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object's new parent."
+                    },
+                    "onNameConflict": {
+                        "type": "string",
+                        "description": "The action to take if \"parent\" already has a child with the same name. Default value is \"fail\".",
+                        "enum": [
+                            "rename",
+                            "replace",
+                            "fail"
+                        ]
+                    },
+                    "autoCheckOutToSourceControl": {
+                        "type": "boolean",
+                        "description": "Determines if Wwise automatically performs a Checkout source control operation for affected work units and for the project. Defaults to true."
+                    }
+                },
+                "required": [
+                    "object",
+                    "parent"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                "description": "The moved object."
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Moving an object to a new parent",
+                    "description": "Moves object \"id\" and makes it a child of \"parent\". The object fails if \"parent\" already contains a child with the same name.",
+                    "args": {
+                        "object": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "parent": "{66666666-7777-8888-9999-AAAAAAAAAAAA}"
+                    },
+                    "result": {
+                        "id": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "name": "myObjectName",
+                        "type": "Sound",
+                        "path": "\\Actor-Mixer Hierarchy\\Default Work Unit\\myObjectName",
+                        "shortId": 12345
+                    }
+                },
+                {
+                    "title": "Moving an object to a parent containing a child of the same name",
+                    "description": "Moves object \"id\" and makes it a child of \"parent\".  The object is renamed if \"parent\" already contains a child with the same name.",
+                    "args": {
+                        "object": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "parent": "{66666666-7777-8888-9999-AAAAAAAAAAAA}",
+                        "onNameConflict": "rename"
+                    },
+                    "result": {
+                        "id": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "name": "new_object_name",
+                        "type": "Sound",
+                        "path": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Sound1",
+                        "shortId": 456678
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,79 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.model.getState",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.model.setState"
+            ],
+            "description": "Gets the state of widgets.",
+            "visibility": "private",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "handleID": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID of the handle."
+                    },
+                    "state": {
+                        "type": "array",
+                        "description": "The widgets and attributes to query.",
+                        "items": {
+                            "type": "object",
+                            "description": "The widget and attributes to query.",
+                            "properties": {
+                                "widgetID": {
+                                    "type": "string",
+                                    "description": "The ID of the widget."
+                                },
+                                "state": {
+                                    "type": "array",
+                                    "description": "The name of the attributes to query.",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "The name of the attribute."
+                                    }
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [ "handleID", "state" ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "array",
+                "description": "The current state of the widgets.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "widgetID": {
+                            "type": "string",
+                            "description": "The ID of the widget."
+                        },
+                        "state": {
+                            "type": "array",
+                            "description": "The current state of the widget.",
+                            "items": {
+                                "$ref": "waapi_ui_definitions.json#/definitions/widgetAttributeEntry"
+                            }
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": []
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

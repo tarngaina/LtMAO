@@ -1,0 +1,44 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.audio.resetSolo",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+				"ak.wwise.core.audio.mute",
+				"ak.wwise.core.audio.solo",
+				"ak.wwise.core.audio.resetMute"
+            ],
+            "description": "Unsolo all soloed objects.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Unsolo all objects",
+                    "description": "Unsolo all soloed objects in Wwise.",
+                    "args": {},
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,226 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.getInfo",
+            "seeAlso": [
+                "ak.wwise.core.getProjectInfo"
+            ],
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Retrieve global Wwise information.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "sessionId": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "Wwise session id."
+                    },
+                    "apiVersion": {
+                        "type": "number",
+                        "minimum": 1,
+                        "description": "Version of the Wwise Authoring API."
+                    },
+                    "displayName": {
+                        "type": "string",
+                        "pattern": "Wwise",
+                        "description": "Wwise display name."
+                    },
+                    "branch": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Branch built."
+                    },
+                    "copyright": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Copyright information."
+                    },
+                    "version": {
+                        "type": "object",
+                        "properties": {
+                            "displayName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "Wwise version name."
+                            },
+                            "year": {
+                                "type": "integer",
+                                "minimum": 2000,
+                                "maximum": 2100,
+                                "description": "Version year."
+                            },
+                            "major": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 100,
+                                "description": "Version's major number"
+                            },
+                            "minor": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 100,
+                                "description": "Version's minor number."
+                            },
+                            "build": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "description": "Build number."
+                            },
+                            "nickname": {
+                                "type": "string",
+                                "description": "Special name given to a version."
+                            },
+                            "schema": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "description": "Schema version for the Wwise Project and Work Units."
+                            }
+                        },
+                        "required": [
+                            "displayName",
+                            "year",
+                            "major",
+                            "minor",
+                            "build",
+                            "nickname",
+                            "schema"
+                        ],
+                        "description": "Wwise version object."
+                    },
+                    "configuration": {
+                        "type": "string",
+                        "enum": [
+                            "release",
+                            "debug"
+                        ],
+                        "description": "Indicates a release or debug build."
+                    },
+                    "platform": {
+                        "type": "string",
+                        "enum": [
+                            "x64",
+                            "win32",
+                            "macosx",
+                            "linux"
+                        ],
+                        "description": "Indicates the platform on which Wwise was built."
+                    },
+                    "isCommandLine": {
+                        "type": "boolean",
+                        "description": "Indicates if Wwise is running in command line."
+                    },
+                    "processId": {
+                        "type": "integer",
+                        "description": "The process identifier of Wwise."
+                    },
+                    "processPath": {
+                        "type": "string",
+                        "description": "The process path of Wwise."
+                    },
+                    "directories": {
+                        "type": "object",
+                        "description": "Collection of directories used by Wwise.",
+                        "properties": {
+                            "install": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "The root directory of Wwise. This is the installation directory."
+                            },
+                            "authoring": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "The Wwise Authoring root directory"
+                            },
+                            "bin": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "The bin directory, where Wwise.exe is located."
+                            },
+                            "help": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "The help directory."
+                            },
+                            "user": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "The Wwise user data directory root."
+                            }
+                        },
+                        "required": [
+                            "install",
+                            "authoring",
+                            "bin",
+                            "help",
+                            "user"
+                        ]
+                    }
+                },
+                "required": [
+                    "sessionId",
+                    "apiVersion",
+                    "displayName",
+                    "branch",
+                    "copyright",
+                    "version",
+                    "configuration",
+                    "platform",
+                    "isCommandLine",
+                    "processId",
+                    "processPath",
+                    "directories"
+                ]
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Getting information about Wwise",
+                    "description": "Gets information about the currently connected Wwise.",
+                    "args": {},
+                    "result": {
+                        "displayName": "Wwise",
+                        "platform": "x64",
+                        "directories": {
+                            "help": "C:\\Projects\\Wwise\\Authoring\\Help\\",
+                            "user": "%APPDATA%\\Audiokinetic\\Wwise\\",
+                            "install": "C:\\Projects\\Wwise\\",
+                            "authoring": "C:\\Projects\\Wwise\\Authoring\\",
+                            "bin": "C: \\Projects\\Wwise\\Authoring\\source\\App\\"
+                        },
+                        "branch": "v2016.2/wwise_main",
+                        "configuration": "debug",
+                        "version": {
+                            "displayName": "v2017.1.0",
+                            "nickname": "",
+                            "build": 83,
+                            "minor": 0,
+                            "year": 2017,
+                            "major": 1,
+                            "schema": 103
+                        },
+                        "copyright": "© 2006-2017. Audiokinetic Inc. All rights reserved.",
+                        "apiVersion": 1,
+                        "isCommandLine": false,
+                        "processId": 12345,
+                        "processPath": "C:\\Projects\\Wwise\\Authoring\\x64\\Release\\bin\\Wwise.exe",
+                        "sessionId": "{FF59687C-48CF-4385-B1C5-CE84B0A63880}"
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

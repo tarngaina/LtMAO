@@ -1,0 +1,91 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.postEvent",
+            "restrict": [
+                "userInterface", "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.registerGameObj",
+                "ak.soundengine.executeActionOnEvent",
+                "ak.soundengine.seekOnEvent",
+                "ak.soundengine.stopPlayingID",
+                "ak.wwise.core.transport.prepare"
+            ],
+            "description": "Asynchronously post an Event to the sound engine (by event ID). See <tt>AK::SoundEngine::PostEvent</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "event": {
+                        "$ref": "waapi_definitions.json#/definitions/soundEngineObjectArg",
+                        "description": "Either the ID (GUID), name, or Short ID of the Event."
+                    },
+                    "gameObject": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "The unique ID of the game object. "
+                    }
+                },
+                "required": [
+                    "event"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "The playing ID of the Event launched, or \\c AK_INVALID_PLAYING_ID if posting the event failed."
+                    }
+                },
+                "required": [
+                    "return"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Posting an Event by name",
+                    "description": "Posts an Event to the sound engine using the Event's name.",
+                    "args": {
+                        "event": "Play_Music",
+                        "gameObject": 1122334
+                    },
+                    "result": {
+                        "return": 8
+                    }
+                },
+                {
+                    "title": "Posting an Event by Short ID",
+                    "description": "Posts an Event to the sound engine using the Event's Short ID.",
+                    "args": {
+                        "event": 2932040671,
+                        "gameObject": 1122334
+                    },
+                    "result": {
+                        "return": 8
+                    }
+                },
+                {
+                    "title": "Posting an Event by object GUID",
+                    "description": "Posts an Event to the sound engine using the Event's GUID.",
+                    "args": {
+                        "event": "{FF59687C-48CF-4385-B1C5-CE84B0A63880}",
+                        "gameObject": 1122334
+                    },
+                    "result": {
+                        "return": 8
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,200 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.setMultiplePositions",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.setPosition",
+                "ak.soundengine.registerGameObj"
+            ],
+            "description": "Sets multiple positions for a single game object. Setting multiple positions for a single game object is a way to simulate multiple emission sources while using the resources of only one voice. This can be used to simulate wall openings, area sounds, or multiple objects emitting the same sound in the same area. See <tt>AK::SoundEngine::SetMultiplePositions</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "gameObject": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Game Object identifier."
+                    },
+                    "positions": {
+                        "type": "array",
+                        "maxItems": 65535,
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "position": {
+                                    "type": "object",
+                                    "description": "A 3D position to set for the game object.",
+                                    "properties": {
+                                        "orientationFront": {
+                                            "type": "object",
+                                            "description": "Orientation of the listener.",
+                                            "properties": {
+                                                "x": {
+                                                    "type": "number",
+                                                    "description": "X Position."
+                                                },
+                                                "y": {
+                                                    "type": "number",
+                                                    "description": "Y Position."
+                                                },
+                                                "z": {
+                                                    "type": "number",
+                                                    "description": "Z Position."
+                                                }
+                                            },
+                                            "required": [
+                                                "x",
+                                                "y",
+                                                "z"
+                                            ],
+                                            "additionalProperties": false
+                                        },
+                                        "orientationTop": {
+                                            "type": "object",
+                                            "description": "Top orientation of the listener.",
+                                            "properties": {
+                                                "x": {
+                                                    "type": "number",
+                                                    "description": "X Position."
+                                                },
+                                                "y": {
+                                                    "type": "number",
+                                                    "description": "Y Position."
+                                                },
+                                                "z": {
+                                                    "type": "number",
+                                                    "description": "Z Position."
+                                                }
+                                            },
+                                            "required": [
+                                                "x",
+                                                "y",
+                                                "z"
+                                            ],
+                                            "additionalProperties": false
+                                        },
+                                        "position": {
+                                            "type": "object",
+                                            "description": "Position of the listener",
+                                            "properties": {
+                                                "x": {
+                                                    "type": "number",
+                                                    "description": "X Position."
+                                                },
+                                                "y": {
+                                                    "type": "number",
+                                                    "description": "Y Position."
+                                                },
+                                                "z": {
+                                                    "type": "number",
+                                                    "description": "Z Position."
+                                                }
+                                            },
+                                            "required": [
+                                                "x",
+                                                "y",
+                                                "z"
+                                            ],
+                                            "additionalProperties": false
+                                        }
+                                    },
+                                    "required": [
+                                        "orientationFront",
+                                        "orientationTop",
+                                        "position"
+                                    ],
+                                    "additionalProperties": false
+                                }
+                            },
+                            "description": "Position",
+                            "required": [
+                                "position"
+                            ],
+                            "additionalProperties": false
+                        },
+                        "description": "Array of positions to apply."
+                    },
+                    "multiPositionType": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2,
+                        "description": "Uses values from <tt>AK::SoundEngine::MultiPositionType</tt>."
+                    }
+                },
+                "required": [
+                    "gameObject",
+                    "positions",
+                    "multiPositionType"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting multiple positions for a game object",
+                    "description": "Sets \"gameObject\" to multiple positions, as defined in \"positions\", to simulate multiple sources for one playing sound.",
+                    "args": {
+                        "gameObject": 1122334,
+                        "positions": [
+                            {
+                                "position": {
+                                    "orientationFront": {
+                                        "x": 5,
+                                        "y": 20,
+                                        "z": 10
+                                    },
+                                    "orientationTop": {
+                                        "x": 70,
+                                        "y": 150,
+                                        "z": 6
+                                    },
+                                    "position": {
+                                        "x": 70,
+                                        "y": 150,
+                                        "z": 10
+                                    }
+                                }
+                            },
+                            {
+                                "position": {
+                                    "orientationFront": {
+                                        "x": -50,
+                                        "y": 80,
+                                        "z": 15
+                                    },
+                                    "orientationTop": {
+                                        "x": 2,
+                                        "y": 40,
+                                        "z": 6
+                                    },
+                                    "position": {
+                                        "x": 2,
+                                        "y": -20,
+                                        "z": 400
+                                    }
+                                }
+                            }
+                        ],
+                        "multiPositionType": 1
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

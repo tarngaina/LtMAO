@@ -1,0 +1,5 @@
+{
+    "version": 1,
+
+    "$defs": "waapi_ui_definitions.json#/definitions/LayoutEntity"
+}

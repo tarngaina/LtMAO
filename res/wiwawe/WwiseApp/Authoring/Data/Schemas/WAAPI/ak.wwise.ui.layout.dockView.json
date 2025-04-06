@@ -1,0 +1,74 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.layout.dockView",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.layout.undockView"
+            ],
+            "description": "Dock a floating view into a layout.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the layout where to dock the view"
+                    },
+                    "viewID": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The unique id of the view to dock."
+                    },
+                    "targetID": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The unique id of the target element."
+                    },
+                    "side": {
+                        "type": "string",
+                        "description": "The side where to drop the view on the target.",
+                        "enum": [
+                            "left",
+                            "right",
+                            "top",
+                            "bottom"
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "viewID",
+                    "targetID",
+                    "side"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Docking a floating view in a layout",
+                    "description": "Docks a floating view, using its GUID, in a specific panel of a layout.",
+                    "args": {
+                        "name": "Designer",
+                        "viewID": "{6609D1BA-0E47-48F4-B3B6-3DA1C345B66E}",
+                        "targetID": "{39949670-A96A-47C5-8EEF-F8AD26BD6B34}",
+                        "side": "left"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

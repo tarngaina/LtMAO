@@ -1,0 +1,63 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.setGameObjectOutputBusVolume",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.setListeners"
+            ],
+            "description": "Set the output bus volume (direct) to be used for the specified game object. See <tt>AK::SoundEngine::SetGameObjectOutputBusVolume</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "emitter": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Associated emitter game object ID."
+                    },
+                    "listener": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Associated listener game object ID."
+                    },
+                    "controlValue": {
+                        "type": "number",
+                        "description": "A multiplier where 0 means silence and 1 means no change. Therefore, values between 0 and 1 attenuate the sound, and values greater than 1 amplify it."
+                    }
+                },
+                "required": [
+                    "emitter",
+                    "listener",
+                    "controlValue"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting the emitter's output bus volume for the listener",
+                    "description": "Amplifies the output bus volume of the emitter for the listener by using the multiplier control value.",
+                    "args": {
+                        "emitter": 1122334,
+                        "listener": 4455667,
+                        "controlValue": 2
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

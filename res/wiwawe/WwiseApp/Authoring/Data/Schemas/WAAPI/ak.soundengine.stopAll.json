@@ -1,0 +1,52 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.stopAll",
+            "seeAlso": [
+                "ak.soundengine.stopPlayingID",
+                "ak.soundengine.postEvent"
+            ],
+            "restrict": [
+                "userInterface", "commandLine"
+
+            ],
+            "description": "Stop playing the current content associated to the specified game object ID. If no game object is specified, all sounds are stopped. See <tt>AK::SoundEngine::StopAll</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "gameObject": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Specify a game object to stop only playback associated to the provided game object ID."
+                    }
+                },
+                "required": [
+                    "gameObject"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Stopping a currently playing content",
+                    "description": "Stops playing all the content associated with \"gameObject\".",
+                    "args": {
+                        "gameObject": 1122334
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

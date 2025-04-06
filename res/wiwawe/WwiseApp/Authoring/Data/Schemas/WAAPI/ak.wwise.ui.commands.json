@@ -1,0 +1,25 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [],
+    "validators": [
+        {
+            "id": "ak.wwise.ui.commands",
+            "type": "object",
+            "properties": {
+                "version": {
+                    "type": "number",
+                    "description": "Version of the command file. If none is specified, Wwise assumes it is compatible."
+                },
+                "commands": {
+                    "$ref": "waapi_definitions.json#/definitions/addOnsCommands",
+                    "description": "Data for the commands to be registered."
+                }
+            },
+            "required": [
+                "commands"
+            ],
+            "additionalProperties": false
+        }
+    ]
+}

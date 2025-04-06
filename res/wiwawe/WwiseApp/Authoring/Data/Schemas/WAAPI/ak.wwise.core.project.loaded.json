@@ -1,0 +1,28 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.project.loaded",
+            "restrict": [
+                "userInterface",
+				"commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.project.open"
+            ],
+            "description": "Sent when the project has been successfully loaded.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

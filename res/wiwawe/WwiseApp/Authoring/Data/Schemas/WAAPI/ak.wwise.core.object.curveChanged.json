@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.object.curveChanged",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.setAttenuationCurve"
+            ],
+            "description": "Sent when one or many curves are changed.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "$ref": "waapi_definitions.json#/definitions/returnExpression",
+                        "description": "Data to be returned for every curve change."
+                    },
+                    "platform": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID (GUID) of the platform."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "notification": {
+                        "type": "string",
+                        "description": "The type of change applied to the curve."
+                    },
+                    "curve": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The curve object that was modified."
+                    },
+                    "owner": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The owner object."
+                    }
+                },
+                "required": [
+                    "notification",
+                    "curve",
+                    "owner"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

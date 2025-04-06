@@ -1,0 +1,38 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.ui.selectionChanged",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.commands.execute"
+            ],
+            "description": "Sent when the selection changes in the project.",
+            "optionsSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturnOptions",
+                "description": "Specifies the return options for every returned object."
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "objects": {
+                        "type": "array",
+                        "description": "The selected objects, in the format specified in the options. Can be empty if no object is selected.",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                            "description": "The selected objects. You can use the options to specify which data to return. Default returns id and name."
+                        }
+                    }
+                },
+                "required": [
+                    "objects"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

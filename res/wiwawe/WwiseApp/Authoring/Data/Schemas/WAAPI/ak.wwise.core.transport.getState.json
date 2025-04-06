@@ -1,0 +1,67 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.transport.getState",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.transport.create",
+                "ak.wwise.core.transport.executeAction"
+            ],
+            "description": "Gets the state of the given transport object.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "transport": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "The transport object ID to be used with all other ak.wwise.core.transport functions."
+                    }
+                },
+                "required": [
+                    "transport"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "state": {
+                        "type": "string",
+                        "description": "The state of the transport object.",
+                        "enum": [
+                            "playing",
+                            "stopped",
+                            "paused"
+                        ]
+                    }
+                },
+                "required": [
+                    "state"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Getting a transport object's State",
+                    "description": "Gets the State of the given transport object.",
+                    "args": {
+                        "transport": 1234
+                    },
+                    "result": {
+                        "state": "playing"
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

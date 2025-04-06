@@ -1,0 +1,59 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.switchContainer.addAssignment",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.switchContainer.getAssignments",
+                "ak.wwise.core.switchContainer.removeAssignment",
+                "ak.wwise.core.switchContainer.assignmentAdded"
+            ],
+            "description": "Assigns a Switch Container's child to a Switch. This is the equivalent of doing a drag&drop of the child to a state in the Assigned Objects view. The child is always added at the end for each state.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "child": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to assign to a State. This object must be the child of a Switch Container."
+                    },
+                    "stateOrSwitch": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the State or Switch with which to assign. Must be the child of the Switch Group or State Group that is currently set for the Switch Container."
+                    }
+                },
+                "required": [
+                    "child",
+                    "stateOrSwitch"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Assigning a Switch Container's child to a State",
+                    "description": "Equivalent to dragging a child of a Switch Group to a State listed in the Assigned Objects view.",
+                    "args": {
+                        "child": "{7A12D08F-B0D9-4403-9EFA-2E6338C197C1}",
+                        "stateOrSwitch": "{A076AA65-B71A-45BB-8841-5A20C52CE727}"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

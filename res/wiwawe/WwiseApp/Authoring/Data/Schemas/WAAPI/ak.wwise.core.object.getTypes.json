@@ -1,0 +1,84 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.getTypes",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.getPropertyInfo",
+                "ak.wwise.core.object.getPropertyAndReferenceNames"
+            ],
+            "description": "Retrieves the list of all object types registered in Wwise's object model. This function returns the equivalent of \\ref wobjects_index .",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "type": "array",
+                        "description": "An array of all Wwise object types.",
+                        "items": {
+                            "type": "object",
+                            "description": "A Wwise object type. Refer to \\ref wobjects_index .",
+                            "properties": {
+                                "classId": {
+                                    "$ref": "common_definitions.json#/definitions/uint32",
+                                    "description": "The ID (class ID) of the object."
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "The name of the object."
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "description": "The type of the object. Refer to \\ref wobjects_index for more information on the types available."
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Getting the list of all object types",
+                    "description": "Retrieves the list of all object types.",
+                    "args": {},
+                    "result": {
+                        "return": [
+                            {
+                                "classId": 16,
+                                "name": "AudioFileSource",
+                                "type": "WObject"
+                            },
+                            {
+                                "classId": 65537,
+                                "name": "PCM",
+                                "type": "Conversion"
+                            },
+                            {
+                                "classId": 8192003,
+                                "name": "Wwise Flanger",
+                                "type": "Effect"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

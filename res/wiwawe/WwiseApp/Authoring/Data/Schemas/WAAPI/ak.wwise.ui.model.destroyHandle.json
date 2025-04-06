@@ -1,0 +1,41 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.model.destroyHandle",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.window.close",
+                "ak.wwise.ui.model.createHandle"
+            ],
+            "description": "Destroys a frontend handle and its widgets.",
+            "visibility": "private",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "handleID": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID of the handle."
+                    }
+                },
+                "required": [ "handleID" ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": []
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

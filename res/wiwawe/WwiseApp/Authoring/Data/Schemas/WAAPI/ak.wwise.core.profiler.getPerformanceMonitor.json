@@ -1,0 +1,104 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.getPerformanceMonitor",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.getCursorTime",
+                "ak.wwise.core.profiler.enableProfilerData"
+            ],
+            "description": "Retrieves the Performance Monitor statistics at a specific profiler capture time. Refer to \\ref globalcountersids for the available counters.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "time": {
+                        "$ref": "waapi_definitions.json#/definitions/cursorTime",
+                        "description": "Time in milliseconds to query for Performance Monitor data, or a Time Cursor from which to acquire the time. The User Time Cursor is the one that can be manipulated by the user, while the Capture Time Cursor represents the latest time of the current capture."
+                    }
+                },
+                "required": [
+                    "time"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "definitions": {
+                    "performanceMonitorCounter": {
+                        "type": "object",
+                        "description": "Performance Monitor counter values.",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "name of the counter as shown in Wwise Authoring."
+                            },
+                            "id": {
+                                "type": "string",
+                                "description": "unique Id of the counter."
+                            },
+                            "value": {
+                                "type": "number",
+                                "description": "value of counter at given time."
+                            }
+                        },
+                        "required": [
+                            "name", "id", "value"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "type": "array",
+                        "description": "Array of Performance Monitor counters.",
+                        "items": {
+                            "$ref": "#/definitions/performanceMonitorCounter",
+                            "description": "Performance Monitor counter."
+                        }
+                    }
+                },
+                "required": [ "return" ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Querying the Performance Monitor at a point in time.",
+                    "description": "Queries the Performance Monitor Counters in the current capture session at the latest capture time. For the purposes of this example only a subset of the returned counters are displayed.",
+                    "args": {
+                        "time": "capture"
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "name": "cpuTotal", "id" : "CpuTotal", "value": 2.21
+                            },
+                            {
+                                "name": "voicesPhysical", "id" : "VoicesPhysical", "value": 1
+                            },
+                            {
+                                "name": "voicesTotal", "id" : "VoicesTotal", "value": 2
+                            },
+                            {
+                                "name": "Number of Transitions/Interpolations", "id" : "ActiveTransitions", "value": 1
+                            },
+                            {
+                                "name": "outputPeak", "id" : "OutputPeak", "value": -37.5
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

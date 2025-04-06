@@ -1,0 +1,42 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.unloadBank",
+            "restrict": [
+                "userInterface", "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.loadBank"
+            ],
+            "description": "Unload a SoundBank. See <tt>AK::SoundEngine::UnloadBank</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "soundBank": {
+                        "$ref": "waapi_definitions.json#/definitions/soundEngineObjectArg",
+                        "description": "Either the ID (GUID), name, or Short ID of the SoundBank."
+                    }
+                },
+                "required": [
+                    "soundBank"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

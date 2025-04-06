@@ -1,0 +1,59 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.getSwitch",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.getState",
+                "ak.soundengine.setSwitch"
+            ],
+            "description": "Gets the current state of a Switch Group for a given Game Object.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "switchGroup": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "Either the ID (GUID), unique qualified name, or path of the Switch Group."
+                    },
+                    "gameObject": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "The unique ID of the game object. "
+                    }
+                },
+                "required": [
+                    "switchGroup"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                "description": "The Switch Group and any options. Default returns id and name.",
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturnOptions",
+                "description": "Specifies the return options for every object returned."
+            },
+            "examples": [
+                {
+                    "title": "Get the state of a switch for a Game Object.",
+                    "description": "Gets the state of the Surface Switch Group for Game Object Footstep.",
+                    "args": {
+                        "switchGroup": "{EAB62AA7-5069-491B-BC8F-495B01CA7501}",
+                        "gameObject": 400530090
+                    },
+                    "return": {
+                        "id": "{44339A11-DC69-4A1B-9771-66244391C6ED}",
+                        "name": "Dirt"
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

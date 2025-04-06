@@ -1,0 +1,48 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.profiler.gameObjectUnregistered",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.gameObjectRegistered",
+                "ak.wwise.core.profiler.gameObjectReset",
+                "ak.soundengine.unregisterGameObj"
+            ],
+            "description": "Sent when a game object has been unregistered.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "time": {
+                        "$ref": "common_definitions.json#/definitions/int32",
+                        "description": "The time at which the game object was unregistered. This is the elapsed time in milliseconds since the initialization of the sound engine."
+                    },
+                    "gameObjectId": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "The game object ID for the entry."
+                    },
+                    "gameObjectName": {
+                        "type": "string",
+                        "description": "The game object name for the entry."
+                    }
+                },
+                "required": [
+                    "time",
+                    "gameObjectId",
+                    "gameObjectName"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

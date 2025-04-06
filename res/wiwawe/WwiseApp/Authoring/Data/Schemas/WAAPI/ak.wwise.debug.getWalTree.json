@@ -1,0 +1,70 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.debug.getWalTree",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+            ],
+            "description": "Retrieves the WAL tree, which describes the nodes that are synchronized in the Sound Engine. Private use only.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "description": "Result returned by the dump of WAL",
+                        "type": "object",
+                        "properties": {
+                            "nodes": {
+                                "type": "object",
+                                "description": "Nodes in the WALTree",
+                                "additionalProperties" : {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "description": "Name of the node"
+                                        },
+                                        "id": {
+                                            "type": "number",
+                                            "description": "Short ID of the node"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "description": "Type of the node"
+                                        }
+                                    },
+                                    "required" : [
+                                        "name",
+                                        "id",
+                                        "type"
+                                    ]                                    
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "return"
+                ],
+
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

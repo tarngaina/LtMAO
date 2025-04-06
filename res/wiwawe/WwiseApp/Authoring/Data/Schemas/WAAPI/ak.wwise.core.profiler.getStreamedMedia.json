@@ -1,0 +1,161 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.getStreamedMedia",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.getCursorTime",
+                "ak.wwise.core.profiler.enableProfilerData",
+                "ak.wwise.core.profiler.getLoadedMedia"
+            ],
+            "description": "Retrieves the streaming media at a specific profiler capture time. This data can also be found in the Advanced Profiler, under the Streams tab. To ensure the Streams data is received, refer to \\ref ak_wwise_core_profiler_enableprofilerdata.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "time": {
+                        "$ref": "waapi_definitions.json#/definitions/cursorTime",
+                        "description": "Time in milliseconds to query for media, or a Time Cursor from which to acquire the time. The User Time Cursor is the one that can be manipulated by the user, while the Capture Time Cursor represents the latest time of the current capture."
+                    }
+                },
+                "required": [
+                    "time"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "type": "array",
+                        "description": "Array of Streams.",
+                        "items": {
+                            "type": "object",
+                            "description": "Information about how each of the streams is managed by the Wwise sound engine.",
+                            "properties": {
+								"deviceName": {
+                                    "type": "string",
+                                    "description": "The name of the device from which the stream eminates."
+                                },
+                                "streamName": {
+                                    "type": "string",
+                                    "description": "The name given to the stream."
+                                },
+                                "fileSize": {
+                                    "type": "integer",
+                                    "description": "The size of the file being streamed."
+                                },
+                                "filePosition": {
+                                    "type": "number",
+                                    "description": "The position of the stream within the file, given as a percentage."
+                                },
+                                "priority": {
+                                    "type": "integer",
+                                    "description": "The priority of the stream."
+                                },
+                                "bandwidthTotal": {
+                                    "type": "integer",
+                                    "description": "The rate at which the file was streamed in the last profiling frame. This value takes all transfers into account, including transfers that occurred from the Stream Manager's cache"
+                                },
+                                "bandwidthLowLevel": {
+                                    "type": "integer",
+                                    "description": "The rate at which the file was streamed in the last profiling frame. Unlike the Total Bandwidth field, this field value considers transfers that occurred from within the low-level device."
+                                },
+                                "referencedMemory": {
+                                    "type": "integer",
+                                    "description": "The amount of memory that is referenced by the stream. This excludes memory used for I/O transfers. It can be seen as a measure of how much data the stream may grant to the sound engine at any given time."
+                                },
+                                "estimatedThroughput": {
+                                    "type": "integer",
+                                    "description": "The estimated throughput of the stream. The sound engine estimates the rate at which it consumes data from a stream according to its encoding format and number of channels."
+                                },
+                                "active": {
+                                    "type": "boolean",
+                                    "description": "Indicates True if the stream was active at least once during the last profiling frame."
+                                },
+                                "targetBufferSize": {
+                                    "type": "integer",
+                                    "description": "The streaming device's target buffer length."
+                                },
+                                "bufferStatusBuffered": {
+                                    "type": "number",
+                                    "description": "The portion of requested data that is buffered, given as a percentage of the target buffer size."
+                                }
+                            },
+							"required": [
+								"deviceName", 
+								"streamName", 
+								"fileSize", 
+								"filePosition", 
+								"priority", 
+								"bandwidthTotal", 
+								"bandwidthLowLevel", 
+								"referencedMemory", 
+								"estimatedThroughput", 
+								"active", 
+								"targetBufferSize", 
+								"bufferStatusBuffered"
+							],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [
+                    "return"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Querying the Streamed Media at a point in time.",
+                    "description": "Queries the active Streamed Media in the current capture session at the latest capture time.",
+                    "args": {
+                        "time": "capture"
+                    },
+                    "result": {
+						"return": [
+							{
+								"active": true,
+								"bandwidthLowLevel": 235177,       
+								"bandwidthTotal": 235177,
+								"bufferStatusBuffered": 92.05678,
+								"deviceName": "Win32 Deferred",
+								"estimatedThroughput": 192000,
+								"filePosition": 34.843780517578125,
+								"fileSize": 2304044,
+								"priority": 50,
+								"referencedMemory": 65536,
+								"streamName": "1517878592",
+								"targetBufferSize": 38400
+							},
+							{
+								"active": true,
+								"bandwidthLowLevel": 235177,
+								"bandwidthTotal": 235177,
+								"bufferStatusBuffered": 100.0,
+								"deviceName": "Win32 Deferred",
+								"estimatedThroughput": 192000,
+								"filePosition": 12.670619010925293,
+								"fileSize": 6336044,
+								"priority": 50,
+								"referencedMemory": 65536,
+								"streamName": "1517868960",
+								"targetBufferSize": 38400
+							}
+						]
+					}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

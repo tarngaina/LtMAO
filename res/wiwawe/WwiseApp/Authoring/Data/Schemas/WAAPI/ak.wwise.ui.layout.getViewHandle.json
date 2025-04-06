@@ -1,0 +1,43 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.layout.getViewHandle",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [],
+            "description": "Gets the frontend handle of an instantiated view.",
+            "visibility": "private",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "viewID": {
+                        "type": "string",
+                        "description": "The ID of the view."
+                    }
+                },
+                "required": [
+                    "viewID"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "array",
+                "items": {
+                    "$ref": "common_definitions.json#/definitions/guid",
+                    "description": "The ID of the view handle."
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": []
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

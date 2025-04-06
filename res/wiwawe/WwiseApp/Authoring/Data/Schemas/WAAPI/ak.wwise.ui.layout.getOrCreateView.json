@@ -1,0 +1,63 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.layout.getOrCreateView",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [],
+            "description": "Gets a view, if it exists in the current layout, or creates a new one.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The unique identifier, as a string, of the view type to get or create."
+                    },
+                    "posX": {
+                        "type": "integer",
+                        "description": "Initial position of the created view on the horizontal axis. Defaults to -1."
+                    },
+                    "posY": {
+                        "type": "integer",
+                        "description": "Initial position of the created view on the vertical axis. Defaults to -1."
+                    }
+                },
+                "required": ["name"],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The unique ID of the view"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Retrieving or creating a new view",
+                    "description": "Gets a view, if it exists in the current layout, or creates a new one.",
+                    "args": {
+                        "name": "Game Object 3D Viewer",
+                        "posX": 100,
+                        "posY": 100
+                    },
+                    "result": {
+                        "id": "{39949670-A96A-47C5-8EEF-F8AD26BD6B34}"
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

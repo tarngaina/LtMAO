@@ -1,0 +1,68 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.cli.migrate",
+            "restrict": [
+                "commandLine"
+            ],
+            "description": "Migrates and saves the project.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "project": {
+                        "$ref": "waapi_definitions.json#/definitions/projectCliArg"
+                    },
+                    "verbose": {
+                        "$ref": "waapi_definitions.json#/definitions/verboseCliArg"
+                    },
+                    "quiet": {
+                        "$ref": "waapi_definitions.json#/definitions/quietCliArg"
+                    },
+                    "abort-on-load-issues": {
+                        "$ref": "waapi_definitions.json#/definitions/abortOnLoadIssuesCliArg"
+                    },
+                    "no-source-control": {
+                        "$ref": "waapi_definitions.json#/definitions/noSourceControlCliArg"
+                    }
+                },
+                "required": [
+                    "project"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "$ref": "waapi_definitions.json#/definitions/processResultCli"
+                    }
+                },
+                "required": [
+                    "result"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Migrating a project to the most recent version",
+                    "description": "Migrates a project with verbose logging.",
+                    "args": {
+                        "project": "C:\\MyProject\\MyProject.wproj",
+                        "verbose": true
+                    },
+                    "result": {
+                        "result": 0
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

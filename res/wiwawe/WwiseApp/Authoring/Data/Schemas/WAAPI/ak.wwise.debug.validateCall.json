@@ -1,0 +1,58 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.debug.validateCall",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+            ],
+            "description": "Validate the arguments, options and result of a WAAPI function call. Does not actually call the function. This is only available with Debug builds.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+					"id": {
+						"type": "string",
+						"description": "The ID of the function."
+					},
+					"args": {
+						"type": "object",
+						"description": "The arguments passed to the function.",
+						"properties": {},
+						"additionalProperties": true
+					},
+					"options": {
+						"type": "object",
+						"description": "The options passed to the function.",
+						"properties": {},
+						"additionalProperties": true
+					},
+					"result": {
+						"type": "object",
+						"description": "The result returned from the function.",
+						"properties": {},
+						"additionalProperties": true
+					}					
+				},
+                "required": [
+					"id"
+				],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+	"topics": [],
+    "validators": []
+}

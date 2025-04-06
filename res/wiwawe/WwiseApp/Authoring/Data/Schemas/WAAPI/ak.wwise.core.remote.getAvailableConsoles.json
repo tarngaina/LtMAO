@@ -1,0 +1,109 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.remote.getAvailableConsoles",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.remote.connect",
+                "ak.wwise.core.remote.disconnect",
+                "ak.wwise.core.remote.getConnectionStatus"
+            ],
+            "description": "Retrieves all consoles available for connecting Wwise Authoring to a Sound Engine instance.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "consoles": {
+                        "type": "array",
+                        "description": "An array of remote consoles available.",
+                        "items": {
+                            "type": "object",
+                            "description": "Describe the remote process.",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Name of the remote console as returned by the executable."
+                                },
+                                "platform": {
+                                    "type": "string",
+                                    "description": "Platform of the remote console as returned by the executable."
+                                },
+                                "customPlatform": {
+                                    "type": "string",
+                                    "description": "Platform, as defined in the project platforms of the remote console as returned by the executable."
+                                },
+                                "host": {
+                                    "type": "string",
+                                    "description": "The IPv4 of the connected host. This can also be a file path if Wwise is connected to a local file (profiler session). For using WAAPI on Mac, please refer to \\ref waapi_path_on_mac ."
+                                },
+                                "appName": {
+                                    "type": "string",
+                                    "description": "The name of the connected application as returned by the executable. Must be used when connecting to a specific Sound Engine instance."
+                                },
+                                "commandPort": {
+                                    "$ref": "common_definitions.json#/definitions/uint16",
+                                    "description": "The command port. Can be used when connecting to a specific Sound Engine instance."
+                                }
+                            },
+                            "required": [
+                                "name",
+                                "platform",
+                                "customPlatform",
+                                "host",
+                                "appName",
+                                "commandPort"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "consoles"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Getting available consoles",
+                    "description": "Gets the available console for the connected sound engine.",
+                    "args": {},
+                    "result": {
+                        "consoles": [
+                            {
+                                "name": "MyConsole01",
+                                "platform": "Android",
+                                "customPlatform": "CustomAndroid",
+                                "host": "127.0.0.1",
+                                "appName": "MyApp",
+                                "commandPort": 57610,
+                                "notificationPort": 57611
+                            },
+                            {
+                                "name": "MyConsole02",
+                                "platform": "Windows",
+                                "customPlatform": "CustomBuild01",
+                                "host": "127.0.0.1",
+                                "appName": "MyApp",
+                                "commandPort": 57610,
+                                "notificationPort": 57611
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

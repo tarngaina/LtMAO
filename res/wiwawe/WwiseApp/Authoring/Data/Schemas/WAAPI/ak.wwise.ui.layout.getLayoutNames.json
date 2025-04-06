@@ -1,0 +1,65 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.layout.getLayoutNames",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.layout.getCurrentLayoutName"
+            ],
+            "description": "Retrieves a list of the factory layout names.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                },
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "layouts": {
+                        "type": "array",
+                        "description": "An array of the factory layout names.",
+                        "items": {
+                            "type": "string",
+                            "description": "Layout names, which can be used with \\ref ak_wwise_ui_layout_getlayout."
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Retrieving all factory layout names",
+                    "description": "Returns a list of all factory layout names.",
+                    "args": {},
+                    "result": {
+                        "layouts": [
+                            "Designer",
+                            "Profiler",
+                            "SoundBank",
+                            "Mixer",
+                            "Schematic",
+                            "Audio Object Profiler",
+                            "Voice Profiler",
+                            "Game Object Profiler",
+                            "User Layout 1",
+                            "User Layout 2",
+                            "User Layout 3",
+                            "User Layout 4"
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,46 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.transport.useOriginals",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],            
+            "description": "Sets the Original/Converted transport toggle globally. This allows playing the original or the converted sound files.",
+            "visibility": "private",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "enable" : {
+                        "type": "boolean",
+                        "description": "If true, all playback will use original wav files. If false all playback will use converted files."
+                    }
+                },
+                "required": [ "enable" ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Playing converted files",
+                    "description": "Setting the useOriginals global option to play converted files",
+                    "args": {
+                        "enable": false
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

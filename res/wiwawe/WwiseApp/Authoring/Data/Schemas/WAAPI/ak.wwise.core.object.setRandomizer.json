@@ -1,0 +1,99 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.setRandomizer",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.propertyChanged"
+            ],
+            "description": "Sets the randomizer values of a property of an object for a specific platform. Refer to \\ref wobjects_index for more information on the properties available on each object type.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object owning the property."
+                    },
+                    "property": {
+                        "type": "string",
+                        "description": "The name of the property. For more information, refer to the property list of Wwise Objects listed in \\ref wobjects_index .",
+                        "$ref": "waapi_definitions.json#/definitions/propertyName"
+                    },
+                    "platform": {
+                        "$ref": "waapi_definitions.json#/definitions/platformArg",
+                        "description": "The ID (GUID) or unique name of the platform."
+                    },
+                    "enabled": {
+                        "type": "boolean",
+                        "description": "Enabled state of the randomizer."
+                    },
+                    "min": {
+                        "type": "number",
+                        "maximum": 0,
+                        "description": "Minimum value that the randomizer can offset by."
+                    },
+                    "max": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "Maximum value that the randomizer can offset by."
+                    }
+                },
+                "anyOf": [
+                    {
+                        "required": [
+                            "object",
+                            "property",
+                            "enabled"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "object",
+                            "property",
+                            "min"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "object",
+                            "property",
+                            "max"
+                        ]
+                    }
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting the Volume randomizer values of a Sound object",
+                    "description": "Sets the randomizer attributes corresponding to the \"Volume\" property of the object defined by \"object\".",
+                    "args": {
+                        "object": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "property": "Volume",
+                        "platform": "{66666666-7777-8888-9999-AAAAAAAAAAAA}",
+                        "enabled": true,
+                        "min": -8,
+                        "max": 6
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

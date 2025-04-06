@@ -1,0 +1,62 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.postTrigger",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Posts the specified Trigger. See <tt>AK::SoundEngine::PostTrigger</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "trigger": {
+                        "$ref": "waapi_definitions.json#/definitions/soundEngineObjectArg",
+                        "description": "Either the ID (GUID), name, or Short ID of the Trigger."
+                    },
+                    "gameObject": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Associated game object ID. Its default value is the transport game object."
+                    }
+                },
+                "required": [
+                    "trigger"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Posting a Trigger by name",
+                    "description": "Posts the specified \"trigger\" by name to be applied on \"gameObject\".",
+                    "args": {
+                        "trigger": "MyTrigger",
+                        "gameObject": 1122334
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Posting a Trigger by GUID",
+                    "description": "Posts the specified \"trigger\" by GUID to be applied on \"gameObject\".",
+                    "args": {
+                        "trigger": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "gameObject": 1122334
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

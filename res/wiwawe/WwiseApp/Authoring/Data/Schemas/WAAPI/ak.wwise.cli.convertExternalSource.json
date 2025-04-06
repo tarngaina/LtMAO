@@ -1,0 +1,102 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.cli.convertExternalSource",
+            "restrict": [
+                "commandLine"
+            ],
+            "description": "External sources conversion. Converts the external sources files for the specified project. Optionally, additional WSOURCES can be specified. External Sources are a special type of source that you can put in a sound object in Wwise. It indicates that the real sound data will be provided at runtime. While external source conversion can be triggered by SoundBank generation, this operation can be used to process sources not contained in the Wwise Project. Refer to \\ref integrating_external_sources.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "project": {
+                        "$ref": "waapi_definitions.json#/definitions/projectCliArg"
+                    },
+                    "verbose": {
+                        "$ref": "waapi_definitions.json#/definitions/verboseCliArg"
+                    },
+                    "quiet": {
+                        "$ref": "waapi_definitions.json#/definitions/quietCliArg"
+                    },
+                    "source-file": {
+                        "$ref": "common_definitions.json#/definitions/stringOrArrayOfString",
+                        "description": "Specifies the WSOURCES files to use. Those WSOURCES files are used for all platforms.",
+                        "synopsis": [
+                            "--source-file FILE",
+                            "--source-file FILE1 FILE2 ..."
+                        ]
+                    },
+                    "source-by-platform": {
+                        "$ref": "waapi_definitions.json#/definitions/platformMappingArray",
+                        "description": "Specifies the WSOURCES files to use by platform. When specified for a specific platform, it overrides the WSOURCES files from the project settings for this platform. For platforms for which this is not specified, the project settings are used. Specify the platform first, then the WSOURCES files to use for this platform. Repeat the operation for each platform and WSOURCES file.",
+                        "synopsis": [
+                            "--source-by-platform PLATFORM FILE",
+                            "--source-by-platform PLATFORM1 FILE1 --source-by-platform PLATFORM2 FILE2 ..."
+                        ]
+                    },
+                    "platform": {
+                        "$ref": "common_definitions.json#/definitions/stringOrArrayOfString",
+                        "description": "Specifies for which platforms the sources are converted using the project settings. This option must be followed by the platform identifiers.",
+                        "synopsis": [
+                            "--platform PLATFORM",
+                            "--platform PLATFORM1 PLATFORM2 ...",
+                            "--platform PLATFORM1 --platform PLATFORM2 ..."
+                        ]
+                    },
+                    "output": {
+                        "oneOf": [
+                            {
+                                "$ref": "waapi_definitions.json#/definitions/platformMappingArray"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "description": "Allows you to follow this option with a platform, and a path to an output directory to override the output directory of this platform. Repeat this option for other platforms. If only an output directory is specified, sources for all platforms are generated in that directory.",
+                        "synopsis": [
+                            "--output PLATFORM PATH",
+                            "--output PLATFORM1 PATH1 --output PLATFORM2 PATH2 ...",
+                            "--output PATH"
+                        ]
+                    }
+                },
+                "required": [
+                    "project"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "$ref": "waapi_definitions.json#/definitions/processResultCli"
+                    }
+                },
+                "required": [
+                    "result"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Converting external source",
+                    "description": "Converts external sources of MyProject.wproj for all platforms using the current project settings.",
+                    "args": {
+                        "project": "C:\\MyProject\\MyProject.wproj"
+                    },
+                    "result": {
+                        "result": 0
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,49 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.ping",
+            "seeAlso": [],
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Verify if WAAPI is currently available.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "isAvailable": {
+                        "type": "boolean",
+                        "description": "Indicates if WAAPI is available. Note that WAAPI is not available when a modal dialog is shown."
+                    }
+                },
+                "required": [
+                    "isAvailable"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Verify the status of WAAPI",
+                    "description": "Make sure that WAAPI can be used before making a call to it.",
+                    "args": {},
+                    "result": {
+                        "isAvailable": true
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

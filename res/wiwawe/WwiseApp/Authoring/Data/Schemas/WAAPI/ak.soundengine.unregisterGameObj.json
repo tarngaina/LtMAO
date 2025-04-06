@@ -1,0 +1,50 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.unregisterGameObj",
+            "restrict": [
+                "userInterface", "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.registerGameObj"
+            ],
+            "description": "Unregisters a game object. Registering a game object twice does nothing. Unregistering it once unregisters it no matter how many times it has been registered. Unregistering a game object while it is in use is allowed, but the control over the parameters of this game object is lost. For example, say a sound associated with this game object is a 3D moving sound. It stops moving when the game object is unregistered, and there is no way to regain control over the game object. See <tt>AK::SoundEngine::UnregisterGameObj</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                  "gameObject": {
+                    "$ref": "waapi_definitions.json#/definitions/gameObject",
+                    "description": "ID of the game object to be unregistered. Valid range is [0, 0xFFFFFFFFFFFFFFDF]. Use \\c AK_INVALID_GAME_OBJECT to unregister all game objects."
+                  }
+                },
+                "required": [
+                    "gameObject"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Unregistering a game object",
+                    "description": "Unregisters \"gameObject\".",
+                    "args": {
+                        "gameObject": 1122334
+                    },
+                    "return": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

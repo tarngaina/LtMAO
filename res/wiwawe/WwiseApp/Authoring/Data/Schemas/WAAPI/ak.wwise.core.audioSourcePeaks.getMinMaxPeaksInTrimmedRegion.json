@@ -1,0 +1,120 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.audioSourcePeaks.getMinMaxPeaksInTrimmedRegion",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.audioSourcePeaks.getMinMaxPeaksInRegion"
+            ],
+            "description": "Gets the min/max peak pairs in the entire trimmed region of an audio source, for each channel, as an array of binary strings (one per channel). The strings are base-64 encoded, 16-bit signed int arrays, with min and max values being interleaved. If getCrossChannelPeaks is true, there is only one binary string representing peaks across all channels globally.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the audio source."
+                    },
+                    "numPeaks": {
+                        "type": "integer",
+                        "description": "The number of peaks that are required (minimum 1).",
+                        "minimum": 1,
+                        "maximum": 4294967295
+                    },
+                    "getCrossChannelPeaks": {
+                        "type": "boolean",
+                        "description": "When true, peaks are calculated globally across channels, instead of per channel."
+                    }
+                },
+                "required": [
+                    "object",
+                    "numPeaks"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "peaksBinaryStrings": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "description": "Binary strings representing one channel of min/max peaks data. When getCrossChannelPeaks is true there is only one binary string in this array, representing the min/max peaks across all channels."
+                        },
+                        "description": "An array of binary strings."
+                    },
+                    "numChannels": {
+                        "type": "number",
+                        "description": "The number of channels of peak data (i.e. the number of strings in peaksBinaryStrings). This is 1 if getCrossChannelPeaks is true."
+                    },
+                    "maxAbsValue": {
+                        "type": "number",
+                        "description": "The maximum value that a peak can take. This can be used to normalize the peaks in the array (between -1, 1), by dividing each by this number."
+                    },
+                    "peaksArrayLength": {
+                        "type": "number",
+                        "description": "The number of peaks in the returned min max channel arrays. If peaksArrayLength is less than the numPeaks input argument, this indicates fewer samples were available than numPeaks requested. In this case, the arrays contain all of the sample values within the requested time window."
+                    },
+                    "peaksDataSize": {
+                        "type": "number",
+                        "description": "The size of the data in the min/max peaks arrays. This can be used (in conjunction with peaksArrayLength) to decode the peaksBinaryStrings to 16 bit integer arrays"
+                    },
+                    "channelConfig": {
+                        "type": "string",
+                        "description": "The channel configuration."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Getting peaks per channel",
+                    "description": "Gets peaks for an audio source object (within the trimmed region).",
+                    "args": {
+                        "object": "{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}",
+                        "numPeaks": 750,
+                        "getCrossChannelPeaks": false
+                    },
+                    "result": {
+                        "peaksBinaryStrings": [
+                            "longbase64string",
+                            "longbase64string"
+                        ],
+                        "numChannels": 2,
+                        "maxAbsValue": 32767,
+                        "peaksArrayLength": 750,
+                        "peaksDataSize": 1000
+                    }
+                },
+                {
+                    "title": "Getting peaks across channels",
+                    "description": "Gets peaks for an audio source object (within the trimmed region).",
+                    "args": {
+                        "object": "{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}",
+                        "numPeaks": 750,
+                        "getCrossChannelPeaks": true
+                    },
+                    "result": {
+                        "peaksBinaryStrings": [
+                            "longbase64string"
+                        ],
+                        "numChannels": 1,
+                        "maxAbsValue": 32767,
+                        "peaksArrayLength": 750,
+                        "peaksDataSize": 1000
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

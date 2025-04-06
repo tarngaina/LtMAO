@@ -1,0 +1,59 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.switchContainer.removeAssignment",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.switchContainer.getAssignments",
+                "ak.wwise.core.switchContainer.addAssignment",
+                "ak.wwise.core.switchContainer.assignmentRemoved"
+            ],
+            "description": "Removes an assignment between a Switch Container's child and a State.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "child": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object assigned to a State. This object must be the child of a Switch Container and must be currently assigned to a State."
+                    },
+                    "stateOrSwitch": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the State or Switch to which the child is assigned. Must be the child of the Switch Group or State Group that is currently set for the Switch Container."
+                    }
+                },
+                "required": [
+                    "child",
+                    "stateOrSwitch"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Removing an assignment from a Switch Container",
+                    "description": "Equivalent to select and delete a child assigned to a State in the Assigned Objects view.",
+                    "args": {
+                        "child": "{7A12D08F-B0D9-4403-9EFA-2E6338C197C1}",
+                        "stateOrSwitch": "{A076AA65-B71A-45BB-8841-5A20C52CE727}"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

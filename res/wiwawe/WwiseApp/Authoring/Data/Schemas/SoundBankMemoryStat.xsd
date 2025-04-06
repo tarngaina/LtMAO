@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <!---->
+  <!--Document-->
+  <xs:element name="BankMemory">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Timestamp" type="xs:long"/>
+        <xs:element name="DataSize" type="xs:unsignedLong"/>
+        <xs:element name="FileSize" type="xs:unsignedLong"/>
+        <xs:element name="DecodedSize" type="xs:unsignedLong"/>
+		<xs:element name="SFXPreFetchSize" type="xs:unsignedLong"/>
+        <xs:element name="SFXInMemorySize" type="xs:unsignedLong"/>
+        <xs:element name="SFXMissingFiles" type="xs:unsignedLong"/>
+        <xs:element name="MusicPreFetchSize" type="xs:unsignedLong"/>
+        <xs:element name="MusicInMemorySize" type="xs:unsignedLong"/>
+		<xs:element name="MusicMissingFiles" type="xs:unsignedLong"/>
+        <xs:element name="VoicePreFetchSize" type="xs:unsignedLong"/>
+        <xs:element name="VoiceInMemorySize" type="xs:unsignedLong"/>
+        <xs:element name="VoiceMissingFiles" type="xs:unsignedLong"/>
+        <!-- Start: legacy fields; must be kept to load older projects -->
+        <xs:element name="MotionPreFetchSize" type="xs:unsignedLong" minOccurs="0"/>
+        <xs:element name="MotionInMemorySize" type="xs:unsignedLong" minOccurs="0"/>
+        <xs:element name="MotionMissingFiles" type="xs:unsignedLong" minOccurs="0"/>
+        <!-- End: legacy fields; must be kept to load older projects -->
+        <xs:element name="ReplacedFiles" type="xs:unsignedLong"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BankTypes">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="BankType" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,11 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.plugin.getProperties",
+            "alias": "ak.wwise.core.object.getPropertyAndReferenceNames"
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

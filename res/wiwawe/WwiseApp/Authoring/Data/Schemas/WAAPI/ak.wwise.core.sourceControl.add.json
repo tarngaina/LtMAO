@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.sourceControl.add",
+            "seeAlso": [
+                "ak.wwise.core.sourceControl.commit"
+            ],
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Add files to source control. Equivalent to Mark for Add for Perforce.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "files": {
+                        "$ref": "common_definitions.json#/definitions/arrayOfString",
+                        "description": "Array of files to add. File paths must be absolute."
+                    }
+                },
+                "required": [
+                    "files"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "log": {
+                        "$ref": "waapi_definitions.json#/definitions/arrayOfLogCentralItem",
+                        "description": "Array of log entries generated during the request."
+                    }
+                },
+                "required": [
+                    "log"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Adding a new files to source control.",
+                    "description": "Add two new audio files to the SFX directory and the source control.",
+                    "args": {
+                        "files": [
+                            "//projet-file//Originals/SFX/newFile1.wav",
+                            "//projet-file//Originals/SFX/newFile2.wav"
+                        ]
+                    },
+					"result": {
+						"log": []
+					}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

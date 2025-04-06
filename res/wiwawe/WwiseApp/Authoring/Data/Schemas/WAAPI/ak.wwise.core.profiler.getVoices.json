@@ -1,0 +1,110 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.getVoices",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.getBusses",
+                "ak.wwise.core.profiler.getCursorTime",
+                "ak.wwise.core.profiler.getVoiceContributions",
+                "ak.wwise.core.profiler.getAudioObjects"
+            ],
+            "description": "Retrieves the voices at a specific profiler capture time.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "time": {
+                        "$ref": "waapi_definitions.json#/definitions/cursorTime",
+                        "description": "Time in milliseconds to query for voices, or a Time Cursor from which to acquire the time. The User Time Cursor is the one that can be manipulated by the user, while the Capture Time Cursor represents the latest time of the current capture."
+                    },
+                    "voicePipelineID": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "The pipeline ID of a single voice to get."
+                    }
+                },
+                "required": [
+                    "time"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "type": "array",
+                        "description": "Array of voices.",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/voiceReturn",
+                            "description": "Voice item."
+                        }
+                    }
+                },
+                "required": [
+                    "return"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "$ref": "waapi_definitions.json#/definitions/voiceReturnOptions",
+                        "description": "Members to return for each voice. Defaults to Pipeline ID, Game Object ID and Object GUID."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Querying the sound names at a point in time",
+                    "description": "Queries the voices in the current capture session at 30 secs (30,000 milliseconds).",
+                    "args": {
+                        "time": 30000
+                    },
+                    "options": {
+                        "return": [
+                            "objectName"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "objectName": "MySound"
+                            },
+                            {
+                                "objectName": "MyOtherSound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Querying the game object properties of voices from the Capture Time Cursor",
+                    "description": "Specifies the Capture Time Cursor as a time to query the voices at the latest time of the capture session when the call is processed.",
+                    "args": {
+                        "time": "capture"
+                    },
+                    "options": {
+                        "return": [
+                            "gameObjectID",
+                            "gameObjectName"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "gameObjectID": 18446744073709551614,
+                                "gameObjectName": "Transport/Soundcaster"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

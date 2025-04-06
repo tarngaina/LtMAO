@@ -1,0 +1,70 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.layout.getElementRectangle",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [],
+            "description": "Retrieves the current allocated rectangle of a layout element. An empty rect is returned if the element is not found.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The ID of the element."
+                    }
+                },
+                "required": [
+                    "id"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "left": {
+                        "type": "number",
+                        "description": "The left position of the element."
+                    },
+                    "top": {
+                        "type": "number",
+                        "description": "The top position of the element."
+                    },
+                    "right": {
+                        "type": "number",
+                        "description": "The right position of the element."
+                    },
+                    "bottom": {
+                        "type": "number",
+                        "description": "The bottom position of the element."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Retrieving the current allocation for a layout element",
+                    "description": "Returns the current allocated rectangle of a layout element, identified by its GUID.",
+                    "args": {
+                        "id": "{39949670-A96A-47C5-8EEF-F8AD26BD6B34}"
+                    },
+                    "result": {
+                        "left": 50,
+                        "top": 50,
+                        "right": 250,
+                        "bottom": 75
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

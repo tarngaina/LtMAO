@@ -1,0 +1,28 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.project.preClosed",
+            "restrict": [
+                "userInterface",
+				"commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.project.close"
+            ],
+            "description": "Sent when the project begins closing.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

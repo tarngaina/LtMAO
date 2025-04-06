@@ -1,0 +1,52 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.model.registerWafm",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.model.createHandle"
+            ],
+            "description": "Registers WAFM files and inline widget descriptors.",
+            "visibility": "private",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "wafm": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "description": "The path to the WAFM file."
+                            },
+                            {
+                                "$ref": "wafm_definitions.json#/definitions/wafm"
+                            }
+                        ]
+                    }
+                },
+                "required": [ "wafm" ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "description": "Success of the operation."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": []
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

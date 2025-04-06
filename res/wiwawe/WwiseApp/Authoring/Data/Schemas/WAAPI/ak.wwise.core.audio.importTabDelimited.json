@@ -1,0 +1,102 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.audio.importTabDelimited",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.audio.import",
+                "ak.wwise.core.audio.imported"
+            ],
+            "description": "Scripted object creation and audio file import from a tab-delimited file.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "importLocation": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "Object ID (GUID), name, or path used as root relative object paths."
+                    },
+                    "importLanguage": {
+                        "type": "string",
+                        "description": "Imports language for audio file import (taken from the project's defined languages, found in the WPROJ file LanguageList)."
+                    },
+                    "importOperation": {
+                        "type": "string",
+                        "description": "Determines how import object creation is performed. For each object created:\n- createNew: creates a new object; the object is given the desired name if possible, otherwise a new unique name is used.\n- useExisting: uses the object if it exists, updating the specified properties; otherwise it creates a new object. This is the default value.\n- replaceExisting: creates a new object. If an existing object has the same name, the existing object is destroyed.",
+                        "enum": [
+                            "createNew",
+                            "useExisting",
+                            "replaceExisting"
+                        ]
+                    },
+                    "importFile": {
+                        "type": "string",
+                        "description": "Location of tab-delimited import file. For using WAAPI on Mac, please refer to \\ref waapi_path_on_mac ."
+                    },
+                    "autoAddToSourceControl": {
+                        "type": "boolean",
+                        "description": "Determines if Wwise automatically performs a source control Add operation on the imported files. Defaults to true."
+                    },
+                    "autoCheckOutToSourceControl": {
+                        "type": "boolean",
+                        "description": "Determines if Wwise automatically performs a source control Checkout operation (when applicable) on the modified files. Defaults to true."
+                    }
+                },
+                "required": [
+                    "importLanguage",
+                    "importOperation",
+                    "importFile"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "objects": {
+                        "type": "array",
+                        "description": "Array of objects.",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                            "description": "Objects that have been imported in the process of the tab delimited import. The objects have the properties specified in the return option, if applicable."
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturnOptions",
+                "description": "Specifies the return options for every object returned.",
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Importing an audio file",
+                    "description": "Imports an audio file from a tab-delimited file",
+                    "args": {
+                        "importLocation": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "importLanguage": "SFX",
+                        "importOperation": "createNew",
+                        "importFile": "C:\\MyWaves\\MyFolder\\myImportFile.txt"
+                    },
+                    "result": {
+                        "objects": [
+                            {
+                                "id": "{02AC7121-AF3D-48C4-BEEA-25BD5EA4FB1E}",
+                                "name": "My SFX 0"
+                            },
+                            {
+                                "id": "{A014BD8D-E7DA-4401-A1F9-C36829A1B77C}",
+                                "name": "My SFX 1"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

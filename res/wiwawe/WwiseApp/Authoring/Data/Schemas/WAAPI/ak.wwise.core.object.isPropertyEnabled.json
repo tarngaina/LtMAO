@@ -1,0 +1,72 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.isPropertyEnabled",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.getPropertyInfo",
+                "ak.wwise.core.object.get"
+            ],
+            "description": "Returns true if a property is enabled based on the values of the properties it depends on.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to check."
+                    },
+                    "platform": {
+                        "$ref": "waapi_definitions.json#/definitions/platformArg",
+                        "description": "The ID (GUID) or unique name of the platform to link the reference. Set to null-guid for unlinked reference."
+                    },
+                    "property": {
+                        "type": "string",
+                        "description": "The name of the property. For more information, refer to the property list of Wwise Objects listed in \\ref wobjects_index .",
+                        "$ref": "waapi_definitions.json#/definitions/propertyName"
+                    }
+                },
+                "required": [
+                    "object",
+                    "platform",
+                    "property"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "type": "boolean",
+                        "description": "Indicates if the property is enabled."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Checking if a property is enabled",
+                    "description": "Checks if a property is enabled.",
+                    "args": {
+                        "object": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "platform": "{66666666-7777-8888-9999-AAAAAAAAAAAA}",
+                        "property": "Volume"
+                    },
+                    "result": {
+                        "return": true
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

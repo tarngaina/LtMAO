@@ -1,0 +1,72 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.setRTPCValue",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.resetRTPCValue"
+            ],
+            "description": "Sets the value of a real-time parameter control. See <tt>AK::SoundEngine::SetRTPCValue</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "rtpc": {
+                        "$ref": "waapi_definitions.json#/definitions/soundEngineObjectArg",
+                        "description": "Either the ID (GUID), name, or Short ID of the real-time parameter control."
+                    },
+                    "value": {
+                        "type": "number",
+                        "description": "Value to set."
+                    },
+                    "gameObject": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Associated game object ID. The default value is transport game object."
+                    }
+                },
+                "required": [
+                    "rtpc",
+                    "value"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting an RTPC value using its name",
+                    "description": "Sets the value of \"rtpc\", using its name, to \"value\" for \"gameObject\".",
+                    "args": {
+                        "rtpc": "Rain_Intensity",
+                        "value": 74,
+                        "gameObject": 1122334
+                    },
+                    "return": {}
+                },
+                {
+                    "title": "Setting an RTPC value using its GUID",
+                    "description": "Sets the value of \"rtpc\", using its GUID, to \"value\" for \"gameObject\".",
+                    "args": {
+                        "rtpc": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "value": 1853,
+                        "gameObject": 22556677
+                    },
+                    "return": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,2029 @@
+{
+    "version": 1,
+    "definitions": {
+        "projectCliArg": {
+            "type": "string",
+            "description": "The path to the project file (.wproj).",
+            "synopsis": [
+                "PROJECT"
+            ]
+        },
+        "projectOptionCliArg": {
+            "type": "string",
+            "description": "The path to the project file (.wproj).",
+            "synopsis": [
+                "--project PROJECT"
+            ]
+        },
+        "verboseCliArg": {
+            "type": "boolean",
+            "description": "Enables extra console text output.",
+            "synopsis": [
+                "--verbose"
+            ]
+        },
+        "quietCliArg": {
+            "type": "boolean",
+            "description": "Disables all non-error console text output.",
+            "synopsis": [
+                "--quiet"
+            ]
+        },
+        "abortOnLoadIssuesCliArg": {
+            "type": "boolean",
+            "description": "Aborts the operation if a project load issue is detected. All logged project load issues are printed to screen.",
+            "synopsis": [
+                "--abort-on-load-issues"
+            ]
+        },
+        "noSourceControlCliArg": {
+            "type": "boolean",
+            "description": "Skip automatic checkout (if supported by project's source control plugin) of migrated files from source control.",
+            "synopsis": [
+                 "--no-source-control"
+            ]
+        },
+        "continueOnErrorCliArg": {
+            "type": "boolean",
+            "description": "Use this option if you want to continue even if an error occurred.",
+            "synopsis": [
+                "--continue-on-error"
+            ]
+        },
+        "customGlobalClosingCmdCliArg": {
+            "type": "string",
+            "description": "Overrides the global closing step that was defined in Wwise. This option must be followed by the new command line (use quotes if there are spaces). An empty string (\"\") specified for the command-line means no global closing step is executed.",
+            "synopsis": [
+                "--custom-global-closing-cmd CMD"
+            ]
+        },
+        "customGlobalOpeningCmdCliArg": {
+            "type": "string",
+            "description": "Overrides the global opening step that was defined in Wwise. This option must be followed by the new command line (use quotes if there are spaces). An empty string (\"\") specified for the command-line means no global opening step is executed.",
+            "synopsis": [
+                "--custom-global-opening-cmd CMD"
+            ]
+        },
+        "audioSourceFromOriginalCliArg": {
+            "type": "boolean",
+            "description": "It is possible that a project already contains some audio source files of the same name as the imported ones when doing a tab delimited import. By adding this option, the operation uses those instead of replacing them with those described by the tab-delimited file.",
+            "synopsis": [
+                "--audio-source-from-original"
+            ]
+        },
+        "importLanguageCliArg": {
+            "type": "string",
+            "description": "With the tab-delimited import operation it is possible to import voices. This option is used to specify the language of the imported voices. This option must be followed by one of the language identifiers listed with the --language option. Note that only audio files are added for this operation; any attempt to concurrently perform other operations, such as volume adjustments, is ignored.",
+            "synopsis": [
+                "--import-language LANGUAGE"
+            ]
+        },
+        "allowMigrationCliArg": {
+            "type": "boolean",
+            "description": "Allow migration and save of the Wwise project before executing the operation.",
+            "synopsis": [
+                "--allow-migration"
+            ]
+        },
+        "statePropertiesArg": {
+            "type": "array",
+            "description": "An array of state properties to set.",
+            "items": {
+                "description": "The name of the property to set.",
+                "type": "string"
+            }
+        },
+        "processResultCli": {
+            "type": "number",
+            "description": "A WwiseConsole.exe exit code of 0 means success, 1 means at least one error (and potentially warnings) occurred, and 2 means that only warnings occurred."
+        },
+        "importOperationType": {
+            "type": "string",
+            "enum": [
+                "createNew",
+                "useExisting",
+                "replaceExisting"
+            ],
+            "description": "Determines how import object creation is performed. For each object created:\n- createNew: creates a new object; the object is given the desired name if possible, otherwise a new unique name is used.\n- useExisting: uses the object if it exists, updating the specified properties; otherwise it creates a new object. This is the default value.\n- replaceExisting: creates a new object; if an existing object has the same name then the existing object is destroyed."
+        },
+        "tabDelimitedOperationCli": {
+            "type": "string",
+            "enum": [
+                "createNew",
+                "useExisting",
+                "replaceExisting"
+            ],
+            "description": "Determines how import object creation is performed for each object created. \"createNew\": creates a new object; the object is given the desired name if possible, otherwise a new unique name is used. \"useExisting\": uses the object if it exists, updating the specified properties; otherwise it creates a new object. This is the default value. \"replaceExisting\": creates a new object; if an existing object has the same name then the existing object is destroyed.",
+            "synopsis": [
+                "--tab-delimited-operation createNew",
+                "--tab-delimited-operation useExisting",
+                "--tab-delimited-operation replaceExisting"
+            ]
+        },
+        "soundEngineObjectArg": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/uniqueName"
+                },
+                {
+                    "$ref": "common_definitions.json#/definitions/guid"
+                },
+                {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "The Short ID of a Wwise Object."
+                }
+            ]
+        },
+        "uniqueName": {
+            "type": "string",
+            "pattern": "^[a-zA-Z_]+[a-zA-Z_0-9()]*$",
+            "description": "The name of the object."
+        },
+        "uniqueQualifiedName": {
+            "type": "string",
+            "pattern": "^(StateGroup|SwitchGroup|SoundBank|GameParameter|Event|Effect|AudioDevice|Trigger|Attenuation|DialogueEvent|Bus|AuxBus|Conversion|ModulatorLfo|ModulatorEnvelope|ModulatorTime|Platform|Language|AcousticTexture|Global):[a-zA-Z0-9_]+$",
+            "description": "The name of the object qualified by its type or Short ID in the form of type:name or Global:shortId. Only object types that have globally-unique names or Short Ids are supported. Ex: Event:Play_Sound_01, Global:245489792"
+        },
+        "propertyName": {
+            "type": "string",
+            "pattern": "^[:a-zA-Z0-9 _]+$",
+            "description": "A property name. Refer to \\ref wobjects_index for information about the Wwise objects and their properties."
+        },
+        "objectPathArg": {
+            "type": "string",
+            "pattern": "^\\\\",
+            "description": "A project path to a Wwise object, including the category and the work-unit. For example: \\\\Actor-Mixer Hierarchy\\\\Default Work Unit\\\\New Sound SFX."
+        },
+        "curveObjectDefinition": {
+            "description": "The definition of an \"in-place\" Curve object.",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "The type of the new object. Refer to \\ref wobjects_index for possible object types."
+                },
+                "points": {
+                    "$ref": "#/definitions/pointsDefinition",
+                    "description": "Used when creating a Curve."
+                }
+            },
+            "required": [
+                "type",
+                "points"
+            ],
+            "additionalProperties": false
+        },
+        "objectArg": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/uniqueQualifiedName"
+                },
+                {
+                    "$ref": "common_definitions.json#/definitions/guid"
+                },
+                {
+                    "$ref": "#/definitions/objectPathArg"
+                }
+            ]
+        },
+        "platformArg": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/uniqueName"
+                },
+                {
+                    "$ref": "common_definitions.json#/definitions/guid"
+                }
+            ]
+        },
+        "platformToCreateArg": {
+            "type": "object",
+            "description": "One plateform create",
+            "properties": {
+                "name": {
+                    "descriptionOverride": "The name of the platform",
+                    "$ref": "#/definitions/uniqueName"
+                },
+                "basePlatform": {
+                    "descriptionOverride": "Base platform supported by Wwise SDK. Must have one of the these values: Android, iOS, Linux, Mac, Switch, PS4, PS5, Windows, XboxOne, or XboxSeriesX",
+                    "$ref": "#/definitions/uniqueName",
+                    "enum": [
+                        "Android",
+                        "iOS",
+                        "Linux",
+                        "Mac",
+                        "Switch",
+                        "PS4",
+                        "PS5",
+                        "Windows",
+                        "XboxOne",
+                        "XboxSeriesX",
+                        "Web",
+                        "OpenHarmony",
+                        "Orca"
+                    ]
+    
+                }
+            },
+            "required": [
+                "basePlatform"
+            ],
+            "additionalProperties": false
+        },
+        "platformsToCreateArg": { 
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/platformToCreateArg"
+                },
+                {
+                    "description": "Array of platforms to create",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/platformToCreateArg"
+                    }
+                }
+            ]
+        },
+        "languagesToCreateArg": { 
+            "type": "array",
+            "items": {
+                "type": "string",
+                "description": "The name of the language."
+            }
+        },
+        "languageArg": {
+            "type": "string"
+        },
+        "importArg": {
+            "description": "Import command argument.",
+            "type": "object",
+            "properties": {
+                "autoAddToSourceControl": {
+                    "description": "Determines if Wwise automatically performs an Add source control operation for affected work units. Defaults to true.",
+                    "type": "boolean"
+                },
+                "files": {
+                    "description": "Array of import files.",
+                    "$ref": "#/definitions/manyImportFiles"
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "files"
+            ]
+        },
+        "oneImportFile": {
+            "description": "Parameters of one audio file",
+            "type": "object",
+            "properties": {
+                "audioFile": {
+                    "type": "string",
+                    "description": "Path to media file to import. This path must be accessible from Wwise. For using WAAPI on Mac, please refer to \\ref waapi_path_on_mac ."
+                },
+                "audioFileBase64": {
+                    "type": "string",
+                    "description": "Base64 encoded WAV audio file data to import with its target file path relative to the Originals folder, separated by a vertical bar. E.g. 'MySound.wav|UklGRu...'.",
+                    "pattern": "^(.+\\.wav\\|((?:[A-Za-z0-9\\+\\/]{4})*(?:[A-Za-z0-9\\+\\/]{2}==|[A-Za-z0-9\\+\\/]{3}=))+)$"
+                },
+                "originalsSubFolder": {
+                    "type": "string",
+                    "description": "Specifies the 'originals' sub-folder in which to place the imported audio file. This folder is relative to the 'originals' folder in which the file would normally be imported. Example: if importing an SFX, then the audio file is imported to the folder Originals\\\\SFX\\\\originalsPath."
+                },
+                "language": {
+                    "type": "string",
+                    "description": "Imports the language for the audio file import (taken from the project's defined languages, found in the WPROJ file LanguageList)."
+                },
+                "objectType": {
+                    "type": "string",
+                    "description": "Specifies the type of object to create when importing an audio file. This type can also be specified directly in the objectPath. Refer to \\ref wobjects_index for the available types."
+                }
+            },
+            "additionalProperties": false,
+            "required": []
+        },
+        "manyImportFiles": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/oneImportFile"
+            }
+        },
+        "shortId": {
+            "type": "object",
+            "description": "A Wwise object Short ID with its associated type.",
+            "properties": {
+                "shortId": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "The Short ID of the object."
+                },
+                "type": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "This syntax is deprecated and we recommend the use of WAQL. The type of object for the Short ID. The type ​​can be 10 (Event), 12 (SwitchGroup), 14 (StateGroup), 17 (EffectPlugin), 18 (SoundBank), 19 (Bus), 20 (AuxBus), 22 (GameParameter),  41 (Trigger) or 68 (AudioDevicePlugin)"
+                }
+            },
+            "required": [
+                "shortId",
+                "type"
+            ],
+            "additionalProperties": false
+        },
+        "profilerCursor": {
+            "type": "string",
+            "description": "Identify one of the global profiler cursors.",
+            "enum": [
+                "user",
+                "capture"
+            ]
+        },
+        "cursorTime": {
+            "oneOf": [
+                {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                {
+                    "$ref": "#/definitions/profilerCursor"
+                }
+            ]
+        },
+        "pipelineID": {
+            "type": "number",
+            "description": "Identifies a playing voice instance ID.",
+            "minimum": 0
+        },
+        "voiceContributionsObject": {
+            "type": "object",
+            "description": "Identifies a Voice Inspector contribution.",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the contribution."
+                },
+                "volume": {
+                    "type": "number",
+                    "description": "The volume difference applied."
+                },
+                "LPF": {
+                    "type": "number",
+                    "description": "The LPF difference applied."
+                },
+                "HPF": {
+                    "type": "number",
+                    "description": "The HPF difference applied."
+                },
+                "index": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "Unique (per emitter) identifier for the emitter-listener ray."
+                },
+                "children": {
+                    "type": "array",
+                    "description": "An array of child objects associated to the object.",
+                    "items": {
+                        "$ref": "#/definitions/voiceContributionsObject",
+                        "description": "A voice contribution object."
+                    }
+                },
+                "parameters": {
+                    "type": "array",
+                    "description": "An array of contribution parameters associated to the object.",
+                    "items": {
+                        "type": "object",
+                        "description": "A contribution parameter.",
+                        "additionalProperties": false,
+                        "properties": {
+                            "propertyType": {
+                                "type": "string",
+                                "description": "The object property affecting the voice"
+                            },
+                            "reason": {
+                                "type": "string",
+                                "description": "The reason for the parameter to affect the voice."
+                            },
+                            "driver": {
+                                "type": "string",
+                                "description": "The driving reason when a parameter is not driven by an object, or the driving object GUID."
+                            },
+                            "driverValue": {
+                                "oneOf": [
+                                    {
+                                        "type": "number",
+                                        "description": "The value of the driver affecting the parameter."
+                                    },
+                                    {
+                                        "$ref": "common_definitions.json#/definitions/guid",
+                                        "description": "Can be an object, e.g. for States."
+                                    }
+                                ]
+                            },
+                            "value": {
+                                "type": "number",
+                                "description": "Contribution value"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "busReturnOptions": {
+            "type": "array",
+            "description": "An array of options to receive.",
+            "items": {
+                "type": "string",
+                "description": "Specifies one of the defined members for a bus pipeline structure.",
+                "enum": [
+                    "pipelineID",
+                    "mixBusID",
+                    "objectGUID",
+                    "objectName",
+                    "gameObjectID",
+                    "gameObjectName",
+                    "deviceID",
+                    "volume",
+                    "downstreamGain",
+                    "voiceCount",
+                    "effectCount",
+                    "depth"
+                ]
+            }
+        },
+        "busReturn": {
+            "type": "object",
+            "description": "A mixing bus object. Use the return options to specify which property is required.",
+            "properties": {
+                "pipelineID": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "Pipeline ID of the bus."
+                },
+                "mixBusID": {
+                    "$ref": "common_definitions.json#/definitions/id64bits",
+                    "description": "Unique ID assigned to a mixing bus."
+                },
+                "objectGUID": {
+                    "$ref": "common_definitions.json#/definitions/guid",
+                    "description": "Object GUID corresponding to the bus."
+                },
+                "objectName": {
+                    "type": "string",
+                    "description": "Object Name corresponding to the bus."
+                },
+                "gameObjectID": {
+                    "$ref": "common_definitions.json#/definitions/id64bits",
+                    "description": "Game Object ID corresponding to the voice."
+                },
+                "gameObjectName": {
+                    "type": "string",
+                    "description": "Game Object Name corresponding to the voice."
+                },
+                "deviceID": {
+                    "$ref": "common_definitions.json#/definitions/uint64",
+                    "description": "Audio Output device ID."
+                },
+                "volume": {
+                    "type": "number",
+                    "description": "Gain of the bus in dB."
+                },
+                "downstreamGain": {
+                    "type": "number",
+                    "description": "Gain from current bus down to output in dB."
+                },
+                "voiceCount": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "Number of voices routed to the bus."
+                },
+                "depth": {
+                    "type": "integer",
+                    "description": "Depth level of the bus in the pipeline."
+                },
+                "effectCount": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "Number of effects on the bus."
+                }
+            }
+        },
+        "audioObjectReturnOptions": {
+            "type": "array",
+            "description": "An array of options for the Audio Objects.",
+            "items": {
+                "type": "string",
+                "description": "Specifies one of the defined members for an Audio Object structure.",
+                "enum": [
+                    "busName",
+                    "effectPluginName",
+                    "audioObjectID",
+                    "busPipelineID",
+                    "gameObjectID",
+                    "gameObjectName",
+                    "audioObjectName",
+                    "instigatorPipelineID",
+                    "busID",
+                    "busGUID",
+                    "spatializationMode",
+                    "x",
+                    "y",
+                    "z",
+                    "spread",
+                    "focus",
+                    "channelConfig",
+                    "effectClassID",
+                    "effectIndex",
+                    "metadata",
+                    "rmsMeter",
+                    "peakMeter"
+                ]
+            }
+        },
+        "audioObjectReturn": {
+            "type": "object",
+            "description": "An audio object. Use the return options to specify which property is required.",
+            "properties": {
+                "busName": {
+                    "type": "string",
+                    "description": "Name of the bus instance."
+                },
+                "effectPluginName": {
+                    "type": "string",
+                    "description": "Name of the effect plug-in after which the Audio Object was captured."
+                },
+                "audioObjectID": {
+                    "$ref": "common_definitions.json#/definitions/id64bits",
+                    "description": "The ID of the Audio Object."
+                },
+                "busPipelineID": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "The Pipeline ID of the Bus instance."
+                },
+                "gameObjectID": {
+                    "$ref": "common_definitions.json#/definitions/id64bits",
+                    "description": "The Game Object ID of the Bus instance."
+                },
+                "gameObjectName": {
+                    "type": "string",
+                    "description": "The name of the Game Object of the Bus Instance."
+                },
+                "audioObjectName": {
+                    "type": "string",
+                    "description": "The name of the Audio Object. Can be empty."
+                },
+                "instigatorPipelineID": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "The pipeline ID of the instigator from which the Audio Object originates. Can be either a Bus instance or a Voice."
+                },
+                "busID": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "The short ID of the Bus."
+                },
+                "busGUID": {
+                    "$ref": "common_definitions.json#/definitions/guid",
+                    "description": "The GUID of the Bus."
+                },
+                "spatializationMode": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "The spatialization mode. Use <tt>Ak3DSpatializationMode</tt> to interpret the value."
+                },
+                "x": {
+                    "type": "number",
+                    "description": "The X value of the Audio Object position."
+                },
+                "y": {
+                    "type": "number",
+                    "description": "The Y value of the Audio Object position."
+                },
+                "z": {
+                    "type": "number",
+                    "description": "The Z value of the Audio Object position."
+                },
+                "spread": {
+                    "type": "number",
+                    "description": "The spread value (normalized) of the Audio Object."
+                },
+                "focus": {
+                    "type": "number",
+                    "description": "The focus value (normalized) of the Audio Object."
+                },
+                "channelConfig": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "The channel configuration of the Audio Object. Use <tt>AK::AkChannelConfig::Deserialize</tt> to deserialize the value."
+                },
+                "effectClassID": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "The Class ID of the effect after which the Audio Object was captured. Usage of <tt>AK_INVALID_UNIQUE_ID</tt> constant means that this Audio Object was captured before applying the first effect."
+                },
+                "effectIndex": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "The index of the effect after which the Audio Object was captured."
+                },
+                "metadata": {
+                    "type": "array",
+                    "description": "Array of objects containing metadata of the Audio Object.",
+                    "items": {
+                        "type": "object",
+                        "description": "An object of metadata.",
+                        "properties": {
+                            "metadataClassID": {
+                                "$ref": "common_definitions.json#/definitions/uint32",
+                                "description": "The class ID of the metadata."
+                            },
+                            "metadataName": {
+                                "type": "string",
+                                "description": "The name of the metadata."
+                            },
+                            "sourceID": {
+                                "type": "string",
+                                "description": "The ID (GUID) of the source object."
+                            },
+                            "sourceShortID": {
+                                "$ref": "common_definitions.json#/definitions/uint32",
+                                "description": "The short ID of the source object."
+                            },
+                            "sourceName": {
+                                "type": "string",
+                                "description": "The name of the source object."
+                            }
+                        },
+                        "required": [
+                            "metadataClassID",
+                            "sourceShortID"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "rmsMeter": {
+                    "type": "array",
+                    "description": "Array of volume values (one per channel) for the RMS meter.",
+                    "items": {
+                        "type": "number",
+                        "description": "The volume value (DB) of the channel."
+                    }
+                },
+                "peakMeter": {
+                    "type": "array",
+                    "description": "Array of volume values (one per channel) for the Peak meter.",
+                    "items": {
+                        "type": "number",
+                        "description": "The volume value (DB) of the channel."
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "voiceReturnOptions": {
+            "type": "array",
+            "description": "An array of options for the playing voices.",
+            "items": {
+                "type": "string",
+                "description": "Specifies one of the defined members for a voice pipeline structure.",
+                "enum": [
+                    "pipelineID",
+                    "playingID",
+                    "soundID",
+                    "gameObjectID",
+                    "gameObjectName",
+                    "objectGUID",
+                    "objectName",
+                    "playTargetID",
+                    "playTargetGUID",
+                    "playTargetName",
+                    "baseVolume",
+                    "gameAuxSendVolume",
+                    "envelope",
+                    "normalizationGain",
+                    "lowPassFilter",
+                    "highPassFilter",
+                    "priority",
+                    "isStarted",
+                    "isVirtual",
+                    "isForcedVirtual"
+                ]
+            }
+        },
+        "voiceReturn": {
+            "type": "object",
+            "description": "A playing voice. Use the return options to specify which property is required.",
+            "properties": {
+                "pipelineID": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "Pipeline ID of the voice."
+                },
+                "playingID": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "Playing ID of the voice."
+                },
+                "soundID": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "Short ID of the sound object corresponding to the voice."
+                },
+                "gameObjectID": {
+                    "$ref": "common_definitions.json#/definitions/id64bits",
+                    "description": "Game Object ID corresponding to the voice."
+                },
+                "gameObjectName": {
+                    "type": "string",
+                    "description": "Game Object Name corresponding to the voice."
+                },
+                "objectGUID": {
+                    "$ref": "common_definitions.json#/definitions/guid",
+                    "description": "Object GUID corresponding to the voice."
+                },
+                "objectName": {
+                    "type": "string",
+                    "description": "Object Name corresponding to the voice."
+                },
+                "playTargetID": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "Short ID of the play target object corresponding to the voice."
+                },
+                "playTargetGUID": {
+                    "$ref": "common_definitions.json#/definitions/guid",
+                    "description": "GUID of the play target object corresponding to the voice."
+                },
+                "playTargetName": {
+                    "type": "string",
+                    "description": "Name of the play target object corresponding to the voice."
+                },
+                "baseVolume": {
+                    "type": "number",
+                    "description": "Voice volume in dB, including HDR attenuation."
+                },
+                "gameAuxSendVolume": {
+                    "type": "number",
+                    "description": "Volume send to the auxiliary bus send in dB."
+                },
+                "envelope": {
+                    "type": "number",
+                    "description": "Current analyzed envelope value in dB. 0 if unavailable."
+                },
+                "normalizationGain": {
+                    "type": "number",
+                    "description": "Loudness normalization and make-up gain in dB."
+                },
+                "lowPassFilter": {
+                    "type": "number",
+                    "description": "Low-Pass Filter applied to the voice."
+                },
+                "highPassFilter": {
+                    "type": "number",
+                    "description": "High-Pass Filter applied to the voice."
+                },
+                "priority": {
+                    "$ref": "common_definitions.json#/definitions/int8",
+                    "description": "Priority given to the voice."
+                },
+                "isStarted": {
+                    "type": "boolean",
+                    "description": "True if the voice has started playing, false otherwise."
+                },
+                "isVirtual": {
+                    "type": "boolean",
+                    "description": "True if the voice is virtual, false otherwise."
+                },
+                "isForcedVirtual": {
+                    "type": "boolean",
+                    "description": "True if the voice was forced as virtual, false otherwise."
+                }
+            },
+            "additionalProperties": false
+        },
+        "profilerDataType": {
+            "type": "string",
+            "description": "Specifies the type of profiler data that can be captured.",
+            "enum": [
+                "cpu",
+                "memory",
+                "stream",
+                "voices",
+                "listener",
+                "obstructionOcclusion",
+                "markersNotification",
+                "soundbanks",
+                "loadedMedia",
+                "preparedObjects",
+                "preparedGameSyncs",
+                "interactiveMusic",
+                "streamingDevice",
+                "meter",
+                "auxiliarySends",
+                "apiCalls",
+                "spatialAudio",
+                "spatialAudioRaycasting",
+                "voiceInspector",
+                "audioObjects",
+                "gameSyncs"
+            ]
+        },
+        "curveShape": {
+            "type": "string",
+            "enum": [
+                "Constant",
+                "Linear",
+                "Log3",
+                "Log2",
+                "Log1",
+                "InvertedSCurve",
+                "SCurve",
+                "Exp1",
+                "Exp2",
+                "Exp3"
+            ]
+        },
+        "pointsDefinition": {
+            "type": "array",
+            "description": "An array of points defining a curve.",
+            "items": {
+                "type": "object",
+                "description": "A point in the curve.",
+                "properties": {
+                    "x": {
+                        "type": "number",
+                        "description": "X coordinate of curve point."
+                    },
+                    "y": {
+                        "type": "number",
+                        "description": "Y coordinate of curve point."
+                    },
+                    "shape": {
+                        "$ref": "#/definitions/curveShape",
+                        "description": "Shape of the curve segment between this point and the next."
+                    }
+                },
+                "required": [
+                    "x",
+                    "y",
+                    "shape"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "blendTrackEdge": {
+            "type": "object",
+            "description": "Defines the characteristics of Blend Track assignment's edge.",
+            "properties": {
+                "fadeMode": {
+                    "type": "string",
+                    "description": "The configuraiton of the edge's crossfade",
+                    "enum": [
+                        "None",
+                        "Manual",
+                        "Automatic"
+                    ]
+                },
+                "fadeShape": {
+                    "$ref": "#/definitions/curveShape",
+                    "description": "The shape of the edge's crossfade curve"
+                },
+                "edgePosition": {
+                    "type": "number",
+                    "description": "The position of the edge. The position must be within the range of the Blend Track's crossfade Game Parameter's range. If this edge is the left edge, then this position must be less or equal edgePosition of the right edge. If this is the right edge then vice versa."
+                },
+                "fadePosition": {
+                    "type": "number",
+                    "description": "The start/end position of the fade curve. The position must be within the range of the Blend Track's crossfade Game Parameter's range. If this edge is the left edge, then this position must be greater or equal this edge's edgePosition, and less or equal the right edge's edgePosition. If this is the right edge then vice versa. This argument is used only if fadeMode is 'Manual'."
+                }
+            },
+            "required": [
+                "fadeMode",
+                "fadeShape",
+                "edgePosition"
+            ],
+            "additionalProperties": false
+        },
+        "objectReturn": {
+            "type": "object",
+            "description": "A Wwise object. Use the return options to specify which property is required.",
+            "properties": {
+                "id": {
+                    "$ref": "common_definitions.json#/definitions/guid",
+                    "description": "The ID (GUID) of the object."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The name of the object."
+                },
+                "notes": {
+                    "type": "string",
+                    "description": "The notes of the object."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "The type of the object. Refer to \\ref wobjects_index for more information on the types available."
+                },
+                "pluginName": {
+                    "type": "string",
+                    "description": "The name of the plug-in for Source, Effect, Mixer, Device and Metadata plug-in."
+                },
+                "path": {
+                    "type": "string",
+                    "description": "The path of the object from the project root. Ex: '\\\\Actor-Mixer Hierarchy\\\\Default Work Unit\\\\Sound1'"
+                },
+                "parent": {
+                    "type": "object",
+                    "description": "The parent of the object in the hierarchy.",
+                    "properties": {
+                        "id": {
+                            "$ref": "common_definitions.json#/definitions/guid",
+                            "description": "The ID (GUID) of the object."
+                        },
+                        "name": {
+                            "type": "string",
+                            "description": "The name of the object."
+                        }
+                    }
+                },
+                "owner": {
+                    "type": "object",
+                    "description": "The owner of the object. This applies to objects being locally owned by other objects, such as custom effects, custom attenuations, etc.",
+                    "properties": {
+                        "id": {
+                            "$ref": "common_definitions.json#/definitions/guid",
+                            "description": "The ID (GUID) of the object."
+                        },
+                        "name": {
+                            "type": "string",
+                            "description": "The name of the object."
+                        }
+                    }
+                },
+                "isPlayable": {
+                    "type": "boolean",
+                    "description": "True if the object can be played in Transport."
+                },
+                "shortId": {
+                    "type": "integer",
+                    "description": "The Short ID of the object."
+                },
+                "classId": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "The class ID of the object."
+                },
+                "category": {
+                    "type": "string",
+                    "description": "The category of the object. Ex: 'Actor-Mixer Hierarchy'"
+                },
+                "filePath": {
+                    "type": "string",
+                    "description": "The path to the file containing the object. The path can be a Work Unit file or a project file. For using WAAPI on Mac, please refer to \\ref waapi_path_on_mac ."
+                },
+                "workunit": {
+                    "type": "object",
+                    "description": "The parent Work Unit containing the object. The 'id' and the 'name' is returned.",
+                    "properties": {
+                        "id": {
+                            "$ref": "common_definitions.json#/definitions/guid",
+                            "description": "The ID (GUID) of the object."
+                        },
+                        "name": {
+                            "type": "string",
+                            "description": "The name of the object."
+                        }
+                    }
+                },
+                "childrenCount": {
+                    "type": "number",
+                    "description": "The number of children for the object. Note, this is deprecated. The same result can be obtained with children.count()."
+                },
+                "totalSize": {
+                    "type": "integer",
+                    "description": "The amount of space (in bytes) this object and all of its children take up in a SoundBank. This does not include the objectSize. Note that SoundBanks need to be generated for this value to be accurate."
+                },
+                "mediaSize": {
+                    "type": "integer",
+                    "description": "The total converted size (in bytes) of the media files of this object and all of its children. Note that SoundBanks need to be generated for this value to be accurate."
+                },
+                "objectSize": {
+                    "type": "integer",
+                    "description": "The amount of space (in bytes) the meta-data of the object takes up in a SoundBank. This does not include media files. Note that SoundBanks need to be generated for this value to be accurate."
+                },
+                "structureSize": {
+                    "type": "integer",
+                    "description": "The amount of space (in bytes) the meta-data of the object and all of its children take up in a SoundBank. This does not include media files. Note that SoundBanks need to be generated for this value to be accurate."
+                },
+                "musicTransitionRoot": {
+                    "type": "object",
+                    "description": "(DEPRECATED) The music transition root containing all other music transitions recursively. Note, this is deprecated. The TransitionRoot reference should be used instead.",
+                    "properties": {
+                        "id": {
+                            "$ref": "common_definitions.json#/definitions/guid",
+                            "description": "The ID (GUID) of the object."
+                        }
+                    }
+                },
+                "musicPlaylistRoot": {
+                    "type": "object",
+                    "description": "(DEPRECATED) The music playlist root containing all other music playlist items recursively. This applies to Music Playlist Containers only. Note, this is deprecated. The PlaylistRoot reference should be used instead.",
+                    "properties": {
+                        "id": {
+                            "$ref": "common_definitions.json#/definitions/guid",
+                            "description": "The ID (GUID) of the object."
+                        }
+                    }
+                },
+                "originalWavFilePath": {
+                    "type": "string",
+                    "description": "(DEPRECATED) Absolute path to the original wav file. Only valid for Sound and Audio Source objects. For using WAAPI on Mac, please refer to \\ref waapi_path_on_mac ."
+                },
+                "originalFilePath": {
+                    "type": "string",
+                    "description": "Absolute path to the original file. Only valid for Sound and Audio Source objects. For using WAAPI on Mac, please refer to \\ref waapi_path_on_mac ."
+                },
+                "originalRelativeFilePath": {
+                    "type": "string",
+                    "description": "Relative (from project's Originals Folder) path to the original file. Only valid for Sound and Audio Source objects. For using WAAPI on Mac, please refer to \\ref waapi_path_on_mac ."
+                },
+                "activeSource": {
+                    "type": "object",
+                    "description": "The active source of the sound object.",
+                    "properties": {
+                        "id": {
+                            "$ref": "common_definitions.json#/definitions/guid",
+                            "description": "The ID (GUID) of the object."
+                        },
+                        "name": {
+                            "type": "string",
+                            "description": "The name of the object."
+                        }
+                    }
+                },
+                "convertedWemFilePath": {
+                    "type": "string",
+                    "description": "(DEPRECATED) Absolute path to the converted wem file. Specify the platform in the options. Only valid for Sound and Audio Source objects. To use WAAPI on Mac, please refer to \\ref waapi_path_on_mac ."
+                },
+                "convertedFilePath": {
+                    "type": "string",
+                    "description": "Absolute path to the converted file. Specify the platform in the options. Only valid for Sound and Audio Source objects. To use WAAPI on Mac, please refer to \\ref waapi_path_on_mac ."
+                },
+                "soundbankBnkFilePath": {
+                    "type": "string",
+                    "description": "Absolute path to the generated SoundBank file associated with the SoundBank object. Only valid for SoundBank objects. To use WAAPI on Mac, please refer to \\ref waapi_path_on_mac ."
+                },
+                "playbackDuration": {
+                    "type": "object",
+                    "description": "The duration root that contains the min and max durations and duration type. Note, this is deprecated. The duration should be used instead. This applies to all objects that can contain Audio Source objects, either directly as a source or indirectly through descendants.",
+                    "properties": {
+                        "playbackDurationMin": {
+                            "type": "number",
+                            "description": "The minimum possible time playback can take."
+                        },
+                        "playbackDurationMax": {
+                            "type": "number",
+                            "description": "The maximum possible time playback can take."
+                        },
+                        "playbackDurationType": {
+                            "type": "string",
+                            "description": "The type of duration."
+                        }
+                    }
+                },
+                "duration": {
+                    "type": "object",
+                    "description": "The duration root that contains the min and max durations and duration type. This applies to all objects that can contain Audio Source objects, either directly as a source or indirectly through descendants.",
+                    "properties": {
+                        "min": {
+                            "type": "number",
+                            "description": "The minimum possible time playback can take."
+                        },
+                        "max": {
+                            "type": "number",
+                            "description": "The maximum possible time playback can take."
+                        },
+                        "type": {
+                            "type": "string",
+                            "description": "The type of duration."
+                        }
+                    }
+                },
+                "maxDurationSource": {
+                    "type": "object",
+                    "description": "Audio source with the longest duration. This applies to all objects that can contain Audio Source objects, either directly as a source or indirectly through descendants.",
+                    "properties": {
+                        "id": {
+                            "$ref": "common_definitions.json#/definitions/guid",
+                            "description": "The ID (GUID) of the audio source object with the longest duration."
+                        },
+                        "trimmedDuration": {
+                            "type": "number",
+                            "description": "The duration in seconds of the longest trimmed source."
+                        }
+                    }
+                },
+                "audioSourceTrimValues": {
+                    "type": "object",
+                    "description": "Range of time for which the audio source is trimmed.",
+                    "properties": {
+                        "trimBegin": {
+                            "type": "number",
+                            "description": "The time value in seconds of the start trim."
+                        },
+                        "trimEnd": {
+                            "type": "number",
+                            "description": "The time value in seconds of the end trim."
+                        }
+                    }
+                },
+                "maxRadiusAttenuation": {
+                    "type": "object",
+                    "description": "Attenuation with the largest radius. This applies to all objects that can contain Audio Source objects, either directly as a source or indirectly through descendants.",
+                    "properties": {
+                        "id": {
+                            "$ref": "common_definitions.json#/definitions/guid",
+                            "description": "The ID (GUID) of the attenuation object with the largest radius."
+                        },
+                        "radius": {
+                            "type": "number",
+                            "description": "The radius of the attenuation object."
+                        }
+                    }
+                },
+                "audioSourceLanguage": {
+                    "type": "object",
+                    "description": "Language associated to the audio source. This only applies to Audio Source objects directly.",
+                    "properties": {
+                        "id": {
+                            "$ref": "common_definitions.json#/definitions/guid",
+                            "description": "The ID (GUID) of the Language object to which the Audio Source object is associated."
+                        },
+                        "name": {
+                            "type": "string",
+                            "description": "The name of the Language object to which the Audio Source object is associated."
+                        }
+                    }
+                },
+                "originalTotalChannelCount":{
+                    "type": "number",
+                    "description": "The total number of channels present in the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "originalNormalChannelCount":{
+                    "type": "number",
+                    "description": "The number of channel in the normal plane of the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "originalHeightChannelCount":{
+                    "type": "number",
+                    "description": "The number of channel in the height plane of the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "originalLFEChannelCount":{
+                    "type": "number",
+                    "description": "The number of low frequency channel in the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "originalAnonymousChannelCount":{
+                    "type": "number",
+                    "description": "The number of anonymous channel in the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "originalChannelConfig":{
+                    "type": "string",
+                    "description": "The configuration of the channels in the audio source (Ex : 7.1.4). For anonymous channels, returns Anonymous. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "originalChannelMask":{
+                    "type": "number",
+                    "description": "The mask associated with the channel's configuration. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "originalSampleRate":{
+                    "type": "number",
+                    "description": "The sample rate for the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "originalBitDepth":{
+                    "type": "number",
+                    "description": "The sample rate for the audio source. Either 16 or 24. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "originalFileSize":{
+                    "type": "number",
+                    "description": "The file size in bytes for the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "originalDataSize":{
+                    "type": "number",
+                    "description": "The data size for bytes the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "originalSampleCount":{
+                    "type": "number",
+                    "description": "The number of samples in the audio file. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "originalDuration":{
+                    "type": "number",
+                    "description": "The file duration. Differs from generic Duration field because the original file does not include Trim Begind/End. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "originalCodec":{
+                    "type": "string",
+                    "description": "The audio file's codec. For original files, it will always be PCM. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedTotalChannelCount":{
+                    "type": "number",
+                    "description": "The total number of channels present in the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedNormalChannelCount":{
+                    "type": "number",
+                    "description": "The number of channel in the normal plane of the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedHeightChannelCount":{
+                    "type": "number",
+                    "description": "The number of channel in the height plane of the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedLFEChannelCount":{
+                    "type": "number",
+                    "description": "The number of low frequency channel in the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedAnonymousChannelCount":{
+                    "type": "number",
+                    "description": "The number of anonymous channel in the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedChannelConfig":{
+                    "type": "string",
+                    "description": "The configuration of the channels in the audio source (Ex : 7.1.4). For anonymous channels, returns Anonymous. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedChannelMask":{
+                    "type": "number",
+                    "description": "The mask associated with the channel's configuration. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedSampleRate":{
+                    "type": "number",
+                    "description": "The sample rate for the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedBitDepth":{
+                    "type": "number",
+                    "description": "The sample rate for the audio source. Either 16 or 24. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedFileSize":{
+                    "type": "number",
+                    "description": "The file size in bytes for the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedDataSize":{
+                    "type": "number",
+                    "description": "The data size for bytes the audio source. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedSampleCount":{
+                    "type": "number",
+                    "description": "The number of samples in the audio file. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedDuration":{
+                    "type": "number",
+                    "description": "The file duration. Differs from generic Duration field because the original file does not include Trim Begind/End. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "convertedCodec":{
+                    "type": "string",
+                    "description": "The audio file's codec. For original files, it will always be PCM. This accessor works for Sounds, Audio File Source, Plugin-Media and Music Clips."
+                },
+                "workunitIsDefault": {
+                    "type": "boolean",
+                    "description": "True if the work unit is the default."
+                },
+                "workunitType": {
+                    "type": "string",
+                    "description": "The type of the Work Unit. Please note that, like Work Units, physical folders have the type \"WorkUnit\". Physical folders have the workunitType \"folder\".",
+                    "enum": [
+                        "folder",
+                        "rootFile",
+                        "nestedFile"
+                    ]
+                },
+                "workunitIsDirty": {
+                    "type": "boolean",
+                    "description": "True if a Work Unit or a Project (wproj file) is dirty, meaning it was modified but not saved."
+                },
+                "switchContainerChildContext": {
+                    "type": "object",
+                    "description": "The context object associated with the child of a Switch Container. This object holds the properties associated with the child that are context-dependent for the Switch Container (for example: the properties of the '1st only' checkbox).",
+                    "properties": {
+                        "id": {
+                            "$ref": "common_definitions.json#/definitions/guid",
+                            "description": "The ID (GUID) of the object."
+                        }
+                    }
+                },
+                "isExplicitMute": {
+                    "type": "boolean",
+                    "description": "Whether or not the object has been muted explicitly. Explicitly muting an object implicitly mutes the descendant objects."
+                },
+                "isExplicitSolo": {
+                    "type": "boolean",
+                    "description": "Whether or not the object has been soloed explicitly. Soloing an object silences all the other objects in the project except this one."
+                },
+                "isImplicitMute": {
+                    "type": "boolean",
+                    "description": "Whether or not the object has been muted implicitly. Explicitly muting an object implicitly mutes the descendant objects."
+                },
+                "isImplicitSolo": {
+                    "type": "boolean",
+                    "description": "Whether or not the object has been soloed implicitly. Soloing an object silences all the other objects in the project except this one."
+                },
+				"isIncluded": {
+					"type": "boolean",
+					"description": "Whether or not the object is Included. Specify the platform in the options. This takes into consideration the Inclusion status of the object's ancestors."
+				},
+                "points": {
+                    "$ref": "#/definitions/pointsDefinition",
+                    "description": "This only applies to Curve objects."
+                },
+                "stateProperties": {
+                    "$ref": "#/definitions/statePropertiesArg"
+                },
+                "stateGroups": {
+                    "type": "array",
+                    "description": "The State Group objects associated with this object.",
+                    "items": {
+                        "type": "object",
+                        "description": "A State Group object.",
+                        "properties": {
+                            "id": {
+                                "$ref": "common_definitions.json#/definitions/guid",
+                                "description": "The ID (GUID) of the State Group object."
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "The name of the State Group object."
+                            }
+                        }
+                    }
+                }
+            },
+            "patternProperties": {
+                "^((@?@?[a-zA-Z0-9:_\\(\\),]+)|[a-zA-Z\\(\\),]+\\(.+\\))(\\.@?@?[a-zA-Z0-9:_\\(\\),]+|[a-zA-Z\\(\\),]+\\(.+\\))*$": {
+                    "description": "Specifies dot-separated accessors that form a query and yields a property value or an object reference. A single @ specifies the value of the property for the associated object. A double @@ specifies the value of the property for the source of override. Refer to \\ref wobjects_index for more information on the properties and references for all types available.",
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "description": "A string value."
+                        },
+                        {
+                            "type": "array",
+                            "description": "An array of string values.",
+                            "items": {
+                                "type": "string",
+                                "description": "A string value."
+                            }
+                        },
+                        {
+                            "type": "number",
+                            "description": "A numeric value."
+                        },
+                        {
+                            "type": "array",
+                            "description": "An array of numeric values.",
+                            "items": {
+                                "type": "number",
+                                "description": "A numeric value."
+                            }
+                        },
+                        {
+                            "type": "boolean",
+                            "description": "A boolean value."
+                        },
+                        {
+                            "type": "array",
+                            "description": "An array of boolean values.",
+                            "items": {
+                                "type": "boolean",
+                                "description": "A boolean value."
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "description": "An object reference value.",
+                            "properties": {
+                                "id": {
+                                    "$ref": "common_definitions.json#/definitions/guid",
+                                    "description": "The ID (GUID) of the object."
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "The name of the object."
+                                }
+                            },
+                            "additionalProperties": true
+                        },
+                        {
+                            "type": "array",
+                            "description": "An object list reference value.",
+                            "items": {
+                                "type": "object",
+                                "description": "An object reference value.",
+                                "properties": {
+                                    "id": {
+                                        "$ref": "common_definitions.json#/definitions/guid",
+                                        "description": "The ID (GUID) of the object."
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The name of the object."
+                                    }
+                                },
+                                "additionalProperties": true
+                            }
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": true
+        },
+        "returnExpression": {
+            "type": "array",
+            "description": "The array of return expressions defines which elements of the Wwise object is returned. This can include built-in accessors, such as the name or id, or object properties, such as the Volume or the Pitch.",
+            "items": {
+                "description": "A return expression.",
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "description": "Specifies one or many of the built-in accessors for Wwise objects.",
+                        "enum": [
+                            "id",
+                            "name",
+                            "notes",
+                            "type",
+                            "pluginName",
+                            "shortId",
+                            "classId",
+                            "category",
+                            "filePath",
+                            "workunit",
+                            "parent",
+                            "owner",
+                            "path",
+                            "isPlayable",
+                            "childrenCount",
+                            "totalSize",
+                            "mediaSize",
+                            "objectSize",
+                            "structureSize",
+                            "sound:convertedWemFilePath",
+                            "sound:originalWavFilePath",
+                            "soundbank:bnkFilePath",
+                            "music:transitionRoot",
+                            "music:playlistRoot",
+                            "audioSource:playbackDuration",
+                            "audioSource:maxDurationSource",
+                            "audioSource:trimValues",
+                            "audioSource:maxRadiusAttenuation",
+                            "audioSource:language",
+                            "workunit:isDefault",
+                            "workunit:type",
+                            "workunit:isDirty",
+                            "switchContainerChild:context",
+                            "convertedWemFilePath",
+                            "originalFilePath",
+                            "originalRelativeFilePath",
+                            "convertedFilePath",
+                            "originalWavFilePath",
+                            "soundbankBnkFilePath",
+                            "musicTransitionRoot",
+                            "musicPlaylistRoot",
+                            "playbackDuration",
+                            "duration",
+                            "maxDurationSource",
+                            "audioSourceTrimValues",
+                            "maxRadiusAttenuation",
+                            "audioSourceLanguage",
+                            "workunitIsDefault",
+                            "workunitType",
+                            "workunitIsDirty",
+                            "switchContainerChildContext",
+                            "isExplicitMute",
+                            "isExplicitSolo",
+                            "isImplicitMute",
+                            "isImplicitSolo",
+							"isIncluded",
+                            "points",
+                            "stateProperties",
+                            "stateGroups",
+                            "blendTracks"
+                        ]
+                    },
+                    {
+                        "type": "string",
+                        "description": "Specifies one or many dot-separated accessors that form a query and yields a value or an object reference. Specifying a single @ returns the value of the property for the associated object. Specifying a double @@ returns the value of the property for the source of override. Refer to \\ref wobjects_index ."
+                    }
+                ]
+            }
+        },
+        "objectReturnOptions": {
+            "type": "object",
+            "description": "Object specifying the options for the results.",
+            "properties": {
+                "return": {
+                    "$ref": "#/definitions/returnExpression",
+                    "description": "Specifies what is being returned for every object. Refer to \\ref wobjects_index for more information on the properties and references available."
+                },
+                "platform": {
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "description": "The name of the platform."
+                        },
+                        {
+                            "$ref": "common_definitions.json#/definitions/guid",
+                            "description": "The id of the platform."
+                        }
+                    ],
+                    "description": "The ID (GUID) or name of the platform. This is an optional argument. When not specified, the current platform is used."
+                },
+                "language": {
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "description": "The name of the language."
+                        },
+                        {
+                            "$ref": "common_definitions.json#/definitions/guid",
+                            "description": "The id of the language."
+                        }
+                    ],
+                    "description": "The ID (GUID) or name of the language."
+                }
+            },
+            "additionalProperties": false
+        },
+        "logCentralChannel": {
+            "type": "string",
+            "description": "The log channel.",
+            "enum": [
+                "soundbankGenerate",
+                "conversion",
+                "copyPlatformSettings",
+                "waapi",
+                "projectLoad",
+                "general",
+                "sourceControl",
+				"lua"
+            ]
+        },
+        "logCentralSeverity": {
+            "type": "string",
+            "enum": [
+                "Message",
+                "Warning",
+                "Error",
+                "Fatal Error"
+            ],
+            "description": "\n - <b>Message</b>: Does not affect the integrity of the current operation. \n - <b>Warning</b>: Might affect the integrity of the current operation. \n - <b>Error</b>: Affects the integrity of the current operation. \n - <b>Fatal Error</b>: Prevents the completion of the current operation.\n"
+        },
+        "logCentralItem": {
+            "type": "object",
+            "description": "A log entry.",
+            "properties": {
+                "severity": {
+                    "$ref": "#/definitions/logCentralSeverity"
+                },
+                "time": {
+                    "type": "integer",
+                    "description": "Number of seconds elapsed since midnight (00:00:00), January 1, 1970, Coordinated Universal Time (UTC), according to the system clock."
+                },
+                "messageId": {
+                    "type": "string",
+                    "description": "The message ID for the log item."
+                },
+                "message": {
+                    "type": "string",
+                    "description": "The description message of the log item."
+                },
+                "platform": {
+                    "$ref": "#/definitions/objectReturn",
+                    "descriptionOverride": "The platform ID and name for which the log item was reported."
+                },
+                "parameters": {
+                    "type": "array",
+                    "items": {
+                        "description": "A parameter of the log entry. Normally an object name.",
+                        "type": "string"
+                    },
+                    "description": "An array of parameters in the log item. Not present when no parameter."
+                }
+            },
+            "required": [
+                "severity",
+                "time",
+                "messageId",
+                "message"
+            ],
+            "additionalProperties": false
+        },
+        "arrayOfLogCentralItem": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/logCentralItem"
+            },
+            "description": "Log entries."
+        },
+        "gameObject": {
+            "type": "integer",
+            "description": "A game object ID, unsigned integer 64-bit.",
+            "minimum": 0,
+            "maximum": 18446744073709551615
+        },
+        "addOnsCommands": {
+            "type": "array",
+            "description": "An array of command add-ons.",
+            "items": {
+                "type": "object",
+                "description": "Specify a command add-on.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Defines a human readable unique ID for the command. To reduce risk of ID conflicts, please use a concatenation of the author name, the product name and the command name."
+                    },
+                    "displayName": {
+                        "type": "string",
+                        "description": "Defines the name displayed in the user interface."
+                    },
+                    "program": {
+                        "type": "string",
+                        "description": "Defines the program or script to run when the command is executed. Arguments are specified in 'args'. Note that common directories variables can be used, such as ${CurrentCommandDirectory}."
+                    },
+                    "luaScript": {
+                        "type": "string",
+                        "description":"Defines a lua script file path to run inside Wwise process when the command is executed. Arguments are specified in 'args'. Note that common directories variables can be used, such as ${CurrentCommandDirectory}."
+                    },
+                    "luaPaths": {
+                        "$ref": "common_definitions.json#/definitions/arrayOfString",
+                        "description":"Defines an array of paths to be used to load additional lua scripts. Here is an example of a lua path 'C:/path_to_folder/?.lua'. Note that common directories variables can be used, such as ${CurrentCommandDirectory}."
+                    },
+                    "luaSelectedReturn": {
+                        "$ref": "common_definitions.json#/definitions/arrayOfString",
+                        "description": "Specifies an array of return expressions for the selected objects in Wwise. This will be available to the script in a lua table array in wa_args.selected."
+                    },
+                    "startMode": {
+                        "type": "string",
+                        "enum": [
+                            "SingleSelectionSingleProcess",
+                            "MultipleSelectionSingleProcessSpaceSeparated",
+                            "MultipleSelectionMultipleProcesses"
+                        ],
+                        "description": "Specifies how to expand variables in the arguments field in case of multiple selection in the Wwise user interface. SingleSelectionSingleProcess: only support single selection, starts the program once. MultipleSelectionSingleProcessSpaceSeparated: program is started once with variables expanded to space separated arguments, each enclosed in double-quotes. MultipleSelectionMultipleProcesses: program is started once per selected item, in parallel. Each running instance receives one selected item."
+                    },
+                    "args": {
+                        "type": "string",
+                        "description": "Defines the arguments. Refer to the documentation for the list of supported built-in variables. Note that in the event of a multiple selection, the variables are expanded based on the startMode field. Note that common directories variables can be used, such as ${CurrentCommandDirectory}."
+                    },
+                    "cwd": {
+                        "type": "string",
+                        "description": "Defines the current working directory to execute the program. Note that common directories variables can be used, such as ${CurrentCommandDirectory}."
+                    },
+                    "defaultShortcut": {
+                        "type": "string",
+                        "description": "Defines the shortcut to use by default for this command. If the shortcut conflicts, it won't be used. This shortcut can be changed in the Keyboard Shortcut Manager."
+                    },
+                    "redirectOutputs": {
+                        "type": "boolean",
+                        "description": "Defines if the standard output streams of the program (stdout + stderr) should be redirected and logged to Wwise on termination. The value is of boolean type and false by default."
+                    },
+                    "contextMenu": {
+                        "type": "object",
+                        "description": "If present, specify how the command is added to Wwise context menus. If empty, no context menu is added.",
+                        "properties": {
+                            "basePath": {
+                                "type": "string",
+                                "description": "Defines a forward-separated path for the parent sub menus. If empty, the menu is inserted at the first level."
+                            },
+                            "visibleFor": {
+                                "type": "string",
+                                "description": "Defines a comma-separated list of the object types for which the item is visible. Refer to \\ref wobjects_index for the list of types supported. If empty, any type is allowed."
+                            },
+                            "enabledFor": {
+                                "type": "string",
+                                "description": "Defines a comma-separated list of the object types for which the item is enabled. Refer to \\ref wobjects_index for the list of types supported. If empty, any type is allowed."
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "mainMenu": {
+                        "type": "object",
+                        "description": "If present, specify how the command is added to Wwise main menus. If empty, no main menu entry is added.",
+                        "properties": {
+                            "basePath": {
+                                "type": "string",
+                                "description": "Defines a forward-separated path for the parent sub menus. It must at least define one level, which is associated to the top menu."
+                            }
+                        },
+                        "required": [
+                            "basePath"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "id",
+                    "displayName"
+                ],
+                "additionalProperties": true
+            }
+        },
+        "platformMappingArray": {
+            "oneOf": [
+                {
+                    "type": "array",
+                    "description": "Association between a platform and a value.",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                        "type": "string",
+                        "description": "Platform name for index 0, value for index 1."
+                    }
+                },
+                {
+                    "type": "array",
+                    "description": "Array of associations between a platform name and a value.",
+                    "items": {
+                        "type": "array",
+                        "description": "Association between a platform name and a value.",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                            "type": "string",
+                            "description": "Platform name for index 0, value for index 1."
+                        }
+                    }
+                }
+            ]
+        },
+        "mediaDescriptor": {
+            "type": "object",
+            "description": "Media file descriptor",
+            "properties": {
+                "Id": {
+                    "type": "string",
+                    "description": "Short ID of the media."
+                },
+                "Language": {
+                    "type": "string",
+                    "description": "Language name used for this media."
+                },
+                "ShortName": {
+                    "type": "string",
+                    "description": "File name of the original file."
+                },
+                "CachePath": {
+                    "type": "string",
+                    "description": "Path of the converted media relative to the cache folder."
+                },
+                "Path": {
+                    "type": "string",
+                    "description": "Path of the copied media file (if copied) relative to the output folder."
+                },
+                "PrefetchSize": {
+                    "type": "string",
+                    "description": "Prefetch size in bytes."
+                },
+                "Align": {
+                    "type": "string",
+                    "description": "Required alignment for media file in bytes. If not specified then the alignment is 16 bytes."
+                },
+                "DeviceMemory": {
+                    "type": "string",
+                    "description": "Does the media requires device memory or not. If not specified then the value is false.",
+                    "enum": [
+                        "true",
+                        "false"
+                    ]
+                },
+                "Streaming": {
+                    "type": "string",
+                    "description": "Is the file streamed. If not specified then the value is false.",
+                    "enum": [
+                        "true",
+                        "false"
+                    ]
+                },
+                "Location": {
+                    "type": "string",
+                    "description": "Where is file located. In the case of a streamed file with prefetch, this will indicate where to find the prefetched portion.",
+                    "enum": [
+                        "Memory",
+                        "Loose",
+                        "OtherBank"
+                    ]
+                },
+                "UsingReferenceLanguage": {
+                    "type": "string",
+                    "description": "Is the media using the reference language. If not specified then the value is false.",
+                    "enum": [
+                        "true",
+                        "false"
+                    ]
+                }
+            },
+            "required": [
+                "Id",
+                "ShortName",
+                "CachePath",
+                "Streaming",
+                "Location"
+            ],
+            "additionalProperties": false
+        },
+        "mediaReference": {
+            "type": "object",
+            "description": "Media file descriptor reference",
+            "properties": {
+                "Id": {
+                    "type": "string",
+                    "description": "Short ID of the media."
+                }
+            },
+            "required": [
+                "Id"
+            ],
+            "additionalProperties": false
+        },
+        "externalSourceDescriptor": {
+            "type": "object",
+            "description": "External Source descriptor.",
+            "properties": {
+                "Cookie": {
+                    "type": "string",
+                    "description": "Cookie assigned to external source. The assigned cookie is displayed in Wwise's Contents Editor."
+                },
+                "Name": {
+                    "type": "string",
+                    "description": "Name of the External Source."
+                },
+                "ObjectPath": {
+                    "type": "string",
+                    "description": "Object path in the project."
+                },
+                "GUID": {
+                    "$ref": "common_definitions.json#/definitions/guid",
+                    "description": "GUID of the External Source."
+                }
+            },
+            "required": [
+                "Cookie",
+                "Name"
+            ],
+            "additionalProperties": false
+        },
+        "externalSourceReference": {
+            "type": "object",
+            "description": "External Source descriptor reference.",
+            "properties": {
+                "Cookie": {
+                    "type": "string",
+                    "description": "Cookie assigned to external source."
+                }
+            },
+            "required": [
+                "Cookie"
+            ],
+            "additionalProperties": false
+        },
+        "pluginReference": {
+            "type": "object",
+            "description": "Plug-in descriptor reference.",
+            "properties": {
+                "Id": {
+                    "type": "string",
+                    "description": "Short ID of plug-in instance."
+                }
+            },
+            "required": [
+                "Id"
+            ],
+            "additionalProperties": false
+        },
+        "pluginReferenceGroup": {
+            "type": "object",
+            "description": "Plug-in descriptor reference.",
+            "properties": {
+                "Custom": {
+                    "type": "array",
+                    "description": "Array of references to custom plug-in instances.",
+                    "items": {
+                        "$ref": "#/definitions/pluginReference"
+                    }
+                },
+                "ShareSets": {
+                    "type": "array",
+                    "description": "Array of references to plug-in sharesets.",
+                    "items": {
+                        "$ref": "#/definitions/pluginReference"
+                    }
+                },
+                "AudioDevices": {
+                    "type": "array",
+                    "description": "Array of references to audio device plug-ins.",
+                    "items": {
+                        "$ref": "#/definitions/pluginReference"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "pluginDescriptor": {
+            "type": "object",
+            "description": "Plug-in reference.",
+            "properties": {
+                "Id": {
+                    "type": "string",
+                    "description": "Short ID of plug-in instance."
+                },
+                "Name": {
+                    "type": "string",
+                    "description": "Name of the External Source."
+                },
+                "ObjectPath": {
+                    "type": "string",
+                    "description": "Object path in the project."
+                },
+                "GUID": {
+                    "$ref": "common_definitions.json#/definitions/guid",
+                    "description": "GUID of the External Source."
+                },
+                "LibName": {
+                    "type": "string",
+                    "description": "Name of plug-in library."
+                },
+                "LibId": {
+                    "type": "string",
+                    "description": "ID of plug-in library."
+                },
+                "MediaRefs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mediaReference",
+                        "additionalProperties": false
+                    },
+                    "description": "Array of media file references."
+                },
+                "PluginRefs": {
+                    "$ref": "#/definitions/pluginReferenceGroup",
+                    "description": "Array of plug-in references."
+                }
+            },
+            "required": [
+                "Id",
+                "Name",
+                "LibName",
+                "LibId"
+            ],
+            "additionalProperties": false
+        },
+        "pluginDescriptorGroup": {
+            "type": "object",
+            "description": "Plug-in descriptors.",
+            "properties": {
+                "Custom": {
+                    "type": "array",
+                    "description": "Array of custom plug-in descriptors.",
+                    "items": {
+                        "$ref": "#/definitions/pluginDescriptor"
+                    }
+                },
+                "ShareSets": {
+                    "type": "array",
+                    "description": "Array of plug-in shareset descriptors.",
+                    "items": {
+                        "$ref": "#/definitions/pluginDescriptor"
+                    }
+                },
+                "AudioDevices": {
+                    "type": "array",
+                    "description": "Array of audio device plug-in descriptors.",
+                    "items": {
+                        "$ref": "#/definitions/pluginDescriptor"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "auxBusReference": {
+            "type": "object",
+            "description": "Aux Bus reference.",
+            "properties": {
+                "Id": {
+                    "type": "string",
+                    "description": "Short ID of Aux Bus."
+                },
+                "Name": {
+                    "type": "string",
+                    "description": "Name of the Aux Bus."
+                },
+                "ObjectPath": {
+                    "type": "string",
+                    "description": "Object path in the project."
+                },
+                "GUID": {
+                    "$ref": "common_definitions.json#/definitions/guid",
+                    "description": "GUID of the Aux Bus."
+                }
+            },
+            "required": [
+                "Id",
+                "Name"
+            ],
+            "additionalProperties": false
+        },
+        "sourceControlStatus": {
+            "type": "object",
+            "description": "Source control status of a file.",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "description": "Status of the file"
+                },
+                "owner": {
+                    "type": "string",
+                    "description": "Owner of the file"
+                }
+            }
+        },
+        "arrayOfSourceControlStatus": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/sourceControlStatus"
+            }
+        }
+    }
+}

@@ -1,0 +1,76 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.captureScreen",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Captures a part of the Wwise UI relative to a view.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "viewName": {
+                        "type": "string",
+                        "description": "The name of the view. By default, the whole UI is captured."
+                    },
+                    "viewSelectionChannel": {
+                        "type": "integer",
+                        "description": "The selection channel of the view. Can be a value of 1, 2, 3 or 4. By default, the current selection channel of the view is detected automatically."
+                    },
+                    "rect": {
+                        "type": "object",
+                        "description": "The capture region. By default, the whole view is captured.",
+                        "properties": {
+                            "x": {
+                                "type": "integer",
+                                "description": "The left position of the capture region (in pixels)."
+                            },
+                            "y": {
+                                "type": "integer",
+                                "description": "The top position of the capture region (in pixels)."
+                            },
+                            "width": {
+                                "type": "integer",
+                                "description": "The width of the capture region (in pixels)."
+                            },
+                            "height": {
+                                "type": "integer",
+                                "description": "The height of the capture region (in pixels)."
+                            }
+                        },
+                        "required": [
+                            "x",
+                            "y",
+                            "width",
+                            "height"
+                        ]
+                    }
+                },
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "contentType": {
+                        "type": "string",
+                        "description": "The underlying image data format (e.g. image/png)."
+                    },
+                    "contentBase64": {
+                        "type": "string",
+                        "description": "The encoded image data (Base64)."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,523 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.audio.import",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.audio.importTabDelimited",
+                "ak.wwise.core.audio.imported",
+                "ak.wwise.core.object.create"
+            ],
+            "description": "Creates Wwise objects and imports audio files. This function does not return an error when something fails during the import process, please refer to the log for the result of each import command. This function uses the same importation processor available through the Tab Delimited import in the Audio File Importer. The function returns an array of all objects created, replaced or re-used. Use the options to specify how the objects are returned. For more information, refer to \\ref waapi_import.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "importOperation": {
+                        "$ref": "waapi_definitions.json#/definitions/importOperationType"
+                    },
+                    "default": {
+                        "type": "object",
+                        "description": "Default values for each item in \"imports\". Use this object to avoid repeating common properties of every imported element.",
+                        "properties": {
+                            "importLanguage": {
+                                "type": "string",
+                                "description": "Imports the language for the audio file import (taken from the project's defined languages, found in the WPROJ file LanguageList)."
+                            },
+                            "importLocation": {
+                                "$ref": "waapi_definitions.json#/definitions/objectArg",
+                                "description": "Object ID (GUID), name, or path used as root relative object paths."
+                            },
+                            "audioFile": {
+                                "type": "string",
+                                "description": "Path to media file to import. This path must be accessible from Wwise. For using WAAPI on Mac, please refer to \\ref waapi_path_on_mac ."
+                            },
+                            "audioFileBase64": {
+                                "type": "string",
+                                "description": "Base64 encoded WAV audio file data to import with its target file path relative to the Originals folder, separated by a vertical bar. E.g. 'MySound.wav|UklGRu...'.",
+                                "pattern": "^(.+\\.wav\\|((?:[A-Za-z0-9\\+\\/]{4})*(?:[A-Za-z0-9\\+\\/]{2}==|[A-Za-z0-9\\+\\/]{3}=))+)$"
+                            },
+                            "originalsSubFolder": {
+                                "type": "string",
+                                "description": "Specifies the 'originals' sub-folder in which to place the imported audio file. This folder is relative to the 'originals' folder in which the file would normally be imported. Example: if importing an SFX, then the audio file is imported to the folder Originals\\\\SFX\\\\originalsPath."
+                            },
+                            "objectPath": {
+                                "type": "string",
+                                "description": "The path and name of the object(s) to be created. The path uses backslashes and can either be absolute or relative. Object types can be specified before the name. For example: \\verbatim \\\\Actor-Mixer Hierarchy\\\\Default Work Unit\\\\<Random Container>MyContainer\\\\<Sound>MySound. \\endverbatim Refer to \\ref wobjects_index for the available types."
+                            },
+                            "objectType": {
+                                "type": "string",
+                                "description": "Specifies the type of object to create when importing an audio file. This type can also be specified directly in the objectPath. Refer to \\ref wobjects_index for the available types."
+                            },
+                            "notes": {
+                                "type": "string",
+                                "description": "The \"Notes\" field of the created object."
+                            },
+                            "audioSourceNotes": {
+                                "type": "string",
+                                "description": "The \"Notes\" field of the created audio source object."
+                            },
+                            "switchAssignation": {
+                                "type": "string",
+                                "description": "Defines a Switch Group or State Group that is associated to a Switch Container, within the Actor-Mixer Hierarchy only. Also defines which Switch Container's child is assigned to which Switch or State from the associated group. Refer to Tab Delimited Import in the Wwise Help documentation for more information."
+                            },
+                            "event": {
+                                "type": "string",
+                                "description": "Defines the path and name of an Event to be created for the imported object. Refer to Tab Delimited Import in the Wwise Help documentation for more information."
+                            },
+                            "dialogueEvent": {
+                                "type": "string",
+                                "description": "Defines the path and name of a Dialogue Event to be created for the imported object. Refer to Tab Delimited Import in the Wwise Help documentation for more information."
+                            }
+                        },
+                        "patternProperties": {
+                            "^@[:_a-zA-Z0-9]+$": {
+                                "description": "Specifies a Wwise object property and its value. Property names are prefixed with @. Refer to \\ref wobjects_index for the properties available. For example: \\@Volume:3",
+                                "$ref": "common_definitions.json#/definitions/propertyValue"
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "imports": {
+                        "type": "array",
+                        "description": "Array of import commands.",
+                        "items": {
+                            "type": "object",
+                            "description": "Import command. The members of this object are combined with those of \"default\", with this object's members having precedence. In addition to the listed properties, you can also set wobject properties and references using \\@Property. For example, you can set the volume by adding the \\@Volume property. References that have constraints from other references, such as a Switch Container's State/Switch, which is constrained to being a child of a State/Switch Group, should not be set because WAAPI cannot ensure that a reference is set in the required order.",
+                            "properties": {
+                                "importLanguage": {
+                                    "$ref": "#/properties/default/properties/importLanguage"
+                                },
+                                "importLocation": {
+                                    "$ref": "waapi_definitions.json#/definitions/objectArg",
+                                    "description": "Object ID (GUID), name, or path used as root relative object paths."
+                                },
+                                "audioFile": {
+                                    "$ref": "#/properties/default/properties/audioFile"
+                                },
+                                "audioFileBase64": {
+                                    "$ref": "#/properties/default/properties/audioFileBase64"
+                                },
+                                "originalsSubFolder": {
+                                    "$ref": "#/properties/default/properties/originalsSubFolder"
+                                },
+                                "objectPath": {
+                                    "$ref": "#/properties/default/properties/objectPath"
+                                },
+                                "objectType": {
+                                    "$ref": "#/properties/default/properties/objectType"
+                                },
+                                "notes": {
+                                    "$ref": "#/properties/default/properties/notes"
+                                },
+                                "audioSourceNotes": {
+                                    "$ref": "#/properties/default/properties/audioSourceNotes"
+                                },
+                                "switchAssignation": {
+                                    "$ref": "#/properties/default/properties/switchAssignation"
+                                },
+                                "event": {
+                                    "$ref": "#/properties/default/properties/event"
+                                },
+                                "dialogueEvent": {
+                                    "$ref": "#/properties/default/properties/dialogueEvent"
+                                }
+                            },
+                            "patternProperties": {
+                                "^@[:_a-zA-Z0-9]+$": {
+                                    "description": "Specifies the value of the property. Refer to \\ref wobjects_index for the properties available.",
+                                    "$ref": "common_definitions.json#/definitions/propertyValue"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "objectPath"
+                            ]
+                        }
+                    },
+                    "autoAddToSourceControl": {
+                        "type": "boolean",
+                        "description": "Determines if Wwise automatically performs a source control Add operation on the imported files. Defaults to true."
+                    },
+                    "autoCheckOutToSourceControl": {
+                        "type": "boolean",
+                        "description": "Determines if Wwise automatically performs a source control Checkout operation (when applicable) on the modified files. Defaults to true."
+                    }
+                },
+                "required": [
+                    "imports"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "objects": {
+                        "type": "array",
+                        "description": "Array of objects.",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                            "description": "Import command. The members of this object are combined with those of \"default\", with this object's members having precedence. In addition to the listed properties, you can also set wobject properties and references using \\@Property. For example, you can set the volume by adding the \\@Volume property. References that have constraints from other references, such as a Switch Container's State/Switch, which is constrained to being a child of a State/Switch Group, should not be set because WAAPI  cannot ensure that a reference is set in the required order."
+                        }
+                    },
+                    "files": {
+                        "type": "array",
+                        "description": "The list of imported original files.",
+                        "items": {
+                            "type": "string",
+                            "description": "Absolute path to the original file."
+                        }
+                    },
+					"log": {
+                        "description": "The audio import log.",
+						"type": "array",
+                        "items": {
+							"type": "object",
+							"description": "A log entry for audio import.",
+							"properties": {
+								"severity": {
+									"$ref": "waapi_definitions.json#/definitions/logCentralSeverity"
+								},
+								"message": {
+									"type": "string",
+									"description": "The description message of the log item."
+								},
+								"index": {
+									"type": "number",
+									"description": "The index of the import command to which the log applies."
+								}
+							},
+							"required": [
+								"severity",
+								"message"
+							],
+							"additionalProperties": false
+                        }
+                    }
+                },
+                "required": ["log", "files", "objects"],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturnOptions",
+                "description": "Specifies the return options for every object returned."
+            },
+            "examples": [
+                {
+                    "title": "Creating a new SFX with no file and setting a value to a property",
+                    "description": "Creates a new SFX under \"objectPath\", setting its volume attribute to 1.",
+                    "args": {
+                        "importOperation": "createNew",
+                        "default": {},
+                        "imports": [
+                            {
+                                "importLanguage": "SFX",
+                                "@Volume": "1",
+                                "objectPath": "\\Actor-Mixer Hierarchy\\Default Work Unit\\<Actor-Mixer>Test 0\\<Sequence Container>Container 0\\<Sound SFX>Sound 0"
+                            }
+                        ]
+                    },
+                    "result": {
+                        "log": [],
+                        "files": [],
+                        "objects": [
+                            {
+                                "name": "Test 0",
+                                "id": "{47EF0874-4C86-4DB6-A63B-4411A1EA766E}"
+                            },
+                            {
+                                "name": "Container 0",
+                                "id": "{E9AD319F-BCC3-43C0-9645-851B758A86FD}"
+                            },
+                            {
+                                "name": "Sound 0",
+                                "id": "{692C77EB-7542-4AE9-A56A-ADB9D4CE0008}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Importing audio files and creating multiple Sound SFX",
+                    "description": "Imports files specified by \"audioFile\" into \"objectPath\"",
+                    "args": {
+                        "importOperation": "useExisting",
+                        "default": {
+                            "importLanguage": "SFX"
+                        },
+                        "imports": [
+                            {
+                                "audioFile": "C:\\audio0.wav",
+                                "objectPath": "\\Actor-Mixer Hierarchy\\Default Work Unit\\<Sequence Container>Test 0\\<Sound SFX>My SFX 0"
+                            },
+                            {
+                                "audioFile": "C:\\audio1.wav",
+                                "objectPath": "\\Actor-Mixer Hierarchy\\Default Work Unit\\<Sequence Container>Test 0\\<Sound SFX>My SFX 1"
+                            }
+                        ]
+                    },
+                    "options": {
+                        "return": [
+                            "id",
+                            "name",
+                            "path"
+                        ]
+                    },
+                    "result": {
+                        "log": [],
+                        "files": [
+                            "C:\\Projects\\Example\\Originals\\SFX\\audio0.wav",
+                            "C:\\Projects\\Example\\Originals\\SFX\\audio1.wav"
+                        ],
+                        "objects": [
+                            {
+                                "id": "{A5B353C5-ED95-4CFB-B90F-1650BB4E57BA}",
+                                "name": "Test 0",
+                                "path": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Test 0"
+                            },
+                            {
+                                "id": "{05D7495F-DC8F-4610-B485-91452F1DDC67}",
+                                "name": "audio0",
+                                "path": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Test 0\\My SFX 0\\audio0"        },
+                            {
+                                "id": "{04E3C1E5-119F-4530-930C-2F5B4095A750}",
+                                "name": "My SFX 0",
+                                "path": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Test 0\\My SFX 0"        
+                            },
+                            {
+                                "id": "{26019629-142E-4B07-A856-EBFE0758C64B}",
+                                "name": "audio1",
+                                "path": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Test 0\\My SFX 1\\audio1"        },
+                            {
+                                "id": "{1543FE94-E262-4F35-BAB2-F58519976469}",
+                                "name": "My SFX 1",
+                                "path": "\\Actor-Mixer Hierarchy\\Default Work Unit\\Test 0\\My SFX 1"        
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Importing an audio file to create a Sound SFX using a relative object path",
+                    "description": "Imports files using the importLocation, a relative objectPath, and an objectType.",
+                    "args": {
+                        "importOperation": "useExisting",
+                        "default": {
+                            "importLanguage": "SFX",
+                            "importLocation": "\\Actor-Mixer Hierarchy\\Default Work Unit"
+                        },
+                        "imports": [
+                            {
+                                "audioFile": "C:\\audio0.wav",
+                                "objectPath": "MySound",
+                                "objectType": "Sound SFX"
+                            }
+                        ]
+                    },
+                    "options": {},
+                    "result": {
+                        "log": [],
+                        "files": [
+                            "C:\\Projects\\Example\\Originals\\SFX\\audio0.wav"
+                        ],
+                        "objects": [
+                            {
+                                "id": "{5EF24DFF-B9EC-4042-BF49-EC27B1135FB0}",
+                                "name": "audio0"
+                            },
+                            {
+                                "id": "{EB3051A3-5611-4608-AB5C-0EA3F9C3DD6C}",
+                                "name": "MySound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Importing an audio file to create a Sound SFX using an absolute object path",
+                    "description": "Imports files using an absolute objectPath that includes the object type.",
+                    "args": {
+                        "importOperation": "useExisting",
+                        "default": {
+                            "importLanguage": "SFX"
+                        },
+                        "imports": [
+                            {
+                                "audioFile": "C:\\audio0.wav",
+                                "objectPath": "\\Actor-Mixer Hierarchy\\Default Work Unit\\<Sound SFX>MySound"
+                            }
+                        ]
+                    },
+                    "options": {},
+                    "result": {
+                        "log": [],
+                        "files": [
+                            "C:\\Projects\\Example\\Originals\\SFX\\audio0.wav"
+                        ],
+                        "objects": [
+                            {
+                                "id": "{FAF8DDCD-D1B2-4EC6-997F-CB9BE9703544}",
+                                "name": "audio0"
+                            },
+                            {
+                                "id": "{5F444FD2-1203-4205-B8FA-F9DAB3F5F74C}",
+                                "name": "MySound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Importing audio files to create Sound SFX and Audio File Sources",
+                    "description": "Imports files using an absolute objectPath that includes the object type for the Sound SFX and the Audio File Source.",
+                    "args": {
+                        "importOperation": "replaceExisting",
+                        "default": {
+                            "importLanguage": "SFX"
+                        },
+                        "imports": [
+                            {
+                                "audioFile": "C:\\audio0.wav",
+                                "objectPath": "\\Actor-Mixer Hierarchy\\Default Work Unit\\<Sound SFX>MySound\\<AudioFileSource>_MyActiveSource"
+                            },
+                            {
+                                "audioFile": "C:\\audio1.wav",
+                                "objectPath": "\\Actor-Mixer Hierarchy\\Default Work Unit\\<Sound SFX>MySound\\<AudioFileSource>OtherSource"
+                            }
+                        ]
+                    },
+                    "options": {},
+                    "result": {
+                        "log": [],
+                        "files": [
+                            "C:\\Projects\\Example\\Originals\\SFX\\audio0.wav",
+                            "C:\\Projects\\Example\\Originals\\SFX\\audio1.wav"
+                        ],
+                        "objects": [
+                            {
+                                "id": "{FC700D71-5AF1-4B43-A669-6D208591BDFD}",
+                                "name": "MySound"
+                            },
+                            {
+                                "id": "{5F3C304E-6BFF-47E2-9089-B4A17FB229B2}",
+                                "name": "_MyActiveSource"
+                            },
+                            {
+                                "id": "{281AB61E-2D79-465B-B050-24986AACB2AF}",
+                                "name": "OtherSource"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Importing an audio file to create a Sound Voice for English",
+                    "description": "Imports files using an absolute objectPath and specifying the English language.",
+                    "args": {
+                        "importOperation": "useExisting",
+                        "default": {
+                            "importLanguage": "English(US)"
+                        },
+                        "imports": [
+                            {
+                                "objectPath": "\\Actor-Mixer Hierarchy\\Default Work Unit\\<Sound Voice>MyVoice",
+                                "audioFile": "C:\\sources\\en\\Hello.wav"
+                            }
+                        ]
+                    },
+                    "options": {},
+                    "result": {
+                        "log": [],
+                        "files": [
+                            "C:\\Projects\\Example\\Originals\\Voices\\English(US)\\Hello.wav"
+                        ],
+                        "objects": [
+                            {
+                                "id": "{AFEC4890-A037-4AB6-A96B-F4C7C4B7FAA0}",
+                                "name": "Hello"
+                            },
+                            {
+                                "id": "{C624F4A4-305A-462F-8FFE-C234FDB0771B}",
+                                "name": "MyVoice"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Importing an audio file to create a Sound Voice for French",
+                    "description": "Imports files using an absolute objectPath and specifying the French language.",
+                    "args": {
+                        "importOperation": "useExisting",
+                        "default": {
+                            "importLanguage": "French"
+                        },
+                        "imports": [
+                            {
+                                "objectPath": "\\Actor-Mixer Hierarchy\\Default Work Unit\\<Sound Voice>MyVoice",
+                                "audioFile": "C:\\sources\\fr\\Hello.wav"
+                            }
+                        ]
+                    },
+                    "options": {},
+                    "result": {
+                        "log": [],
+                        "files": [
+                            "C:\\Projects\\Example\\Originals\\Voices\\French\\Hello.wav"
+                        ],
+                        "objects": [
+                            {
+                                "id": "{7DF60F07-6254-4F05-B36C-C74446FBEEA6}",
+                                "name": "Hello"
+                            },
+                            {
+                                "id": "{BB1BC7DA-92BE-49F5-A27C-CDDEFBF38AAC}",
+                                "name": "MyVoice"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Importing an audio files to create Sound Voices for English and French",
+                    "description": "Imports files using an absolute objectPath and specifying the language for each entry.",
+                    "args": {
+                        "importOperation": "useExisting",
+                        "imports": [
+                            {
+                                "audioFile": "C:\\sources\\hello_en.wav",
+                                "objectPath": "\\Actor-Mixer Hierarchy\\Default Work Unit\\<Sound Voice>hello\\<AudioFileSource>hello_en",
+                                "importLanguage": "EN_US"
+                            },
+                            {
+                                "audioFile": "C:\\sources\\hello_fr.wav",
+                                "objectPath": "\\Actor-Mixer Hierarchy\\Default Work Unit\\<Sound Voice>hello\\<AudioFileSource>hello_fr",
+                                "importLanguage": "FR_CA"
+                            }
+                        ]
+                    },
+                    "options": {},
+                    "result": {
+                        "log": [],
+                        "files": [
+                            "C:\\Projects\\Example\\Originals\\Voices\\EN_US\\hello_en.wav",
+                            "C:\\Projects\\Example\\Originals\\Voices\\FR_CA\\hello_fr.wav"
+                        ],
+                        "objects": [
+                            {
+                                "id": "{1F2EDC6F-416D-4FDF-98E9-8359C63E6CFC}",
+                                "name": "hello"
+                            },
+                            {
+                                "id": "{F54A8C00-4777-4E71-BD1B-5E2E4E6504A1}",
+                                "name": "hello_en"
+                            },
+                            {
+                                "id": "{308B215B-DDF3-4E42-8646-33A6FB485093}",
+                                "name": "hello_fr"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

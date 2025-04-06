@@ -1,0 +1,60 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.setDefaultListeners",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.setListeners"
+            ],
+            "description": "Sets the default active listeners for all subsequent game objects that are registered. See <tt>AK::SoundEngine::SetDefaultListeners</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "listeners": {
+                        "type": "array",
+                        "maxItems": 4294967295,
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/gameObject"
+                        },
+                        "description": "Array of listener game object IDs. Game objects must have been previously registered."
+                    }
+                },
+                "required": [
+                    "listeners"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting the list of default listeners",
+                    "description": "Sets \"listeners\" as the list of default listeners.",
+                    "args": {
+                        "listeners": [
+                            2233445,
+                            5566778,
+                            123456,
+                            11222648
+                        ]
+                    },
+                    "return": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

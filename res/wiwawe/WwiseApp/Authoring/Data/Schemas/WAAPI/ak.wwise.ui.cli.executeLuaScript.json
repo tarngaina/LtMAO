@@ -1,0 +1,74 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.cli.executeLuaScript",
+            "restrict": [ "userInterface" ],
+            "description": "Execute a Lua script. Optionally, specify additional Lua search paths, additional modules, and additional Lua scripts to load prior to the main script. The script can return a value. All arguments will be passed to the Lua script in the \"wa_args\" global variable.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "project": {
+                        "$ref": "waapi_definitions.json#/definitions/projectOptionCliArg",
+                        "description": "When no project is specified, no project is loaded. Refer to \\ref ak_wwise_console_project_open for information on how to open a project."
+                    },
+                    "lua-script": {
+                        "type": "string",
+                        "description": "Specify the file path of the main Lua script to load and execute.",
+                        "synopsis": ["FILE"]
+                    },
+                    "require": {
+                        "$ref": "common_definitions.json#/definitions/stringOrArrayOfString",
+                        "description": "Specify an array of Lua module to load at runtime using the require system. This option must be followed by a Lua module name. The module name must be found in the Lua path. Ex: '--require debug.lua'",
+                        "synopsis": [
+                            "--require MODULE1",
+                            "--require MODULE1 MODULE2 ...",
+                            "--require MODULE1 --require MODULE2 ..."
+                        ]
+                    },
+                    "do-file": {
+                        "$ref": "common_definitions.json#/definitions/stringOrArrayOfString",
+                        "description": "Specify an array of Lua files to load before the main Lua script is loaded and executed. This option must be followed by a absolute file name.",
+                        "synopsis": [
+                            "--do-file LUAFILE1",
+                            "--do-file LUAFILE1 LUAFILE2 ...",
+                            "--do-file LUAFILE1 --do-file LUAFILE2 ..."
+                        ]
+                    },
+                    "lua-path": {
+                        "$ref": "common_definitions.json#/definitions/stringOrArrayOfString",
+                        "description": "Specify a search path for Lua modules loaded. This option must be followed by a Lua path. Ex: '--lua-path C:\\\\module\\\\?.lua'",
+                        "synopsis": [
+                            "--lua-path PATH1",
+                            "--lua-path PATH1 PATH2 ...",
+                            "--lua-path PATH1 --lua-path PATH2 ..."
+                        ]
+                    },
+                    "allow-migration": {
+                        "$ref": "waapi_definitions.json#/definitions/allowMigrationCliArg"
+                    }
+                },
+                "required": [ "lua-script" ],
+                "additionalProperties": true
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "type": "any",
+                        "description": "Result returned by the Lua script"
+                    }
+                },
+                "required": [ "result" ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": { },
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

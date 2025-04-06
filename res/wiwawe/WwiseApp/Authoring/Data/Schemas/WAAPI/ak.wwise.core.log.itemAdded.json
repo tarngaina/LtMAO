@@ -1,0 +1,42 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.log.itemAdded",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.log.get",
+                "ak.wwise.core.log.addItem"
+            ],
+            "description": "Sent when an item is added to the log. This could be used to retrieve items added to the SoundBank generation log. To retrieve the complete log, refer to \\ref ak_wwise_core_log_get.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "channel": {
+                        "$ref": "waapi_definitions.json#/definitions/logCentralChannel",
+                        "description": "The channel on which the item was added."
+                    },
+                    "item": {
+                        "$ref": "waapi_definitions.json#/definitions/logCentralItem",
+                        "descriptionOverride": "The item added to the log."
+                    }
+                },
+                "required": [
+                    "channel",
+                    "item"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

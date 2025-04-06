@@ -1,0 +1,52 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.unregisterMeter",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.getMeters",
+                "ak.wwise.core.profiler.registerMeter"
+            ],
+            "description": "Unregisters a bus or device that was registered with \\ref ak_wwise_core_profiler_registermeter.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to receive meter data. This object must be a bus, an aux bus or a device."
+                    }
+                },
+                "required": [
+                    "object"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Unregistering a bus for metering",
+                    "description": "Unregisters a specific bus for metering.",
+                    "args": {
+                        "object": "Bus:MusicBus"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

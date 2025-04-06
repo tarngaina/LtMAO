@@ -1,0 +1,49 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.undo.cancelGroup",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.undo.endGroup",
+                "ak.wwise.core.undo.beginGroup",
+                "ak.wwise.core.undo.undo"
+            ],
+            "description": "Cancels the last undo group.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "undo": {
+                        "type": "boolean",
+                        "description": "Specify if the operations are undone. False when not specified."
+                    }
+                },
+                "required": [],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Canceling an undo group",
+                    "description": "Cancels an undo group.",
+                    "args": {},
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

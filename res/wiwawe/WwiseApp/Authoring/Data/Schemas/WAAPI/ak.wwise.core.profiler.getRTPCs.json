@@ -1,0 +1,100 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.getRTPCs",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.getCursorTime"
+            ],
+            "description": "Retrieves active RTPCs at a specific profiler capture time.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "time": {
+                        "$ref": "waapi_definitions.json#/definitions/cursorTime",
+                        "description": "Time in milliseconds to query for RTPCs, or a Time Cursor from which to acquire the time. The User Time Cursor is the one that can be manipulated by the user, while the Capture Time Cursor represents the latest time of the current capture."
+                    }
+                },
+                "required": [
+                    "time"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "type": "array",
+                        "description": "Array of RTPCs.",
+                        "items": {
+                            "type": "object",
+                            "description": "An RTPC associated with a playing voice. Use the return options to specify which property is required.",
+                            "properties": {
+                                "id": {
+                                    "$ref": "common_definitions.json#/definitions/guid",
+                                    "description": "The ID (GUID) of the Game Parameter, LFO, Time, Envelope or MIDI Parameter object."
+                                },
+                                "name": {
+                                    "$ref": "waapi_definitions.json#/definitions/uniqueName",
+                                    "description": "The name of the Game Parameter, LFO, Time, Envelope or MIDI Parameter object."
+                                },
+                                "gameObjectId": {
+                                    "$ref": "waapi_definitions.json#/definitions/gameObject",
+                                    "description": "The Game Object associated with the RTPC scope, or AK_INVALID_GAME_OBJECT for global scope RTPCs."
+                                },
+                                "value": {
+                                    "type": "number",
+                                    "description": "The value of the Game Parameter, LFO, Time, Envelope or MIDI Parameter at the cursor time."
+                                }
+                            },
+							"required": [
+								"id", "name", "gameObjectId", "value"
+							],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [
+                    "return"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Querying the RTPC id and value at a point in time",
+                    "description": "Queries the active RTPCs in the current capture session at 30 secs (30,000 milliseconds).",
+                    "args": {
+                        "time": 30000
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "id": "{8CCB75BA-256A-4C7B-907F-9BEB03689F56}",
+								"name": "Footstep_weight",
+								"gameObjectId": 10,
+                                "value": 50
+                            },
+                            {
+                                "id": "{1FEAF6CE-113A-49F2-BCAA-9AFDDE35ADA5}",
+								"name": "Footstep_speed",
+								"gameObjectId": 11,
+                                "value": 5
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

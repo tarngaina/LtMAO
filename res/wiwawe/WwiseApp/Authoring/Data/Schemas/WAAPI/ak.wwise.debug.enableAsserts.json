@@ -1,0 +1,43 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.debug.enableAsserts",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.debug.assertFailed",
+                "ak.wwise.debug.testAssert",
+                "ak.wwise.debug.enableAutomationMode"
+            ],
+            "description": "Enables debug assertions. Every call to enableAsserts with 'false' increments the ref count. Calling with true decrements the ref count. This is only available with Debug builds.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "enable": {
+                        "type": "boolean",
+                        "description": "Indicates whether assertions should be enabled or disabled."
+                    }
+                },
+                "required": [
+                    "enable"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,90 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.transport.executeAction",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.transport.create",
+                "ak.wwise.core.transport.getState"
+            ],
+            "description": "Executes an action on the given transport object, or all transport objects if none is specified.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "transport": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "The transport object ID to be used with all other ak.wwise.core.transport functions."
+                    },
+                    "action": {
+                        "type": "string",
+                        "enum": [
+                            "play",
+                            "stop",
+                            "pause",
+                            "playStop",
+                            "playDirectly"
+                        ],
+                        "description": "The action to execute."
+                    }
+                },
+                "required": [
+                    "action"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Playing a transport object",
+                    "description": "Plays the given transport object.",
+                    "args": {
+                        "action": "play",
+                        "transport": 1234
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Stopping all transport objects",
+                    "description": "Stops all transport objects.",
+                    "args": {
+                        "action": "stop"
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Toggling playback (pause / resume) on a transport object",
+                    "description": "Toggles playback (pause / resume) on the given transport object.",
+                    "args": {
+                        "action": "pause",
+                        "transport": 1234
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Toggling playback (play / stop) on a transport object",
+                    "description": "Toggles playback (play / stop) on the given transport object.",
+                    "args": {
+                        "action": "playStop",
+                        "transport": 1234
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,48 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.layout.removeLayout",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.layout.setLayout"
+            ],
+            "description": "Unregisters a temporary layout, previously registered with \\ref ak_wwise_ui_layout_setlayout.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the layout to unregister."
+                    }
+                },
+                "required": ["name"],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Unregister a temporary layout",
+                    "description": "Unregisters a temporary layout, previously registered with \"setLayout\".",
+                    "args": {
+                        "name": "TemporaryLayout"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

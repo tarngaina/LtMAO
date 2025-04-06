@@ -1,0 +1,131 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.cli.waapiServer",
+            "restrict": [
+                "commandLine"
+            ],
+            "description": "Starts a command-line Wwise Authoring API server, to which client applications, using the Wwise Authoring API, can connect.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "project": {
+                        "$ref": "waapi_definitions.json#/definitions/projectCliArg",
+                        "description": "When no project is specified, no project is loaded. Refer to \\ref ak_wwise_console_project_open for information on how to open a project."
+                    },
+                    "verbose": {
+                        "$ref": "waapi_definitions.json#/definitions/verboseCliArg"
+                    },
+                    "quiet": {
+                        "$ref": "waapi_definitions.json#/definitions/quietCliArg"
+                    },
+                    "allowed-addr": {
+                        "type": "string",
+                        "description": "Specifies the IP addresses that are allowed to connect to WAAPI. This option must be followed by a comma-separated list, for example: \"127.0.0.1\". Default value is \"127.0.0.1\".",
+                        "synopsis": [
+                            "--allowed-addr ADDRESS",
+                            "--allowed-addr ADDRESS1,ADDRESS2,..."
+                        ]
+                    },
+                    "allowed-origin": {
+                        "type": "string",
+                        "description": "Specifies the hosts that are allowed to connect to WAAPI. This option must be followed by a comma-separated list, for example: \"www.myhost.com,www.myhost2.com\". Validation is performed on the HTTP header Origin. Connections that do not provide the Origin header, as well as file-based connections (for example: file://), are always allowed.",
+                        "synopsis": [
+                            "--allowed-origin HOST",
+                            "--allowed-origin HOST1,HOST2,..."
+                        ]
+                    },
+                    "http-port": {
+                        "type": "number",
+                        "description": "Specifies the port number used by WAAPI when using HTTP POST. This option must be followed by a port number between 0 and 65,535. Using 0 prevents the server from running. Default value is 8090.",
+                        "synopsis": [
+                            "--http-port PORT"
+                        ],
+                        "minimum": 0,
+                        "maximum": 65535
+                    },
+                    "wamp-port": {
+                        "type": "number",
+                        "description": "Specifies the port number used by WAAPI when using WAMP. This option, which takes precedence over the User Preferences, must be followed by a port number between 0 and 65,535. Using 0 prevents the server from running. Default value is 8080.",
+                        "synopsis": [
+                            "--wamp-port PORT"
+                        ],
+                        "minimum": 0,
+                        "maximum": 65535
+                    },
+                    "http-max-clients": {
+                        "type": "number",
+                        "description": "Specifies the maximum number of concurrent WAAPI clients that can connect to the server when using HTTP POST. This option must be followed by a number between 0 and 100. Using 0 prevents the server from running. Default value is 2.",
+                        "synopsis": [
+                            "--http-max-clients NUM"
+                        ],
+                        "minimum": 0,
+                        "maximum": 100
+                    },
+                    "wamp-max-clients": {
+                        "type": "number",
+                        "description": "Specifies the maximum number of concurrent WAAPI clients that can connect to the server when using WAMP. This option must be followed by a number between 0 and 100. Using 0 prevents the server from running. Default value is 5.",
+                        "synopsis": [
+                            "--wamp-max-clients NUM"
+                        ],
+                        "minimum": 0,
+                        "maximum": 100
+                    },
+                    "allow-migration": {
+                        "$ref": "waapi_definitions.json#/definitions/allowMigrationCliArg"
+                    },
+                    "no-source-control": {
+                        "$ref": "waapi_definitions.json#/definitions/noSourceControlCliArg"
+                    },
+                    "watchdog-timeout": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Time in seconds to set as a watchdog threshold. The watchdog is signaled every time a WAAPI function call is made. By default, the value is 0 and the watchdog is disabled.",
+                        "synopsis": [
+                            "--watchdog-timeout 30"
+                        ]
+                    }
+                },
+                "required": [],
+                "optionalPositional": [
+                    "project"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "$ref": "waapi_definitions.json#/definitions/processResultCli"
+                    }
+                },
+                "required": [
+                    "result"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Running a WAAPI server",
+                    "description": "Loads MyProject.wproj and runs a WAAPI server. Migrates the project first if necessary. Uses WAMP port 8085 and default HTTP port 8090.",
+                    "args": {
+                        "project": "C:\\MyProject\\MyProject.wproj",
+                        "allow-migration": true,
+                        "wamp-port": 8085
+                    },
+                    "result": {
+                        "result": 0
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

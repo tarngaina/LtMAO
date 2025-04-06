@@ -1,0 +1,102 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.enableProfilerData",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Specifies the type of data you want to capture. Overrides the user's profiler settings.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "dataTypes": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "dataType": {
+                                    "$ref": "waapi_definitions.json#/definitions/profilerDataType",
+                                    "description": "Specifies the type of data you want to capture."
+                                },
+                                "enable": {
+                                    "type": "boolean",
+                                    "description": "Enable (true) or disable (false) capture for this type of profiler data. Defaults to true when not specified."
+                                }
+                            },
+                            "description": "The data type and enable status.",
+                            "required": [
+                                "dataType"
+                            ],
+                            "additionalProperties": false
+                        },
+                        "description": "An array of data types."
+                    }
+                },
+                "required": [
+                    "dataTypes"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Enabling the profiler data",
+                    "description": "Enable \"Voices Data\"",
+                    "args": {
+                        "dataTypes": [
+                            {
+                                "dataType": "voices",
+                                "enable": true
+                            }
+                        ]
+                    },
+                    "options": {},
+                    "result": {}
+                },
+                {
+                    "title": "Disabling profiler data",
+                    "description": "Disable \"Voices Data\"",
+                    "args": {
+                        "dataTypes": [
+                            {
+                                "dataType": "voices",
+                                "enable": false
+                            }
+                        ]
+                    },
+                    "options": {},
+                    "result": {}
+                },
+                {
+                    "title": "Enabling profiler data required for ak.wwise.core.profiler.getVoiceContributions",
+                    "description": "Enable \"Voices Data\" and \"Voice Inspector Data\" using the default value (true) for the enable property",
+                    "args": {
+                        "dataTypes": [
+                            {
+                                "dataType": "voices"
+                            },
+                            {
+                                "dataType": "voiceInspector"
+                            }
+                        ]
+                    },
+                    "options": {},
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.audio.mute",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+				"ak.wwise.core.audio.solo",
+				"ak.wwise.core.audio.resetMute",
+				"ak.wwise.core.audio.resetSolo"
+            ],
+            "description": "Mutes an object.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "objects": {
+						"type": "array",
+						"description": "An array of objects to mute.",
+						"minItems": 1,
+						"items": {
+							"description": "The ID (GUID), name, or path of the object to mute.",
+							"$ref": "waapi_definitions.json#/definitions/objectArg"
+						}
+                    },
+                    "value": {
+                        "type": "boolean",
+                        "description": "Whether the object is muted or not."
+                    }
+                },
+                "required": [
+                    "objects",
+                    "value"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Mute a WwiseObject",
+                    "description": "Mutes the object specified by \"object\".",
+                    "args": {
+                        "objects": ["\\Actor-Mixer Hierarchy\\Default Work Unit\\Hello"],
+                        "value": true
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,74 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.cli.createNewProject",
+            "restrict": [
+                "commandLine"
+            ],
+            "description": "Creates a blank new project. The project must not already exist. If the directory does not exist, it is created.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "project": {
+                        "$ref": "waapi_definitions.json#/definitions/projectCliArg"
+                    },
+                    "verbose": {
+                        "$ref": "waapi_definitions.json#/definitions/verboseCliArg"
+                    },
+                    "quiet": {
+                        "$ref": "waapi_definitions.json#/definitions/quietCliArg"
+                    },
+                    "platform": {
+                        "$ref": "common_definitions.json#/definitions/stringOrArrayOfString",
+                        "description": "Specifies which platform the new project supports. If not specified, Windows only is used.",
+                        "synopsis": [
+                            "--platform PLATFORM",
+                            "--platform PLATFORM1 PLATFORM2 ...",
+                            "--platform PLATFORM1 --platform PLATFORM2 ..."
+                        ]
+                    }
+                },
+                "required": [
+                    "project"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "$ref": "waapi_definitions.json#/definitions/processResultCli"
+                    }
+                },
+                "required": [
+                    "result"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Creating a new blank project",
+                    "description": "Creates MyProject.wproj for platforms Windows and Linux.",
+                    "args": {
+                        "project": "C:\\MyProject\\MyProject.wproj",
+                        "platform": [
+                            "Windows",
+                            "Linux"
+                        ]
+                    },
+                    "result": {
+                        "result": 0
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,69 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.layout.getViewInstances",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.layout.getViewTypes"
+            ],
+            "description": "Retrieves a list of all view instances of a layout.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the layout to inspect."
+                    }
+                },
+                "required": ["name"],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "viewInstances": {
+                        "type": "array",
+                        "description": "Array of all view instances of a layout.",
+                        "items": {
+                            "$ref": "waapi_ui_definitions.json#/definitions/viewInstance"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Retrieving all instantiated views in a layout",
+                    "description": "Returns a list of all instantiated views in a given layout.",
+                    "args": {
+                        "name": "Designer"
+                    },
+                    "result": {
+                        "viewInstances": [
+                            {
+                                "viewID": "{E773AA9A-2F00-45F1-BD61-3C13C321BE6C}",
+                                "viewIsDocked": true,
+                                "viewName": "Project Explorer"
+                            },
+                            {
+                                "viewID": "{E773AA9A-2F00-45F1-BD61-3C13C321BE6D}",
+                                "viewIsDocked": true,
+                                "viewName": "Game Object 3D Viewer"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

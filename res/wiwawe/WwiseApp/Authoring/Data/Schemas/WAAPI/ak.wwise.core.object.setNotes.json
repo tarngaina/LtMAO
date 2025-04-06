@@ -1,0 +1,59 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.setNotes",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.setName",
+                "ak.wwise.core.object.set",
+                "ak.wwise.core.object.notesChanged"
+            ],
+            "description": "Sets the object's notes.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to set value."
+                    },
+                    "value": {
+                        "type": "string",
+                        "description": "The new notes of the object."
+                    }
+                },
+                "required": [
+                    "object",
+                    "value"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting the notes of an object",
+                    "description": "Sets the notes of the object defined by \"object\".",
+                    "args": {
+                        "object": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "value": "This object's notes are set."
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

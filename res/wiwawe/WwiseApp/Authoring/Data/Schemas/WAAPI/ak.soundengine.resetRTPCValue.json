@@ -1,0 +1,65 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.resetRTPCValue",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.setRTPCValue"
+            ],
+            "description": "Resets the value of a real-time parameter control to its default value, as specified in the Wwise project. See <tt>AK::SoundEngine::ResetRTPCValue</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "rtpc": {
+                        "$ref": "waapi_definitions.json#/definitions/soundEngineObjectArg",
+                        "description": "Either the ID (GUID), name, or Short ID of the real-time parameter control."
+                    },
+                    "gameObject": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Associated game object ID. The default value is transport game object."
+                    }
+                },
+                "required": [
+                    "rtpc"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Resetting an RTPC value using its name",
+                    "description": "Resets the value of \"rtpc\", using its name, to the default for \"gameObject\".",
+                    "args": {
+                        "rtpc": "Rain_Intensity",
+                        "gameObject": 1122334
+                    },
+                    "return": {}
+                },
+                {
+                    "title": "Resetting an RTPC value using its GUID",
+                    "description": "Resets the value of \"rtpc\", using its GUID, to the default for \"gameObject\".",
+                    "args": {
+                        "rtpc": "{12345678-9012-3456-7896-156685135438}",
+                        "gameObject": 1122334
+                    },
+                    "return": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,49 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.postMsgMonitor",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [],
+            "description": "Display a message in the Profiler's Capture Log view.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "The message to display."
+                    }
+                },
+                "required": [
+                    "message"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Sending a message to the profiler",
+                    "description": "Sends the \"message\" to the Profiler.",
+                    "args": {
+                        "message": "This is a message."
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

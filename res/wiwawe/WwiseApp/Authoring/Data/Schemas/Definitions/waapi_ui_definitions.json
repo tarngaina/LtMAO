@@ -1,0 +1,571 @@
+{
+    "version": 1,
+    "definitions": {
+        "viewTypeToName": {
+            "type": "object",
+            "description": "Association between a view name and its display name.",
+            "properties": {
+                "viewName": {
+                    "type": "string",
+                    "description": "The type name of the view."
+                },
+                "viewDisplayName": {
+                    "type": "string",
+                    "description": "The display name of the view."
+                }
+            },
+            "additionalProperties": false
+        },
+        "viewInstance": {
+            "type": "object",
+            "description": "A Wwise view instance part of a layout.",
+            "properties": {
+                "viewName": {
+                    "type": "string",
+                    "description": "Name of the view instance."
+                },
+                "viewID": {
+                    "$ref": "common_definitions.json#/definitions/guid",
+                    "description": "ID of the view instance."
+                },
+                "viewIsDocked": {
+                    "type": "boolean",
+                    "description": "True if the view is docked."
+                },
+                "viewDisplayName": {
+                    "type": "string",
+                    "description": "Display name of the view instance."
+                }
+            },
+            "additionalProperties": false
+        },
+        "widgetAttributeEntry": {
+            "type": "object",
+            "description": "The state of an attribute.",
+            "properties": {
+                "attribute": {
+                    "type": "string",
+                    "description": "The name of the attribute."
+                },
+                "value": {
+                    "description": "The value of the attribute."
+                }
+            }
+        },
+
+        "BottomEditorState": {
+            "type": "string",
+            "description": "The state of the bottom editor.",
+            "enum": [
+                "Normal",
+                "Maximized",
+                "Minimized"
+            ]
+        },
+        "EditorId": {
+            "type": "object",
+            "description": "Identifier of an editor.",
+            "properties": {
+                "@type": {
+                    "type": "string",
+                    "description": "Type of EditorId.",
+                    "enum": ["EditorId"]
+                },
+                "UniqueViewId": {
+                    "type": "string",
+                    "description": "View ID of the editor."
+                },
+                "PluginId": {
+                    "type": "string",
+                    "description": "Plugin ID of the Editor."
+                },
+                "EffectIndex": {
+                    "type": "string",
+                    "description": "Index of the effect."
+                }
+            },
+            "required": [
+                "UniqueViewId",
+                "PluginId",
+                "EffectIndex"
+            ],
+            "additionalProperties": false
+        },
+        "EditorPriority": {
+            "type": "array",
+            "description": "Liste of editors by priority.",
+            "items": { "$ref": "#/definitions/EditorId" }
+        },
+        "EditorState": {
+            "type": "string",
+            "description": "State of an editor.",
+            "enum": [
+                "Normal",
+                "Maximized",
+                "Minimized"
+            ]
+        },
+        "Element": {
+            "description": "UI Element.",
+            "OneOf": [
+                { "$ref": "#/definitions/View" },
+                { "$ref": "#/definitions/Splitter" },
+                { "$ref": "#/definitions/ObjectPanel" },
+                { "$ref": "#/definitions/ObjectTabPanel" },
+                { "$ref": "#/definitions/StackPanel" }
+            ]
+        },
+        "Layout": {
+            "type": "object",
+            "description": "The layout description in JSON format.",
+            "properties": {
+                "AudioDeviceLastTabPositions": {
+                    "type": "array",
+                    "description": "List of last view positions.",
+                    "items": {
+                        "$ref": "#/definitions/ViewPosition"
+                    }
+                },
+                "EffectLastTabPositions": {
+                    "type": "array",
+                    "description": "List of last tab positions for effects.",
+                    "items": {
+                        "$ref": "#/definitions/ViewPosition"
+                    }
+                },
+                "FallbackLastTabPositions": {
+                    "type": "array",
+                    "description": "Fallback of the list of last tab position.",
+                    "items": {
+                        "$ref": "#/definitions/ViewPosition"
+                    }
+                },
+                "LastPositions": {
+                    "type": "array",
+                    "description": "List of last tab position.",
+                    "items": {
+                        "$ref": "#/definitions/ViewPosition"
+                    }
+                },
+                "MetadataLastTabPositions": {
+                    "type": "array",
+                    "description": "List of last tab position for metadata.",
+                    "items": {
+                        "$ref": "#/definitions/ViewPosition"
+                    }
+                },
+                "Name": {
+                    "type": "string",
+                    "description": "Name of the layout."
+                },
+                "ObjectTypeLastTabPositions": {
+                    "type": "array",
+                    "description": "List of last positions for object type.",
+                    "items": {
+                        "$ref": "#/definitions/ViewPosition"
+                    }
+                },
+                "PluginInnerObjectLastTabPositions": {
+                    "type": "array",
+                    "description": "List of last position for plugin inner object.",
+                    "items": {
+                        "$ref": "#/definitions/ViewPosition"
+                    }
+                },
+                "SourcePluginLastTabPositions": {
+                    "type": "array",
+                    "description": "List of last tab positions for source plugin.",
+                    "items": {
+                        "$ref": "#/definitions/ViewPosition"
+                    }
+                },
+                "StackPanel": {
+                    "$ref": "#/definitions/StackPanel"
+                },
+                "Undocked": {
+                    "type": "array",
+                    "description": "List of undocked views.",
+                    "items": {
+                        "$ref": "#/definitions/ViewHolder"
+                    }
+                }
+            },
+            "required": ["Name"],
+            "additionalProperties": false
+        },
+        "LayoutEntity": {
+            "type": "object",
+            "description": "A layout entity.",
+            "properties": {
+                "Layout": { "$ref": "#/definitions/Layout" }
+            },
+            "required": ["Layout"],
+            "additionalProperties": false
+        },
+        "ObjectPanel": {
+            "type": "object",
+            "description": "An object panel.",
+            "properties": {
+                "@type": {
+                    "type": "string",
+                    "description": "The type of ObjectPanel.",
+                    "enum": ["ObjectPanel"]
+                },
+                "Name": {
+                    "type": "string",
+                    "description": "The name of the object panel."
+                },
+                "ID": {
+                    "type": "string",
+                    "description": "The identifier of the object panel."
+                },
+                "Width": {
+                    "type": "string",
+                    "description": "The width of the object panel."
+                },
+                "Height": {
+                    "type": "string",
+                    "description": "The height of the object panel."
+                },
+                "EditorState": { "$ref": "#/definitions/EditorState" },
+                "BottomEditorState": { "$ref": "#/definitions/BottomEditorState" },
+                "EditorPriority": { "$ref": "#/definitions/EditorPriority" },
+                "PreferredHeights": { "$ref": "#/definitions/PreferredHeights" },
+                "SideBar": { "$ref": "#/definitions/SideBar" }
+            },
+            "required": ["@type", "Name", "ID"],
+            "additionalProperties": false
+        },
+        "ObjectTabPanel": {
+            "type": "object",
+            "description": "The object tab panel.",
+            "properties": {
+                "@type": {
+                    "type": "string",
+                    "description": "The type of ObjectTabPanel.",
+                    "enum": ["ObjectTabPanel"]
+                },
+                "Name": {
+                    "type": "string",
+                    "description": "The name of the object tab panel."
+                },
+                "ID": {
+                    "type": "string",
+                    "description": "The identifer of the object tab panel."
+                },
+                "Width": {
+                    "type": "string",
+                    "description": "The width of the the object tab panel."
+                },
+                "Height": {
+                    "type": "string",
+                    "description": "The height of the the object tab panel."
+                }
+            },
+            "required": ["@type", "Name", "ID"],
+            "additionalProperties": false
+        },
+        "PreferredHeight": {
+            "type": "object",
+            "description": "The preferred height for an editor.",
+            "properties": {
+                "@type": {
+                    "type": "string",
+                    "description": "The type of PreferredHeight.",
+                    "enum": ["PreferredHeight"]
+                },
+                "UniqueViewId": {
+                    "type": "string",
+                    "description": "The view identifier of the editor."
+                },
+                "PluginId": {
+                    "type": "string",
+                    "description": "The plugin identifier of the editor."
+                },
+                "EffectIndex": {
+                    "type": "string",
+                    "description": "The effect index."
+                },
+                "Height": {
+                    "type": "string",
+                    "description": "The preferred height of the editor."
+                }
+            },
+            "required": ["@type", "UniqueViewId", "PluginId", "EffectIndex", "Height"],
+            "additionalProperties": false
+        },
+        "PreferredHeights": {
+            "type": "array",
+            "description": "List of preferred height of editors.",
+            "items": { "$ref": "#/definitions/PreferredHeight" }
+        },
+        "SideBar": {
+            "type": "object",
+            "description": "The side bar.",
+            "properties": {
+                "@type": {
+                    "type": "string",
+                    "description": "The type of SideBar.",
+                    "enum": "SideBar"
+                },
+                "Width": { 
+                    "type": "string",
+                    "description": "The width of the side bar."
+                },
+                "CollapseState": {
+                    "type": "string",
+                    "description": "The state of the side bar."
+                }
+            },
+            "required": ["@type", "Width", "CollapseState"],
+            "additionalProperties": false
+        },
+        "Splitter": {
+            "type": "object",
+            "description": "The splitter.",
+            "properties": {
+                "@type": {
+                    "type": "string",
+                    "description": "The type of Splitter.",
+                    "enum": ["Splitter"]
+                },
+                "Name": {
+                    "type": "string",
+                    "description": "The name of the splitter."
+                },
+                "ID": {
+                    "type": "string",
+                    "description": "The identifier of the splitter."
+                },
+                "Width": {
+                    "type": "string",
+                    "description": "The width of the splitter."
+                },
+                "Height": {
+                    "type": "string",
+                    "description": "The height of the splitter."
+                }
+            },
+            "required": ["ID", "Name", "@Children"],
+            "additionalProperties": false
+        },
+        "StackPanel": {
+            "type": "object",
+            "description": "Stack panel in a layout.",
+            "properties": {
+                "@type": {
+                    "type": "string",
+                    "description": "The type of StackPanel.",
+                    "enum": ["StackPanel"]
+                },
+                "Name": {
+                    "type": "string",
+                    "description": "The name of the stack panel."
+                },
+                "ID": {
+                    "type": "string",
+                    "description": "The identifier of the stack panel."
+                },
+                "Width": {
+                    "type": "string",
+                    "description": "The width of the stack panel."
+                },
+                "Height": {
+                    "type": "string",
+                    "description": "The height of the stack panel."
+                },
+                "@Children": {
+                    "type": "array",
+                    "description": "UI element in the stack panel.",
+                    "items": {
+                        "$ref": "#/definitions/Element"
+                    }
+                },
+                "Orientation": {
+                    "type": "string",
+                    "description": "The orientation of the stack panel.",
+                    "enum": ["Vertical", "Horizontal"]
+                }
+            },
+            "required": ["ID", "Name", "@Children", "Orientation"],
+            "additionalProperties": true
+        },
+        "View": {
+            "type": "object",
+            "description": "View in a layout.",
+            "properties": {
+                "@type": {
+                    "type": "string",
+                    "description": "The type of View.",
+                    "enum": ["View"]
+                },
+                "Name": {
+                    "type": "string",
+                    "description": "The name of the view."
+                },
+                "ID": {
+                    "type": "string",
+                    "description": "The identifier of the view."
+                },
+                "Width": {
+                    "type": "string",
+                    "description": "The width of the view."
+                },
+                "Height": {
+                    "type": "string",
+                    "description": "The height of the view."
+                },
+                "SelectionChannel": {
+                    "type": "string",
+                    "description": "The selection chanel of the view."
+                },
+                "ViewData": {
+                    "type": "object",
+                    "description": "Extra view data.",
+                    "additionalProperties": true
+                }
+            },
+            "required": ["Name", "ID", "SelectionChannel"],
+            "additionalProperties": false
+        },
+        "ViewHolder": {
+            "allOf": [
+                { "$ref": "#/definitions/Element" }
+            ],
+            "type": "object",
+            "description": "View holder for flotting window.",
+            "properties": {
+                "@type": {
+                    "type": "string",
+                    "description": "The type of ViewHolder",
+                    "enum": ["ViewHolder"]
+                },
+                "StackPanel": { "$ref": "#/definitions/StackPanel" },
+                "WindowPlacement_Flags": {
+                    "type": "string",
+                    "description": "Flags of WindowPlacement."
+                },
+                "WindowPlacement_ShowCmd": {
+                    "type": "string",
+                    "description": "Last ShowCmd of the WindowPlacement.",
+                    "enum": ["Normal", "Maximized", "Minimized"]
+                },
+                "WindowPlacement_MinPos_X": {
+                    "type": "string",
+                    "description": "Minimum X position of the window."
+                },
+                "WindowPlacement_MinPos_Y": {
+                    "type": "string",
+                    "description": "Minimum Y position of the window."
+                },
+                "WindowPlacement_MaxPos_X": {
+                    "type": "string",
+                    "description": "Maximum X position of the window."
+                },
+                "WindowPlacement_MaxPos_Y": {
+                    "type": "string",
+                    "description": "Maximum Y position of the window."
+                },
+                "WindowPlacement_NormalPos_Left": {
+                    "type": "string",
+                    "description": "Normal left position of the window."
+                },
+                "WindowPlacement_NormalPos_Top": {
+                    "type": "string",
+                    "description": "Normal left position of the window."
+                },
+                "WindowPlacement_NormalPos_Right": {
+                    "type": "string",
+                    "description": "Normal right position of the window."
+                },
+                "WindowPlacement_NormalPos_Bottom": {
+                    "type": "string",
+                    "description": "Normal bottom position of the window."
+                }
+            },
+            "required" : [
+                "@type",
+                "WindowPlacement_Flags",
+                "WindowPlacement_MinPos_X",
+                "WindowPlacement_MinPos_Y",
+                "WindowPlacement_MaxPos_X",
+                "WindowPlacement_MaxPos_Y",
+                "WindowPlacement_NormalPos_Left",
+                "WindowPlacement_NormalPos_Top",
+                "WindowPlacement_NormalPos_Right",
+                "WindowPlacement_NormalPos_Bottom"
+            ],
+            "additionalProperties": false
+        },
+        "ViewPosition": {
+            "type": "object",
+            "description": "Information of the positions of a window of a view.",
+            "properties": {
+                "@type": {
+                    "type": "string",
+                    "description": "The type of ViewPosition.",
+                    "enum": ["ViewPosition"]
+                },
+                "Name": {
+                    "type": "string",
+                    "description": "The name of the view."
+                },
+                "WindowPlacement_Flags": {
+                    "type": "string",
+                    "description": "The flags of the window placement."
+                },
+                "WindowPlacement_ShowCmd": { 
+                    "type": "string",
+                    "description": "The last showCmd for the window placement.",
+                    "enum": ["Normal", "Maximized", "Minimized"]
+                },
+                "WindowPlacement_MinPos_X": {
+                    "type": "string",
+                    "description": "The minimum X position of the window."
+                },
+                "WindowPlacement_MinPos_Y": {
+                    "type": "string",
+                    "description": "The minimum Y position of the window."
+                },
+                "WindowPlacement_MaxPos_X": {
+                    "type": "string",
+                    "description": "The maximum X position of the window."
+                },
+                "WindowPlacement_MaxPos_Y": {
+                    "type": "string",
+                    "description": "The maximum Y position of the window."
+                },
+                "WindowPlacement_NormalPos_Left": {
+                    "type": "string",
+                    "description": "The normal left position of the window."
+                },
+                "WindowPlacement_NormalPos_Top": {
+                    "type": "string",
+                    "description": "The normal top position of the window."
+                },
+                "WindowPlacement_NormalPos_Right": {
+                    "type": "string",
+                    "description": "The normal right position of the window."
+                },
+                "WindowPlacement_NormalPos_Bottom": {
+                    "type": "string",
+                    "description": "The normal bottom position of the window."
+                }
+            },
+            "required" : [
+                "@type",
+                "Name",
+                "WindowPlacement_Flags",
+                "WindowPlacement_MinPos_X",
+                "WindowPlacement_MinPos_Y",
+                "WindowPlacement_MaxPos_X",
+                "WindowPlacement_MaxPos_Y",
+                "WindowPlacement_NormalPos_Left",
+                "WindowPlacement_NormalPos_Top",
+                "WindowPlacement_NormalPos_Right",
+                "WindowPlacement_NormalPos_Bottom"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

@@ -1,0 +1,40 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.project.saved",
+            "restrict": [
+                "userInterface",
+				"commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.project.save"
+            ],
+            "description": "Sent when the project has been saved.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "modifiedPaths": {
+                        "type": "array",
+                        "description": "Array of paths.",
+                        "items": {
+                            "description": "Absolute paths to the Work Unit and Project files that were modified.",
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "modifiedPaths"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

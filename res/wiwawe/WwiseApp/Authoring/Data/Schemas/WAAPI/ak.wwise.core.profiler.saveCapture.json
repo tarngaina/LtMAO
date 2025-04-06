@@ -1,0 +1,51 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.saveCapture",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.remote.connect"
+            ],
+            "description": "Saves profiler as a .prof file according to the given file path.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "description": "File path to a .prof file."
+                    }
+                },
+                "required": [
+                    "file"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Saving a profiler capture",
+                    "description": "Saves the current profiler capture to the file \"capture.prof\".",
+                    "args": {
+                        "file": "C:\\MyProject\\capture.prof"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

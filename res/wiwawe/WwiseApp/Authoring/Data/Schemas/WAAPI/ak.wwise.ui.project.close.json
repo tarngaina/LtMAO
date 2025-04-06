@@ -1,0 +1,54 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.project.close",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.project.open",
+                "ak.wwise.core.project.save",
+				"ak.wwise.core.project.preClosed",
+				"ak.wwise.core.project.postClosed",
+				"ak.wwise.console.project.close"
+            ],
+            "description": "Closes the current project.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "bypassSave": {
+                        "type": "boolean",
+                        "description": "Indicates if the user should not be prompted to save the current project. Defaults to true."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "hadProjectOpen": {
+                        "type": "boolean",
+                        "description": "True if there was a project open, false otherwise. Note that if there was no project open, no ak.wwise.core.project.preClosed or ak.wwise.core.project.postClosed event is issued."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Closing the current project",
+                    "description": "Closes the current project.",
+                    "args": {},
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

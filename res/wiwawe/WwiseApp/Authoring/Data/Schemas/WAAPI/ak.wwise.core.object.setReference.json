@@ -1,0 +1,70 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.setReference",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.referenceChanged",
+                "ak.wwise.core.object.setProperty",
+                "ak.wwise.core.object.set",
+                "ak.wwise.core.undo.beginGroup"
+            ],
+            "description": "Sets an object's reference value. Refer to \\ref wobjects_index for more information on the references available on each object type.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object which has the reference."
+                    },
+                    "platform": {
+                        "$ref": "waapi_definitions.json#/definitions/platformArg",
+                        "description": "The ID (GUID) or unique name of the platform to link the reference. Set to null-guid for unlinked reference."
+                    },
+                    "reference": {
+                        "type": "string",
+                        "description": "The name of the reference to set. Refer to \\ref wobjects_index for more information on the references available."
+                    },
+                    "value": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, path or definition of the object to be referred to."
+                    }
+                },
+                "required": [
+                    "object",
+                    "reference",
+                    "value"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting an object reference",
+                    "description": "Sets the Output Bus on the specified object.",
+                    "args": {
+                        "object": "\\Actor-Mixer Hierarchy\\Default Work Unit\\MySound",
+                        "reference": "OutputBus",
+                        "value": "\\Master-Mixer Hierarchy\\Default Work Unit\\Master Audio Bus\\Environment Bus"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

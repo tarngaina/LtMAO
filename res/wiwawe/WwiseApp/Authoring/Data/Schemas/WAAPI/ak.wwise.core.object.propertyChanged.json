@@ -1,0 +1,80 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.object.propertyChanged",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.setProperty",
+                "ak.wwise.core.object.create"
+            ],
+            "description": "Sent when the watched property of an object changes.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to watch."
+                    },
+                    "property": {
+                        "type": "string",
+                        "$ref": "waapi_definitions.json#/definitions/propertyName",
+                        "description": "The property of the watched object to watch."
+                    },
+                    "return": {
+                        "$ref": "waapi_definitions.json#/definitions/returnExpression",
+                        "description": "Data to be returned for every change on \"property\" of \"object\". Refer to \\ref wobjects_index for more information on the properties available."
+                    },
+                    "platform": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID (GUID) of the platform."
+                    }
+                },
+                "required": [
+                    "object",
+                    "property"
+                ],
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The watched object."
+                    },
+                    "property": {
+                        "type": "string",
+                        "$ref": "waapi_definitions.json#/definitions/propertyName",
+                        "description": "The watched property of the watched object."
+                    },
+                    "old": {
+                        "description": "The previous value.",
+                        "$ref": "common_definitions.json#/definitions/propertyValue"
+                    },
+                    "new": {
+                        "description": "The new value.",
+                        "$ref": "common_definitions.json#/definitions/propertyValue"
+                    },
+                    "platform": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID (GUID) of the platform for which the change occurred."
+                    }
+                },
+                "required": [
+                    "object",
+                    "property",
+                    "old",
+                    "new",
+                    "platform"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

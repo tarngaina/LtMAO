@@ -1,0 +1,42 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.remote.disconnect",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.remote.connect",
+                "ak.wwise.core.remote.getAvailableConsoles",
+                "ak.wwise.core.remote.getConnectionStatus"
+            ],
+            "description": "Disconnects the Wwise Authoring application from a connected Wwise Sound Engine running executable.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Disconnecting from a game",
+                    "description": "Disconnects from the currently connected game or process.",
+                    "args": {},
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

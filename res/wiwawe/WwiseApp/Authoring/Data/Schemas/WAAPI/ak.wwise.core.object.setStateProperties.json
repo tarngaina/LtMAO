@@ -1,0 +1,57 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.setStateProperties",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+				"ak.wwise.core.object.get",
+				"ak.wwise.core.object.setStateGroups"
+            ],
+            "description": "Set the state properties of an object. Note, this will remove any previous state property, including the default ones.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to which to set the state properties."
+                    },
+					"stateProperties": {
+						"$ref": "waapi_definitions.json#/definitions/statePropertiesArg"
+					}
+                },
+                "required": [
+                    "object",
+                    "stateProperties"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Set state properties to a Sound",
+                    "description": "Sets BypassEffects and Volume state properties to a Sound.",
+                    "args": {
+                        "object": "\\Actor-Mixer Hierarchy\\Default Work Unit\\MySound",
+                        "stateProperties": ["BypassEffects", "Volume"]
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

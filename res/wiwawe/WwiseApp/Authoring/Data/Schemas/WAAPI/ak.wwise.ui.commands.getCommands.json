@@ -1,0 +1,42 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.commands.getCommands",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.commands.execute"
+            ],
+            "description": "Gets the list of commands.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "commands": {
+                        "type": "array",
+                        "description": "An array of command ids.",
+                        "items": {
+                            "type": "string",
+                            "description": "Command ids which can be used with ak.wwise.ui.commands.execute."
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": []
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

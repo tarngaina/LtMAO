@@ -1,0 +1,70 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.sourceControl.setProvider",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Change the source control provider and credentials. This is the same setting as the Source Control option in the Project Settings dialog in Wwise.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "provider": {
+                        "type": "string",
+                        "description": "Source control provider. Allowed values ​​are Perforce, Subversion, any other source control supported or an empty string. An empty value is the equivalent of choosing No Control Source in the UI."
+                    },
+                    "server": {
+                        "type": "string",
+                        "description": "Server name or address. Default value is localhost."
+                    },
+                    "port": {
+                        "type": "string",
+                        "description": "Server port. This value is required for Perforce."
+                    },
+                    "username": {
+                        "type": "string",
+                        "description": "User name. This value is required for Perforce."
+                    },
+                    "password": {
+                        "type": "string",
+                        "description": "User password or ticket. This value is required for Perforce."
+                    },
+                    "workspace": {
+                        "type": "string",
+                        "description": "Workspace name. This value is required for Perforce."
+                    },
+                    "host": {
+                        "type": "string",
+                        "description": "Host name. This value is required for Perforce."
+                    }
+                },
+                "required": [
+                    "provider"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "log": {
+                        "$ref": "waapi_definitions.json#/definitions/arrayOfLogCentralItem",
+                        "description": "The entries of the log."
+                    }
+                },
+                "required": [
+                    "log"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

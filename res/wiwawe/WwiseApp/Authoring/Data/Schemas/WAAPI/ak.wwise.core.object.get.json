@@ -1,0 +1,829 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.get",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Performs a query and returns the data, as specified in the options, for each object in the query result. The query can specify either a 'waql' argument or a 'from' argument with an optional 'transform' argument. Refer to \\ref waql_introduction or \\ref waapi_query for more information. Refer to \\ref waapi_query_return to learn about options.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "waql": {
+                        "type": "string",
+                        "description": "Specifies a query in the WAQL language. Refer to \\ref waql_introduction for more information."
+                    },
+                    "from": {
+                        "description": "The query starting point. Note, this is deprecated. The WAQL argument should be used instead.",
+                        "oneOf": [
+                            {
+                                "type": "object",
+                                "description": "Specify an object with an id field.",
+                                "properties": {
+                                    "id": {
+                                        "type": "array",
+                                        "description": "An array of object IDs, either GUID or Short ID (uint32).",
+                                        "items": {
+                                            "description": "A GUID or Short ID (uint32).",
+                                            "oneOf": [
+                                                {
+                                                    "$ref": "common_definitions.json#/definitions/guid"
+                                                },
+                                                {
+                                                    "$ref": "waapi_definitions.json#/definitions/shortId"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "id"
+                                ],
+                                "additionalProperties": false
+                            },
+                            {
+                                "type": "object",
+                                "description": "Specifies an object with a search field.",
+                                "properties": {
+                                    "search": {
+                                        "type": "array",
+                                        "description": "An array of text tokens used for searching the project.",
+                                        "items": {
+                                            "description": "A search token.",
+                                            "type": "string"
+                                        },
+                                        "minItems": 1,
+                                        "maxItems": 1
+                                    }
+                                },
+                                "required": [
+                                    "search"
+                                ],
+                                "additionalProperties": false
+                            },
+                            {
+                                "type": "object",
+                                "description": "Specifies an object with a name field.",
+                                "properties": {
+                                    "name": {
+                                        "type": "array",
+                                        "description": "An array of unique object qualified names.",
+                                        "items": {
+                                            "$ref": "waapi_definitions.json#/definitions/uniqueQualifiedName"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "name"
+                                ],
+                                "additionalProperties": false
+                            },
+                            {
+                                "type": "object",
+                                "description": "Specifies an object with a path field.",
+                                "properties": {
+                                    "path": {
+                                        "type": "array",
+                                        "description": "An array of object paths.",
+                                        "items": {
+                                            "$ref": "waapi_definitions.json#/definitions/objectPathArg"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "path"
+                                ],
+                                "additionalProperties": false
+                            },
+                            {
+                                "type": "object",
+                                "description": "Specify an object with an ofType field.",
+                                "properties": {
+                                    "ofType": {
+                                        "type": "array",
+                                        "description": "An array of object types.",
+                                        "items": {
+                                            "description": "An object type. Refer to \\ref wobjects_index for a list of types.",
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "ofType"
+                                ],
+                                "additionalProperties": false
+                            },
+                            {
+                                "type": "object",
+                                "description": "Specifies an object with a query field.",
+                                "properties": {
+                                    "query": {
+                                        "type": "array",
+                                        "description": "An array of query object ID.",
+                                        "items": {
+                                            "$ref": "common_definitions.json#/definitions/guid"
+                                        },
+                                        "minItems": 1,
+                                        "maxItems": 1
+                                    }
+                                },
+                                "required": [
+                                    "query"
+                                ],
+                                "additionalProperties": false
+                            }
+                        ]
+                    },
+                    "transform": {
+                        "type": "array",
+                        "description": "Array of sequential transformations chained on the object list returned by \"from\".",
+                        "items": {
+                            "description": "An object transformation.",
+                            "oneOf": [
+                                {
+                                    "type": "object",
+                                    "description": "An select transformation.",
+                                    "properties": {
+                                        "select": {
+                                            "type": "array",
+                                            "description": "An array of only 1 selector.",
+                                            "items": {
+                                                "type": "string",
+                                                "description": "A selector. The resulting objects depend on the selector specified.",
+                                                "enum": [
+                                                    "parent",
+                                                    "children",
+                                                    "descendants",
+                                                    "ancestors",
+                                                    "referencesTo"
+                                                ]
+                                            },
+                                            "minItems": 1,
+                                            "maxItems": 1
+                                        }
+                                    },
+                                    "required": [
+                                        "select"
+                                    ],
+                                    "additionalProperties": false
+                                },
+                                {
+                                    "type": "string",
+                                    "description": "Unique object instances are returned, i.e. no duplicate object is returned.",
+                                    "enum": [
+                                        "distinct"
+                                    ]
+                                },
+                                {
+                                    "type": "object",
+                                    "description": "Specifies an object with a range field.",
+                                    "properties": {
+                                        "range": {
+                                            "type": "array",
+                                            "description": "An array of two numbers specifying the boundary indexes. Use this to only include a portion of the results. For example, this could be used to obtain the 100 first items of a search result: [0,100].",
+                                            "items": {
+                                                "description": "One of the two range limit numbers.",
+                                                "type": "number"
+                                            },
+                                            "minItems": 2,
+                                            "maxItems": 2
+                                        }
+                                    },
+                                    "required": [
+                                        "range"
+                                    ],
+                                    "additionalProperties": false
+                                },
+                                {
+                                    "type": "object",
+                                    "description": "Specifies an object with an where field.",
+                                    "properties": {
+                                        "where": {
+                                            "type": "array",
+                                            "description": "An array of two tokens to filter results. The first token is the filter predicate. Refer \\ref waapi_query for the list of possible predicates. The second token is the parameter to the predicate.",
+                                            "items": {
+                                                "description": "A where statement.",
+                                                "anyOf": [
+                                                    {
+                                                        "type": "string",
+                                                        "description": "A string token. The first token in the array is always the 'where' predicate name string. The second token is the parameter."
+                                                    },
+                                                    {
+                                                        "type": "array",
+                                                        "description": "An array of strings. Refer \\ref waapi_query for more information.",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "description": "The parameter for the 'where' predicate. Refer \\ref waapi_query for more information."
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "minItems": 1
+                                        }
+                                    },
+                                    "required": [
+                                        "where"
+                                    ],
+                                    "additionalProperties": false
+                                }
+                            ]
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "type": "array",
+                        "description": "An array of objects found, with properties matching what was supplied in the options.",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                            "description": "Wwise object"
+                        }
+                    }
+                }
+            },
+            "optionsSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturnOptions",
+                "description": "Specifies the return options for every object returned."
+            },
+            "examples": [
+                {
+                    "title": "Getting an object's name",
+                    "description": "Returns the object's name property.",
+                    "args": {
+                        "waql": "\"{24979032-B170-43E3-A2E4-469E0193E2C3}\""
+                    },
+                    "options": {
+                        "return": [
+                            "name"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "name": "MyObjectName"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Getting the volume of an object",
+                    "description": "Returns the volume of the Master Audio Bus.",
+                    "args": {
+                        "waql": "\"\\Master-Mixer Hierarchy\\Default Work Unit\\Master Audio Bus\""
+                    },
+                    "options": {
+                        "return": [
+                            "volume"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "volume": 2.3
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Getting the properties and references of an object",
+                    "description": "Returns the voice volume and the output bus of an object.",
+                    "args": {
+                        "waql": "\"{24979032-B170-43E3-A2E4-469E0193E2C3}\""
+                    },
+                    "options": {
+                        "return": [
+                            "Volume",
+                            "OutputBus"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "Volume": 2.3,
+                                "OutputBus": {
+                                    "id": "{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}",
+                                    "name": "Master Audio Bus"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Gets the RTPC ids from a sound's \"RTPC\" list",
+                    "description": "Uses the list accessor @ to reference the \"RTPC\" list. Note that RTPCs are unnamed.",
+                    "args": {
+                        "waql": "\"{24979032-B170-43E3-A2E4-469E0193E2C3}\""
+                    },
+                    "options": {
+                        "return": [
+                            "@RTPC"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "@RTPC": [
+                                    {
+                                        "id": "{67A2C1B5-4FBF-4938-A86C-4AEE7E84822A}"
+                                    },
+                                    {
+                                        "id": "{30D99E75-A579-4163-8FEC-012985D0B451}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Gets information for an RTPC",
+                    "description": "Uses the property/reference accessor @ to get the \"PropertyName\" property and the \"ControlInput\" and \"Curve\" references of an RTPC.",
+                    "args": {
+                        "waql": "\"{67A2C1B5-4FBF-4938-A86C-4AEE7E84822A}\""
+                    },
+                    "options": {
+                        "return": [
+                            "type",
+                            "path",
+                            "@PropertyName",
+                            "@ControlInput",
+                            "@Curve"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "@ControlInput": {
+                                    "id": "{4CCB066B-FB7D-4894-9D07-1C42D28E3256}",
+                                    "name": "Modulator Time (Custom)"
+                                },
+                                "@Curve": {
+                                    "id": "{AFECA9AF-21D9-4CC0-81E4-19A7264934EF}",
+                                    "points": [
+                                        {
+                                            "shape": "Linear",
+                                            "x": 0,
+                                            "y": -40
+                                        },
+                                        {
+                                            "shape": "Linear",
+                                            "x": 0.138,
+                                            "y": 114
+                                        },
+                                        {
+                                            "shape": "Linear",
+                                            "x": 0.40673,
+                                            "y": -148
+                                        },
+                                        {
+                                            "shape": "Linear",
+                                            "x": 0.77829,
+                                            "y": 162
+                                        },
+                                        {
+                                            "shape": "Linear",
+                                            "x": 1,
+                                            "y": -71
+                                        }
+                                    ]
+                                },
+                                "@PropertyName": "MidiVelocityOffset",
+                                "path": "\\Actor-Mixer Hierarchy\\Default Work Unit\\RTPC_TEST\\[RTPC: Velocity Offset, Modulator Time (Custom)]",
+                                "type": "RTPC"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Gets information for a Curve",
+                    "description": "Uses the \"points\" accessor to get the curve's points.",
+                    "args": {
+                        "waql": "\"{AFECA9AF-21D9-4CC0-81E4-19A7264934EF}\""
+                    },
+                    "options": {
+                        "return": [
+                            "id",
+                            "name",
+                            "points"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "id": "{AFECA9AF-21D9-4CC0-81E4-19A7264934EF}",
+                                "name": "",
+                                "points": [
+                                    {
+                                        "shape": "Linear",
+                                        "x": 0,
+                                        "y": -40
+                                    },
+                                    {
+                                        "shape": "Linear",
+                                        "x": 0.138,
+                                        "y": 114
+                                    },
+                                    {
+                                        "shape": "Linear",
+                                        "x": 0.40673,
+                                        "y": -148
+                                    },
+                                    {
+                                        "shape": "Linear",
+                                        "x": 0.77829,
+                                        "y": 162
+                                    },
+                                    {
+                                        "shape": "Linear",
+                                        "x": 1,
+                                        "y": -71
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Getting the current output bus",
+                    "description": "Returns the output bus that the object is currently using. The bus returned in the result is either inherited from a parent at a higher level in the hierarchy or is an override (the result does not distinguish between inherited or overridden busses).",
+                    "args": {
+                        "waql": "\"{24979032-B170-43E3-A2E4-469E0193E2C3}\""
+                    },
+                    "options": {
+                        "return": [
+                            "OutputBus"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "OutputBus": {
+                                    "id": "{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}",
+                                    "name": "Master Audio Bus"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Getting the descendant objects matching a filter",
+                    "description": "From all the descendants in the Actor-Mixer Hierarchy, return the objects whose names start with 'My'. This uses the regular expression '^My'.",
+                    "args": {
+                        "waql": "\"\\Actor-Mixer Hierarchy\" select descendants where name = /^My/"
+                    },
+                    "options": {
+                        "return": [
+                            "name"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "name": "MySound"
+                            },
+                            {
+                                "name": "MyRandomContainer"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Getting all platforms",
+                    "description": "Retrieves the platform ids and names.",
+                    "args": {
+                        "waql": "from type platform"
+                    },
+                    "options": {
+                        "return": [
+                            "id",
+                            "name"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "id": "{8237B143-A4F0-4B01-8C7B-FFC53A888271}",
+                                "name": "Windows"
+                            },
+                            {
+                                "id": "{508A9810-5C76-4CF7-B9BB-D6AE396F973B}",
+                                "name": "iOS"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Getting the project name, path, and dirty state",
+                    "description": "Retrieves the project name, file path, and dirty state. Note that the project name is defined in the WPROJ MXL, and may not match the filename. For using WAAPI on Mac, please refer to \\ref waapi_path_on_mac .",
+                    "args": {
+                        "waql": "\"\\\""
+                    },
+                    "options": {
+                        "return": [
+                            "name",
+                            "filePath",
+                            "workunitIsDirty"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "filePath": "C:\\WwiseProjects\\MyProject\\MyProject.wproj",
+                                "name": "MyProject",
+                                "workunitIsDirty": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Searching objects by text",
+                    "description": "Search objects with 'gun' in the name.",
+                    "args": {
+                        "waql": "from search \"gun\""
+                    },
+                    "options": {
+                        "return": [
+                            "id",
+                            "name"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "id": "{8237B143-A4F0-4B01-8C7B-FFC53A888271}",
+                                "name": "Big Gun"
+                            },
+                            {
+                                "id": "{508A9810-5C76-4CF7-B9BB-D6AE396F973B}",
+                                "name": "Small Gun"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Getting all objects containing a sound object",
+                    "description": "Retrieves the id of objects with at least one child being a sound object. Duplicates are filtered out using the \"distinct\" transform.",
+                    "args": {
+                        "waql": "from type sound select parent distinct"
+                    },
+                    "options": {
+                        "return": [
+                            "id",
+                            "name"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "id": "{01181963-13CA-4946-B4C2-7A04BF727596}",
+                                "name": "Folder0"
+                            },
+                            {
+                                "id": "{F9912AA4-7835-4828-99E6-C327840EFE3D}",
+                                "name": "Folder1"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Searching objects of a certain type",
+                    "description": "Retrieves the id, name and notes of objects with \"Tone\" in their text properties and filters the results to retrieve only those of type \"Sound\". Refer to \\ref wobjects_index for the types available.",
+                    "args": {
+                        "waql": "from search \"Tone\" where type = \"Sound\""
+                    },
+                    "options": {
+                        "return": [
+                            "id",
+                            "name",
+                            "notes"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "id": "{24979032-B170-43E3-A2E4-469E0193E2C3}",
+                                "name": "Tone SFX",
+                                "notes": "MyNotes"
+                            },
+                            {
+                                "id": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                                "name": "MyTone",
+                                "notes": ""
+                            },
+                            {
+                                "id": "{72CB44BE-C699-4032-B615-EEFD0E707FFC}",
+                                "name": "MyToneToMove",
+                                "notes": ""
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Searching objects of a certain category",
+                    "description": "Retrieves the id and name of objects with \"Tone\" in their text properties and filters the results to retrieve only those within the category \"Actor-Mixer Hierarchy\".",
+                    "args": {
+                        "waql": "from search \"Tone\" where category = \"Actor-Mixer Hierarchy\""
+                    },
+                    "options": {
+                        "return": [
+                            "id",
+                            "name",
+                            "notes"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "id": "{24979032-B170-43E3-A2E4-469E0193E2C3}",
+                                "name": "Tone SFX"
+                            },
+                            {
+                                "id": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                                "name": "MyTone"
+                            },
+                            {
+                                "id": "{72CB44BE-C699-4032-B615-EEFD0E707FFC}",
+                                "name": "MyToneToMove"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Getting the active source of a sound object",
+                    "description": "Uses the \"activeSource\" accessor to get the sound's active source.",
+                    "args": {
+                        "waql": "\"{24979032-B170-43E3-A2E4-469E0193E2C4}\""
+                    },
+                    "options": {
+                        "return": [
+                            "id",
+                            "name",
+                            "activeSource"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "id": "{24979032-B170-43E3-A2E4-469E0193E2C4}",
+                                "name": "My Tone",
+                                "activeSource": {
+                                    "id": "{B7026191-28B7-4CFF-AE5A-4F0FD63607EC}",
+                                    "name": "sine_880hz_48k_21ms"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Getting the objects using an effect",
+                    "description": "Uses the referencesTo and owner accessors to get the list of objects using the effect ShareSet.",
+                    "args": {
+                        "waql": "\"\\Effects\\Factory Effects\\Flanger\\Chorus\\Chorus_Like\" select referencesTo.owner"
+                    },
+                    "options": {
+                        "return": [
+                            "path",
+                            "name"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "id": "{F72DD400-91D1-4305-B14E-31113A28FF1C}",
+                                "name": "MySound"
+                            }
+                        ]
+                    }
+                },                
+                {
+                    "title": "Getting all Conversion Plug-ins",
+                    "description": "Using a WAQL query in order to retrieve all Conversion Plug-ins.",
+                    "args": {
+                        "waql": "from type conversionplugin"
+                    },
+                    "options": {
+                        "return": [
+                            "pluginname",
+                            "id",
+                            "owner.name",
+                            "classid"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "classid": 65537,
+                                "id": "{F8FB3A88-AC84-4304-AD93-079C918B19F8}",
+                                "owner.name": "",
+                                "pluginname": "PCM"
+                            },
+                            {
+                                "classid": 262145,
+                                "id": "{D8F1A7CC-D727-4721-97C3-8911E3D0E979}",
+                                "owner.name": "Vorbis Auto Detect Low",
+                                "pluginname": "Vorbis"
+                            },
+                            {
+                                "classid": 131073,
+                                "id": "{6E4343A8-57F1-4E5C-8469-81424F6D8A44}",
+                                "owner.name": "ADPCM Auto Detect Low",
+                                "pluginname": "ADPCM"
+                            },
+                            {
+                                "classid": 65537,
+                                "id": "{58BB40C6-EA49-491A-AE33-F2B0675EEC25}",
+                                "owner.name": "Default Conversion Settings",
+                                "pluginname": "PCM"
+                            },
+                            {
+                                "classid": 262145,
+                                "id": "{EDA4F59A-7772-4880-ABB9-EBF5F02E62B8}",
+                                "owner.name": "Vorbis Quality High",
+                                "pluginname": "Vorbis"
+                            },
+                            {
+                                "classid": 65537,
+                                "id": "{AA79CD6E-0D44-46FC-B065-15F2D578473B}",
+                                "owner.name": "PCM Auto Detect Low",
+                                "pluginname": "PCM"
+                            },
+                            {
+                                "classid": 65537,
+                                "id": "{DFBA6F29-71B3-4AA9-B7F8-03CBF7D68F6A}",
+                                "owner.name": "PCM Auto Detect High",
+                                "pluginname": "PCM"
+                            },
+                            {
+                                "classid": 131073,
+                                "id": "{5162E037-D428-4CDF-B8BB-A5358EA69C5B}",
+                                "owner.name": "ADPCM Auto Detect High",
+                                "pluginname": "ADPCM"
+                            },
+                            {
+                                "classid": 262145,
+                                "id": "{84223C4C-D68C-4EC5-9C1D-A9B2594723F2}",
+                                "owner.name": "Vorbis Quality Medium",
+                                "pluginname": "Vorbis"
+                            },
+                            {
+                                "classid": 262145,
+                                "id": "{55B19A63-7CF0-49F3-A2A5-D8CC03866522}",
+                                "owner.name": "Vorbis Quality Low",
+                                "pluginname": "Vorbis"
+                            },
+                            {
+                                "classid": 131073,
+                                "id": "{341B0DE3-6BFD-4BDF-AB49-10B8EA37C99C}",
+                                "owner.name": "ADPCM Auto Detect Medium",
+                                "pluginname": "ADPCM"
+                            },
+                            {
+                                "classid": 65537,
+                                "id": "{8360D0D4-C19C-45FE-8A6E-48FBECA49488}",
+                                "owner.name": "Conversion Settings",
+                                "pluginname": "PCM"
+                            },
+                            {
+                                "classid": 65537,
+                                "id": "{603785B6-A9C6-42CC-911D-3B685E1B375C}",
+                                "owner.name": "PCM As Input",
+                                "pluginname": "PCM"
+                            },
+                            {
+                                "classid": 131073,
+                                "id": "{56CDDB68-9926-496A-80E6-4331F7C21FA9}",
+                                "owner.name": "ADPCM As Input",
+                                "pluginname": "ADPCM"
+                            },
+                            {
+                                "classid": 262145,
+                                "id": "{6AC8D0D1-B3A5-4A5E-B4BC-05B402BBD80C}",
+                                "owner.name": "Vorbis Auto Detect Medium",
+                                "pluginname": "Vorbis"
+                            },
+                            {
+                                "classid": 262145,
+                                "id": "{59A7F590-6819-4936-B63C-9A65C7A1444A}",
+                                "owner.name": "Vorbis Auto Detect High",
+                                "pluginname": "Vorbis"
+                            },
+                            {
+                                "classid": 65537,
+                                "id": "{53FF3BEB-600B-4FC4-88B2-0C527028B050}",
+                                "owner.name": "PCM Auto Detect Medium",
+                                "pluginname": "PCM"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

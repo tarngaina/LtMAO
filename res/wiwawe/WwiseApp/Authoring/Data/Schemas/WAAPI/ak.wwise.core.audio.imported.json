@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.audio.imported",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.audio.import",
+                "ak.wwise.core.audio.importTabDelimited"
+            ],
+            "description": "Sent at the end of an import operation.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "$ref": "waapi_definitions.json#/definitions/returnExpression",
+                        "description": "Data to be returned for every imported object."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "operation": {
+                        "type": "string",
+                        "description": "The operation applied for this import call.",
+                        "enum": [
+                            "CreateNewObject",
+                            "ReplaceFile",
+                            "Localize",
+                            "ReplaceObject"
+                        ]
+                    },
+                    "objects": {
+                        "type": "array",
+                        "description": "The list of objects that have been created as part of the same import operation.",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                            "description": "Object created during the import operation. Default return is id and name."
+                        }
+                    },
+                    "files": {
+                        "type": "array",
+                        "description": "The list of imported original files.",
+                        "items": {
+                            "type": "string",
+                            "description": "Absolute path to the original file."
+                        }
+                    }
+                },
+                "required": [
+                    "objects", "files", "operation"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

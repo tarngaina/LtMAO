@@ -1,0 +1,102 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.soundbank.convertExternalSources",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.cli.convertExternalSource"
+            ],
+            "description": "Converts the external sources files for the project as detailed in the wsources file, and places them into either the default folder, or the folder specified by the output argument. External Sources are a special type of source that you can put in a Sound object in Wwise. It indicates that the real sound data will be provided at run time. While External Source conversion is also triggered by SoundBank generation, this operation can be used to process sources not contained in the Wwise Project. Please refer to Wwise SDK help page \"Integrating External Sources\".",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "sources": {
+                        "type": "array",
+                        "description": "An array of external sources files and corrisponding arguments.",
+                        "items": {
+                            "type": "object",
+                            "description": "An external sources file and its arguments.",
+                            "properties": {
+                                "input": {
+                                    "type": "string",
+                                    "description": "The path to the wsources file."
+                                },
+                                "platform": {
+                                    "$ref": "waapi_definitions.json#/definitions/platformArg",
+                                    "description": "The platform to convert external sources for."
+                                },
+                                "output": {
+                                    "type": "string",
+                                    "description": "Optional argument for the path of the output folder to be generated.The default path is WwiseProject/.cache/ExternalSources/Platform."
+                                }
+                            },
+                            "required": [
+                                "input",
+                                "platform"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [
+                    "sources"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Convert External Sources for a platform",
+                    "description": "Convert External Sources for Linux at the default output path.",
+                    "args": {
+                        "sources": [
+                            {
+                                "input": "C:\\My-Wsources\\sources1.wsources",
+                                "platform": "Linux"
+                            }
+                        ]
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Convert External Sources for several platforms and output paths",
+                    "description": "Convert External Sources for several platforms given a variety of wsources files, with optional and default output paths.",
+                    "args": {
+                        "sources": [
+                            {
+                                "input": "C:\\My-Wsources\\sources1.wsources",
+                                "platform": "Windows"
+                            },
+                            {
+                                "input": "C:\\My-Wsources\\sources2.wsources",
+                                "platform": "{6E0CB257-C6C8-4C5C-8366-2740DFC441EC}",
+                                "output": "C:\\ExternalSources-Alternate\\Windows"
+                            },
+                            {
+                                "input": "C:\\My-Wsources\\sources1.wsources",
+                                "platform": "Linux",
+                                "output": "C:\\ExternalSources-Alternate\\Linux"
+                            }
+                        ]
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

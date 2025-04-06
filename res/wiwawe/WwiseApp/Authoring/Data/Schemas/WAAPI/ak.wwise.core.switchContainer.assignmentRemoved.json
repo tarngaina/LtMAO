@@ -1,0 +1,51 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.switchContainer.assignmentRemoved",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.switchContainer.removeAssignment"
+            ],
+            "description": "Sent when an assignment is removed from a Switch Container.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "$ref": "waapi_definitions.json#/definitions/returnExpression",
+                        "description": "Data to be returned for the Switch Container and the assignment (pair of objects)."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "switchContainer": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The Switch Container which had the assignment removed."
+                    },
+                    "child": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The child object that was assigned."
+                    },
+                    "stateOrSwitch": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The State or Switch to which the child object was assigned."
+                    }
+                },
+                "required": [
+                    "switchContainer",
+                    "child",
+                    "stateOrSwitch"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

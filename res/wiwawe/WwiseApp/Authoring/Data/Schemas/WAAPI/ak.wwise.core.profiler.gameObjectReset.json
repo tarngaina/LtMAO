@@ -1,0 +1,29 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.profiler.gameObjectReset",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.gameObjectRegistered",
+                "ak.wwise.core.profiler.gameObjectUnregistered"
+            ],
+            "description": "Sent when the game objects have been reset, such as closing a connection to a game while profiling.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

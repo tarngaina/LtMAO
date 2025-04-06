@@ -1,0 +1,73 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.project.create",
+            "restrict": [
+				"userInterface"
+            ],
+            "seeAlso": [
+				"ak.wwise.console.project.open",
+                "ak.wwise.console.project.close",
+                "ak.wwise.core.project.save",
+                "ak.wwise.core.project.loaded",
+				"ak.wwise.ui.project.open",
+				"ak.wwise.ui.project.close"
+            ],
+            "description": "Creates, saves and opens new empty project, specified by path and platform. The project has no factory setting WorkUnit.  Please refer to \\ref ak_wwise_core_project_loaded for further explanations on how to be notified when the operation has completed.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "pattern": "\\.[Ww][Pp][Rr][Oo][Jj]$",
+                        "description": "The path to the project WPROJ file. The path must use the same name for the WPROJ and the parent directory folder. For example: c:\\\\Projects\\\\MYPROJECT\\\\MYPROJECT.wproj. For using WAAPI on Mac, please refer to \\ref waapi_path_on_mac ."
+                    },
+                    "platforms": {
+                        "$ref": "waapi_definitions.json#/definitions/platformsToCreateArg",
+                        "description": "Specifies the platform or platforms supported by the new project. If not specified, only Windows is used."
+                    },
+                    "languages": {
+                        "$ref": "waapi_definitions.json#/definitions/languagesToCreateArg",
+                        "description": "Array of languages to creates for this project. If not specified, the English(US) language is created. When multiple languages are specified, the first one becomes the default language."
+                    }
+                },
+                "required": [
+                    "path"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Creating a new project",
+                    "description": "Creates the .wproj project specified by path.",
+                    "args": {
+                        "path": "C:\\projects\\myWwiseProject.wproj"
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Creating a new project for Android platform",
+                    "description": "Creates the .wproj project specified by path.",
+                    "args": {
+                        "path": "C:\\projects\\myWwiseProject.wproj",
+                        "platforms": { "basePlatform": "Android" }
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

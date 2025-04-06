@@ -1,0 +1,497 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.getPropertyInfo",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.getTypes",
+                "ak.wwise.core.object.getPropertyAndReferenceNames"
+            ],
+            "description": "Retrieves information about an object property. Note that this function does not return the value of a property. To retrieve the value of a property, refer to \\ref ak_wwise_core_object_get and \\ref waapi_query_return.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to watch."
+                    },
+                    "classId": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "The ID (class ID) of the object to retrieve the property from."
+                    },
+                    "property": {
+                        "type": "string",
+                        "description": "The name of the property to retrieve. For more information, refer to the property list of Wwise Objects listed in \\ref wobjects_index .",
+                        "$ref": "waapi_definitions.json#/definitions/propertyName"
+                    }
+                },
+                "oneOf": [
+                    {
+                        "required": [
+                            "object",
+                            "property"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "classId",
+                            "property"
+                        ]
+                    }
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the property."
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "The type of the property. For more information, refer to the property list of Wwise Objects found in \\ref wobjects_index ."
+                    },
+                    "audioEngineId": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "The ID (audio engine ID) of the property."
+                    },
+                    "default": {
+                        "$ref": "common_definitions.json#/definitions/propertyValue",
+                        "description": "The default value of the property."
+                    },
+                    "supports": {
+                        "type": "object",
+                        "description": "The features supported by the property.",
+                        "properties": {
+                            "rtpc": {
+                                "type": "string",
+                                "enum": [
+                                    "None",
+                                    "Additive",
+                                    "Exclusive",
+                                    "Multiplicative"
+                                ],
+                                "description": "The RTPC mode that is supported by the property."
+                            },
+                            "randomizer": {
+                                "type": "boolean",
+                                "description": "Indicates if the randomizer is supported by the property."
+                            },
+                            "unlink": {
+                                "type": "boolean",
+                                "description": "Indicates if unlink is supported by the property."
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "display": {
+                        "type": "object",
+                        "description": "Displays information related to the property.",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "The display name of the property."
+                            },
+                            "group": {
+                                "type": "string",
+                                "description": "The display group of the property."
+                            },
+                            "index": {
+                                "type": "integer",
+                                "description": "The display index of the property."
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "dependencies": {
+                        "type": "array",
+                        "description": "List of dependencies on other properties with their related action and conditions.",
+                        "items": {
+                            "type": "object",
+                            "description": "A dependency.",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "override",
+                                        "property",
+                                        "reference",
+                                        "objectType",
+                                        "isMasterBus"
+                                    ],
+                                    "description": "Defines the type of dependency."
+                                },
+                                "property": {
+                                    "type": "string",
+                                    "description": "The name of the property to which the dependency is applied. For more information, refer to the property list of Wwise Objects listed in \\ref wobjects_index .",
+                                    "$ref": "waapi_definitions.json#/definitions/propertyName"
+                                },
+                                "action": {
+                                    "type": "string",
+                                    "description": "The name of the action that is performed when the conditions are met."
+                                },
+                                "context": {
+                                    "type": "string",
+                                    "description": "The name of the context in which the dependency is evaluated."
+                                },
+                                "value": {
+                                    "type": "boolean",
+                                    "description": "The value used by the dependency isMasterBus."
+                                },
+                                "conditions": {
+                                    "type": "array",
+                                    "description": "An array of conditions related to the dependency.",
+                                    "items": {
+                                        "type": "object",
+                                        "description": "A dependency condition.",
+                                        "properties": {
+                                            "referenceIsSet": {
+                                                "type": "boolean",
+                                                "description": "Used for reference dependencies, defines if the target reference must be set or not."
+                                            },
+                                            "restriction": {
+                                                "$ref": "#/properties/restriction",
+                                                "description": "Used for property dependencies, defines the restriction on which the property must be set."
+                                            }
+                                        },
+                                        "oneOf": [
+                                            {
+                                                "required": [
+                                                    "referenceIsSet"
+                                                ]
+                                            },
+                                            {
+                                                "required": [
+                                                    "restriction"
+                                                ]
+                                            }
+                                        ],
+                                        "additionalProperties": false
+                                    }
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "action",
+                                "context"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    "restriction": {
+                        "description": "Restricts the value of the property.",
+                        "oneOf": [
+                            {
+                                "type": "object",
+                                "description": "Empty object indicating that the property has no restriction.",
+                                "additionalProperties": false
+                            },
+                            {
+                                "type": "object",
+                                "description": "Restrictions on the range of values supported by the property.",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "range"
+                                        ],
+                                        "description": "The value restriction of the property."
+                                    },
+                                    "min": {
+                                        "type": "number",
+                                        "description": "The minimum value for the property."
+                                    },
+                                    "max": {
+                                        "type": "number",
+                                        "description": "The maximum value for the property."
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "type",
+                                    "min",
+                                    "max"
+                                ]
+                            },
+                            {
+                                "type": "object",
+                                "description": "Restrictions on the reference object.",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "reference"
+                                        ],
+                                        "description": "The object reference restrictions of the property."
+                                    },
+                                    "restrictions": {
+                                        "type": "array",
+                                        "description": "The list of object reference restrictions.",
+                                        "items": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "description": "Restrictions on the object type that can be referenced.",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "array",
+                                                            "description": "An array of possible types.",
+                                                            "items": {
+                                                                "type": "string",
+                                                                "description": "Possible object type supported. See \\ref wobjects_index for the list of objects."
+                                                            }
+                                                        },
+                                                        "sharedOnlyTypes": {
+                                                            "type": "array",
+                                                            "description": "An array of types that are only supported as Shared objects (i.e., not Custom) even if the reference can support Custom objects. This is always a subset of \"type\".",
+                                                            "items": {
+                                                                "type": "string",
+                                                                "description": "Possible object type supported as Shared only. See \\ref wobjects_index for the list of objects."
+                                                            }
+                                                        }
+                                                    },
+                                                    "additionalProperties": false,
+                                                    "required": [
+                                                        "type"
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "description": "Restrictions on the object category from which objects can be referenced.",
+                                                    "properties": {
+                                                        "category": {
+                                                            "type": "array",
+                                                            "description": "An array of supported categories.",
+                                                            "items": {
+                                                                "type": "string",
+                                                                "description": "Possible category supported."
+                                                            }
+                                                        }
+                                                    },
+                                                    "additionalProperties": false,
+                                                    "required": [
+                                                        "category"
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "description": "Restrictions on the hierarchy position relative to a parent objects must occupy.",
+                                                    "properties": {
+                                                        "childOfReference": {
+                                                            "type": "string",
+                                                            "description": "Name of the reference."
+                                                        }
+                                                    },
+                                                    "additionalProperties": false,
+                                                    "required": [
+                                                        "childOfReference"
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "description": "Flag restrictions that, when present, are considered true. <b>notNull</b> indicates that the referenced object must exist; it cannot be null. <b>playable</b> indicates that the referenced object must be playable.",
+                                                    "enum": [
+                                                        "notNull",
+                                                        "playable"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "type",
+                                    "restrictions"
+                                ]
+                            },
+                            {
+                                "type": "object",
+                                "description": "Restrictions of the property values.",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "enum"
+                                        ],
+                                        "description": "The value restriction of the property."
+                                    },
+                                    "values": {
+                                        "type": "array",
+                                        "description": "Array of the possible enumerated values the property is restricted to.",
+                                        "items": {
+                                            "type": "object",
+                                            "description": "An enumerated value with a name.",
+                                            "properties": {
+                                                "value": {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number",
+                                                            "description": "A numerical value."
+                                                        },
+                                                        {
+                                                            "type": "boolean",
+                                                            "description": "A boolean value."
+                                                        }
+                                                    ],
+                                                    "description": "The enumerated value."
+                                                },
+                                                "displayName": {
+                                                    "type": "string",
+                                                    "description": "The name associated with the value."
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "type",
+                                    "values"
+                                ]
+                            }
+                        ]
+                    },
+                    "ui": {
+                        "type": "object",
+                        "description": "Information related to how the property is displayed.",
+                        "properties": {
+                            "value": {
+                                "type": "object",
+                                "description": "Specifies how the property value is handled by Wwise UI.",
+                                "properties": {
+                                    "decimals": {
+                                        "type": "integer",
+                                        "description": "The number of decimals displayed for the value."
+                                    },
+                                    "step": {
+                                        "type": "number",
+                                        "description": "The amount by which the display increments the value."
+                                    },
+                                    "fine": {
+                                        "type": "number",
+                                        "description": "The amount by which the display increments the value for fine adjustment."
+                                    },
+                                    "min": {
+                                        "type": "number",
+                                        "description": "The minimum display value."
+                                    },
+                                    "max": {
+                                        "type": "number",
+                                        "description": "The maximum display value."
+                                    },
+                                    "infinity": {
+                                        "type": "number",
+                                        "description": "The number used to represent infinity."
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "displayAs": {
+                                "type": "object",
+                                "description": "Describe how the property is displayed.",
+                                "properties": {
+                                    "lrMix": {
+                                        "type": "boolean",
+                                        "description": "Indicates if the property should be displayed as a left-right mix."
+                                    },
+                                    "musicNote": {
+                                        "type": "boolean",
+                                        "description": "Indicates if the property should be displayed as a music note (MIDI)."
+                                    },
+                                    "bitfield": {
+                                        "type": "boolean",
+                                        "description": "Indicates if the property should be displayed as a bitfield."
+                                    },
+                                    "percentage": {
+                                        "type": "boolean",
+                                        "description": "Indicates if the property should be displayed as a percentage."
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "dataMeaning": {
+                                "type": "string",
+                                "enum": [
+                                    "None",
+                                    "Frequency",
+                                    "Decibels",
+                                    "PitchCents"
+                                ],
+                                "description": "The unit type of the property."
+                            },
+                            "autoUpdate": {
+                                "type": "boolean",
+                                "description": "Indicates if the value of the property is updated while moving the slider."
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Retrieving information about an object property",
+                    "description": "Retrieves information about an object property.",
+                    "args": {
+                        "classId": 65552,
+                        "property": "Volume"
+                    },
+                    "result": {
+                        "name": "Volume",
+                        "type": "Real64",
+                        "default": 0,
+                        "audioEngineId": 0,
+                        "supports": {
+                            "rtpc": "Additive",
+                            "randomizer": true,
+                            "unlink": true
+                        },
+                        "display": {
+                            "name": "Voice Volume",
+                            "index": 1816,
+                            "group": "Audio/General Settings"
+                        },
+                        "dependencies": [],
+                        "restriction": {
+                            "type": "range",
+                            "max": 200,
+                            "min": -200
+                        },
+                        "ui": {
+                            "value": {
+                                "max": 12,
+                                "min": -96,
+                                "decimals": 1,
+                                "step": 1,
+                                "fine": 0.1,
+                                "infinity": 0
+                            },
+                            "displayAs": {
+                                "lrMix": false,
+                                "musicNote": false,
+                                "bitfield": false
+                            },
+                            "dataMeaning": "Decibels",
+                            "autoUpdate": false
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

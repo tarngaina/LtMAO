@@ -1,5 +1,6 @@
-from LtMAO import bnk_tool
+from LtMAO import wiwawe
 
-#bnk_tool.bnk2dir('d:/TEST/ekko_skin19_sfx_audio.wpk')
-bnk_tool.dir2bnk('d:/TEST/a', is_bnk=True)
-bnk_tool.dir2bnk('d:/TEST/a', is_bnk=False)
+wiwawe.init()
+wiwawe.wav2wem(
+    ['D:/test/1565986.wav'],
+)

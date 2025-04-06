@@ -3,6 +3,8 @@ import pyaudio, wave
 from subprocess import Popen, CREATE_NO_WINDOW, PIPE
 from . import tools, pyRitoFile, bnk_tool
 
+wwise_console_file = './res/wiwawe/WwiseApp/Authoring/x64/Release/bin/WwiseConsole.exe'
+wwise_wproj_file = './res/wiwawe/WwiseLeagueProjects/WWiseLeagueProjects.wproj'
 
 wiwawe_dir = './pref/wiwawe'
 wsources_file = f'{wiwawe_dir}/wiwawe.wsources'
@@ -30,12 +32,11 @@ def generate_wsources(map_sounds):
     with open(wsources_file, 'w+') as f:
         f.writelines(lines)
 
-def convert_inputs(wwise_path, wproj_path):
-    wwise_console_file = os.path.join(wwise_path, 'Authoring/x64/Release/bin/WwiseConsole.exe')
+def convert_inputs():
     cmds = [
         wwise_console_file,
         'convert-external-source',
-        wproj_path,
+        os.path.abspath(wwise_wproj_file),
         '--source-file',
         os.path.abspath(wsources_file),
         '--output',
@@ -69,14 +70,10 @@ def reset_cache():
     if os.path.exists(wsources_file):
         os.remove(wsources_file)
 
-def wav2wem(wav_files, wwise_path, wproj_path):
-    if wwise_path == None:
-        raise Exception('wiwawe: Error: No Wwise folder selected.')
-    if wproj_path == None:
-        raise Exception('wiwawe: Error: No .wproj file selected.')
+def wav2wem(wav_files):
     map_sounds = copy_wav_to_input(wav_files)
     generate_wsources(map_sounds)
-    convert_inputs(wwise_path, wproj_path)
+    convert_inputs()
     copy_output_to_wem(map_sounds)
     reset_cache()
 

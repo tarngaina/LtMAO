@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.delete",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.postDeleted",
+                "ak.wwise.core.object.preDeleted"
+            ],
+            "description": "Deletes the specified object. Note that if a Work Unit is deleted, the operation cannot be undone and the project will be saved.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to be deleted."
+                    },
+                    "autoCheckOutToSourceControl": {
+                        "type": "boolean",
+                        "description": "Determines if Wwise automatically performs a Checkout source control operation for affected work units and for the project. Defaults to true."
+                    }
+                },
+                "required": [
+                    "object"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Deleting an object by GUID",
+                    "description": "Deletes the object specified by GUID.",
+                    "args": {
+                        "object": "{A076AA65-B71A-45BB-8841-5A20C52CE727}"
+                    },
+                    "result": {}
+                },
+                {
+                    "title": "Deleting an object by path",
+                    "description": "Deletes the MyTone object specified by its path.",
+                    "args": {
+                        "object": "\\Actor-Mixer Hierarchy\\Default Work Unit\\MyTone"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

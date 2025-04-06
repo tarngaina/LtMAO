@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.cli.updateMediaIdsInSingleFile",
+            "restrict": [
+                "commandLine"
+            ],
+            "description": "Loads the project and updates the contents of <project-name>.mediaid, if it exists.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "project": {
+                        "$ref": "waapi_definitions.json#/definitions/projectCliArg"
+                    }
+                },
+                "required": [
+                    "project"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "$ref": "waapi_definitions.json#/definitions/processResultCli"
+                    }
+                },
+                "required": [
+                    "result"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Updating the contents of <project-name>.mediaid",
+                    "description": "Loads the project and updates the contents of <project-name>.mediaid, if it exists.",
+                    "args": {
+                        "project": "C:\\MyProject\\MyProject.wproj"
+                    },
+                    "result": {
+                        "result": 0
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,54 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.getState",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.getSwitch",
+                "ak.soundengine.setState"
+            ],
+            "description": "Gets the current state of a State Group. When using setState just prior to getState, allow a brief delay (no more than 10ms) for the information to update in the sound engine.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "stateGroup": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "Either the ID (GUID), unique qualified name, or path of the State Group."
+                    }
+                },
+                "required": [
+                    "stateGroup"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                "description": "The returned State Group.",
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "$ref": "waapi_definitions.json#/definitions/objectReturnOptions",
+                "description": "Specifies the return options for every object returned."
+            },
+            "examples": [
+                {
+                    "title": "Get the state of a State Group.",
+                    "description": "Gets the current state of the PlayerHealth State Group by GUID",
+                    "args": {
+                        "stateGroup": "{04DA61D8-C090-4BA1-A0A3-CCAD0587AE0E}"
+                    },
+                    "return": {
+                        "id": "{77978341-EB33-48DF-BC59-343B5460E692}",
+                        "name": "Blasted"
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

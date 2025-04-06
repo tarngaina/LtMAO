@@ -1,0 +1,79 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.project.open",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.project.close",
+                "ak.wwise.core.project.save",
+                "ak.wwise.core.project.loaded",
+				"ak.wwise.console.project.open"
+            ],
+            "description": "Opens a project, specified by path. Please refer to \\ref ak_wwise_core_project_loaded for further explanations on how to be notified when the operation has completed.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "pattern": "\\.wproj$",
+                        "description": "The path to the project WPROJ file. For using WAAPI on Mac, please refer to \\ref waapi_path_on_mac ."
+                    },
+                    "onUpgrade": {
+                        "type": "string",
+                        "enum": [
+                            "migrate",
+                            "fail"
+                        ],
+                        "description": "(DEPRECATED) The action to be executed when opening a project that needs to be upgraded. Note, this is deprecated. Please use onMigrationRequired instead."
+                    },
+                    "onMigrationRequired": {
+                        "type": "string",
+                        "enum": [
+                            "migrate",
+                            "fail"
+                        ],
+                        "description": "The action to be executed when opening a project that needs to be migrated."
+                    },
+                    "bypassSave": {
+                        "type": "boolean",
+                        "description": "Indicates if the user should not be prompted to save the current project. Defaults to true."
+                    },
+                    "autoCheckOutToSourceControl": {
+                        "type": "boolean",
+                        "description": "Determines if Wwise automatically performs a Checkout source control operation for affected work units and for the project. Defaults to true."
+                    }
+                },
+                "required": [
+                    "path"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Opening a project",
+                    "description": "Opens the .wproj project specified by path.",
+                    "args": {
+                        "path": "C:\\projects\\myWwiseProject.wproj",
+                        "bypassSave": false
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

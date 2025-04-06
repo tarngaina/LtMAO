@@ -1,0 +1,239 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.sourceControl.getSourceFiles",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [],
+            "description": "Retrieve all original files.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "folder": {
+                        "description": "Base folder for search relative to Originals folder. Default to the Originals folder.",
+                        "type": "string"
+                    },
+                    "recursive": {
+                        "description": "Search in all subfolders of the base folder. Default to true.",
+                        "type": "boolean"
+                    },
+                    "filter": {
+                        "description": "Filter the files are in the search result.\n- all: Displays all files in the Originals folder (default).\n- used: Only displays files that are used in the project.\n- unused: Only displays files that are not used in the project.",
+                        "type": "string",
+                        "enum": [
+                            "all",
+                            "used",
+                            "unused"
+                        ]
+                    }
+                },
+                "required": [],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "description": "Files and folders found.",
+                        "type": "array",
+                        "items": {
+                            "description": "Specifies what is returned for every item found.",
+                            "type": "object",
+                            "properties": {
+                                "file": {
+                                    "description": "File path relative to Originals folder.",
+                                    "type": "string"
+                                },
+                                "folder": {
+                                    "description": "Folder path relative to Originals folder.",
+                                    "type": "string"
+                                },
+                                "isUsed": {
+                                    "description": "Indicates whether a file is used by a Wwise Object in the project.",
+                                    "type": "boolean"
+                                },
+                                "usage": {
+                                    "description": "List of objects from the project that are using this file. (see objectReturn options)",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "waapi_definitions.json#/definitions/objectReturn"
+                                    }
+                                },
+                                "isMissing": {
+                                    "description": "Indicates that the file exists in source control but is not present in the local file system.",
+                                    "type": "boolean"
+                                }
+                            },
+                            "required": [],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [
+                    "return"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "description": "Array of fields to return for each file or folder found.",
+                        "type": "array",
+                        "items": {
+                            "description": "Fields to return for each file or folder found:\n - isUsed : Indicates if the file is used by a Wwise object. \n - usage : List the Wwise objects that use this file. \n - isMissing : Indicates if the file is absent in the source manager \n - file : The files are in the list. \n - folder : The folders are in the list.",
+                            "type": "string",
+                            "enum": [
+                                "isUsed",
+                                "usage",
+                                "isMissing",
+                                "file",
+                                "folder"
+                            ]
+                        }
+                    },
+                    "objectReturn": {
+                        "descriptions": "Array of return expressions for each object returned in the 'usage' field.",
+                        "$ref": "waapi_definitions.json#/definitions/returnExpression"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Retrieve all audio files in the projet",
+                    "description": "Return the absolute path of audio files that are not used by a Wwise object and all folders under the Originals folder.",
+                    "args": {},
+                    "options": {},
+                    "result": {
+                        "return": [
+                            {
+                                "folder": "SFX"
+                            },
+                            {
+                                "file": "SFX\\1.wav",
+                                "isUsed": true,
+                                "isMissing": false,
+                                "usage": [
+                                    {
+                                        "id": "{80BD7970-696A-4358-8D8C-22F3CF8AAAEE}",
+                                        "name": "1"
+                                    }
+                                ]
+                            },
+                            {
+                                "file": "SFX\\2.wav",
+                                "isUsed": true,
+                                "isMissing": false,
+                                "usage": [
+                                    {
+                                        "id": "{68D8CE8A-6DA9-4271-ACA2-63115C14E065}",
+                                        "name": "2"
+                                    }
+                                ]
+                            },
+                            {
+                                "file": "SFX\\A.wav",
+                                "isUsed": false,
+                                "isMissing": false
+                            },
+                            {
+                                "folder": "Voices"
+                            },
+                            {
+                                "folder": "Voices\\English(US)"
+                            },
+                            {
+                                "file": "Voices\\English(US)\\3.wav",
+                                "isUsed": true,
+                                "isMissing": false,
+                                "usage": [
+                                    {
+                                        "id": "{97735FC6-A17E-4662-AC77-6E78178D7B03}",
+                                        "name": "3"
+                                    }
+                                ]
+                            },
+                            {
+                                "folder": "Voices\\Klingon"
+                            },
+                            {
+                                "file": "Voices\\Klingon\\4.wav",
+                                "isUsed": true,
+                                "isMissing": false,
+                                "usage": [
+                                    {
+                                        "id": "{B96F7F61-1EE5-468E-9150-075B5B24CF81}",
+                                        "name": "4"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Retrieve unused audio files in the projet",
+                    "description": "Return the path of audio files that are not used by a Wwise object.",
+                    "args": {
+                        "filter": "unused"
+                    },
+                    "options": {
+                        "return": [
+                            "file"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "file": "SFX\\1.wav"
+                            },
+                            {
+                                "file": "SFX\\2.wav"
+                            },
+                            {
+                                "file": "Voices\\English(US)\\3.wav"
+                            },
+                            {
+                                "file": "Voices\\Klingon\\4.wav"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Retrieve all audio files in a specific folder",
+                    "description": "Returns the absolute path of audio files in a folder.",
+                    "args": {
+                        "folder": "Voices\\English(US)",
+                        "recursive": false
+                    },
+                    "options": {
+                        "return": [
+                            "file",
+                            "isUsed",
+                            "usage"
+                        ]
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "file": "Voices\\English(US)\\3.wav",
+                                "isUsed": true,
+                                "usage": [
+                                    {
+                                        "id": "{97735FC6-A17E-4662-AC77-6E78178D7B03}",
+                                        "name": "3"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,54 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.object.childAdded",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.create",
+                "ak.wwise.core.object.move",
+                "ak.wwise.core.object.copy",
+                "ak.wwise.core.audio.import",
+                "ak.wwise.core.audio.importTabDelimited"
+            ],
+            "description": "Sent when an object is added as a child to another object.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "$ref": "waapi_definitions.json#/definitions/returnExpression",
+                        "description": "Data to be returned for every child being added."
+                    },
+                    "platform": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID (GUID) of the platform."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "child": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The newly added child object."
+                    },
+                    "parent": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The parent object to which the object is added."
+                    }
+                },
+                "required": [
+                    "child",
+                    "parent"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

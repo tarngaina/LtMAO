@@ -1,0 +1,96 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.audio.convert",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.audio.setConversionPlugin",
+                "ak.wwise.core.soundbank.convertExternalSources"
+            ],
+            "description": "Creates a converted audio file. When errors occur, this function returns a list of messages with corresponding levels of severity.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "objects": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/objectArg"
+                        },
+                        "description": "An array of objects. Each object is an ID (GUID), name, or object path. "
+                    },
+                    "platforms": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/platformArg"
+                        },
+                        "description": "An array of platforms. Each platform is an ID (GUID) or a unique name."
+                    },
+                    "languages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "waapi_definitions.json#/definitions/languageArg",
+                            "description": "A language is a unique name."
+                        },
+                        "description": "An array of languages. Each language is a unique name."
+                    }
+                },
+                "required": [
+                    "objects",
+                    "platforms",
+                    "languages"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "errors": {
+                        "type": "array",
+                        "items": {
+                            "type":"object",
+                            "properties": {
+                                "severity": {
+                                    "$ref": "waapi_definitions.json#/definitions/logCentralSeverity",
+                                    "description": "Severity of the logged message."
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "description": "Message logged by the system (Error or warning)."
+                                }
+                            },
+                            "description": "Logged entry with severity and message.",
+                            "additionalProperties": false
+                        },
+                        "description": "List of logged entries with associated messages and severities."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Convert a WwiseObject",
+                    "description": "Converts the audio file of the specified object onto specified platforms and languages.",
+                    "args": {
+                        "objects": ["\\Actor-Mixer Hierarchy\\Default Work Unit\\Hello"],
+                        "platforms": ["Windows"],
+                        "languages": ["SFX"]
+                    },
+                    "result": {
+                        "errors":[]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

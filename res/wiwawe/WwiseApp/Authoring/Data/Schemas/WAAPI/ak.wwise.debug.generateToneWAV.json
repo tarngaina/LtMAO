@@ -1,0 +1,137 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.debug.generateToneWAV",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [],
+            "description": "Generate a WAV file playing a tone with a simple envelope and save it to the specified location. This is provided as a utility to generate test WAV files.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "description": "File path to write the generated WAV file. This path normally uses the file extension WAV.",
+                        "type": "string"
+                    },
+                    "bitDepth": {
+                        "description": "Bit depth of the audio file. Default is int16.",
+                        "type": "string",
+                        "enum": [
+                            "int16",
+                            "float32"
+                        ]
+                    },
+                    "sampleRate": {
+                        "description": "Sample rate of the audio file. Default is 48000",
+                        "type": "number",
+                        "minimum": 300,
+                        "maximum": 192000
+                    },
+                    "channelConfig": {
+                        "description": "Channel configuration of the audio file. Default is 1.0. Please use the silence waveform for the ambisonics configurations, as the other tone signals will be incompatible with the format.",
+                        "type": "string",
+                        "enum": [
+                            "0.1",
+                            "1.0",
+                            "2.0",
+                            "2.1",
+                            "3.0",
+                            "4.0",
+                            "5.1",
+                            "7.1",
+                            "5.1.2",
+                            "7.1.2",
+                            "7.1.4",
+                            "Ambisonics 1st order",
+                            "Ambisonics 2nd order",
+                            "Ambisonics 3rd order",
+                            "Ambisonics 4th order",
+                            "Ambisonics 5th order"
+                        ]
+                    },
+                    "setAnonymous": {
+                        "description": "Sets the channel configuration type to anonymous, this overrides the channel config but keeps the number of channels specified.",
+                        "type": "boolean"
+                    },
+                    "sustainTime": {
+                        "description": "Number of seconds of the signal holds at the specified level. Default is 1 second.",
+                        "type": "number",
+                        "minimum": 0
+                    },
+                    "sustainLevel": {
+                        "description": "Decibel attenuation for the sustained signal. Default is 0 dB.",
+                        "type": "number",
+                        "minimum": -100,
+                        "maximum": 0
+                    },
+                    "attackTime": {
+                        "description": "Number of seconds for the signal to reach sustain level. Default is 0 second.",
+                        "type": "number",
+                        "minimum": 0
+                    },
+                    "releaseTime": {
+                        "description": "Number of seconds for the signal to release from sustain level. Default is 0 second.",
+                        "type": "number",
+                        "minimum": 0
+                    },
+                    "waveform": {
+                        "description": "Waveform type. Default is silence.",
+                        "type": "string",
+                        "enum": [
+                            "silence",
+                            "sine",
+                            "triangle",
+                            "square",
+                            "whiteNoise"
+                        ]
+                    },
+                    "waveformChannelMask":{
+                        "type":"integer",
+                        "description": "Specifies which channels receive waveform data. The channel mask is a bit field where each bit represents a channel. The least significant bit represents the channel at index zero. The bits with 0 are silent. When not specified, the default outputs waveform data on all channels."
+                    },
+                    "frequency": {
+                        "description": "Waveform frequency. Default is 440.",
+                        "type": "number",
+                        "minimum": 1,
+                        "maximum": 22000
+                    }
+                },
+                "required": [
+                    "path"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Generating a short sine tone WAV file",
+                    "description": "Generates a 1 second mono WAV file that contains a sine waveform, with a very short attack and release.",
+                    "args": {
+                        "path": "C:\\WAV\\beep.wav",
+                        "channelConfig": "1.0",
+                        "waveform": "sine",
+                        "frequency": 800,
+                        "attackTime": 0.01,
+                        "sustainTime": 0.98,
+                        "releaseTime": 0.01,
+                        "sustainLevel": 0
+                    },
+                    "options": {},
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,56 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.debug.assertFailed",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.debug.testAssert",
+                "ak.wwise.debug.enableAsserts"
+            ],
+            "description": "Sent when an assert has failed. This is only available in Debug builds.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "expression": {
+                        "type": "string",
+                        "description": "The expression that failed."
+                    },
+                    "fileName": {
+                        "type": "string",
+                        "description": "The name of the source file."
+                    },
+                    "lineNumber": {
+                        "type": "number",
+                        "description": "The line number."
+                    },
+                    "callstack": {
+                        "type": "string",
+                        "description": "The callstack from the location of the assert."
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "An optional explanatory message accomapnying the assert."
+                    }
+                },
+                "required": [
+                    "expression",
+                    "fileName",
+                    "lineNumber",
+                    "callstack"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

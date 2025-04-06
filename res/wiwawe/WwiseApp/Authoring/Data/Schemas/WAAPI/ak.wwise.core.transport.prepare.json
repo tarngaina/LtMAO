@@ -1,0 +1,51 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.transport.prepare",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.transport.create",
+                "ak.soundengine.postEvent"
+            ],
+            "description": "Prepare the object and its dependencies for playback. Use this function before calling PostEventSync or PostMIDIOnEventSync from IAkGlobalPluginContext.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to control via the transport object."
+                    }
+                },
+                "required": [
+                    "object"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Preparing An Event",
+                    "description": "Prepare the object and it dependencies for playback and use with the transport object.",
+                    "args": {
+                        "object": "{B9DAD74D-400A-4CDC-B051-17C229BDD779}"
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

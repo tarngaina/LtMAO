@@ -1,0 +1,57 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.layout.setLayout",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.layout.getLayout"
+            ],
+            "description": "Registers a new layout from a JSON format.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the layout to register."
+                    },
+                    "layout": {
+                        "$ref": "waapi_ui_definitions.json#/definitions/LayoutEntity",
+                        "description": "The layout description in JSON format."
+                    }
+                },
+                "required": ["name", "layout"],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Register a new temporary layout",
+                    "description": "Registers a new layout from a JSON format",
+                    "args": {
+                        "name": "TemporaryLayout",
+                        "layout": { 
+                            "Layout": {
+                                "Name": "TemporaryLayout"
+                            }
+                        }
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

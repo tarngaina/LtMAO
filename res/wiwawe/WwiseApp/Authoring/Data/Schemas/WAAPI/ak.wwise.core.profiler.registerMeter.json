@@ -1,0 +1,53 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.registerMeter",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.getMeters",
+                "ak.wwise.core.profiler.unregisterMeter",
+                "ak.wwise.core.profiler.enableProfilerData"
+            ],
+            "description": "Registers a bus, an aux bus or device to receive meter data. Only the master audio bus is registered by default. Use \\ref ak_wwise_core_profiler_getmeters to retrieve the meter data after registering. Every call to ak.wwise.core.profiler.registerMeter must have a matching call to \\ref ak_wwise_core_profiler_unregistermeter.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to receive meter data. This object must be a bus, an aux bus or a device."
+                    }
+                },
+                "required": [
+                    "object"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Registering a bus for metering",
+                    "description": "Registers a specific bus for metering. This is necessary to obtain the bus meter value with \\ref ak_wwise_core_profiler_getmeters.",
+                    "args": {
+                        "object": "Bus:MusicBus"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

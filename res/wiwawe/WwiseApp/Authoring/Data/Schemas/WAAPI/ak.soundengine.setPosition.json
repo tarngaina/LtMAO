@@ -1,0 +1,154 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.soundengine.setPosition",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.soundengine.setMultiplePositions",
+                "ak.soundengine.registerGameObj"
+            ],
+            "description": "Sets the position of a game object. See <tt>AK::SoundEngine::SetPosition</tt>.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "gameObject": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "Game Object identifier."
+                    },
+                    "position": {
+                        "type": "object",
+                        "description": "The 3D position to set for the game object.",
+                        "properties": {
+                            "orientationFront": {
+                                "type": "object",
+                                "description": "Orientation of the listener.",
+                                "properties": {
+                                    "x": {
+                                        "type": "number",
+                                        "description": "X Position."
+                                    },
+                                    "y": {
+                                        "type": "number",
+                                        "description": "Y Position."
+                                    },
+                                    "z": {
+                                        "type": "number",
+                                        "description": "Z Position."
+                                    }
+                                },
+                                "required": [
+                                    "x",
+                                    "y",
+                                    "z"
+                                ],
+                                "additionalProperties": false
+                            },
+                            "orientationTop": {
+                                "type": "object",
+                                "description": "Top orientation of the listener.",
+                                "properties": {
+                                    "x": {
+                                        "type": "number",
+                                        "description": "X Position."
+                                    },
+                                    "y": {
+                                        "type": "number",
+                                        "description": "Y Position."
+                                    },
+                                    "z": {
+                                        "type": "number",
+                                        "description": "Z Position."
+                                    }
+                                },
+                                "required": [
+                                    "x",
+                                    "y",
+                                    "z"
+                                ],
+                                "additionalProperties": false
+                            },
+                            "position": {
+                                "type": "object",
+                                "description": "Position of the listener",
+                                "properties": {
+                                    "x": {
+                                        "type": "number",
+                                        "description": "X Position."
+                                    },
+                                    "y": {
+                                        "type": "number",
+                                        "description": "Y Position."
+                                    },
+                                    "z": {
+                                        "type": "number",
+                                        "description": "Z Position."
+                                    }
+                                },
+                                "required": [
+                                    "x",
+                                    "y",
+                                    "z"
+                                ],
+                                "additionalProperties": false
+                            }
+                        },
+                        "required": [
+                            "orientationFront",
+                            "orientationTop",
+                            "position"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "gameObject",
+                    "position"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting the position of a game object",
+                    "description": "Sets the position of \"gameObject\" to \"position/position\" with the provided orientation.",
+                    "args": {
+                        "gameObject": 1122334,
+                        "position": {
+                            "orientationFront": {
+                                "x": 100,
+                                "y": 200,
+                                "z": 0
+                            },
+                            "orientationTop": {
+                                "x": 0,
+                                "y": 0,
+                                "z": 200
+                            },
+                            "position": {
+                                "x": 5,
+                                "y": 10,
+                                "z": 100
+                            }
+                        }
+                    },
+                    "return": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

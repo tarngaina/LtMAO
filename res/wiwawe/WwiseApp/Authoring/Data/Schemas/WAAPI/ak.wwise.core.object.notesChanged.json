@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.object.notesChanged",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.setNotes"
+            ],
+            "description": "Sent when the object's notes are changed.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "$ref": "waapi_definitions.json#/definitions/returnExpression",
+                        "description": "Data to be returned for every object's note change."
+                    },
+                    "platform": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID (GUID) of the platform."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectReturn",
+                        "description": "The object that had its notes changed."
+                    },
+                    "newNotes": {
+                        "type": "string",
+                        "description": "The object's new notes."
+                    },
+                    "oldNotes": {
+                        "type": "string",
+                        "description": "The previous notes of the object."
+                    }
+                },
+                "required": [
+                    "object",
+                    "newNotes",
+                    "oldNotes"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

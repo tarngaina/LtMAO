@@ -1,0 +1,58 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.ui.commands.unregister",
+            "restrict": [
+                "userInterface"
+            ],
+            "seeAlso": [
+                "ak.wwise.ui.commands.register"
+            ],
+            "description": "Unregisters an array of add-on UI commands.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "commands": {
+                        "type": "array",
+                        "description": "An array of commands to unregister.",
+                        "items": {
+                            "type": "string",
+                            "description": "A command ID."
+                        }
+                    }
+                },
+                "required": [
+                    "commands"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Unregistering a list of commands",
+                    "description": "Unregisters everything from the ak.wwise.ui.commands.register examples.",
+                    "args": {
+                        "commands": [
+                            "sample.programlessregistration",
+                            "ak.edit_in_vscode",
+                            "ak.open_in_wavosaur"
+                        ]
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,279 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.cli.generateSoundbank",
+            "restrict": [
+                "commandLine"
+            ],
+            "description": "SoundBank generation. SoundBank generation is performed according to the settings stored in the project. User SoundBanks Settings are normally ignored when SoundBank generation is launched from the command line. However, when using the Source Control for generated SoundBanks, the User Project Settings are loaded for the Source Control settings. Also, some of these settings can be overridden from the command line.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "project": {
+                        "$ref": "waapi_definitions.json#/definitions/projectCliArg"
+                    },
+                    "verbose": {
+                        "$ref": "waapi_definitions.json#/definitions/verboseCliArg"
+                    },
+                    "quiet": {
+                        "$ref": "waapi_definitions.json#/definitions/quietCliArg"
+                    },
+                    "license": {
+                        "type": "string",
+                        "description": "Sets the license to be used. The license is not saved in the project.",
+                        "synopsis": [
+                            "--license LICENSE"
+                        ]
+                    },
+                    "save": {
+                        "type": "boolean",
+                        "description": "Saves the project before generating SoundBanks. If a tab-delimited-import-file was provided, the imported content is saved as well. Saving the project implicitly migrates first, if required.",
+                        "synopsis": [
+                            "--save"
+                        ]
+                    },
+                    "platform": {
+                        "$ref": "common_definitions.json#/definitions/stringOrArrayOfString",
+                        "description": "Specifies the platforms for which SoundBanks are generated. This option must be followed by the platform identifiers.",
+                        "synopsis": [
+                            "--platform PLATFORM",
+                            "--platform PLATFORM1 PLATFORM2 ...",
+                            "--platform PLATFORM1 --platform PLATFORM2 ..."
+                        ]
+                    },
+                    "abort-on-load-issues": {
+                        "$ref": "waapi_definitions.json#/definitions/abortOnLoadIssuesCliArg"
+                    },
+                    "bank": {
+                        "$ref": "common_definitions.json#/definitions/stringOrArrayOfString",
+                        "description": "Specifies which SoundBanks are generated. This option must be followed by the name of the SoundBank to be generated. Multiple SoundBanks can be specified. If no SoundBank is specified, all SoundBanks are generated. Alternatively, a text file containing a list of SoundBank names can be specified, by specifying the full path to the text file, including the extension '.txt'.",
+                        "synopsis": [
+                            "--bank SOUNDBANK",
+                            "--bank SOUNDBANK1 SOUNDBANK2 ...",
+                            "--bank FILE"
+                        ]
+                    },
+                    "cache": {
+                        "type": "string",
+                        "description": "Overrides the project's cache directory path and instead uses the (relative) path specified in the command.",
+                        "synopsis": [
+                            "--cache PATH"
+                        ]
+                    },
+                    "clear-audio-file-cache": {
+                        "type": "boolean",
+                        "description": "Deletes the content of the Wwise audio file cache directory prior to converting source files and generating SoundBanks, which ensures that all source files are reconverted. Note that the whole cache is cleared, for all platforms, regardless of the --platform option.",
+                        "synopsis": [
+                            "--clear-audio-file-cache"
+                        ]
+                    },
+                    "continue-on-error": {
+                        "$ref": "waapi_definitions.json#/definitions/continueOnErrorCliArg"
+                    },
+                    "custom-global-closing-cmd": {
+                        "$ref": "waapi_definitions.json#/definitions/customGlobalClosingCmdCliArg"
+                    },
+                    "custom-global-opening-cmd": {
+                        "$ref": "waapi_definitions.json#/definitions/customGlobalOpeningCmdCliArg"
+                    },
+                    "custom-post-gen-cmd": {
+                        "$ref": "waapi_definitions.json#/definitions/platformMappingArray",
+                        "description": "Overrides the custom post-generation step command line that was defined for this platform in Wwise. This option must be followed by the platform identifier (listed above), followed again by the new command line (use quotes if there are spaces). To override the custom post-generation step command line of another platform, repeat the option --custom-post-gen-cmd followed by the other platform's identifier and its new command line. An empty string (\"\") specified for the command-line means no post-generation step is executed.",
+                        "synopsis": [
+                            "--custom-post-gen-cmd PLATFORM CMD",
+                            "--custom-post-gen-cmd PLATFORM1 CMD1 --custom-post-gen-cmd PLATFORM2 CMD2 ..."
+                        ]
+                    },
+                    "custom-pre-gen-cmd": {
+                        "$ref": "waapi_definitions.json#/definitions/platformMappingArray",
+                        "description": "Overrides the custom pre-generation step command line that was defined for this platform in Wwise. This option must be followed by the platform identifier (listed above), followed again by the new command line (use quotes if there are spaces). To override the custom pre-generation step command line of another platform, repeat the option --custom-pre-gen-cmd followed by the other platform's identifier and its new command line. An empty string (\"\") specified for the command-line means no pre-generation step is executed.",
+                        "synopsis": [
+                            "--custom-pre-gen-cmd PLATFORM CMD",
+                            "--custom-pre-gen-cmd PLATFORM1 CMD1 --custom-pre-gen-cmd PLATFORM2 CMD2 ..."
+                        ]
+                    },
+                    "header-file": {
+                        "type": "boolean",
+                        "description": "Generates the header file Wwise_IDs.h, even if this option is not specified in the project settings.",
+                        "synopsis": [
+                            "--header-file"
+                        ]
+                    },
+                    "header-file-path": {
+                        "type": "string",
+                        "description": "(DEPRECATED) Use root-output-path instead. Overrides the header file path specified in the project settings. This option must be followed by the path (absolute or relative) in which the header file (Wwise_IDs.h) will be written. This is only effective if the header file's creation is required.",
+                        "synopsis": [
+                            "--header-file-path"
+                        ]
+                    },
+                    "root-output-path": {
+                        "type": "string",
+                        "description": "Overrides the root output path specified in the SoundBank settings. This option must be followed by the path (absolute or relative) in which the project level, platform agnostic files will be written. Examples of such files are Wwise_IDs.h and ProjectInfo.(xml|json).",
+                        "synopsis": [
+                            "--root-output-path"
+                        ]
+                    },
+                    "readable-soundbanks": {
+                        "type": "boolean",
+                        "description": "Generates readable SoundBanks (.rbnk), even if this option is not specified in the project settings.",
+                        "synopsis": [
+                            "--readable-soundbanks"
+                        ]
+                    },
+                    "import-definition-file": {
+                        "$ref": "common_definitions.json#/definitions/stringOrArrayOfString",
+                        "description": "Imports a SoundBank definition file. This option must be followed by the full path of the bank definition file to be imported. Multiple files can be specified. If the option --save is not specified, the changes made to the project as a result of the imported definition file do not persist.",
+                        "synopsis": [
+                            "--import-definition-file FILE",
+                            "--import-definition-file FILE1 FILE2 ...",
+                            "--import-definition-file FILE1 --import-definition-file FILE2 ..."
+                        ]
+                    },
+                    "language": {
+                        "$ref": "common_definitions.json#/definitions/stringOrArrayOfString",
+                        "description": "Specifies the languages for which the SoundBanks are generated. This option must be followed by a language identifier defined in the project. Each specified language must be prefixed with this option.",
+                        "synopsis": [
+                            "--language LANGUAGE",
+                            "--language LANGUAGE1 --language LANGUAGE2 ..."
+                        ]
+                    },
+                    "skip-languages": {
+                        "type": "boolean",
+                        "description": "Will not generate any localized SoundBank in the project.",
+                        "synopsis": [
+                            "--skip-languages"
+                        ]
+                    },
+                    "use-stable-guid": {
+                        "type": "boolean",
+                        "description": "Give the SoundBank a stable GUID across multiple builds if you don't want to save the project.",
+                        "synopsis": [
+                            "--use-stable-guid"
+                        ]
+                    },
+                    "no-decode": {
+                        "type": "boolean",
+                        "description": "Avoids generating DECODED files in the .cache directory, which saves CPU and disk space for your Wwise project. It also reduces the SoundBank generation time. Warning: If you do not generate the DECODED files, playing back these sounds in Wwise Authoring could result in an outdated playback or no playback at all. Clearing the file cache is recommended after using this option.",
+                        "synopsis": [
+                            "--no-decode"
+                        ]
+                    },
+                    "no-source-control": {
+                        "type": "boolean",
+                        "description": "Skip the Source Control operations, even it is was enabled in the SoundBank Project Settings.",
+                        "synopsis": [
+                            "--no-source-control"
+                        ]
+                    },
+                    "use-user-overrides": {
+                        "type": "boolean",
+                        "description": "Use user overrides for Project Settings and SoundBank Settings.",
+                        "synopsis": [
+                            "--use-user-overrides"
+                        ]
+                    },
+                    "soundbank-path": {
+                        "$ref": "waapi_definitions.json#/definitions/platformMappingArray",
+                        "description": "Overrides the SoundBank path specified for this platform. This option must be followed by the platform identifier (listed above), followed again by the new path (absolute or relative, use quotes if there are spaces). To override the path of another platform, repeat the option --soundbank-path followed by the other platform's specifier and its new path.",
+                        "synopsis": [
+                            "--soundbank-path PLATFORM PATH",
+                            "--soundbank-path PLATFORM1 PATH1 --soundbank-path PLATFORM2 PATH2 ..."
+                        ]
+                    },
+                    "audio-source-from-original": {
+                        "$ref": "waapi_definitions.json#/definitions/audioSourceFromOriginalCliArg"
+                    },
+                    "import-language": {
+                        "$ref": "waapi_definitions.json#/definitions/importLanguageCliArg"
+                    },
+                    "tab-delimited-operation": {
+                        "$ref": "waapi_definitions.json#/definitions/tabDelimitedOperationCli"
+                    },
+                    "tab-delimited-import-file": {
+                        "$ref": "common_definitions.json#/definitions/stringOrArrayOfString",
+                        "description": "The tab delimited file to import. Multiple files to import can be specified after this option.",
+                        "synopsis": [
+                            "--tab-delimited-import-file FILE",
+                            "--tab-delimited-import-file FILE1 FILE2 ...",
+                            "--tab-delimited-import-file FILE1 --tab-delimited-import-file FILE2 ..."
+                        ]
+                    },
+                    "source-file": {
+                        "$ref": "common_definitions.json#/definitions/stringOrArrayOfString",
+                        "description": "Specifies the WSOURCES files to use for external source conversion. Those WSOURCES files are used for all platforms.",
+                        "synopsis": [
+                            "--source-file FILE",
+                            "--source-file FILE1 FILE2 ..."
+                        ]
+                    },
+                    "source-by-platform": {
+                        "$ref": "waapi_definitions.json#/definitions/platformMappingArray",
+                        "description": "Specifies the WSOURCES files to use by platform for external source conversion. When specified for a specific platform, it overrides the WSOURCES files from the project settings for this platform. For platforms for which this is not specified, the project settings are used. Specify the platform first, then the WSOURCES files to use for this platform. Repeat the operation for each platform and WSOURCES file.",
+                        "synopsis": [
+                            "--source-by-platform PLATFORM FILE",
+                            "--source-by-platform PLATFORM1 FILE1 --source-by-platform PLATFORM2 FILE2 ..."
+                        ]
+                    },
+                    "output": {
+                        "oneOf": [
+                            {
+                                "$ref": "waapi_definitions.json#/definitions/platformMappingArray"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "description": "Allows you to follow this option with a platform and an output path to override the output path of this platform for external source conversion. Repeat this option for other platforms. If only a directory is specified, sources for all platforms are generated in that directory.",
+                        "synopsis": [
+                            "--output PLATFORM PATH",
+                            "--output PLATFORM1 PATH1 --output PLATFORM2 PATH2 ...",
+                            "--output PATH"
+                        ]
+                    }
+                },
+                "required": [
+                    "project"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "$ref": "waapi_definitions.json#/definitions/processResultCli",
+                        "description": "The process exit code of SoundBank generation. Although your SoundBanks might generate properly with warnings, it is strongly recommended that you consider these warnings as errors. For example, WwiseConsole.exe returns an error code when a source file is missing. Although a missing source file does not prevent your SoundBanks from being generated, the resulting SoundBanks might potentially be incomplete. You can change the severity of most messages encountered during the SoundBank Generation by going to Project Settings > Logs, in Wwise. Changing the severity of the messages impacts the return codes."
+                    }
+                },
+                "required": [
+                    "result"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Generating all the SoundBanks",
+                    "description": "Generates all the SoundBanks for MyProject.wproj, for the Windows and Linux platforms, using the English(US) language.",
+                    "args": {
+                        "project": "C:\\MyProject\\MyProject.wproj",
+                        "platform": [
+                            "Windows",
+                            "Linux"
+                        ],
+                        "language": "English(US)"
+                    },
+                    "result": {
+                        "result": 0
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

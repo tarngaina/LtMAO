@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "functions": [],
+    "topics": [
+        {
+            "id": "ak.wwise.core.transport.stateChanged",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.transport.executeAction",
+                "ak.wwise.core.transport.getState"
+            ],
+            "description": "Sent when the transport's state has changed.",
+            "optionsSchema": {
+                "type": "object",
+                "properties": {
+                    "transport": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "The ID of the watched transport."
+                    }
+                },
+                "required": [
+                    "transport"
+                ],
+                "additionalProperties": false
+            },
+            "publishSchema": {
+                "type": "object",
+                "properties": {
+                    "transport": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "The ID of the watched transport."
+                    },
+                    "state": {
+                        "type": "string",
+                        "description": "The state of the transport object.",
+                        "enum": [
+                            "playing",
+                            "stopped",
+                            "paused"
+                        ]
+                    },
+                    "object": {
+                        "$ref": "common_definitions.json#/definitions/guid",
+                        "description": "The ID (GUID) of the object controlled by the transport object."
+                    },
+                    "gameObject": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "The game object used by the transport object."
+                    }
+                },
+                "required": [
+                    "transport",
+                    "state",
+                    "object"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "validators": []
+}

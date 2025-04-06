@@ -1,0 +1,62 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.sound.setActiveSource",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.audio.import",
+                "ak.wwise.core.object.get"
+            ],
+            "description": "Sets which version of the source is being used for the specified sound. Use \\ref ak_wwise_core_object_get with the 'activeSource' return option to get the active source of a sound.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "sound": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "Sound ID (GUID), name, or path."
+                    },
+                    "source": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "Source ID (GUID), name, or path. The source must be a child of the sound."
+                    },
+                    "platform": {
+                        "$ref": "waapi_definitions.json#/definitions/platformArg",
+                        "description": "Platform ID (GUID) or name. This is an optional argument. When not specified, the current platform is used."
+                    }
+                },
+                "required": [
+                    "sound",
+                    "source"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Setting the active source for a Sound Voice.",
+                    "description": "Setting the active source for a Sound Voice. The Sound has a main source and an alternate source.",
+                    "args": {
+                        "sound": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "source": "{66666666-7777-8888-9999-AAAAAAAAAAAA}"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

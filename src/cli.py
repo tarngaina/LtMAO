@@ -180,9 +180,8 @@ class CLI:
         wiwawe.wem2wav([src])
 
     def wav2wem(src):
-        from LtMAO import wiwawe, setting
-        setting.load()
-        wiwawe.wav2wem([src], setting.get('wiwawe.wwise_path', None), setting.get('wiwawe.wproj_path', None))
+        from LtMAO import wiwawe
+        wiwawe.wav2wem([src])
 
     def bnk2dir(src):
         from LtMAO import bnk_tool

@@ -1,0 +1,75 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.gameParameter.setRange",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.get"
+            ],
+            "description": "Sets the Min and Max properties on a Game Parameter. Modifies the RTPC curves and blend tracks that use this Game Parameter for their X axis.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the Game Parameter."
+                    },
+                    "min": {
+                        "type": "number",
+                        "description": "The minimum value of the Game Parameter."
+                    },
+                    "max": {
+                        "type": "number",
+                        "description": "The maximum value of the Game Parameter."
+                    },
+                    "onCurveUpdate": {
+                        "type": "string",
+                        "description": "Modifying the Min or Max value of a Game Parameter affects the RTPC curves and blend tracks that use that Game Parameter for their X axis. Two actions are possible:\nstretch: All items are kept but their X positions might change as the curve/blend track is stretched or compressed to match the new range in X. Values of Set Game Parameter actions are also scaled.\npreserve_x: Maintains the X position of all the items, but those that fall outside the new range are deleted. Values of Set Game Parameter actions are clamped.",
+                        "enum": [
+                            "stretch",
+                            "preserveX"
+                        ]
+                    }
+                },
+                "required": [
+                    "object",
+                    "min",
+                    "max",
+                    "onCurveUpdate"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Set Game Parameter range",
+                    "description": "Equivalent to clicking the Edit button for Min or Max and setting the range of a Game Parameter.",
+                    "args": {
+                        "object": "\\Game Parameters\\Default Work Unit\\MyGameParam",
+                        "min": 10,
+                        "max": 100,
+                        "onCurveUpdate": "stretch"
+                    },
+                    "result": {
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

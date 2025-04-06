@@ -1,0 +1,54 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.sourceControl.move",
+            "seeAlso": [
+                "ak.wwise.core.sourceControl.commit"
+            ],
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Move or rename files in source control. Always pass the same number of elements in files and newFiles. Equivalent to Move for Perforce.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "files": {
+                        "$ref": "common_definitions.json#/definitions/arrayOfString",
+                        "description": "Array of files to rename or move. File paths must be absolute."
+                    },
+                    "newFiles": {
+                        "$ref": "common_definitions.json#/definitions/arrayOfString",
+                        "description": "Array of new files. File paths must be absolute."
+                    }
+                },
+                "required": [
+                    "files",
+                    "newFiles"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "log": {
+                        "$ref": "waapi_definitions.json#/definitions/arrayOfLogCentralItem",
+                        "description": "Array of log entries generated during the request."
+                    }
+                },
+                "required": [
+                    "log"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,60 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.setName",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.nameChanged",
+                "ak.wwise.core.object.setNotes",
+                "ak.wwise.core.object.set",
+                "ak.wwise.core.undo.beginGroup"
+            ],
+            "description": "Renames an object.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to rename."
+                    },
+                    "value": {
+                        "type": "string",
+                        "description": "The new name of the object."
+                    }
+                },
+                "required": [
+                    "object",
+                    "value"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Renaming a WwiseObject",
+                    "description": "Renames the object specified by \"object\" to \"value\".",
+                    "args": {
+                        "object": "{24979032-B170-43E3-A2E4-469E0193E2C3}",
+                        "value": "new name"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

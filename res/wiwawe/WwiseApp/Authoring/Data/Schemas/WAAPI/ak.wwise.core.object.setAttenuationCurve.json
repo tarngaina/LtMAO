@@ -1,0 +1,117 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.setAttenuationCurve",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.getAttenuationCurve"
+            ],
+            "description": "Sets the specified attenuation curve for a given attenuation object.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of attenuation object."
+                    },
+                    "platform": {
+                        "$ref": "waapi_definitions.json#/definitions/platformArg",
+                        "description": "The ID (GUID) or unique name of the platform to set curves. Set to null-guid for unlinked curve."
+                    },
+                    "curveType": {
+                        "type": "string",
+                        "enum": [
+                            "VolumeDryUsage",
+                            "VolumeWetGameUsage",
+                            "VolumeWetUserUsage",
+                            "LowPassFilterUsage",
+                            "HighPassFilterUsage",
+                            "SpreadUsage",
+                            "FocusUsage",
+							"ObstructionVolumeUsage",
+							"ObstructionLPFUsage",
+							"ObstructionHPFUsage",
+ 							"OcclusionVolumeUsage",
+							"OcclusionLPFUsage",
+							"OcclusionHPFUsage",
+							"DiffractionVolumeUsage",
+							"DiffractionLPFUsage",
+							"DiffractionHPFUsage",
+							"TransmissionVolumeUsage",
+							"TransmissionLPFUsage",
+							"TransmissionHPFUsage"
+                       ],
+                        "description": "The type of attenuation curve."
+                    },
+                    "use": {
+                        "type": "string",
+                        "enum": [
+                            "None",
+                            "Custom",
+                            "UseVolumeDry",
+							"UseProject"
+                        ],
+                        "description": "Defines if the curve has no points, has its own set of points, or uses those of the VolumeDryUsage curve."
+                    },
+                    "points": {
+                        "$ref": "waapi_definitions.json#/definitions/pointsDefinition",
+                        "description": "The attenuation curve."
+                    }
+                },
+                "required": [
+                    "object",
+                    "curveType",
+                    "use",
+                    "points"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Defining an attenuation curve of an object",
+                    "description": "Defines the \"object\"'s attenuation curve for \"curveType\" by setting a series of \"points\".",
+                    "args": {
+                        "object": "{A076AA65-B71A-45BB-8841-5A20C52CE727}",
+                        "platform": "{66666666-7777-8888-9999-AAAAAAAAAAAA}",
+                        "curveType": "VolumeDryUsage",
+                        "use": "Custom",
+                        "points": [
+                            {
+                                "x": 0,
+                                "y": 0,
+                                "shape": "Exp1"
+                            },
+                            {
+                                "x": 8,
+                                "y": -1,
+                                "shape": "SCurve"
+                            },
+                            {
+                                "x": 25,
+                                "y": -2,
+                                "shape": "Constant"
+                            }
+                        ]
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

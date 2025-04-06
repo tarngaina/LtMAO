@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.transport.create",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.transport.destroy",
+                "ak.wwise.core.transport.executeAction",
+                "ak.wwise.core.transport.getList"
+            ],
+            "description": "Creates a transport object for the given Wwise object. The return transport object can be used to play, stop, pause and resume the Wwise object via the other transport functions.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to control via the transport object."
+                    },
+                    "gameObject": {
+                        "$ref": "waapi_definitions.json#/definitions/gameObject",
+                        "description": "The game object to use for playback."
+                    }
+                },
+                "required": [
+                    "object"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "transport": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "Transport object ID to be used with all other ak.wwise.core.transport functions."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Creating a transport object",
+                    "description": "Creates a transport object for a given Wwise object.",
+                    "args": {
+                        "object": "{A076AA65-B71A-45BB-8841-5A20C52CE727}"
+                    },
+                    "result": {
+                        "transport": 1234
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

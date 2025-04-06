@@ -1,0 +1,132 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.getCpuUsage",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.getCursorTime",
+                "ak.wwise.core.profiler.enableProfilerData"
+            ],
+            "description": "Retrieves CPU usage statistics at a specific profiler capture time. This data can also be found in the Advanced Profiler, under the CPU tab. To ensure the CPU data is received, refer to \\ref ak_wwise_core_profiler_enableprofilerdata. The returned data includes \"Inclusive\" and \"Exclusive\" values, where \"Inclusive\" refers to the time spent in the element plus the time spent in any called elements, and \"Exclusive\" values pertain to execution only within the element itself.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "time": {
+                        "$ref": "waapi_definitions.json#/definitions/cursorTime",
+                        "description": "Time in milliseconds to query for cpu data, or a Time Cursor from which to acquire the time. The User Time Cursor is the one that can be manipulated by the user, while the Capture Time Cursor represents the latest time of the current capture."
+                    }
+                },
+                "required": [
+                    "time"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "type": "array",
+                        "description": "Array of CPU statistics for each element.",
+                        "items": {
+                            "type": "object",
+                            "description": "Information about the amount of CPU percentage used by each element.",
+                            "properties": {
+                                "elementName": {
+                                    "type": "string",
+                                    "description": "The name of the element on which we calculate CPU usage."
+                                },
+                                "id": {
+                                    "type": "integer",
+                                    "description": "Class ID of the element."
+                                },
+                                "instances": {
+                                    "type": "integer",
+                                    "description": "An estimation of the number of instances of the element."
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "description": "The type of element. For example, Codec, Source, Effect, Mixer or Sink."
+                                },
+                                "percentInclusive": {
+                                    "type": "number",
+                                    "description": "The percentage of CPU time spent in the execution of the element and those that it uses (calls)."
+                                },
+                                "percentExclusive": {
+                                    "type": "number",
+                                    "description": "The percentage of CPU time spent only in the execution of the element itself."
+                                },
+                                "millisecondsInclusive": {
+                                    "type": "number",
+                                    "description": "The milliseconds of CPU time spent in the execution of the element and those that it uses (calls)."
+                                },
+                                "millisecondsExclusive": {
+                                    "type": "number",
+                                    "description": "The milliseconds of CPU time spent only in the execution of the element itself."
+                                }
+                            },
+							"required": [
+								"elementName", 
+								"id", 
+								"instances", 
+								"type", 
+								"percentInclusive", 
+								"percentExclusive", 
+								"millisecondsInclusive", 
+								"millisecondsExclusive"
+							],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [
+                    "return"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Querying the CPU usage at a point in time.",
+                    "description": "Queries the CPU usage in the current capture session at the latest capture time.",
+                    "args": {
+                        "time": "capture"
+                    },
+                    "result": {
+                        "return": [
+                            {
+                                "elementName": "Interactive Music",
+                                "id": 52494344,
+                                "instances": 1,
+                                "percentInclusive": 0.1809375137090683,
+                                "percentExclusive": 0.001875000074505806,
+                                "millisecondsInclusive": 0.019300000742077827,
+                                "millisecondsExclusive": 0.00019999999494757503,
+                                "type": "Global Extension"
+                            },
+                            {
+                                "elementName": "Meter",
+                                "id": 8454147,
+                                "instances": 3,
+                                "percentInclusive": 0.1678125113248825,
+                                "percentExclusive": 0.1678125113248825,
+                                "millisecondsInclusive": 0.017899999395012856,
+                                "millisecondsExclusive": 0.017899999395012856,
+                                "type": "Effect"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

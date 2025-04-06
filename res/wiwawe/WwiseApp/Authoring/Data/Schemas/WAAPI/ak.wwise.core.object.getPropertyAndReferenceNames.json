@@ -1,0 +1,94 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.object.getPropertyAndReferenceNames",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.object.getPropertyInfo",
+                "ak.wwise.core.object.getTypes"
+            ],
+            "description": "Retrieves the list of property and reference names for an object.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "object": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the object to watch."
+                    },
+                    "classId": {
+                        "$ref": "common_definitions.json#/definitions/uint32",
+                        "description": "The ID (class ID) of the object to retrieve the property and reference names from."
+                    }
+                },
+                "oneOf": [
+                    {
+                        "required": [
+                            "object"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "classId"
+                        ]
+                    }
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "type": "array",
+                        "description": "An array of all properties and references for the specified object.",
+                        "items": {
+                            "type": "string",
+                            "description": "The name of the property or reference."
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Retrieving the list of property and reference names of an object",
+                    "description": "Retrieves the list of property and reference names of an object.",
+                    "args": {
+                        "classId": 8192003
+                    },
+                    "result": {
+                        "return": [
+                            "DelayTime",
+                            "DryLevel",
+                            "FeedForwardLevel",
+                            "FeedBackLevel",
+                            "EnableLFO",
+                            "ModDepth",
+                            "ModFrequency",
+                            "ModWaveform",
+                            "ModSmoothing",
+                            "ModPWM",
+                            "ModPhaseOffset",
+                            "ModPhaseMode",
+                            "ModPhaseSpread",
+                            "WetDryMix",
+                            "OutputLevel",
+                            "ProcessCenter",
+                            "ProcessLFE"
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

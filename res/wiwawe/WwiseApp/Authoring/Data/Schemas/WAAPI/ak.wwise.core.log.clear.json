@@ -1,0 +1,49 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.log.clear",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.log.addItem"
+            ],
+            "description": "Clears the logs on the specified channel.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "channel": {
+                        "$ref": "waapi_definitions.json#/definitions/logCentralChannel",
+                        "description": "The channel to clear. Default is 'general'."
+                    }
+                },
+                "required": [],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Clearing the general log.",
+                    "description": "Clears the entire log on the channel 'general'.",
+                    "args": {
+                        "channel": "general"
+                    },
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

@@ -1,0 +1,51 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.profiler.getCursorTime",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.profiler.getVoices",
+                "ak.wwise.core.profiler.getBusses",
+                "ak.wwise.core.profiler.getVoiceContributions"
+            ],
+            "description": "Returns the current time of the specified profiler cursor, in milliseconds.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "cursor": {
+                        "$ref": "waapi_definitions.json#/definitions/profilerCursor",
+                        "description": "Time Cursor from which to acquire the time. The User Time Cursor is the one that can be manipulated by the user, while the Capture Time Cursor represents the latest time of the current capture."
+                    }
+                },
+                "required": [
+                    "cursor"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "return": {
+                        "type": "integer",
+                        "description": "The current position of the specified Time Cursor, in ms."
+                    }
+                },
+				"required": [
+					"return"
+				],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

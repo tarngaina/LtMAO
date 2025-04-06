@@ -1,0 +1,44 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.undo.undo",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.undo.beginGroup",
+                "ak.wwise.core.undo.cancelGroup",
+                "ak.wwise.core.undo.endGroup",
+				"ak.wwise.core.undo.redo"
+            ],
+            "description": "Undoes the last operation in the Undo stack.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Performing an undo",
+                    "description": "Performs an undo.",
+                    "args": {},
+                    "result": {}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

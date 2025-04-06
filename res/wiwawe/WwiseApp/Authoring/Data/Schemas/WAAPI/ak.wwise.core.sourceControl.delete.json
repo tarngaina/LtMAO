@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.sourceControl.delete",
+            "seeAlso": [
+                "ak.wwise.core.sourceControl.commit",
+                "ak.wwise.core.sourceControl.add"
+            ],
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "description": "Delete files from source control. Equivalent to Mark for Delete for Perforce.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "files": {
+                        "$ref": "common_definitions.json#/definitions/arrayOfString",
+                        "description": "Array of files to delete. File paths must be absolute."
+                    }
+                },
+                "required": [
+                    "files"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "log": {
+                        "$ref": "waapi_definitions.json#/definitions/arrayOfLogCentralItem",
+                        "description": "Array of log entries generated during the request."
+                    }
+                },
+                "required": [
+                    "log"
+                ],
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Deleting a new file to source control.",
+                    "description": "Remove an existing file to the SFX directory and the source control.",
+                    "args": {
+                        "files": [
+                            "//projet-file//Originals/SFX/existingFile.wav"
+                        ]
+                    },
+					"result": {
+						"log": []
+					}
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}

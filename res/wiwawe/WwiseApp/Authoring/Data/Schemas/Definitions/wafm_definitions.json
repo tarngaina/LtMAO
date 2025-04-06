@@ -1,0 +1,730 @@
+{
+    "version": 1,
+    "definitions": {
+        "widgetDescriptor": {
+            "type": "object",
+            "properties": {
+                "Name": {
+                    "type": "string",
+                    "description": "The name of the widget."
+                },
+                "Visible": {
+                    "type": "boolean",
+                    "description": "The visibility of the widget."
+                },
+                "Enabled": {
+                    "type": "boolean",
+                    "description": "The interactivity of the widget."
+                },
+                "DlgItem": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "The resource ID of the widget (MFC only)."
+                },
+                "Property": {
+                    "type": "string",
+                    "description": "The property name of the widget."
+                },
+                "PropertyType": {
+                    "type": "string",
+                    "description": "The property type of the widget.",
+                    "enum": [
+                        "bool",
+                        "int16",
+                        "Uint16",
+                        "int32",
+                        "Uint32",
+                        "int64",
+                        "Uint64",
+                        "Real32",
+                        "Real64",
+                        "string"
+                    ]
+                }
+            },
+            "required": [ "Name" ]
+        },
+        "canvasDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "Canvas" ]
+                }
+            }
+        },
+        "captionDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "Caption" ]
+                },
+                "Text": {
+                    "type": "string",
+                    "description": "The text of the caption."
+                },
+                "TooltipText": {
+                    "type": "string",
+                    "description": "The tooltip text of the caption."
+                },
+                "FontStyle": {
+                    "type": "string",
+                    "description": "The font style of the caption.",
+                    "enum": [
+                        "Standard",
+                        "Small",
+                        "Large",
+                        "ExtraSmall",
+                        "ExtraLarge",
+                        "Bold",
+                        "Italic",
+                        "Underline",
+                        "Strikethrough"
+                    ]
+                },
+                "TextStyle": {
+                    "type": "array",
+                    "description": "The text styles of the caption.",
+                    "items": {
+                        "type": "string",
+                        "description": "The style of the text.",
+                        "enum": [
+                            "JustifyLeft",
+                            "JustifyRight",
+                            "HorizontallyCentered",
+                            "PathEllipsis",
+                            "WordEllipsis"
+                        ]
+                    }
+                },
+                "TextColor": {
+                    "type": "string",
+                    "description": "The name of a color in the current theme."
+                },
+                "RightBitmap": {
+                    "type": "string",
+                    "description": "The name of a bitmap in the current theme."
+                },
+                "Options": {
+                    "type": "array",
+                    "description": "The display options of the caption.",
+                    "items": {
+                        "type": "string",
+                        "description": "The display option.",
+                        "enum": [
+                            "HideTooltip",
+                            "HideBorder",
+                            "HideBackground"
+                        ]
+                    }
+                }
+            }
+        },
+        "checkboxDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "Checkbox" ]
+                },
+                "Text": {
+                    "type": "string",
+                    "description": "The text of the checkbox."
+                },
+                "Checked": {
+                    "type": "boolean",
+                    "description": "The checked state of the checkbox."
+                },
+                "Indeterminate": {
+                    "type": "boolean",
+                    "description": "The indeterminate state of the checkbox."
+                }
+            }
+        },
+        "comboBoxDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "ComboBox" ]
+                },
+                "Items": {
+                    "type": "array",
+                    "description": "The items of the combo box.",
+                    "items": {
+                        "type": "string",
+                        "description": "The name of the item."
+                    }
+                },
+                "ActiveItem": {
+                    "$ref": "common_definitions.json#/definitions/int32",
+                    "description": "The index of the active item.",
+                    "minimum": 0
+                }
+            }
+        },
+        "labelDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "Label" ]
+                },
+                "Text": {
+                    "type": "string",
+                    "description": "The text of the label."
+                },
+                "TextStyle": {
+                    "type": "array",
+                    "description": "The styles of the label.",
+                    "items": {
+                        "type": "string",
+                        "description": "The alignment of the text.",
+                        "enum": [
+                            "JustifyLeft",
+                            "JustifyRight",
+                            "HorizontallyCentered",
+                            "VerticallyCentered"
+                        ]
+                    }
+                }
+            }
+        },
+        "pushButtonDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "PushButton" ]
+                },
+                "Text": {
+                    "type": "string",
+                    "description": "The text of the push button."
+                },
+                "Icon": {
+                    "type": "string",
+                    "description": "The name of a bitmap in the current theme without any state suffix."
+                },
+                "TooltipText": {
+                    "type": "string",
+                    "description": "The tooltip text of the push button."
+                },
+                "ModalResult": {
+                    "type": "string",
+                    "description": "The modal result of the push button.",
+                    "enum": [ "None", "Ok", "Cancel", "Yes", "No", "Retry" ]
+                }
+            }
+        },
+        "radioButtonDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "RadioButton" ]
+                },
+                "Text": {
+                    "type": "string",
+                    "description": "The text of the radio button."
+                },
+                "MainButton": {
+                    "type": "boolean",
+                    "description": "If the radio button is the first of its group."
+                },
+                "LastButton": {
+                    "type": "boolean",
+                    "description": "If the radio button is the last of its group."
+                }
+            }
+        },
+        "scene3DViewDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "Scene3DView" ]
+                }
+            }
+        },
+        "spinnerDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "Spinner" ]
+                },
+                "Range": {
+                    "type": "array",
+                    "description": "The min and max values of the spinner.",
+                    "items": {
+                        "$ref": "common_definitions.json#/definitions/int32"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                },
+                "InitValue": {
+                    "$ref": "common_definitions.json#/definitions/int32",
+                    "description": "The default value of the spinner."
+                }
+            }
+        },
+        "superRangeDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "SuperRange" ]
+                },
+                "Range": {
+                    "type": "array",
+                    "description": "The min and max values of the super range.",
+                    "items": {
+                        "type": "number"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                },
+                "Increments": {
+                    "type": "array",
+                    "description": "The step and fine increments of the super range.",
+                    "items": {
+                        "type": "number"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                },
+                "Precision": {
+                    "$ref": "common_definitions.json#/definitions/int32",
+                    "description": "The number of decimals of the super range.",
+                    "minimum": 0
+                },
+                "InitValue": {
+                    "type": "number",
+                    "description": "The default value of the super range."
+                }
+            }
+        },
+        "textEditDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "TextEdit" ]
+                },
+                "Text": {
+                    "type": "string",
+                    "description": "The text of the text edit."
+                }
+            }
+        },
+        "textEditorDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "TextEditor" ]
+                },
+                "Text": {
+                    "type": "string",
+                    "description": "The text of the text editor."
+                }
+            }
+        },
+        "toggleButtonDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "ToggleButton" ]
+                },
+                "Text": {
+                    "type": "string",
+                    "description": "The text of the toggle button."
+                },
+                "Icon": {
+                    "type": "string",
+                    "description": "The name of a bitmap in the current theme without any state suffix."
+                },
+                "TooltipText": {
+                    "type": "string",
+                    "description": "The tooltip text of the toggle button."
+                },
+                "Pressed": {
+                    "type": "boolean",
+                    "description": "The pressed state of the toggle button."
+                }
+            }
+        },
+        "layoutSplitterDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "LayoutSplitter" ]
+                },
+                "Orientation": {
+                    "type": "string",
+                    "description": "The orientation of the splitter (opposite of the layout orientation).",
+                    "enum": [ "Horizontal", "Vertical" ]
+                },
+                "CollapseMode": {
+                    "type": "string",
+                    "description": "The direction where the splitter may collapse (left or right if vertical, top or bottom if horizontal, or none).",
+                    "enum": [
+                        "None",
+                        "Left",
+                        "Top",
+                        "Right",
+                        "Bottom"
+                    ]
+                },
+                "Position": {
+                    "$ref": "common_definitions.json#/definitions/int32",
+                    "description": "The position of the splitter within the layout.",
+                    "minimum": 0
+                },
+                "Collapsed": {
+                    "type": "boolean",
+                    "description": "If the splitter is collapsed."
+                },
+                "Anchor": {
+                    "type": "string",
+                    "description": "The anchor of the splitter when the layout gets resized (left or right if vertical, top or bottom if horizontal).",
+                    "enum": [
+                        "side-left",
+                        "side-right",
+                        "side-top",
+                        "side-bottom"
+                    ]
+                }
+            },
+            "required": [ "Position", "Anchor" ]
+        },
+        "treeDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "Tree" ]
+                }
+            }
+        },
+        "dockWidgetAreaDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the layout.",
+                    "enum": [ "DockWidgetArea" ]
+                }
+            }
+        },
+        "windowLessViewDescriptor": {
+            "allOf": [{ "$ref": "#/definitions/widgetDescriptor" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the widget.",
+                    "enum": [ "WindowLessView" ]
+                }
+            }
+        },
+        "widgetDefinition": {
+            "type": "object",
+            "properties": {
+                "Name": {
+                    "type": "string",
+                    "description": "The name of the widget."
+                }
+            },
+            "required": [ "Name" ]
+        },
+        "layoutDefinition": {
+            "allOf": [{ "$ref": "#/definitions/widgetDefinition" }],
+            "properties": {
+                "Width": {
+                    "$ref": "common_definitions.json#/definitions/int32",
+                    "description": "The width of the layout.",
+                    "minimum": 1
+                },
+                "Height": {
+                    "$ref": "common_definitions.json#/definitions/int32",
+                    "description": "The height of the layout.",
+                    "minimum": 1
+                },
+                "MinWidth": {
+                    "$ref": "common_definitions.json#/definitions/int32",
+                    "description": "The minimum width of the layout.",
+                    "minimum": 1
+                },
+                "MinHeight": {
+                    "$ref": "common_definitions.json#/definitions/int32",
+                    "description": "The maximum width of the layout.",
+                    "minimum": 1
+                },
+                "DlgItem": {
+                    "$ref": "common_definitions.json#/definitions/uint32",
+                    "description": "The resource ID of the layout (MFC only)."
+                }
+            },
+            "required": [ "Type", "Children" ]
+        },
+        "layoutChild": {
+            "anyOf": [
+                { "$ref": "#/definitions/anchorLayoutDefinition" },
+                { "$ref": "#/definitions/dockWidgetAreaDefinition" },
+                { "$ref": "#/definitions/groupBoxDefinition" },
+                { "$ref": "#/definitions/splitLayoutDefinition" },
+                {
+                    "allOf": [{ "$ref": "#/definitions/widgetDefinition" }],
+                    "not": { "required": [ "Type" ] }
+                }
+            ]
+        },
+        "positionsAttribute": {
+            "type": "array",
+            "description": "The position (x, y) and size (width, height) of the widget.",
+            "items": {
+                "$ref": "common_definitions.json#/definitions/int32",
+                "minimum": 0
+            },
+            "minItems": 4,
+            "maxItems": 4
+        },
+        "anchorLayoutDefinition": {
+            "allOf": [{ "$ref": "#/definitions/layoutDefinition" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the layout.",
+                    "enum": [ "AnchorLayout" ]
+                },
+                "Children": {
+                    "type": "array",
+                    "description": "The child widget definitions.",
+                    "items": {
+                        "allOf": [{ "$ref": "#/definitions/layoutChild" }],
+                        "properties": {
+                            "Positions": {
+                                "$ref": "#/definitions/positionsAttribute"
+                            },
+                            "AnchorSets": {
+                                "type": "array",
+                                "description": "The anchor sets of the widget.",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "side-left",
+                                        "side-right",
+                                        "side-top",
+                                        "side-bottom",
+                                        "side-all"
+                                    ]
+                                }
+                            }
+                        },
+                        "required": [ "Positions", "AnchorSets" ]
+                    }
+                }
+            }
+        },
+        "dockWidgetAreaDefinition": {
+            "allOf": [{ "$ref": "#/definitions/layoutDefinition" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the layout.",
+                    "enum": [ "DockWidgetArea" ]
+                }
+            }
+        },
+        "groupBoxDefinition": {
+            "allOf": [{ "$ref": "#/definitions/layoutDefinition" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the layout.",
+                    "enum": [ "GroupBox" ]
+                },
+                "LabelWidget": {
+                    "type": "string",
+                    "description": "The name of the label widget."
+                },
+                "Children": {
+                    "type": "array",
+                    "description": "The child widget definitions.",
+                    "items": {
+                        "allOf": [{ "$ref": "#/definitions/layoutChild" }],
+                        "properties": {
+                            "Positions": {
+                                "$ref": "#/definitions/positionsAttribute"
+                            }
+                        },
+                        "required": [ "Positions" ]
+                    }
+                }
+            }
+        },
+        "splitLayoutDefinition": {
+            "allOf": [{ "$ref": "#/definitions/layoutDefinition" }],
+            "properties": {
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the layout.",
+                    "enum": [ "SplitLayout" ]
+                },
+                "Orientation": {
+                    "type": "string",
+                    "description": "The orientation of the layout (opposite of the splitter orientation).",
+                    "enum": [ "Horizontal", "Vertical" ]
+                },
+                "Splitters": {
+                    "type": "array",
+                    "description": "The splitter definitions.",
+                    "items": {
+                        "$ref": "#/definitions/layoutSplitterDescriptor"
+                    }
+                },
+                "Children": {
+                    "type": "array",
+                    "description": "The child widget definitions.",
+                    "items": {
+                        "allOf": [{ "$ref": "#/definitions/layoutChild" }],
+                        "properties": {
+                            "MinSize": {
+                                "$ref": "common_definitions.json#/definitions/int32",
+                                "description": "The minimum size of the widget.",
+                                "minimum": 1
+                            }
+                        },
+                        "required": [ "MinSize" ]
+                    }
+                }
+            },
+            "required": [
+                "Orientation",
+                "Splitters"
+            ]
+        },
+        "wafmDefinition": {
+            "type": "object",
+            "properties": {
+                "Version": {
+                    "$ref": "common_definitions.json#/definitions/int32",
+                    "description": "The version of the template.",
+                    "minimum": 1
+                },
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the template.",
+                    "enum": [ "Dialog" ]
+                },
+                "RootWidget": {
+                    "type": "string",
+                    "description": "The name of the root widget."
+                },
+                "Metadata": {
+                    "type": "object",
+                    "description": "The metadata of the template.",
+                    "properties": {},
+                    "additionalProperties": true
+                },
+                "Widgets": {
+                    "type": "array",
+                    "description": "The widget descriptors.",
+                    "items": {
+                        "anyOf": [
+                            { "$ref": "#/definitions/canvasDescriptor" },
+                            { "$ref": "#/definitions/captionDescriptor" },
+                            { "$ref": "#/definitions/checkboxDescriptor" },
+                            { "$ref": "#/definitions/comboBoxDescriptor" },
+                            { "$ref": "#/definitions/labelDescriptor" },
+                            { "$ref": "#/definitions/pushButtonDescriptor" },
+                            { "$ref": "#/definitions/radioButtonDescriptor" },
+                            { "$ref": "#/definitions/scene3DViewDescriptor" },
+                            { "$ref": "#/definitions/spinnerDescriptor" },
+                            { "$ref": "#/definitions/superRangeDescriptor" },
+                            { "$ref": "#/definitions/textEditDescriptor" },
+                            { "$ref": "#/definitions/textEditorDescriptor" },
+                            { "$ref": "#/definitions/toggleButtonDescriptor" },
+                            { "$ref": "#/definitions/layoutSplitterDescriptor" },
+                            { "$ref": "#/definitions/treeDescriptor" },
+                            { "$ref": "#/definitions/dockWidgetAreaDescriptor" },
+                            { "$ref": "#/definitions/windowLessViewDescriptor" }
+                        ]
+                    }
+                },
+                "Layouts": {
+                    "type": "object",
+                    "description": "The dialog definitions.",
+                    "properties": {
+                        "Settings": {
+                            "type": "array",
+                            "description": "The settings dialog definitions.",
+                            "items": {
+                                "$ref": "#/definitions/anchorLayoutDefinition",
+                                "required": [ "Width", "Height" ]
+                            }
+                        }
+                    },
+                    "required": [ "Settings" ],
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "Version",
+                "Type",
+                "RootWidget",
+                "Widgets",
+                "Layouts"
+            ],
+            "additionalProperties": false
+        },
+        "wafm": {
+            "anyOf": [
+                {
+                    "type": "object",
+                    "description": "The inline WAFM definition with template name as key.",
+                    "patternProperties": {
+                        "^[a-zA-Z][a-zA-Z0-9_]+(\\.[a-zA-Z][a-zA-Z0-9_]+)*$": {
+                            "$ref": "#/definitions/wafmDefinition",
+                            "description": "The inline WAFM definition."
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                {
+                    "type": "object",
+                    "description": "The inline WAFM definition with template name as attribute.",
+                    "properties": {
+                        "template": {
+                            "type": "string",
+                            "description": "The name of the template.",
+                            "pattern": "^[a-zA-Z][a-zA-Z0-9_]+(\\.[a-zA-Z][a-zA-Z0-9_]+)*$"
+                        },
+                        "definition": {
+                            "$ref": "#/definitions/wafmDefinition",
+                            "description": "The inline WAFM definition."
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            ]
+        }
+    }
+}

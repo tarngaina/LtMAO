@@ -1,0 +1,101 @@
+{
+    "version": 1,
+    "functions": [
+        {
+            "id": "ak.wwise.core.soundbank.getInclusions",
+            "restrict": [
+                "userInterface",
+                "commandLine"
+            ],
+            "seeAlso": [
+                "ak.wwise.core.soundbank.setInclusions"
+            ],
+            "description": "Retrieves a SoundBank's inclusion list.",
+            "argsSchema": {
+                "type": "object",
+                "properties": {
+                    "soundbank": {
+                        "$ref": "waapi_definitions.json#/definitions/objectArg",
+                        "description": "The ID (GUID), name, or path of the SoundBank to add an inclusion to."
+                    }
+                },
+                "required": [
+                    "soundbank"
+                ],
+                "additionalProperties": false
+            },
+            "resultSchema": {
+                "type": "object",
+                "properties": {
+                    "inclusions": {
+                        "type": "array",
+                        "description": "An array of inclusions.",
+                        "items": {
+                            "type": "object",
+                            "description": "A SoundBank inclusion.",
+                            "properties": {
+                                "object": {
+                                    "$ref": "common_definitions.json#/definitions/guid",
+                                    "description": "The ID (GUID) of the object to add to / remove from the SoundBank's inclusion list."
+                                },
+                                "filter": {
+                                    "type": "array",
+                                    "description": "Specifies what relations are being included.",
+                                    "maxItems": 3,
+                                    "items": {
+                                        "type": "string",
+                                        "description": "Specifies one of the inclusion types.",
+                                        "enum": [
+                                            "events",
+                                            "structures",
+                                            "media"
+                                        ]
+                                    }
+                                }
+                            },
+                            "required": [
+                                "object",
+                                "filter"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "optionsSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "examples": [
+                {
+                    "title": "Retrieving a SoundBank's inclusion list",
+                    "description": "Gets a SoundBank's inclusion list.",
+                    "args": {
+                        "soundbank": "{A076AA65-B71A-45BB-8841-5A20C52CE727}"
+                    },
+                    "result": {
+                        "inclusions": [
+                            {
+                                "object": "{1111AAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}",
+                                "filter": [
+                                    "events"
+                                ]
+                            },
+                            {
+                                "object": "{2222AAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}",
+                                "filter": [
+                                    "structures",
+                                    "media"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "topics": [],
+    "validators": []
+}
