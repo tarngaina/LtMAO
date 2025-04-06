@@ -50,7 +50,7 @@ def dump_skl(fbx_joints):
     # prepare
     joint_count = len(fbx_joints)
     if joint_count > 256:
-        raise Exception(f'lemon_fbx: Faield: Too many joints found: {joint_count}, max: 256')
+        raise Exception(f'lemon_fbx: Error: Too many joints found: {joint_count}, max: 256')
     skl = SKL()
     skl.joints = [SKLJoint() for i in range(joint_count)]
     # dump joint infos

@@ -486,7 +486,7 @@ def add_vfx_emitters(src_bin, dst_bin):
                     # merge 2 list 
                     emitters_copied += len(src_complexEmitterDefinitionData.data)
                     dst_complexEmitterDefinitionData.data += src_complexEmitterDefinitionData.data
-    print(f'hapiBin: Done: Copy {emitters_copied} emitters.')   
+    print(f'hapiBin: Finish: Copy {emitters_copied} emitters.')   
 
 
 @Helper.create_qt_data(

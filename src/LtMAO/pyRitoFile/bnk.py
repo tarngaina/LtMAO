@@ -272,6 +272,16 @@ class BNK:
                             container.switch_container_id, _ = BNKHelper.skip_base_params(bs, self.bkhd.version)
                             bs.pad(24)
                             container.sound_ids = bs.read_u32(bs.read_u32()[0])
+                        elif obj.type == BNKObjectType.SwitchContainer:
+                            container = obj.data
+                            container.parent_id = BNKHelper.skip_base_params(bs, self.bkhd.version)
+                            container.group_type, = bs.read_u8()
+                            if self.bkhd.version <= 0x59: bs.pad(3)
+                            container.group_id, = bs.read_u32()
+                            bs.pad(5)
+                            child_count, = bs.read_u32()
+                            container.child_ids = bs.read_u32(child_count)
+
                         elif obj.type in (BNKObjectType.MusicSegment, BNKObjectType.MusicPlaylistContainer):
                             segment = obj.data
                             bs.pad(1)

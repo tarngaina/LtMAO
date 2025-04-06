@@ -72,14 +72,14 @@ class CLI:
 
     @staticmethod
     def lfi(src):
-        from LtMAO import leaguefile_inspector, hash_helper
+        from LtMAO import hash_helper, file_inspector
         hash_helper.read_all_hashes()
-        path, size, type, json = leaguefile_inspector.read_lfi(
-            src, hash_helper.HASHTABLES)
+        json = file_inspector.to_json(src, hash_helper.HASHTABLES)
+        hash_helper.free_all_hashes()
         dst = src + '.json'
         with open(dst, 'w+') as f:
-            f.write(json if json != None else '{}')
-        hash_helper.free_all_hashes()
+            f.write(json)
+        
 
     @staticmethod
     def uvee(src):

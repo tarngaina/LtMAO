@@ -12,6 +12,7 @@ from . import helper
 from . import stream
 from json import dump, dumps, JSONEncoder
 
+GOOD_TYPES_CLASS = [SKL, SKN, SO, ANM, MAPGEO, BIN, BNK, WPK, TEX, WAD]
 
 class PRFEncoder(JSONEncoder):
     def default(self, obj):
@@ -22,18 +23,15 @@ class PRFEncoder(JSONEncoder):
         else:
             return JSONEncoder.default(self, obj)
 
-
 def write_json(path, obj):
-    good_types = [SKL, SKN, SO, ANM, MAPGEO, BIN, BNK, WPK, TEX, WAD]
     with open(path, 'w+') as f:
-        for good_type in good_types:
+        for good_type in GOOD_TYPES_CLASS:
             if isinstance(obj, good_type):
                 dump(obj, f, indent=4, cls=PRFEncoder)
 
 
 def to_json(obj):
-    good_types = [SKL, SKN, SO, ANM, MAPGEO, BIN, BNK, WPK, TEX, WAD]
-    for good_type in good_types:
+    for good_type in GOOD_TYPES_CLASS:
         if isinstance(obj, good_type):
             return dumps(obj, indent=4, cls=PRFEncoder)
         

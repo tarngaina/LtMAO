@@ -181,7 +181,7 @@ class Context:
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.LFI',
-                cmd_desc='leaguefile_inspector: Print infos as JSON',
+                cmd_desc='file_inspector: Print infos as JSON',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="lfi" -src="%V"'
             )
             # UVEE

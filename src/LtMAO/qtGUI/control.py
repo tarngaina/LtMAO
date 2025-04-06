@@ -88,6 +88,26 @@ all = [
 def build_cslmao(widget: QWidget):
     layout = QVBoxLayout()
     # setting bar
+    setting_layout = QVBoxLayout()
+    setting_layout.setContentsMargins(0, 0, 0, 0)
+
+    hide_layout = QHBoxLayout()
+    hide_layout.setContentsMargins(0, 0, 0, 0)
+    hide_layout.addStretch()
+    show_setting_button = QToolButton()
+    show_setting_button.setText('⚙️ Show settings')
+    hide_layout.addWidget(show_setting_button)
+
+
+    show_layout = QVBoxLayout()
+    show_layout.setContentsMargins(0, 0, 0, 0)
+    layout2 = QHBoxLayout()
+    layout2.addStretch()
+    hide_setting_button = QToolButton()
+    hide_setting_button.setText('❌ Hide settings')
+    layout2.addWidget(hide_setting_button)
+    show_layout.addLayout(layout2)
+    # game folder and diagnose
     layout2 = QHBoxLayout()
     button = QToolButton()
     button.setText('🎮 Select Game Folder')
@@ -112,20 +132,69 @@ def build_cslmao(widget: QWidget):
             setting.save()
             label.setText(final_path)
     button.clicked.connect(lambda event: select_game_folder(label))
-
+    button = QToolButton()
+    button.setText('🩺 Diagnose problem') 
+    button.clicked.connect(cslmao.diagnose)
+    layout2.addWidget(button)
+    show_layout.addLayout(layout2)
+    # tft
+    layout2 = QHBoxLayout()
     checkbox = QCheckBox()
-    checkbox.setText('🕹️ TFT and other modes')
+    checkbox.setText('🕹️ Enable TFT and other modes')
     checkbox.setChecked(setting.get('cslmao.tft', False))
     def tft_cmd():
         setting.set('cslmao.tft', checkbox.isChecked())
         setting.save()
     checkbox.clicked.connect(tft_cmd)
     layout2.addWidget(checkbox)
-    button = QToolButton()
-    button.setText('🩺 Diagnose') 
-    button.clicked.connect(cslmao.diagnose)
-    layout2.addWidget(button)
-    layout.addLayout(layout2)
+    layout2.addStretch()
+    show_layout.addLayout(layout2)
+    # auto py to bin
+    layout2 = QHBoxLayout()
+    checkbox = QCheckBox()
+    checkbox.setText('📝 Auto convert all PY to BIN before run')
+    checkbox.setChecked(setting.get('cslmao.auto_py2bin', False))
+    def py2bin_cmd():
+        setting.set('cslmao.auto_py2bin', checkbox.isChecked())
+        setting.save()
+    checkbox.clicked.connect(py2bin_cmd)
+    layout2.addWidget(checkbox)
+    layout2.addStretch()
+    show_layout.addLayout(layout2)
+    # auto dds to tex
+    layout2 = QHBoxLayout()
+    checkbox = QCheckBox()
+    checkbox.setText('🌌 Auto convert all DDS to TEX before run')
+    checkbox.setChecked(setting.get('cslmao.auto_dds2tex', False))
+    def dds2tex_cmd():
+        setting.set('cslmao.auto_dds2tex', checkbox.isChecked())
+        setting.save()
+    checkbox.clicked.connect(dds2tex_cmd)
+    layout2.addWidget(checkbox)
+    layout2.addStretch()
+    show_layout.addLayout(layout2)
+
+    hide_widget = QWidget()
+    hide_widget.setStyleSheet(qtwidgets.tab_stylesheet)
+    hide_widget.setLayout(hide_layout)
+    setting_layout.addWidget(hide_widget)
+    def show_setting_cmd():
+        hide_widget.setVisible(False)
+        show_widget.setVisible(True)
+    show_setting_button.clicked.connect(show_setting_cmd)
+
+    show_widget = QWidget()
+    show_widget.setStyleSheet(qtwidgets.tab_stylesheet)
+    show_widget.setLayout(show_layout)
+    show_widget.setVisible(False)
+    setting_layout.addWidget(show_widget)
+    def hide_setting_cmd():
+        hide_widget.setVisible(True)
+        show_widget.setVisible(False)
+    hide_setting_button.clicked.connect(hide_setting_cmd)
+
+    layout.addLayout(setting_layout)
+    
     # action bar
     layout2 = QHBoxLayout()
     run_button = QToolButton()
@@ -404,6 +473,9 @@ def build_cslmao(widget: QWidget):
             return
         if qtwidgets.make_overlay == None and qtwidgets.run_overlay == None:
             def run_thrd():
+                # convert files before we run
+                cslmao.convert_raw_files_before_run()
+                # run
                 profile = setting.get('Cslmao.profile', 'all')
                 qtwidgets.make_overlay = p = cslmao.make_overlay(
                     profile)

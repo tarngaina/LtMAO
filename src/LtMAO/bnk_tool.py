@@ -10,9 +10,6 @@ from shutil import rmtree
 from threading import Thread
 import pyaudio, wave
 
-def to_human(size): return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) + \
-    ["", " KB", " MB", " GB", " TB", " PB",
-        " EB"][max(size.bit_length()-1, 0)//10]
 
 class BankTree:
     __slots__ = ('events', 'wems')
@@ -42,273 +39,292 @@ class BankWem:
     def __init__(self, id):
         self.id = id
 
+class BankHelper:
+    @staticmethod
+    def to_human(size): 
+        return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) +  ["", " KB", " MB", " GB", " TB", " PB", " EB"][max(size.bit_length()-1, 0)//10]
+    
+    @staticmethod
+    def parse_audio_bnk(audio_bnk):
+        if audio_bnk.didx == None:
+            raise Exception(
+                'bnk_tool: Error: Extract BNK: No DIDX section found in audio BNK.')
+        if audio_bnk.data == None:
+            raise Exception(
+                'bnk_tool: Error: Extract BNK: No DATA section found in audio BNK.')
+        return audio_bnk.didx, audio_bnk.data
 
-def parse_audio_bnk(audio_bnk):
-    if audio_bnk.didx == None:
-        raise Exception(
-            'bnk_tool: Error: Extract BNK: No DIDX section found in audio BNK.')
-    if audio_bnk.data == None:
-        raise Exception(
-            'bnk_tool: Error: Extract BNK: No DATA section found in audio BNK.')
-    return audio_bnk.didx, audio_bnk.data
+    @staticmethod
+    def parse_events_bnk(events_bnk):
+        if events_bnk.hirc == None:
+            raise Exception(
+                'bnk_tool: Error: Extract BNK: No HIRC section found in events BNK.')
+        hirc = events_bnk.hirc
+        map_bnk_objects = {}
+        # yes only map wat we want to easy debug, its hell
+        bnk_obj_types_need_to_be_mapped = [
+            BNKObjectType.Sound,
+            BNKObjectType.Event,
+            BNKObjectType.Action,
+            BNKObjectType.RandomOrSequenceContainer,
+            BNKObjectType.SwitchContainer,
+            BNKObjectType.MusicSegment,
+            BNKObjectType.MusicTrack,
+            BNKObjectType.MusicPlaylistContainer,
+            BNKObjectType.MusicSwitchContainer
+        ]
+        for object_type in bnk_obj_types_need_to_be_mapped:
+            map_bnk_objects[object_type] = {}
+        for obj in hirc.objects:
+            if obj.type in bnk_obj_types_need_to_be_mapped:
+                map_bnk_objects[obj.type][obj.id] = obj.data
+            
+        return map_bnk_objects
 
-
-def parse_events_bnk(events_bnk):
-    if events_bnk.hirc == None:
-        raise Exception(
-            'bnk_tool: Error: Extract BNK: No HIRC section found in events BNK.')
-    hirc = events_bnk.hirc
-    map_bnk_objects = {}
-    bnk_obj_types_need_to_be_mapped = [
-        BNKObjectType.Sound,
-        BNKObjectType.Event,
-        BNKObjectType.Action,
-        BNKObjectType.RandomOrSequenceContainer,
-        BNKObjectType.MusicSegment,
-        BNKObjectType.MusicTrack,
-        BNKObjectType.MusicPlaylistContainer,
-        BNKObjectType.MusicSwitchContainer
-    ]
-    for object_type in bnk_obj_types_need_to_be_mapped:
-        map_bnk_objects[object_type] = {}
-    for obj in hirc.objects:
-        if obj.type in bnk_obj_types_need_to_be_mapped:
-            map_bnk_objects[obj.type][obj.id] = obj.data
-        
-    return map_bnk_objects
-
-
-def parse_bin(bin):
-    event_names_by_id = {}
-    # parse skin bin
-    SkinCharacterDataProperties = BINHelper.find_item(
-        items=bin.entries,
-        compare_func=lambda entry: entry.type == cached_bin_hashes['SkinCharacterDataProperties']
-    )
-    if SkinCharacterDataProperties != None:
-        skinAudioProperties = BINHelper.find_item(
-            items=SkinCharacterDataProperties.data,
-            compare_func=lambda field: field.hash == cached_bin_hashes['skinAudioProperties']
+    @staticmethod
+    def parse_bin(bin):
+        map_event_namnes = {}
+        # parse skin bin
+        SkinCharacterDataProperties = BINHelper.find_item(
+            items=bin.entries,
+            compare_func=lambda entry: entry.type == cached_bin_hashes['SkinCharacterDataProperties']
         )
-        if skinAudioProperties != None:
-            bankUnits = BINHelper.find_item(
-                items=skinAudioProperties.data,
-                compare_func=lambda field: field.hash == cached_bin_hashes['bankUnits']
+        if SkinCharacterDataProperties != None:
+            skinAudioProperties = BINHelper.find_item(
+                items=SkinCharacterDataProperties.data,
+                compare_func=lambda field: field.hash == cached_bin_hashes['skinAudioProperties']
             )
-            if bankUnits != None and len(bankUnits.data) > 0:
-                for BankUnit in bankUnits.data:
-                    events = BINHelper.find_item(
-                        items=BankUnit.data,
-                        compare_func=lambda field: field.hash == cached_bin_hashes['events']
+            if skinAudioProperties != None:
+                bankUnits = BINHelper.find_item(
+                    items=skinAudioProperties.data,
+                    compare_func=lambda field: field.hash == cached_bin_hashes['bankUnits']
+                )
+                if bankUnits != None and len(bankUnits.data) > 0:
+                    for BankUnit in bankUnits.data:
+                        events = BINHelper.find_item(
+                            items=BankUnit.data,
+                            compare_func=lambda field: field.hash == cached_bin_hashes['events']
+                        )
+                        if events == None:
+                            continue
+                        for event in events.data:
+                            map_event_namnes[FNV1(event)] = event
+        # parse feature bin
+        FeatureAudioDataPropertiesCollection = BINHelper.find_items(
+            items=bin.entries,
+            compare_func=lambda entry: entry.type == cached_bin_hashes['FeatureAudioDataProperties']
+        )
+        if len(FeatureAudioDataPropertiesCollection) > 0:
+            for FeatureAudioDataProperties in FeatureAudioDataPropertiesCollection:
+                if FeatureAudioDataProperties != None:
+                    bankUnitsCollection = BINHelper.find_items(
+                        items=FeatureAudioDataProperties.data,
+                        compare_func=lambda field: field.hash == cached_bin_hashes['bankUnits']
                     )
-                    if events == None:
+                    if len(bankUnitsCollection) > 0:
+                        for bankUnits in bankUnitsCollection:
+                            if bankUnits != None and len(bankUnits.data) > 0:
+                                for BankUnit in bankUnits.data:
+                                    events = BINHelper.find_item(
+                                        items=BankUnit.data,
+                                        compare_func=lambda field: field.hash == cached_bin_hashes['events']
+                                    )
+                                    if events == None:
+                                        continue
+                                    for event in events.data:
+                                        map_event_namnes[FNV1(event)] = event
+        # parse map bin
+        MapAudioDataPropertiesCollection = BINHelper.find_items(
+            items=bin.entries,
+            compare_func=lambda entry: entry.type == cached_bin_hashes['MapAudioDataProperties']
+        )
+        if len(MapAudioDataPropertiesCollection) > 0:
+            for MapAudioDataProperties in MapAudioDataPropertiesCollection:
+                if MapAudioDataProperties != None:
+                    bankUnitsCollection = BINHelper.find_items(
+                        items=MapAudioDataProperties.data,
+                        compare_func=lambda field: field.hash == cached_bin_hashes['bankUnits']
+                    )
+                    if len(bankUnitsCollection) > 0:
+                        for bankUnits in bankUnitsCollection:
+                            if bankUnits != None and len(bankUnits.data) > 0:
+                                for BankUnit in bankUnits.data:
+                                    events = BINHelper.find_item(
+                                        items=BankUnit.data,
+                                        compare_func=lambda field: field.hash == cached_bin_hashes['events']
+                                    )
+                                    if events == None:
+                                        continue
+                                    for event in events.data:
+                                        map_event_namnes[FNV1(event)] = event
+        return map_event_namnes
+
+    @staticmethod
+    def parse_bank_tree(map_bnk_objects, existed_wems):
+        bank_tree = BankTree()
+        for event_id, event in map_bnk_objects[BNKObjectType.Event].items():
+            bank_tree.events[event_id] = bank_event = BankEvent(event_id)
+            for action_id in event.action_ids:
+                action = map_bnk_objects[BNKObjectType.Action][action_id]
+                if hasattr(action, 'object_id'):
+                    if action.type != 4: # play 
                         continue
-                    for event in events.data:
-                        event_names_by_id[FNV1(event)] = event
-    # parse feature bin
-    FeatureAudioDataPropertiesCollection = BINHelper.find_items(
-        items=bin.entries,
-        compare_func=lambda entry: entry.type == cached_bin_hashes['FeatureAudioDataProperties']
-    )
-    if len(FeatureAudioDataPropertiesCollection) > 0:
-        for FeatureAudioDataProperties in FeatureAudioDataPropertiesCollection:
-            if FeatureAudioDataProperties != None:
-                bankUnitsCollection = BINHelper.find_items(
-                    items=FeatureAudioDataProperties.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes['bankUnits']
-                )
-                if len(bankUnitsCollection) > 0:
-                    for bankUnits in bankUnitsCollection:
-                        if bankUnits != None and len(bankUnits.data) > 0:
-                            for BankUnit in bankUnits.data:
-                                events = BINHelper.find_item(
-                                    items=BankUnit.data,
-                                    compare_func=lambda field: field.hash == cached_bin_hashes['events']
-                                )
-                                if events == None:
+
+                    # if action link to ranseq container object
+                    if action.object_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
+                        container = map_bnk_objects[BNKObjectType.RandomOrSequenceContainer][action.object_id]
+                        for sound_id in container.sound_ids: 
+                            # it not actually a sound object, can point to a blend container too
+                            # thats why we check if its in sounds
+                            if sound_id in map_bnk_objects[BNKObjectType.Sound]: 
+                                wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
+                                if wem_id not in existed_wems:
                                     continue
-                                for event in events.data:
-                                    event_names_by_id[FNV1(event)] = event
-    # parse map bin
-    MapAudioDataPropertiesCollection = BINHelper.find_items(
-        items=bin.entries,
-        compare_func=lambda entry: entry.type == cached_bin_hashes['MapAudioDataProperties']
-    )
-    if len(MapAudioDataPropertiesCollection) > 0:
-        for MapAudioDataProperties in MapAudioDataPropertiesCollection:
-            if MapAudioDataProperties != None:
-                bankUnitsCollection = BINHelper.find_items(
-                    items=MapAudioDataProperties.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes['bankUnits']
-                )
-                if len(bankUnitsCollection) > 0:
-                    for bankUnits in bankUnitsCollection:
-                        if bankUnits != None and len(bankUnits.data) > 0:
-                            for BankUnit in bankUnits.data:
-                                events = BINHelper.find_item(
-                                    items=BankUnit.data,
-                                    compare_func=lambda field: field.hash == cached_bin_hashes['events']
-                                )
-                                if events == None:
-                                    continue
-                                for event in events.data:
-                                    event_names_by_id[FNV1(event)] = event
-    return event_names_by_id
+                                # check if wem already in containers, if not add to non containers
+                                new_wem = True                 
+                                for bank_container in bank_event.containers:
+                                    if wem_id in bank_container.wems:
+                                        new_wem = False
+                                        break
+                                if new_wem:
+                                    bank_event.wems[wem_id] = BankWem(wem_id)
+                                
+                    # if action link to sound object
+                    if action.object_id in map_bnk_objects[BNKObjectType.Sound]:
+                        wem_id = map_bnk_objects[BNKObjectType.Sound][action.object_id].wem_id
+                        if wem_id not in existed_wems:
+                            continue
+                        # check if wem already in containers, if not add to non containers
+                        new_wem = True                 
+                        for bank_container in bank_event.containers:
+                            if wem_id in bank_container.wems:
+                                new_wem = False
+                                break
+                        if new_wem:
+                            bank_event.wems[wem_id] = BankWem(wem_id)
 
-
-def parse_bank_tree(map_bnk_objects, existed_wems):
-    bank_tree = BankTree()
-    for event_id, event in map_bnk_objects[BNKObjectType.Event].items():
-        bank_tree.events[event_id] = bank_event = BankEvent(event_id)
-        for action_id in event.action_ids:
-            action = map_bnk_objects[BNKObjectType.Action][action_id]
-            if hasattr(action, 'object_id'):
-                if action.type != 4: # play 
-                    continue
-
-                # if action link to ranseq container object
-                if action.object_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
-                    container = map_bnk_objects[BNKObjectType.RandomOrSequenceContainer][action.object_id]
-                    for sound_id in container.sound_ids: 
-                        # it not actually a sound object, can point to a blend container too
-                        # thats why we check if its in sounds
-                        if sound_id in map_bnk_objects[BNKObjectType.Sound]: 
-                            wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
-                            if wem_id not in existed_wems:
-                                continue
-                            # check if wem already in containers, if not add to non containers
-                            new_wem = True                 
-                            for bank_container in bank_event.containers:
-                                if wem_id in bank_container.wems:
-                                    new_wem = False
-                                    break
-                            if new_wem:
-                                bank_event.wems[wem_id] = BankWem(wem_id)
-                            
-                # if action link to sound object
-                if action.object_id in map_bnk_objects[BNKObjectType.Sound]:
-                    wem_id = map_bnk_objects[BNKObjectType.Sound][action.object_id].wem_id
-                    if wem_id not in existed_wems:
-                        continue
-                    # check if wem already in containers, if not add to non containers
-                    new_wem = True                 
-                    for bank_container in bank_event.containers:
-                        if wem_id in bank_container.wems:
-                            new_wem = False
-                            break
-                    if new_wem:
-                        bank_event.wems[wem_id] = BankWem(wem_id)
-
-                # if action link to a ranseq container object switch container 
-                for container_id, container in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer].items():
-                    if container.switch_container_id == action.object_id:
-                        for sound_id in container.sound_ids:
-                            wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
-                            if wem_id not in existed_wems:
-                                continue
-                            # create container if need
-                            if container_id not in bank_event.containers:
-                                bank_event.containers[container_id] = BankContainer(container_id)
-                            # add wem to container
-                            bank_container = bank_event.containers[container_id]
-                            if wem_id not in bank_container.wems:
-                                bank_container.wems[wem_id] = BankWem(wem_id)
-                            # remove wem if they in non containers 
-                            if wem_id in bank_event.wems:
-                                bank_event.wems.pop(wem_id)
-
-                # if action link to a music segment sound id   
-                if action.object_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer]:
-                    for music_track_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer][action.object_id].music_track_ids:
-                        if music_track_id in map_bnk_objects[BNKObjectType.MusicSegment]:
-                            music_segment_id = music_track_id
-                            for real_music_track_id in map_bnk_objects[BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
-                                for wem_id in map_bnk_objects[BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
+                    # if action link to a switch container 
+                    # switch container child point to ranseq container
+                    # list wem inside ranseq container sounds
+                    if action.object_id in map_bnk_objects[BNKObjectType.SwitchContainer]:
+                        switch_container = map_bnk_objects[BNKObjectType.SwitchContainer][action.object_id]
+                        for child_id in switch_container.child_ids:
+                            if child_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
+                                ranseq_container = map_bnk_objects[BNKObjectType.RandomOrSequenceContainer][child_id]
+                                for sound_id in ranseq_container.sound_ids:
+                                    wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
                                     if wem_id not in existed_wems:
                                         continue
                                     # create container if need
-                                    if music_segment_id not in bank_event.containers:
-                                        bank_event.containers[music_segment_id] = BankContainer(music_segment_id)
+                                    if child_id not in bank_event.containers:
+                                        bank_event.containers[child_id] = BankContainer(child_id)
                                     # add wem to container
-                                    bank_container = bank_event.containers[music_segment_id]
+                                    bank_container = bank_event.containers[child_id]
                                     if wem_id not in bank_container.wems:
                                         bank_container.wems[wem_id] = BankWem(wem_id)
                                     # remove wem if they in non containers 
                                     if wem_id in bank_event.wems:
                                         bank_event.wems.pop(wem_id)
 
-                # if action link to a music switch container  
-                if action.object_id in map_bnk_objects[BNKObjectType.MusicSwitchContainer]:
-                    def find_music_playlist_container_child(switch_container_id):
-                        switch_container = map_bnk_objects[BNKObjectType.MusicSwitchContainer][switch_container_id]
-                        for child_id in switch_container.child_ids:
-                            if child_id in map_bnk_objects[BNKObjectType.MusicSwitchContainer]:
-                                find_music_playlist_container_child(child_id)
-                            elif child_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer]:
-                                music_playlist_container = map_bnk_objects[BNKObjectType.MusicPlaylistContainer][child_id]
-                                for music_track_id in music_playlist_container.music_track_ids:
-                                    if music_track_id in map_bnk_objects[BNKObjectType.MusicSegment]:
-                                        music_segment_id = music_track_id
-                                        for real_music_track_id in map_bnk_objects[BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
-                                            for wem_id in map_bnk_objects[BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
-                                                if wem_id not in existed_wems:
-                                                    continue
-                                                # create container if need
-                                                if child_id not in bank_event.containers:
-                                                    bank_event.containers[child_id] = BankContainer(child_id)
-                                                # add wem to container
-                                                bank_container = bank_event.containers[child_id]
-                                                if wem_id not in bank_container.wems:
-                                                    bank_container.wems[wem_id] = BankWem(wem_id)
-                                                # remove wem if they in non containers 
-                                                if wem_id in bank_event.wems:
-                                                    bank_event.wems.pop(wem_id)    
+                    # if action link to a music playlist container
+                    # music tracks of music playlist container could point to music segment 
+                    # list wem inside those segments 
+                    if action.object_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer]:
+                        for music_track_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer][action.object_id].music_track_ids:
+                            if music_track_id in map_bnk_objects[BNKObjectType.MusicSegment]:
+                                music_segment_id = music_track_id
+                                for real_music_track_id in map_bnk_objects[BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
+                                    for wem_id in map_bnk_objects[BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
+                                        if wem_id not in existed_wems:
+                                            continue
+                                        # create container if need
+                                        if music_segment_id not in bank_event.containers:
+                                            bank_event.containers[music_segment_id] = BankContainer(music_segment_id)
+                                        # add wem to container
+                                        bank_container = bank_event.containers[music_segment_id]
+                                        if wem_id not in bank_container.wems:
+                                            bank_container.wems[wem_id] = BankWem(wem_id)
+                                        # remove wem if they in non containers 
+                                        if wem_id in bank_event.wems:
+                                            bank_event.wems.pop(wem_id)
 
-                    find_music_playlist_container_child(action.object_id)
+                    # if action link to a music switch container  
+                    # music switch container can have another music switch container as child
+                    # keep dfs the child until the child appear as music playlist container
+                    # list all wems inside music play list container same method as above
+                    if action.object_id in map_bnk_objects[BNKObjectType.MusicSwitchContainer]:
+                        def find_music_playlist_container_child(switch_container_id):
+                            switch_container = map_bnk_objects[BNKObjectType.MusicSwitchContainer][switch_container_id]
+                            for child_id in switch_container.child_ids:
+                                if child_id in map_bnk_objects[BNKObjectType.MusicSwitchContainer]:
+                                    find_music_playlist_container_child(child_id)
+                                elif child_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer]:
+                                    music_playlist_container = map_bnk_objects[BNKObjectType.MusicPlaylistContainer][child_id]
+                                    for music_track_id in music_playlist_container.music_track_ids:
+                                        if music_track_id in map_bnk_objects[BNKObjectType.MusicSegment]:
+                                            music_segment_id = music_track_id
+                                            for real_music_track_id in map_bnk_objects[BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
+                                                for wem_id in map_bnk_objects[BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
+                                                    if wem_id not in existed_wems:
+                                                        continue
+                                                    # create container if need
+                                                    if child_id not in bank_event.containers:
+                                                        bank_event.containers[child_id] = BankContainer(child_id)
+                                                    # add wem to container
+                                                    bank_container = bank_event.containers[child_id]
+                                                    if wem_id not in bank_container.wems:
+                                                        bank_container.wems[wem_id] = BankWem(wem_id)
+                                                    # remove wem if they in non containers 
+                                                    if wem_id in bank_event.wems:
+                                                        bank_event.wems.pop(wem_id)    
 
-    # list music track wems that dont link to anything????
-    for music_track_id, music_track in map_bnk_objects[BNKObjectType.MusicTrack].items():
-        for wem_id in music_track.wem_ids:
-            if wem_id not in existed_wems:
-                continue
-            new_wem = True
-            for event_id in bank_tree.events:
-                bank_event = bank_tree.events[event_id]
-                for container_id in bank_event.containers:
-                    bank_container = bank_event.containers[container_id]
-                    if wem_id in bank_container.wems:
-                        new_wem = False
-            if new_wem and wem_id not in bank_tree.wems:
-                bank_tree.wems[wem_id] = BankWem(wem_id)
-    # clean up empty event           
-    empty_event_ids = []                 
-    for event_id in bank_tree.events:
-        if len(bank_tree.events[event_id].containers) == 0 and len(bank_tree.events[event_id].wems) == 0:
-            empty_event_ids.append(event_id)
-    for event_id in empty_event_ids:
-        bank_tree.events.pop(event_id)
-    return bank_tree
+                        find_music_playlist_container_child(action.object_id)
 
-def unhash_bank_tree(bank_tree, event_names_by_id):
-    for event_id, event_name in event_names_by_id.items():
-        if event_id in bank_tree.events:
-            bank_tree.events[event_name] = bank_tree.events.pop(event_id)
+        # list music track wems that dont link to anything????
+        for music_track_id, music_track in map_bnk_objects[BNKObjectType.MusicTrack].items():
+            for wem_id in music_track.wem_ids:
+                if wem_id not in existed_wems:
+                    continue
+                new_wem = True
+                for event_id in bank_tree.events:
+                    bank_event = bank_tree.events[event_id]
+                    for container_id in bank_event.containers:
+                        bank_container = bank_event.containers[container_id]
+                        if wem_id in bank_container.wems:
+                            new_wem = False
+                if new_wem and wem_id not in bank_tree.wems:
+                    bank_tree.wems[wem_id] = BankWem(wem_id)
+        # clean up empty event           
+        empty_event_ids = []                 
+        for event_id in bank_tree.events:
+            if len(bank_tree.events[event_id].containers) == 0 and len(bank_tree.events[event_id].wems) == 0:
+                empty_event_ids.append(event_id)
+        for event_id in empty_event_ids:
+            bank_tree.events.pop(event_id)
+        return bank_tree
 
-def sort_bank_tree(bank_tree):
-    for event_id in bank_tree.events:
-        bank_event = bank_tree.events[event_id]
-        for container_id in bank_event.containers:
-            bank_container = bank_event.containers[container_id]
-            # sort wems inside container
-            bank_container.wems = dict(os_sorted(bank_container.wems.items()))
-        # sort containers inside event
-        bank_event.containers = dict(os_sorted(bank_event.containers.items()))
-        # sort wems inside event
-        bank_event.wems = dict(os_sorted(bank_event.wems.items()))
-    # sort events inside tree
-    bank_tree.events = dict(os_sorted(bank_tree.events.items()))
-    # sort wems inside tree
-    bank_tree.wems = dict(os_sorted(bank_tree.wems.items()))
+    @staticmethod
+    def unhash_bank_tree(bank_tree, event_names_by_id):
+        for event_id, event_name in event_names_by_id.items():
+            if event_id in bank_tree.events:
+                bank_tree.events[event_name] = bank_tree.events.pop(event_id)
+
+    @staticmethod
+    def sort_bank_tree(bank_tree):
+        for event_id in bank_tree.events:
+            bank_event = bank_tree.events[event_id]
+            for container_id in bank_event.containers:
+                bank_container = bank_event.containers[container_id]
+                # sort wems inside container
+                bank_container.wems = dict(os_sorted(bank_container.wems.items()))
+            # sort containers inside event
+            bank_event.containers = dict(os_sorted(bank_event.containers.items()))
+            # sort wems inside event
+            bank_event.wems = dict(os_sorted(bank_event.wems.items()))
+        # sort events inside tree
+        bank_tree.events = dict(os_sorted(bank_tree.events.items()))
+        # sort wems inside tree
+        bank_tree.wems = dict(os_sorted(bank_tree.wems.items()))
 
 class Inspector:
     cache_dir = './pref/bnk_tool'
@@ -325,23 +341,23 @@ class Inspector:
         self.is_bnk = True if audio_path.endswith('.bnk') else False
         if self.is_bnk:
             self.audio = read_bnk(audio_path)
-            self.didx, self.data = parse_audio_bnk(self.audio)
+            self.didx, self.data = BankHelper.parse_audio_bnk(self.audio)
             self.wems = self.didx.wems
         else:
             self.audio = read_wpk(audio_path)
             self.wems = self.audio.wems
         # parse events.bnk
         events_bnk = read_bnk(events_path)
-        map_bnk_objects = parse_events_bnk(events_bnk)
+        map_bnk_objects = BankHelper.parse_events_bnk(events_bnk)
         # parse bin
-        event_names_by_id = {}
+        map_event_namnes = {}
         if bin_path != '':
             bin = read_bin(bin_path)
-            event_names_by_id = parse_bin(bin)
+            map_event_namnes = BankHelper.parse_bin(bin)
         # parse bank tree
-        self.bank_tree = parse_bank_tree(map_bnk_objects, [wem.id for wem in self.wems])
-        unhash_bank_tree(self.bank_tree, event_names_by_id)
-        sort_bank_tree(self.bank_tree)
+        self.bank_tree = BankHelper.parse_bank_tree(map_bnk_objects, [wem.id for wem in self.wems])
+        BankHelper.unhash_bank_tree(self.bank_tree, map_event_namnes)
+        BankHelper.sort_bank_tree(self.bank_tree)
 
     def get_wem_offset(self, wem):
         return self.data.start_offset+wem.offset if self.is_bnk else wem.offset
@@ -398,7 +414,6 @@ class Inspector:
                     tools.VGMStream.to_wav(wem_file)
                 print(f'bnk_tool: Finish: Extracted [{to_human(wem.size)}] {wem.id}.wem')
                     
-
     def unpack(self, output_dir):
         os.makedirs(output_dir, exist_ok=True)
         with self.audio.stream(self.audio_path, 'rb') as bs:
@@ -471,6 +486,5 @@ class Inspector:
         for stream in self.streams:
             stream.stop_stream()
         
-
 def init():
     os.makedirs(Inspector.cache_dir, exist_ok=True)

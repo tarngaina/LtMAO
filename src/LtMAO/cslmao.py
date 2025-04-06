@@ -2,8 +2,8 @@ import os
 import os.path
 import json
 import datetime
-from .tools import CSLOL, block_and_stream_process_output
-from . import setting
+from .tools import CSLOL, block_and_stream_process_output, RITOBIN
+from . import setting, Ritoddstex
 from shutil import rmtree, copy
 
 
@@ -177,6 +177,35 @@ def run_overlay(profile):
 
 def diagnose():
     return CSLOL.diagnose()
+
+def convert_raw_files_before_run():
+    # scan raw
+    py2bin_files = []
+    dds2tex_files = []
+    for root, dirs, files in os.walk(raw_dir):
+        for file in files:
+            if file.endswith('.py'):
+                py_file = os.path.join(root, file)
+                bin_file = py_file.replace('.py', '.bin')
+                py2bin_files.append((py_file, bin_file))
+            elif file.endswith('.dds'):
+                dds_file = os.path.join(root, file)
+                tex_file = dds_file.replace('.dds', '.tex')
+                dds2tex_files.append((dds_file, tex_file))
+    # converts
+    if setting.get('cslmao.auto_py2bin', False):
+        for py_file, bin_file in py2bin_files:
+            try:
+                RITOBIN.run(py_file, bin_file)
+            except:
+                pass
+    if setting.get('cslmao.auto_dds2tex', False):
+        for dds_file, tex_file in dds2tex_files:
+            try:
+                Ritoddstex.dds2tex(dds_file, tex_file)
+            except:
+                pass
+
 
 
 tk_add_mod = None
