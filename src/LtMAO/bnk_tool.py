@@ -1,7 +1,7 @@
 from .pyRitoFile import BNKObjectType, BINHelper, read_bnk, read_wpk, read_bin, write_bnk, write_wpk, BNK, WPK
 from .pyRitoFile.helper import FNV1
 from .hash_helper import cached_bin_hashes
-from . import tools
+from . import tools, pyRitoFile
 
 import os
 import os.path
@@ -162,6 +162,12 @@ class BankHelper:
     @staticmethod
     def parse_bank_tree(map_bnk_objects, existed_wems):
         bank_tree = BankTree()
+        # if no events file, just display all existed wems inside tree
+        if map_bnk_objects == None:
+            for wem_id in existed_wems:
+                bank_tree.wems[wem_id] = BankWem(wem_id)
+            return bank_tree
+        # parse if events file
         for event_id, event in map_bnk_objects[BNKObjectType.Event].items():
             bank_tree.events[event_id] = bank_event = BankEvent(event_id)
             for action_id in event.action_ids:
@@ -334,7 +340,7 @@ class Inspector:
         rmtree(Inspector.cache_dir, ignore_errors=True)
         os.makedirs(Inspector.cache_dir, exist_ok=True)
 
-    def __init__(self, audio_path, events_path, bin_path=''):
+    def __init__(self, audio_path, events_path='', bin_path=''):
         self.streams = []
         self.audio_path = audio_path
         # parse audio.bnk or audio.wpk
@@ -347,8 +353,10 @@ class Inspector:
             self.audio = read_wpk(audio_path)
             self.wems = self.audio.wems
         # parse events.bnk
-        events_bnk = read_bnk(events_path)
-        map_bnk_objects = BankHelper.parse_events_bnk(events_bnk)
+        map_bnk_objects = None
+        if events_path != '':
+            events_bnk = read_bnk(events_path)
+            map_bnk_objects = BankHelper.parse_events_bnk(events_bnk)
         # parse bin
         map_event_namnes = {}
         if bin_path != '':
@@ -412,7 +420,7 @@ class Inspector:
                     with open(wem_file, 'wb') as f:
                         f.write(wem_data)
                     tools.VGMStream.to_wav(wem_file)
-                print(f'bnk_tool: Finish: Extracted [{to_human(wem.size)}] {wem.id}.wem')
+                print(f'bnk_tool: Finish: Extracted [{BankHelper.to_human(wem.size)}] {wem.id}.wem')
                     
     def unpack(self, output_dir):
         os.makedirs(output_dir, exist_ok=True)
@@ -485,6 +493,53 @@ class Inspector:
     def stop(self):
         for stream in self.streams:
             stream.stop_stream()
-        
+
+def bnk2dir(audio_path):
+    inspector = Inspector(audio_path)
+    dir_path = audio_path.replace('.bnk', '').replace('.wpk', '')
+    inspector.unpack(dir_path)
+    print(f'wad_tool: Finish: Unpack: {dir_path}')
+
+def dir2bnk(dir_path, is_bnk):
+    wem_files = []
+    for root, dirs, files in os.walk(dir_path):
+        for file in files:
+            if file.endswith('.wem'):
+                wem_file = os.path.join(root, file).replace('\\', '/')
+                wem_files.append(wem_file)
+    if is_bnk:
+        audio_path = dir_path + '.bnk'
+        audio = pyRitoFile.BNK()
+        audio.didx = pyRitoFile.BNKSectionData()
+        audio.didx.wems = []
+        wem_datas = []
+        for wem_file in wem_files:
+            wem_id = os.path.basename(wem_file).replace('.wem', '')
+            if wem_id.isnumeric():
+                wem_id = int(wem_id)
+                wem = pyRitoFile.BNKWem()
+                wem.id = wem_id
+                with open(wem_file, 'rb') as f:
+                    wem_datas.append(f.read())
+                audio.didx.wems.append(wem)
+        write_bnk(audio_path, audio, wem_datas) 
+    else:
+        audio_path = dir_path + '.wpk'
+        audio = pyRitoFile.WPK()
+        audio.wems = []
+        wem_datas = []
+        for wem_file in wem_files:
+            wem_id = os.path.basename(wem_file).replace('.wem', '')
+            if wem_id.isnumeric():
+                wem_id = int(wem_id)
+                wem = pyRitoFile.WPKWem()
+                wem.id = wem_id
+                with open(wem_file, 'rb') as f:
+                    wem_datas.append(f.read())
+                audio.wems.append(wem)
+        write_wpk(audio_path, audio, wem_datas)
+    print(f'wad_tool: Finish: Pack: {audio_path}')
+    
+
 def init():
     os.makedirs(Inspector.cache_dir, exist_ok=True)

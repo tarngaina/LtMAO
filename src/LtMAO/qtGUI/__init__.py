@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
 )
 
 from . import control, helper, log
-from .. import setting, hash_helper, winLT, no_skin, bnk_tool, cslmao
+from .. import setting, hash_helper, winLT, no_skin, bnk_tool, cslmao, wiwawe
 import requests
 
 qtwidgets = helper.Keeper()
@@ -501,6 +501,7 @@ def after_build():
     helper.SafeThread.start('sync_ctdb_hashes', hash_helper.CDTBHashes.sync_all)
     winLT.init()
     bnk_tool.init()
+    wiwawe.init()
     
  
 def check_version(label):

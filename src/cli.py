@@ -80,7 +80,6 @@ class CLI:
         with open(dst, 'w+') as f:
             f.write(json)
         
-
     @staticmethod
     def uvee(src):
         from LtMAO import uvee
@@ -177,8 +176,29 @@ class CLI:
         )
 
     def wem2wav(src):
-        from LtMAO import tools
-        tools.VGMStream.to_wav(src)
+        from LtMAO import wiwawe
+        wiwawe.wem2wav([src])
+
+    def wav2wem(src):
+        from LtMAO import wiwawe, setting
+        setting.load()
+        wiwawe.wav2wem([src], setting.get('wiwawe.wwise_path', None), setting.get('wiwawe.wproj_path', None))
+
+    def bnk2dir(src):
+        from LtMAO import bnk_tool
+        bnk_tool.bnk2dir(src)
+    
+    def wpk2dir(src):
+        from LtMAO import bnk_tool
+        bnk_tool.bnk2dir(src)
+
+    def dir2bnk(src):
+        from LtMAO import bnk_tool
+        bnk_tool.dir2bnk(src, True)
+    
+    def dir2wpk(src):
+        from LtMAO import bnk_tool
+        bnk_tool.dir2bnk(src, False)
 
     def zipfantome(src):
         from zipfile import ZipFile
@@ -247,6 +267,16 @@ def main():
         CLI.dds2x4x(args.source)
     elif args.tool == 'wem2wav':
         CLI.wem2wav(args.source)
+    elif args.tool == 'wav2wem':
+        CLI.wav2wem(args.source)
+    elif args.tool == 'dir2bnk':
+        CLI.dir2bnk(args.source)
+    elif args.tool == 'dir2wpk':
+        CLI.dir2wpk(args.source)
+    elif args.tool == 'bnk2dir':
+        CLI.bnk2dir(args.source)
+    elif args.tool == 'wpk2dir':
+        CLI.wpk2dir(args.source)
     elif args.tool == 'zipfantome':
         CLI.zipfantome(args.source)
     elif args.tool == 'unzipfantome':

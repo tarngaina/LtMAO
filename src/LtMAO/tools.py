@@ -7,7 +7,9 @@ EMPTY_MSG = ('', '\r', '\t', '\n')
 
 def block_and_stream_process_output(process, log_message_header=''):
     for line in process.stdout:
-        msg = line.decode()[:-1]
+        msg = line.decode()
+        while len(msg) > 0 and msg[-1] in EMPTY_MSG:
+            msg = msg[:-1]
         if msg not in EMPTY_MSG:
             print(log_message_header + msg)
     process.wait()

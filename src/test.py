@@ -1,4 +1,5 @@
-from LtMAO import pyRitoFile
+from LtMAO import bnk_tool
 
-bnk = pyRitoFile.helper.FNV1('Play_mus_EkkoSkin19_InteractiveMusic')
-print(bnk)
+#bnk_tool.bnk2dir('d:/TEST/ekko_skin19_sfx_audio.wpk')
+bnk_tool.dir2bnk('d:/TEST/a', is_bnk=True)
+bnk_tool.dir2bnk('d:/TEST/a', is_bnk=False)

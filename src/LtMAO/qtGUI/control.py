@@ -40,7 +40,9 @@ from .. import (
     mask_viewer, 
     wad_tool,
     bnk_tool,
-    cslmao
+    cslmao,
+    texsmart,
+    wiwawe
 )
 from ..lemon3d import lemon_fbx, lemon_maya
 
@@ -81,8 +83,9 @@ all = [
     Control('📦\nwad_tool', 5, lambda widget: build_wad_tool(widget)),
     Control('🛠️\nsborf', 6, lambda widget: build_sborf(widget)),
     Control('🍋\nlemon3d', 7, lambda widget: build_lemon3d(widget)),
-    Control('🛣️\nddsmart', 8, lambda widget: build_ddsmart(widget)),
+    Control('🛣️\ntexsmart', 8, lambda widget: build_texsmart(widget)),
     Control('🔊\nbnk_tool', 9, lambda widget: build_bnk_tool(widget)),
+    Control('🎛️\nwiwawe', 10, lambda widget: build_wiwawe(widget)),
 ]
 
 def build_cslmao(widget: QWidget):
@@ -1673,29 +1676,7 @@ Note: lemon3d is part of LtMAO so do not delete/move LtMAO,
     layout.addWidget(tab_widget, stretch=1)
     widget.setLayout(layout)
 
-def build_ddsmart(widget: QWidget):
-    # helper function since dont have a ddsmart.py???
-    def make2x4x(src):
-        with Image.open(src) as img:
-            basename = os.path.basename(src)
-            dirname = os.path.dirname(src)
-            width_2x = img.width // 2
-            height_2x = img.height // 2
-            file_2x = os.path.join(dirname, '2x_'+basename)
-            width_4x = img.width // 4
-            height_4x = img.height // 4
-            file_4x = os.path.join(dirname, '4x_'+basename)
-        if not os.path.exists(file_2x):
-            tools.ImageMagick.resize_dds(
-                src=src,
-                dst=file_2x, width=width_2x, height=height_2x
-            )
-        if not os.path.exists(file_4x):
-            tools.ImageMagick.resize_dds(
-                src=src,
-                dst=file_4x, width=width_4x, height=height_4x
-            )
-        
+def build_texsmart(widget: QWidget): 
     def convert(isfile, title, input_type, func):
         dialog = QFileDialog()
         final_paths = []
@@ -1722,11 +1703,11 @@ def build_ddsmart(widget: QWidget):
         final_path_count = len(final_paths)
         if  final_path_count > 0:
             def convert_thrd():
-                print(f'ddsmart: Start: {title}: {final_path_count} items.')
+                print(f'texsmart: Start: {title}: {final_path_count} items.')
                 for final_path in final_paths:
                     func(final_path)
-                print(f'ddsmart: Finish: {title}: {final_path_count} items.')
-            helper.SafeThread.start('ddsmart', convert_thrd)
+                print(f'texsmart: Finish: {title}: {final_path_count} items.')
+            helper.SafeThread.start('texsmart', convert_thrd)
         
 
     converters = [
@@ -1734,37 +1715,31 @@ def build_ddsmart(widget: QWidget):
             'title': 'DDS to PNG',
             'input_type': 'DDS',
             'icon': '🏞️',
-            'func': lambda src: tools.ImageMagick.to_png(
-                src=src,
-                png=src.replace('.dds', '.png')
-            ),
+            'func': lambda src: texsmart.dds2png(src)
         },
         { 
             'title': 'PNG to DDS',
             'input_type': 'PNG',
             'icon': '🌇',
-            'func': lambda src: tools.ImageMagick.to_dds(
-                src=src,
-                png=src.replace('.png', '.dds')
-            ),
+            'func': lambda src: texsmart.png2dds(src)
         },
         { 
             'title': 'DDS to TEX',
             'input_type': 'DDS',
             'icon': '🏞️',
-            'func': lambda src: Ritoddstex.dds2tex(src)
+            'func': lambda src: texsmart.dds2tex(src)
         },
         { 
             'title': 'TEX to DDS',
             'input_type': 'TEX',
             'icon': '🌌',
-            'func': lambda src: Ritoddstex.tex2dds(src)
+            'func': lambda src: texsmart.tex2dds(src)
         },
         { 
             'title': 'Make 2x, 4x DDS',
             'input_type': 'DDS',
             'icon': '🏞️',
-            'func': lambda src: make2x4x(src)
+            'func': lambda src: texsmart.make2x4x(src)
         },
     ]
 
@@ -2006,9 +1981,9 @@ def build_bnk_tool(widget: QWidget):
             final_paths = []
             filepath = dialog.getOpenFileNames(
                 widget, 
-                'Select BIN',
+                'Select WEM',
                 setting.get('qtGUI.default_folder', None),
-                f'BIN Files (*.bin)'
+                f'WEM Files (*.wem)'
             )
             if len(filepath[0]) > 0:
                 final_paths = filepath[0]
@@ -2083,6 +2058,122 @@ def build_bnk_tool(widget: QWidget):
     layout.addLayout(layout2, stretch=1)
     widget.setLayout(layout)
 
+
+def build_wiwawe(widget: QWidget):
+    layout = QVBoxLayout()
+    # wwise path
+    layout2 = QHBoxLayout()
+    button = QToolButton()
+    button.setText('📟 Select WWise Folder')
+    layout2.addWidget(button)
+    wwise_label = QLabel()
+    wwise_label.setText(setting.get('wiwawe.wwise_path', 'Please select WWise/Wwise{version} folder. (example: Wwise/Wwise2024.1.3.8749)'))
+    layout2.addWidget(wwise_label, stretch=1)
+    def select_wwise_dir():
+        dialog = QFileDialog()
+        dirpath = dialog.getExistingDirectory(
+            widget,
+            'Select WWise/Wwise{version} folder',
+            setting.get('qtGUI.default_folder', None)
+        )
+        if dirpath != '':
+            final_path = dirpath.replace('\\', '/')
+            if not os.path.exists(os.path.join(final_path, 'Authoring/x64/Release/bin/WwiseConsole.exe')):
+                raise Exception(f'wiwawe: Error: Select wwise path: No "WwiseConsole.exe" found.')
+            setting.set('wiwawe.wwise_path', final_path)
+            setting.save()
+            wwise_label.setText(final_path)
+    button.clicked.connect(select_wwise_dir)
+    layout.addLayout(layout2)
+    # project path
+    layout2 = QHBoxLayout()
+    button = QToolButton()
+    button.setText('🗂️ Select Project File')
+    layout2.addWidget(button)
+    project_label = QLabel()
+    project_label.setText(setting.get('wiwawe.wproj_path', 'Please select .wproj file of your Wwise project. (example: Documents/WwiseProjects/lol/lol.wproj)'))
+    layout2.addWidget(project_label, stretch=1)
+    def select_proj_file():
+        dialog = QFileDialog()
+        filepaths = dialog.getOpenFileName(
+            widget, 
+            f'Select WPROJ',
+            setting.get('qtGUI.default_folder', None),
+            f'WPROJ Files (*.wproj)'
+        )
+        if len(filepaths[0]) > 0:
+            final_path = filepaths[0].replace('\\', '/')
+            setting.set('wiwawe.wproj_path', final_path)
+            setting.save()
+            project_label.setText(final_path)
+    button.clicked.connect(select_proj_file)
+    layout.addLayout(layout2)
+    # convert 
+    def convert(isfile, title, input_type, func):
+        dialog = QFileDialog()
+        final_paths = []
+        if isfile:
+            filepaths = dialog.getOpenFileNames(
+                widget, 
+                f'Select {input_type}s',
+                setting.get('qtGUI.default_folder', None),
+                f'{input_type} Files (*.{input_type})'
+            )
+            if len(filepaths[0]) > 0:
+                final_paths += filepaths[0]
+        else:
+            dirpath = dialog.getExistingDirectory(
+                widget,
+                f'Select Folder',
+                setting.get('qtGUI.default_folder', None),
+            )
+            if dirpath != '':
+                for root, dirs, files in os.walk(dirpath):
+                    for file in files:
+                        if file.endswith(f'.{input_type.lower()}'):
+                            final_paths.append(os.path.join(root, file).replace('\\', '/'))
+        final_path_count = len(final_paths)
+        if  final_path_count > 0:
+            def convert_thrd():
+                print(f'texsmart: Start: {title}: {final_path_count} items.')
+                func(final_paths)
+                print(f'texsmart: Finish: {title}: {final_path_count} items.')
+            helper.SafeThread.start('wiwawe', convert_thrd)
+    converters = [
+        { 
+            'title': 'WAV to WEM',
+            'input_type': 'WAV',
+            'icon': '🎶',
+            'func': lambda src: wiwawe.wav2wem(
+                src, 
+                setting.get('wiwawe.wwise_path', None), 
+                setting.get('wiwawe.wproj_path', None)
+            )
+        },
+        { 
+            'title': 'WEM to WAV',
+            'input_type': 'WEM',
+            'icon': '🎵',
+            'func': lambda src: wiwawe.wem2wav(src)
+        }
+    ]
+    for converter in converters:
+        label = QLabel(converter['title'])
+        layout.addWidget(label)
+        layout2 = QHBoxLayout()
+        file_button = QToolButton()
+        file_button.setText(f'{converter["icon"]} Select {converter['input_type']}')
+        file_button.clicked.connect(lambda event, converter=converter: convert(True, converter['title'], converter['input_type'], converter['func']))
+        layout2.addWidget(file_button)
+        dir_button = QToolButton()
+        dir_button.setText('📁 Select Folder')
+        dir_button.clicked.connect(lambda event, converter=converter: convert(False, converter['title'], converter['input_type'], converter['func']))
+        layout2.addWidget(dir_button)
+        layout2.addStretch()
+        layout.addLayout(layout2)
+    layout.addStretch()
+    widget.setLayout(layout)
+    
 def build_logbox(widget: QWidget):
     layout = QVBoxLayout()
     qtwidgets.logbox = logbox = QPlainTextEdit()

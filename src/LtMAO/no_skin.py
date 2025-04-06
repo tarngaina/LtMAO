@@ -7,7 +7,7 @@ def bin_hash(name):
     return f'{pyRitoFile.helper.FNV1a(name):08x}'
 
 
-cache_dir = f'./pref/no_skin/_cache'
+cache_dir = './pref/no_skin/_cache'
 local_dir = './res/no_skin'
 skips_file = f'{local_dir}/SKIPS.json'
 SKIPS = {}

@@ -43,7 +43,7 @@ class Context:
         # folder contexts
         Context.create_submenu(
             shell='Directory\\shell',
-            sub_commands='LtMAO.RawToWad;LtMAO.AllWadToRaw;LtMAO.ZipFantome;LtMAO.hashextract;LtMAO.PT;LtMAO.RitobinDirToPy;LtMAO.RitobinDirToBin;'
+            sub_commands='LtMAO.RawToWad;LtMAO.AllWadToRaw;LtMAO.hashextract;LtMAO.ZipFantome;LtMAO.dir2bnk;LtMAO.dir2wpk;LtMAO.PT;LtMAO.RitobinDirToPy;LtMAO.RitobinDirToBin;'
         )
         # .wad (.client) contexts
         Context.create_submenu(
@@ -98,27 +98,32 @@ class Context:
         # .dds contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.dds\\shell',
-            sub_commands='LtMAO.dds2tex;LtMAO.dds2png;LtMAO.dds2x4x'
+            sub_commands='LtMAO.dds2tex;LtMAO.dds2png;LtMAO.dds2x4x;'
         )
         # .png contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.png\\shell',
-            sub_commands='LtMAO.png2dds;LtMAO.png2ddsmm'
+            sub_commands='LtMAO.png2dds;LtMAO.png2ddsmm;'
         )
         # .bnk contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.bnk\\shell',
-            sub_commands='LtMAO.LFI;'
+            sub_commands='LtMAO.bnk2dir;LtMAO.LFI;'
         )
         # .wpk contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.wpk\\shell',
-            sub_commands='LtMAO.LFI;'
+            sub_commands='LtMAO.wpk2dir;LtMAO.LFI;'
         )
         # .wem contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.wem\\shell',
             sub_commands='LtMAO.wem2wav;'
+        )
+        # .wav contexts
+        Context.create_submenu(
+            shell='SystemFileAssociations\\.wav\\shell',
+            sub_commands='LtMAO.wav2wem;'
         )
         # .fantome contexts
         Context.create_submenu(
@@ -251,8 +256,15 @@ class Context:
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.wem2wav',
-                cmd_desc='vgmstream: Convert To Wav',
+                cmd_desc='wiwawe: Convert To WAV',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wem2wav" -src="%V"'
+            )
+            # wav2wem
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.wav2wem',
+                cmd_desc='wiwawe: Convert To WEM',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wav2wem" -src="%V"'
             )
             # ZipFantome
             Context.create_command(
@@ -267,6 +279,34 @@ class Context:
                 cmd_name='LtMAO.UnzipFantome',
                 cmd_desc='cslmao: Unzip Fantome',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="unzipfantome" -src="%V"'
+            )
+            # dir2bnk
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.dir2bnk',
+                cmd_desc='bnk_tool: Pack to BNK',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dir2bnk" -src="%V"'
+            )
+            # dir2wpk
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.dir2wpk',
+                cmd_desc='bnk_tool: Pack to WPK',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dir2wpk" -src="%V"'
+            )
+            # bnk2dir
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.bnk2dir',
+                cmd_desc='bnk_tool: Unpack to Folder',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="bnk2dir" -src="%V"'
+            )
+            # wpk2dir
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.wpk2dir',
+                cmd_desc='bnk_tool: Unpack to Folder',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wpk2dir" -src="%V"'
             )
         print('winLT: Finish: Create Explorer Contexts')
 

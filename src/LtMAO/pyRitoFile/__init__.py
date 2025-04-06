@@ -4,8 +4,8 @@ from ..pyRitoFile.so import SO, SOFlag
 from ..pyRitoFile.anm import ANM, ANMPose, ANMTrack, ANMErrorMetric
 from ..pyRitoFile.mapgeo import MAPGEO, MAPGEOVertexElementName, MAPGEOLayer, MAPGEOModel, MAPGEOVertex, MAPGEOSubmesh, MAPGEOChannel
 from ..pyRitoFile.bin import BIN, BINEntry, BINPatch, BINField, BINType, BINHelper, name_to_hex as bin_hash
-from ..pyRitoFile.bnk import BNK, BNKObjectType
-from ..pyRitoFile.wpk import WPK
+from ..pyRitoFile.bnk import BNK, BNKObjectType, BNKWem, BNKSectionData
+from ..pyRitoFile.wpk import WPK, WPKWem
 from ..pyRitoFile.tex import TEX, TEXFormat
 from ..pyRitoFile.wad import WAD, WADChunk, WADCompressionType, name_to_hex as wad_hash, guess_extension
 from . import helper
