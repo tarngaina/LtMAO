@@ -1,16 +1,11 @@
 import os
 import os.path
-from subprocess import Popen, CREATE_NO_WINDOW, PIPE
-
-EMPTY_MSG = ('', '\r', '\t', '\n')
-
+from subprocess import Popen, CREATE_NO_WINDOW, PIPE, STDOUT
 
 def block_and_stream_process_output(process, log_message_header=''):
     for line in process.stdout:
-        msg = line.decode()
-        while len(msg) > 0 and msg[-1] in EMPTY_MSG:
-            msg = msg[:-1]
-        if msg not in EMPTY_MSG:
+        msg = line.decode().strip().replace('\\', '/')
+        if msg != '':
             print(log_message_header + msg)
     process.wait()
 
@@ -29,7 +24,7 @@ class CSLOL:
             cmds.append('--noTFT')
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=PIPE
+            stdout=PIPE, stderr=STDOUT
         )
         return p
 
@@ -43,7 +38,7 @@ class CSLOL:
             cmds.append('--noTFT')
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=PIPE
+            stdout=PIPE, stderr=STDOUT
         )
         return p
 
@@ -61,7 +56,7 @@ class CSLOL:
             cmds.append('--ignoreConflict')
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=PIPE
+            stdout=PIPE, stderr=STDOUT
         )
         return p
 
@@ -73,7 +68,7 @@ class CSLOL:
             cmds.append(game)
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdin=PIPE, stdout=PIPE, stderr=PIPE
+            stdin=PIPE, stdout=PIPE, stderr=STDOUT
         )
         return p
     
@@ -84,7 +79,7 @@ class CSLOL:
         cmds = [diag_file]
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdin=PIPE, stdout=PIPE, stderr=PIPE
+            stdin=PIPE, stdout=PIPE, stderr=STDOUT
         )
         block_and_stream_process_output(p, 'cslol-diag: ')
         return p
@@ -108,7 +103,7 @@ class RITOBIN:
                 cmds.extend(('--input-format', 'text', '--output-format', 'bin'))
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=PIPE
+            stdout=PIPE, stderr=STDOUT
         )
         block_and_stream_process_output(p, 'ritobin: ')
         return p
@@ -126,7 +121,7 @@ class ImageMagick:
         ]
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=PIPE
+            stdout=PIPE, stderr=STDOUT
         )
         block_and_stream_process_output(p, 'ImageMagick: ')
         return p
@@ -146,7 +141,7 @@ class ImageMagick:
         ]
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=PIPE
+            stdout=PIPE, stderr=STDOUT
         )
         block_and_stream_process_output(p, 'ImageMagick: ')
         return p
@@ -162,7 +157,7 @@ class ImageMagick:
         ]
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=PIPE
+            stdout=PIPE, stderr=STDOUT
         )
         block_and_stream_process_output(p, 'ImageMagick: ')
         return p
@@ -181,7 +176,7 @@ class VGMStream:
         ]
         p = Popen(
             cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=PIPE
+            stdout=PIPE, stderr=STDOUT
         )
         p.wait()
         return p

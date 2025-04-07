@@ -31,11 +31,16 @@ class Log(QObject):
 
 def link_main_window(logbox, statusbar):
     log = Log(logbox, statusbar)
+    
     class Writer():
         def write(self, msg):
-            if msg == '' or msg.isspace():
-                return
-            log.write_log(msg.replace('\\', '/'))
+            msg = msg.strip().replace('\\', '/')
+            if msg != '':
+                log.write_log(msg)
+
+        def flush(self):
+            pass
+
     writer = Writer()
     sys.stdout = writer
     sys.stderr = writer
@@ -43,10 +48,14 @@ def link_main_window(logbox, statusbar):
 def link_splash(label):
     class Writer():
         def write(self, msg):
-            if msg == '' or msg.isspace():
-                return
-            label.setText('🗒️ ' + msg) 
-            label.repaint()
+            msg = msg.strip().replace('\\', '/')
+            if msg != '':
+                label.setText('🗒️ ' + msg) 
+                label.repaint()
+        
+        def flush(self):
+            pass
+          
     writer = Writer() 
     sys.stdout = writer
     sys.stderr = writer

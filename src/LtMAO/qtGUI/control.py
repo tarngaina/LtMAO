@@ -2088,9 +2088,9 @@ def build_wiwawe(widget: QWidget):
         final_path_count = len(final_paths)
         if  final_path_count > 0:
             def convert_thrd():
-                print(f'texsmart: Start: {title}: {final_path_count} items.')
+                print(f'wiwawe: Start: {title}: {final_path_count} items.')
                 func(final_paths)
-                print(f'texsmart: Finish: {title}: {final_path_count} items.')
+                print(f'wiwawe: Finish: {title}: {final_path_count} items.')
             helper.SafeThread.start('wiwawe', convert_thrd)
     converters = [
         { 
