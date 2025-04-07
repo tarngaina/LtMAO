@@ -1581,7 +1581,7 @@ def build_lemon3d(widget: QWidget):
     anm_line = QLineEdit()
     layout3.addWidget(anm_line, 2, 0)
     button = QToolButton()
-    button.setText('🦴 Select ANMs Folder')    
+    button.setText('🎬 Select ANMs Folder')    
     button.setMinimumWidth(260)
     button.clicked.connect(lambda event, line=anm_line: browse_dir(line, 'Select ANMs Folder'))
     layout3.addWidget(button, 2, 1)

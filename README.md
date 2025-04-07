@@ -120,6 +120,11 @@ Copy of `bnk-extract-GUI`, but extract `.wav` instead of `.ogg`.
 
 ![](https://i.imgur.com/StqeP24.png)
 
+## wiwawe
+Convert `wav` to `wem` and vice versa.
+
+![](https://i.imgur.com/7kpfGS4.png)
+
 # Extra:
 - [LeagueToolKit](https://github.com/LeagueToolkit/LeagueToolkit)
 - [CDTB](https://github.com/CommunityDragon/CDTB)

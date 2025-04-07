@@ -43,7 +43,7 @@ class Context:
         # folder contexts
         Context.create_submenu(
             shell='Directory\\shell',
-            sub_commands='LtMAO.RawToWad;LtMAO.AllWadToRaw;LtMAO.hashextract;LtMAO.ZipFantome;LtMAO.dir2bnk;LtMAO.dir2wpk;LtMAO.PT;LtMAO.RitobinDirToPy;LtMAO.RitobinDirToBin;'
+            sub_commands='LtMAO.RawToWad;LtMAO.AllWadToRaw;LtMAO.hashextract;LtMAO.ZipFantome;LtMAO.dir2bnk;LtMAO.dir2wpk;LtMAO.PT;LtMAO.RitobinDirToPy;LtMAO.RitobinDirToBin;LtMAO.tex2ddsdir;LtMAO.dds2texdir;'
         )
         # .wad (.client) contexts
         Context.create_submenu(
@@ -151,7 +151,7 @@ class Context:
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.AllWadToRaw',
-                cmd_desc='wad_tool: Unpack All WADs',
+                cmd_desc='wad_tool: Unpack All WAD',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wadunpack_all" -src="%V"'
             )
             # RitobinToPy
@@ -172,14 +172,14 @@ class Context:
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.RitobinDirToPy',
-                cmd_desc='ritobin: Convert all BIN To PY',
+                cmd_desc='ritobin: Convert All BIN To PY',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobindir2py" -src="%V"'
             )
             # RitobinDirToBin
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.RitobinDirToBin',
-                cmd_desc='ritobin: Convert all PY To BIN',
+                cmd_desc='ritobin: Convert All PY To BIN',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobindir2bin" -src="%V"'
             )
             # LFI
@@ -223,6 +223,20 @@ class Context:
                 cmd_name='LtMAO.dds2tex',
                 cmd_desc='Ritoddstex: Convert To TEX',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2tex" -src="%V"'
+            )
+            # tex2ddsdir
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.tex2ddsdir',
+                cmd_desc='Ritoddstex: Convert All TEX To DDS',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="tex2ddsdir" -src="%V"'
+            )
+            # dds2texdir
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.dds2texdir',
+                cmd_desc='Ritoddstex: Convert All DDS To TEX',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2texdir" -src="%V"'
             )
             # dds2png
             Context.create_command(

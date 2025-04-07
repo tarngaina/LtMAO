@@ -113,6 +113,26 @@ class CLI:
     def dds2tex(src):
         from LtMAO import Ritoddstex
         Ritoddstex.dds2tex(src)
+    
+    @staticmethod
+    def tex2ddsdir(src):
+        import os, os.path
+        from LtMAO import Ritoddstex
+        for root, dirs, files in os.walk(src):
+            for file in files:  
+                if file.endswith('.tex'):
+                    tex_file = os.path.join(root, file).replace('\\', '/')
+                    Ritoddstex.tex2dds(tex_file)
+
+    @staticmethod
+    def dds2texdir(src):
+        import os, os.path
+        from LtMAO import Ritoddstex
+        for root, dirs, files in os.walk(src):
+            for file in files:  
+                if file.endswith('.dds'):
+                    dds_file = os.path.join(root, file).replace('\\', '/')
+                    Ritoddstex.dds2tex(dds_file)
 
     @staticmethod
     def png2dds(src, dst):
@@ -252,10 +272,14 @@ def main():
         CLI.hashextract(args.source)
     elif args.tool == 'pyntex':
         CLI.pyntex(args.source)
-    elif args.tool == 'dds2tex':
-        CLI.dds2tex(args.source)
     elif args.tool == 'tex2dds':
         CLI.tex2dds(args.source)
+    elif args.tool == 'dds2tex':
+        CLI.dds2tex(args.source)
+    elif args.tool == 'tex2ddsdir':
+        CLI.tex2ddsdir(args.source)
+    elif args.tool == 'dds2texdir':
+        CLI.dds2texdir(args.source)
     elif args.tool == 'dds2png':
         CLI.dds2png(args.source, args.destination)
     elif args.tool == 'png2dds':

@@ -266,4 +266,3 @@ def init():
     # ensure folder
     os.makedirs(local_dir, exist_ok=True)
     load_skips()
-    save_skips()

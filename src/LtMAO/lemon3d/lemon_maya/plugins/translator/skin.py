@@ -1175,12 +1175,12 @@ class SKL:
                     joint.hash = Elf(joint.name)
                     joint.parent = -1
                     joint.radius = 2.1
-                    joint.local_translation = Vector(0.0, 0.0, 0.0)
-                    joint.local_rotation = Quaternion(0.0, 0.0, 0.0, 1.0)
+                    joint.local_translate = Vector(0.0, 0.0, 0.0)
+                    joint.local_rotate = Quaternion(0.0, 0.0, 0.0, 1.0)
                     joint.local_scale = Vector(0.0, 0.0, 0.0)
-                    joint.iglobal_translation = Vector(0.0, 0.0, 0.0)
-                    joint.iglobal_rotation = Quaternion(0.0, 0.0, 0.0, 1.0)
-                    joint.iglobal_scale = Vector(0.0, 0.0, 0.0)
+                    joint.ibind_translate = Vector(0.0, 0.0, 0.0)
+                    joint.ibind_rotate = Quaternion(0.0, 0.0, 0.0, 1.0)
+                    joint.ibind_scale = Vector(0.0, 0.0, 0.0)
                     new_joints.append(joint)
 
             # joint in scene = riot joint: good
