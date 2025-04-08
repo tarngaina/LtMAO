@@ -63,14 +63,14 @@ def mirrorX(skn=None, skl=None, anm=None, so=None, mapgeo=None):
             model.matrix = Matrix4(*[matrix(i, j) for i in range(4) for j in range(4)]) 
             # flip vertex
             for vertex in model.vertices:
-                if pyRitoFile.MAPGEOVertexElementName.Position.name in vertex.value:
-                    position = vertex.value[pyRitoFile.MAPGEOVertexElementName.Position.name]
+                if pyRitoFile.MAPGEOVertexElementName.Position in vertex.value:
+                    position = vertex.value[pyRitoFile.MAPGEOVertexElementName.Position]
                     position.x = -position.x
-                if pyRitoFile.MAPGEOVertexElementName.Texcoord5.name in vertex.value:
-                    bush_vertex_animation = vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord5.name]
+                if pyRitoFile.MAPGEOVertexElementName.Texcoord5 in vertex.value:
+                    bush_vertex_animation = vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord5]
                     bush_vertex_animation.x = -bush_vertex_animation.x
-                if pyRitoFile.MAPGEOVertexElementName.Normal.name in vertex.value:
-                    normal = vertex.value[pyRitoFile.MAPGEOVertexElementName.Normal.name]
+                if pyRitoFile.MAPGEOVertexElementName.Normal in vertex.value:
+                    normal = vertex.value[pyRitoFile.MAPGEOVertexElementName.Normal]
                     normal.y = -normal.y
                     normal.z = -normal.z
 

@@ -29,11 +29,7 @@ class Vector:
     def __json__(self):
         return [v for v in self]
     
-    def lerp(vec1, vec2, weight):  
-        if weight < 0.005:
-            return vec1
-        if weight > 0.995:
-            return vec2      
+    def lerp(vec1, vec2, weight):   
         return Vector(
             vec1.x + (vec2.x - vec1.x) * weight,
             vec1.y + (vec2.y - vec1.y) * weight,
@@ -71,10 +67,6 @@ class Quaternion:
         return [v for v in self]
     
     def slerp(quat1, quat2, weight):
-        if weight < 0.005:
-            return quat1
-        if weight > 0.995:
-            return quat2    
         epsilon = 1e-6
         cos_omega = quat1.x * quat2.x + quat1.y * quat2.y + quat1.z * quat2.z + quat1.w * quat2.w
         flip = False

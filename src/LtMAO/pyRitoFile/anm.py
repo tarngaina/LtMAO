@@ -68,86 +68,54 @@ class ANMHepler:
         )
         
     @staticmethod
-    def evaluate_all_frames(anm):
-        # compressed anm need this
+    def interpolate_integer_frames(anm):
+        def interpolate(frame, curve, func):
+            times = curve.keys()
+            # loop from right, get left 
+            left = None
+            for time in reversed(times):
+                if time <= frame and curve[time] != None:
+                    left = frame
+                    break
+            # loop from left, get right
+            right = None
+            for time in times:
+                if time >= frame and curve[time] != None:
+                    right = frame
+                    break
+            # set if frame outside range
+            if left == None:
+                return curve[right]
+            if right == None:
+                return curve[left]
+            # interpolate if frame inside range
+            return func(
+                curve[left], 
+                curve[right],
+                (frame - left) / (right - left)
+            )
+            
         for track in anm.tracks:
+            # sort time and init curve
             track.poses = dict(sorted(track.poses.items()))
+            translate_curve = {time: track.poses[time].translate for time in track.poses}
+            scale_curve = {time: track.poses[time].scale for time in track.poses}
+            rotate_curve = {time: track.poses[time].rotate for time in track.poses}
+            # integer frame
             for frame in range(anm.duration):
-                # find left right translate, rotate, scale frames
-                left_translate = None
-                right_translate = None
-                left_scale = None
-                right_scale = None
-                left_rotate = None
-                right_rotate = None
-                for time in track.poses.keys():
-                    if time <= frame:
-                        if track.poses[time].translate != None:
-                            left_translate = time
-                        if track.poses[time].scale != None:
-                            left_scale = time
-                        if track.poses[time].rotate != None:
-                            left_rotate = time
-                    if time >= frame:
-                        if track.poses[time].translate != None and right_translate == None:
-                            right_translate = time
-                        if track.poses[time].scale != None and right_scale == None:
-                            right_scale = time
-                        if track.poses[time].rotate != None and right_rotate == None:
-                            right_rotate = time
-                    if left_translate != None and right_translate != None and left_scale != None and right_scale != None and left_rotate != None and right_rotate != None:
-                        break
-                # create pose if empty
                 if frame not in track.poses:
                     track.poses[frame] = pose = ANMPose()
-                # evaluate translate if need
-                if frame != left_translate and frame != right_translate:
-                    if left_translate == None or right_translate == None:
-                        if left_translate == None and right_translate == None:
-                            raise Exception(
-                                f'pyRitoFile: Error: Write ANM: Evaluate translate: left: {left_translate}, right: {right_translate}.')
-                        elif left_translate == None:
-                            pose.translate = track.poses[right_translate].translate
-                        elif right_translate == None:
-                            pose.translate = track.poses[left_translate].translate
-                    else:
-                        pose.translate = Vector.lerp(
-                            track.poses[left_translate].translate, 
-                            track.poses[right_translate].translate,
-                            (frame - left_translate) / (right_translate - left_translate)
-                        )
-                # evaluate scale if need
-                if frame != left_scale and frame != right_scale:
-                    if left_scale == None or right_scale == None:
-                        if left_scale == None and right_scale == None:
-                            raise Exception(
-                                f'pyRitoFile: Error: Write ANM: Evaluate scale: left: {left_scale}, right: {right_scale}.')
-                        elif left_scale == None:
-                            pose.scale = track.poses[right_scale].scale
-                        elif right_scale == None:
-                            pose.scale = track.poses[left_scale].scale
-                    else:
-                        pose.scale = Vector.lerp(
-                            track.poses[left_scale].scale, 
-                            track.poses[right_scale].scale,
-                            (frame - left_scale) / (right_scale - left_scale)
-                        )
-                # evaluate rotate if need
-                if frame != left_rotate and frame != right_rotate:
-                    if left_rotate == None or right_rotate == None:
-                        if left_rotate == None and right_rotate == None:
-                            raise Exception(
-                                f'pyRitoFile: Error: Write ANM: Evaluate rotate: left: {left_rotate}, right: {right_rotate}.')
-                        elif left_rotate == None:
-                            pose.rotate = track.poses[right_rotate].rotate
-                        elif right_rotate == None:
-                            pose.rotate = track.poses[left_rotate].rotate
-                    else:
-                        pose.rotate = Quaternion.slerp(
-                            track.poses[left_rotate].rotate, 
-                            track.poses[right_rotate].rotate,
-                            (frame - left_rotate) / (right_rotate - left_rotate)
-                        )
+                else:
+                    pose = track.poses[frame]
+                # only interpolate if need
+                if pose.translate == None:
+                    pose.translate = interpolate(frame, translate_curve, Vector.lerp)
+                if pose.scale == None:
+                    pose.scale = interpolate(frame, scale_curve, Vector.lerp)
+                if pose.rotate == None:
+                    pose.rotate = interpolate(frame, rotate_curve, Quaternion.slerp)
+
+                
         
     @staticmethod
     def build_uni_vecs_quats_frames(anm):
@@ -158,9 +126,9 @@ class ANMHepler:
         uni_quat_count = 0
         track_count = len(anm.tracks)
         frames = [None] * anm.duration * track_count
-        vec_tol_right = 0.05
+        vec_tol_right = 0.0001
         vec_tol_left = -vec_tol_right
-        quat_tol_right = 0.005
+        quat_tol_right = 0.0001
         quat_tol_left = -quat_tol_right
         for t, track in enumerate(anm.tracks):
             for f in range(anm.duration):
@@ -512,7 +480,7 @@ class ANM:
     def write(self, path, raw=None):
         with self.stream(path, 'wb', raw) as bs:
             self.duration = int(self.duration)
-            ANMHepler.evaluate_all_frames(self)
+            ANMHepler.interpolate_integer_frames(self)
             uni_vecs, uni_quats, frames = ANMHepler.build_uni_vecs_quats_frames(self)
             # start write anm
             bs.write_s('r3d2anmd') # signature

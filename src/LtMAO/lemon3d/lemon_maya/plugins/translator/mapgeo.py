@@ -218,11 +218,11 @@ class MAPGEO:
             poly_indices = MIntArray(index_count)
             for i in range(vertex_count):
                 vertex = model.vertices[i]
-                position = vertex.value[pyRitoFile.MAPGEOVertexElementName.Position.name]
+                position = vertex.value[pyRitoFile.MAPGEOVertexElementName.Position]
                 vertices[i].x = position.x
                 vertices[i].y = position.y
                 vertices[i].z = position.z
-                diffuse_uv = vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord0.name]
+                diffuse_uv = vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord0]
                 u_values[i] = diffuse_uv.x
                 v_values[i] = 1.0 - diffuse_uv.y
             for i in range(index_count):
@@ -266,7 +266,7 @@ class MAPGEO:
                 lightmap_v_values = MFloatArray(vertex_count)
                 for i in range(vertex_count):
                     vertex = model.vertices[i]
-                    lightmap_uv = vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord7.name]
+                    lightmap_uv = vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord7]
                     lightmap_u_values[i] = lightmap_uv.x * model.baked_light.scale[0] + model.baked_light.offset[0]
                     lightmap_v_values[i] = 1.0-(lightmap_uv.y * model.baked_light.scale[1] + model.baked_light.offset[1])
 
@@ -278,12 +278,12 @@ class MAPGEO:
                 )
 
             # color
-            if pyRitoFile.MAPGEOVertexElementName.PrimaryColor.name in model.vertices[0].value:
+            if pyRitoFile.MAPGEOVertexElementName.PrimaryColor in model.vertices[0].value:
                 colors = MColorArray(vertex_count, MColor(1.0, 1.0, 1.0, 1.0))
                 vertex_indices = MIntArray(vertex_count)
                 for i in range(vertex_count):
                     vertex_indices[i] = i
-                    color = vertex.value[pyRitoFile.MAPGEOVertexElementName.PrimaryColor.name]
+                    color = vertex.value[pyRitoFile.MAPGEOVertexElementName.PrimaryColor]
                     colors[i].b = color[0] / 255.0
                     colors[i].g = color[1] / 255.0
                     colors[i].r = color[2] / 255.0
@@ -464,8 +464,8 @@ class MAPGEO:
             lightmap_flag = False
             if len(uv_names) > 1:
                 model.baked_light = pyRitoFile.MAPGEOChannel()
-                if group_name.startswith('riot_'):
-                    model.baked_light.path = group_name.replace('riot_', '').replace('__', '/')+'/'+uv_names[1]
+                if group_name.startswith('lm_'):
+                    model.baked_light.path = group_name.replace('lm_', '').replace('__', '/')+'/'+uv_names[1]
                 else:
                     model.baked_light.path = f'ASSETS/Maps/Lightmaps/Maps/MapGeometry/{group_name}/Base/{uv_names[1]}'
                 lightmap_flag = True
@@ -584,7 +584,7 @@ class MAPGEO:
                         # position
                         pos = iterator.position(MSpace.kTransform)
                         position = Vector(pos.x, pos.y, pos.z)
-                        vertex.value[pyRitoFile.MAPGEOVertexElementName.Position.name] = position
+                        vertex.value[pyRitoFile.MAPGEOVertexElementName.Position] = position
 
                         # bush vertex animation 
                         if version > 13 and model.is_bush:
@@ -593,7 +593,7 @@ class MAPGEO:
                                 random.uniform(-0.005, 0.005) * position.y + position.y,
                                 random.uniform(-0.005, 0.005) * position.z + position.z
                             )
-                            vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord5.name] = bush_vertex_animation
+                            vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord5] = bush_vertex_animation
 
                         # average of normals of all faces connect to this vertex
                         iterator.getNormals(normals)
@@ -606,15 +606,14 @@ class MAPGEO:
                         normal.x /= normal_count
                         normal.y /= normal_count
                         normal.z /= normal_count
-                        vertex.value[pyRitoFile.MAPGEOVertexElementName.Normal.name] = normal
+                        vertex.value[pyRitoFile.MAPGEOVertexElementName.Normal] = normal
 
                         # uv
-                        
                         diffuse_uv = Vector(
                             u_values[uv_index],
                             1.0 - v_values[uv_index]
                         )
-                        vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord0.name] = diffuse_uv
+                        vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord0] = diffuse_uv
                         if lightmap_flag:
                             if uv_index >= 0 and uv_index < lightmap_uv_count:
                                 if lightmap_u_values[uv_index] != None and lightmap_v_values[uv_index] != None:
@@ -622,7 +621,7 @@ class MAPGEO:
                                         lightmap_u_values[uv_index],
                                         1.0 - lightmap_v_values[uv_index]
                                     )
-                                    vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord7.name] = lightmap_uv
+                                    vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord7] = lightmap_uv
                                 else:
                                     bad_lightmap_mesh = True
                             else:
@@ -639,7 +638,7 @@ class MAPGEO:
                                 int(color.r * 255.0),
                                 int(color.a * 255.0)
                             )
-                            vertex.value[pyRitoFile.MAPGEOVertexElementName.PrimaryColor.name] = color
+                            vertex.value[pyRitoFile.MAPGEOVertexElementName.PrimaryColor] = color
 
                         model.vertices.append(vertex)
                 iterator.next()

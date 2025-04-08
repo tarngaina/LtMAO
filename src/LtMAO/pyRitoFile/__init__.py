@@ -86,8 +86,8 @@ def read_mapgeo(path, raw=None):
     mg.read(path, raw)
     return mg
 
-def write_mapgeo(path, mg, version):
-    mg.write(path, version)
+def write_mapgeo(path, mg, version, float16=False):
+    mg.write(path, version, float16)
 
 
 def read_bin(path, raw=None):

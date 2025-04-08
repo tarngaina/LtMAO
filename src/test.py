@@ -1,3 +1,3 @@
-from LtMAO import wiwawe
+from LtMAO import pyRitoFile
 
-wiwawe.wav2wem(['D:/test/1565986.wav'])
+b = pyRitoFile.read_mapgeo('D:/b.mapgeo')

@@ -207,7 +207,6 @@ class ANM:
             match_track = next(
                 (track for track in anm.tracks if track.joint_hash == Elf(joint_name)), None)
             if match_track != None:
-                # get name to set rotation interpolate to slerp 
                 match_track.joint_name = joint_name
                 match_track.ik_joint = ik_joint
                 for attr in attributes:
