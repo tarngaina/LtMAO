@@ -43,4 +43,3 @@ def init():
         with open(SETTINGS.local_file, 'w+') as f:
             f.write('{}')
     load()
-    save()

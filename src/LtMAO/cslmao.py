@@ -195,16 +195,15 @@ def convert_raw_files_before_run():
     # converts
     if setting.get('cslmao.auto_py2bin', False):
         for py_file, bin_file in py2bin_files:
-            try:
-                RITOBIN.run(py_file, bin_file)
-            except:
-                pass
+            RITOBIN.run(py_file, bin_file)
+        print(f'cslmao: Finish: Convert {len(py2bin_files)} files from PY to BIN.')
     if setting.get('cslmao.auto_dds2tex', False):
         for dds_file, tex_file in dds2tex_files:
             try:
                 Ritoddstex.dds2tex(dds_file, tex_file)
-            except:
-                pass
+            except Exception as e:
+                print(f'Ritoddstex: Error: {str(e)} on {dds_file}')
+        print(f'cslmao: Finish: Convert {len(dds2tex_files)} files from DDS to TEX.')
 
 
 

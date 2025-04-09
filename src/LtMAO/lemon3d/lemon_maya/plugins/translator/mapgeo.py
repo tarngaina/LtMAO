@@ -78,11 +78,12 @@ class MAPGEOTranslator(MPxFileTranslator):
         dump_options = {
             'selected_group': selected_group,
             'version': int(mapgeo_export_options['version']),
+            'float16': mapgeo_export_options['float16'],
             'riot_mapgeo': riot_mapgeo,
         }
         MAPGEO.scene_dump(mapgeo, dump_options)
         helper.mirrorX(mapgeo=mapgeo)
-        pyRitoFile.write_mapgeo(mapgeo_path, mapgeo, version=dump_options['version'])
+        pyRitoFile.write_mapgeo(mapgeo_path, mapgeo, float16=dump_options['float16'], version=dump_options['version'])
         return True
 
 class MAPGEO:
@@ -103,8 +104,11 @@ class MAPGEO:
 
         if not cmds.optionVar(exists='lemon3d_mapgeo_version'):
             cmds.optionVar(sv=('lemon3d_mapgeo_version', '17'), default=True)
+        if not cmds.optionVar(exists='lemon3d_mapgeo_float16'):
+            cmds.optionVar(iv=('lemon3d_mapgeo_float16', False), default=True)
         mapgeo_export_options = {
             'version': cmds.optionVar(query='lemon3d_mapgeo_version'),
+            'float16': cmds.optionVar(query='lemon3d_mapgeo_float16'),
             'riot_mapgeo_path': riot_mapgeo_path
         } 
         def set_value_cmd(key, value):
@@ -119,7 +123,7 @@ class MAPGEO:
             cmds.text(label=mapgeo_path, align='left', width=600)
             cmds.setParent('..')
 
-            cmds.rowLayout(numberOfColumns=1, adjustableColumn=1)
+            cmds.rowLayout(numberOfColumns=3)
             def change_cmd(item):
                 set_value_cmd('version', item)
                 cmds.optionVar(sv=('lemon3d_mapgeo_version', item))
@@ -127,9 +131,19 @@ class MAPGEO:
             cmds.menuItem(label = '17')
             cmds.menuItem(label = '13')
             cmds.optionMenu(option_menu, edit=True, value=mapgeo_export_options['version'])
+            cmds.text(label='', w=100)
+            def check_cmd(value):
+                set_value_cmd('float16', value)
+                cmds.optionVar(iv=('lemon3d_mapgeo_float16', value))
+            cmds.checkBox(
+                label='Float 16',
+                value=mapgeo_export_options['float16'],
+                onCommand=lambda e: check_cmd(True),
+                offCommand=lambda e: check_cmd(False),
+            )
             cmds.setParent('..')
 
-            cmds.rowLayout(numberOfColumns=3, adjustableColumn=3)
+            cmds.rowLayout(numberOfColumns=3, adjustableColumn=2)
             cmds.text(label='Riot MAPGEO Path:')
             mapgeo_text = cmds.text(label=riot_mapgeo_path, align='left', width=600)
             def mapgeobrowse_cmd(text):
@@ -153,7 +167,7 @@ class MAPGEO:
                 cmds.layoutDialog(dismiss=result)
             cmds.button(label='Export', width=100, command=lambda e: dismiss('Export'))
         
-        return cmds.layoutDialog(title='ANM Export Options', ui=ui_cmd), mapgeo_export_options
+        return cmds.layoutDialog(title='MAPGEO Export Options', ui=ui_cmd), mapgeo_export_options
 
     @staticmethod
     def scene_load(mapgeo):
@@ -669,6 +683,7 @@ class MAPGEO:
                 submesh.name = shader_node.name()
                 if submesh.name == 'missing_environment':
                     submesh.name = '-missing@environment-'
+                submesh.name = submesh.name.replace('__', '/')
                 submesh.index_start = index_start
                 submesh.index_count = index_count
                 submesh.min_vertex = min(shader_indices[shader_index])

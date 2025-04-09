@@ -30,17 +30,11 @@ import requests
 
 qtwidgets = helper.Keeper()
 
+# main
 def show():
     build_app()
 
-def before_build():
-    setting.init()
-    no_skin.init()
-    cslmao.init()
-    control.qtwidgets = qtwidgets
-    set_font()
-    init_theme()
-
+# utils
 def set_font():
     id = QFontDatabase.addApplicationFont('./res/font.ttf')
     family = QFontDatabase.applicationFontFamilies(id)[0] if id > -1 else 'Consolas'
@@ -169,8 +163,79 @@ def init_theme():
             background-color: rgba(0, 0, 0, 127);
         }}
     """
-    
 
+def check_version(label):
+    try:
+        # read offline
+        local_file = './version'
+        with open(local_file, 'r') as f:
+            VERSION = f.read()
+        title = f'LtMAO-hai V{VERSION}'
+        label.setText(title)
+        # read online
+        remote_file = 'https://raw.githubusercontent.com/tarngaina/LtMAO/hai/version'
+        get = requests.get(remote_file)
+        get.raise_for_status()
+        NEW_VERSION = get.text
+        if VERSION != NEW_VERSION:
+            title += f' - New version found: {NEW_VERSION}, redownload LtMAO to update.'
+        label.setText(title)
+    except Exception as e:
+        print(f'qtGUI: check_version: Error: {str(e)}')
+    print('qtGUI: Finish: Check version.')
+
+def sync_changelog(changelog):
+    full_changelog_text = ''
+    local_file = './pref/changelog.txt'
+    try:
+        # read online
+        url=f'https://api.github.com/repos/tarngaina/ltmao/commits?sha=hai&per_page=100'
+        commits=requests.get(url).json()
+        for commit in commits:
+            commit = commit['commit']
+            author = commit['author']['name']
+            date = commit['author']['date']
+            message = commit['message']
+            full_changelog_text += f'[{date}] by {author}:\n{message}\n\n'
+        with open(local_file, 'w+', encoding='utf-8') as f:
+            f.write(full_changelog_text)
+
+    except Exception as e:
+        import os.path
+        print(f'get_changelog: Error: {e}, switching to local file if exists.')
+        if os.path.exists(local_file):
+            # read offline
+            with open(local_file, 'r', encoding='utf-8') as f:
+                full_changelog_text = f.read()
+        else:
+            full_changelog_text = 'get_changelog: Error: Download changelog failed, no local changelog to read.'
+    changelog.insertPlainText(full_changelog_text)
+    print('qtGUI: Finish: Sync changelog.')
+
+# events
+def before_splash():
+    setting.init()
+    set_font()
+    init_theme()
+
+def before_main_window():
+    no_skin.init()
+    cslmao.init()
+    control.qtwidgets = qtwidgets
+    
+def after_main_window():
+    print('qtGUI: Finish: Build main window.')
+    log.link_main_window(qtwidgets.logbox, qtwidgets.statusbar)
+    helper.SafeThread.start('check_version', lambda: check_version(qtwidgets.title_label))
+    helper.SafeThread.start('sync_changelog', lambda: sync_changelog(qtwidgets.changelog))
+    control.on_page_id_changed(True, setting.get('qtGUI.page_id', 0))
+    hash_helper.init()
+    helper.SafeThread.start('sync_ctdb_hashes', hash_helper.CDTBHashes.sync_all)
+    winLT.init()
+    bnk_tool.init()
+    wiwawe.init()
+
+# builds
 def build_app():
     # set app theme
     import qdarktheme
@@ -178,7 +243,7 @@ def build_app():
     qtwidgets.app = app = QApplication([])
     qdarktheme.setup_theme('dark', corner_shape='sharp')
 
-    before_build()
+    before_splash()
 
     # build splash and show splash
     qtwidgets.splash = splash = QSplashScreen()
@@ -186,11 +251,13 @@ def build_app():
     splash.show()
     splash.activateWindow()
 
+    before_main_window()
+
     # build main_window
     qtwidgets.main_window = window = QMainWindow() 
     build_main_window(window)
 
-    after_build()
+    after_main_window()
 
     # close splash and show main window
     splash.close()
@@ -490,64 +557,3 @@ def build_status_bar(widget: QWidget, layout: QBoxLayout):
     layout.addWidget(setting_button, stretch=3)
 
     print('qtGUI: Finish: Build status bar.')
-
-def after_build():
-    print('qtGUI: Finish: Build main window.')
-    log.link_main_window(qtwidgets.logbox, qtwidgets.statusbar)
-    helper.SafeThread.start('check_version', lambda: check_version(qtwidgets.title_label))
-    helper.SafeThread.start('sync_changelog', lambda: sync_changelog(qtwidgets.changelog))
-    control.on_page_id_changed(True, setting.get('qtGUI.page_id', 0))
-    hash_helper.init()
-    helper.SafeThread.start('sync_ctdb_hashes', hash_helper.CDTBHashes.sync_all)
-    winLT.init()
-    bnk_tool.init()
-    wiwawe.init()
-    
- 
-def check_version(label):
-    try:
-        # read offline
-        local_file = './version'
-        with open(local_file, 'r') as f:
-            VERSION = f.read()
-        title = f'LtMAO-hai V{VERSION}'
-        label.setText(title)
-        # read online
-        remote_file = 'https://raw.githubusercontent.com/tarngaina/LtMAO/hai/version'
-        get = requests.get(remote_file)
-        get.raise_for_status()
-        NEW_VERSION = get.text
-        if VERSION != NEW_VERSION:
-            title += f' - New version found: {NEW_VERSION}, redownload LtMAO to update.'
-        label.setText(title)
-    except Exception as e:
-        print(f'qtGUI: check_version: Error: {str(e)}')
-    print('qtGUI: Finish: Check version.')
-
-def sync_changelog(changelog):
-    full_changelog_text = ''
-    local_file = './pref/changelog.txt'
-    try:
-        # read online
-        url=f'https://api.github.com/repos/tarngaina/ltmao/commits?sha=hai&per_page=100'
-        commits=requests.get(url).json()
-        for commit in commits:
-            commit = commit['commit']
-            author = commit['author']['name']
-            date = commit['author']['date']
-            message = commit['message']
-            full_changelog_text += f'[{date}] by {author}:\n{message}\n\n'
-        with open(local_file, 'w+', encoding='utf-8') as f:
-            f.write(full_changelog_text)
-
-    except Exception as e:
-        import os.path
-        print(f'get_changelog: Error: {e}, switching to local file if exists.')
-        if os.path.exists(local_file):
-            # read offline
-            with open(local_file, 'r', encoding='utf-8') as f:
-                full_changelog_text = f.read()
-        else:
-            full_changelog_text = 'get_changelog: Error: Download changelog failed, no local changelog to read.'
-    changelog.insertPlainText(full_changelog_text)
-    print('qtGUI: Finish: Sync changelog.')

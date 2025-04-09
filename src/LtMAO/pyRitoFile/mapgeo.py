@@ -688,7 +688,7 @@ class MAPGEO:
                     model.indices
                 ))
                 # bounding box
-                model.bounding_box = (boudingbox_min, boudingbox_min)
+                model.bounding_box = (boudingbox_min, boudingbox_max)
 
             # start to write mapgeo
             # signature, version
