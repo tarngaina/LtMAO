@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QTreeView,
 )
-from PySide6.QtGui import QBrush, QColor, QStandardItem, QStandardItemModel, QPixmap
+from PySide6.QtGui import QBrush, QColor, QStandardItem, QStandardItemModel, QPixmap, QMovie
 from PySide6.QtCore import Qt, QObject, Signal
 
 
@@ -61,13 +61,13 @@ def on_page_id_changed(event, page_id):
         if c.page_id == page_id:
             c.content.setVisible(True)
             if c.page_id == 100:
-                c.widget.setStyleSheet(f'background-color: rgb{qtwidgets.accent_color};')
+                c.widget.setStyleSheet(f'background-color: {qtwidgets.accent_color};')
             else:
                 c.widget.setChecked(True)
         else:
             c.content.setVisible(False)
             if c.page_id == 100:
-                c.widget.setStyleSheet(f'QStatusBar {{ background-color: rgba(0, 0, 0, 127) }} QStatusBar::hover {{ background-color: rgb{qtwidgets.accent_color}; }}')
+                c.widget.setStyleSheet(f'QStatusBar {{ background-color: rgba(0, 0, 0, 127) }} QStatusBar:hover {{ background-color: {qtwidgets.accent_color}; }}')
             else:
                 c.widget.setChecked(False)
 
@@ -146,7 +146,7 @@ def build_cslmao(widget: QWidget):
     tft_checkbox.setText('🕹️ Enable TFT and other modes')
     tft_checkbox.setChecked(setting.get('cslmao.tft', False))
     def tft_cmd():
-        setting.set('cslmao.tft', chectft_checkboxkbox.isChecked())
+        setting.set('cslmao.tft', tft_checkbox.isChecked())
         setting.save()
     tft_checkbox.clicked.connect(tft_cmd)
     layout2.addWidget(tft_checkbox)
@@ -179,6 +179,7 @@ def build_cslmao(widget: QWidget):
 
     hide_widget = QWidget()
     hide_widget.setStyleSheet(qtwidgets.tab_stylesheet)
+    qtwidgets.tab_widgets.append(hide_widget)
     hide_widget.setLayout(hide_layout)
     setting_layout.addWidget(hide_widget)
     def show_setting_cmd():
@@ -188,6 +189,7 @@ def build_cslmao(widget: QWidget):
 
     show_widget = QWidget()
     show_widget.setStyleSheet(qtwidgets.tab_stylesheet)
+    qtwidgets.tab_widgets.append(show_widget)
     show_widget.setLayout(show_layout)
     show_widget.setVisible(False)
     setting_layout.addWidget(show_widget)
@@ -212,17 +214,24 @@ def build_cslmao(widget: QWidget):
     new_button.setText('💥 New')
     new_button.setMinimumWidth(130)
     layout2.addWidget(new_button)
-    layout2.addStretch()
+    all_button = QToolButton()
+    qtwidgets.all_mod_enable = True
+    all_button.setText('🖲️ On/Off All')
+    all_button.setMinimumWidth(130)
+    layout2.addWidget(all_button)
+    search_line = QLineEdit()
+    search_line.setPlaceholderText('🔎 Filter')
+    layout2.addWidget(search_line, stretch=1)
     layout2.addWidget(QLabel('📚 Profile: '))
     box = QComboBox()
-    box.setMinimumWidth(200)
+    box.setMinimumWidth(100)
     box.addItems(['all', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
     box.setCurrentText(setting.get('cslmao.profile', 'all'))
     def change_profile():
         profile = box.currentText()
-        refresh_profile(profile)
         setting.set('cslmao.profile', profile)
         setting.save()
+        refresh_view()
     box.currentTextChanged.connect(change_profile)
     layout2.addWidget(box)
     layout.addLayout(layout2)
@@ -324,7 +333,7 @@ def build_cslmao(widget: QWidget):
             mod.profile = profile_box.currentText()
             cslmao.save_mods()
             display_label.setText(f'📚 {mod.profile}\n🆔 {info["Name"]}\n👤 {info["Author"]}\n🏷️ {info["Version"]}\n📃 {info["Description"]}')
-            refresh_profile(setting.get('cslmao.profile', 'all'))
+            refresh_view()
             display_widget.setVisible(True)
             edit_widget.setVisible(False)
         button.clicked.connect(save_cmd)
@@ -334,7 +343,7 @@ def build_cslmao(widget: QWidget):
         # display
         display_layout = QHBoxLayout()
         display_layout.setContentsMargins(0, 0, 0, 0)
-        checkbox = QCheckBox()
+        mod_widget.checkbox = checkbox = QCheckBox()
         checkbox.setStyleSheet(':indicator { width: 30; height: 30; }')
         checkbox.setChecked(mod.enable)
         def enable_mod():
@@ -354,7 +363,7 @@ def build_cslmao(widget: QWidget):
         )
         display_layout.addWidget(display_image)
 
-        display_label = QLabel()
+        mod_widget.display_label = display_label = QLabel()
         display_label.setText(f'📚 {mod.profile}\n🆔 {info["Name"]}\n👤 {info["Author"]}\n🏷️ {info["Version"]}\n📃 {info["Description"]}')
         display_layout.addWidget(display_label, stretch=1)
         
@@ -569,17 +578,47 @@ def build_cslmao(widget: QWidget):
             helper.SafeThread.start('cslmao', import_thrd)
     import_button.clicked.connect(import_mod)
 
-    # refresh profile
-    def refresh_profile(profile):
+    # get view mod widget
+    def get_view_mod_widgets(profile, filter):
+        show_mod_widgets = {}
+        hide_mod_widgets = {}
+        filter = filter.lower()
         if profile == 'all':
             for mod, mod_widget in view_layout.mod_widgets.items():
-                mod_widget.setVisible(True)
+                mod_text = mod_widget.display_label.text().lower()
+                if filter in mod_text:
+                    show_mod_widgets[mod] = mod_widget
+                else:
+                    hide_mod_widgets[mod] = mod_widget
         else:
             for mod, mod_widget in view_layout.mod_widgets.items():
-                if mod.profile == profile:
-                    mod_widget.setVisible(True)
+                mod_text = mod_widget.display_label.text().lower()
+                if mod.profile == profile and filter in mod_text:
+                    show_mod_widgets[mod] = mod_widget
                 else:
-                    mod_widget.setVisible(False)
+                    hide_mod_widgets[mod] = mod_widget
+        return show_mod_widgets, hide_mod_widgets
+
+    # enable/disable all
+    def all_mods():
+        if is_overlay_running():
+            return
+        show_mod_widgets, hide_mod_widgets = get_view_mod_widgets(setting.get('cslmao.profile', 'all'), search_line.text())
+        for mod, mod_widget in show_mod_widgets.items():
+            mod_widget.checkbox.setChecked(qtwidgets.all_mod_enable)
+            mod.enable = qtwidgets.all_mod_enable
+        cslmao.save_mods()
+        qtwidgets.all_mod_enable = not qtwidgets.all_mod_enable
+    all_button.clicked.connect(all_mods)
+
+    # refresh view
+    def refresh_view():
+        show_mod_widgets, hide_mod_widgets = get_view_mod_widgets(setting.get('cslmao.profile', 'all'), search_line.text())
+        for mod, mod_widget in show_mod_widgets.items():
+            mod_widget.setVisible(True)
+        for mod, mod_widget in hide_mod_widgets.items():
+            mod_widget.setVisible(False)
+    search_line.textChanged.connect(refresh_view)
 
     # check overlay running
     def is_overlay_running():
@@ -593,14 +632,13 @@ def build_cslmao(widget: QWidget):
         print(f'cslmao: Status: Loading mods.')
         for mod in cslmao.MOD.mods:
             try:
-                info, image = cslmao.get_info(mod)
                 view_layout_smart.build_mod_widget(mod)
             except Exception as e:
                 cslmao.MOD.mods.remove(mod)
                 print(f'cslmao: Error: Load {mod.get_path()}: {e}')
                 import traceback
                 print(traceback.format_exc())
-        refresh_profile(setting.get('cslmao.profile', 'all'))
+        refresh_view()
         print(f'cslmao: Status: Finished loading mods.')
         qtwidgets.is_loading_cslmao = False
     helper.SafeThread.start('cslmao', load_after_build)
@@ -1031,6 +1069,7 @@ def build_no_skin(widget: QWidget):
     layout = QHBoxLayout()
     tab_widget = QTabWidget()
     tab_widget.setStyleSheet(qtwidgets.tab_stylesheet)
+    qtwidgets.tab_widgets.append(tab_widget)
     
     # no skin full
     tab1 = QWidget()
@@ -1234,16 +1273,16 @@ def build_wad_tool(widget: QWidget):
     layout.addSpacing(30)
     layout2 = QHBoxLayout()
     add_button = QToolButton()
-    add_button.setText('💰 Add WADs')
+    add_button.setText('📦 Add WADs')
     layout2.addWidget(add_button)
     scan_button = QToolButton()
-    scan_button.setText('🔎 Scan WADs in Folder')
+    scan_button.setText('📁 Add WADs in Folder')
     layout2.addWidget(scan_button)
     clear_button = QToolButton()
     clear_button.setText('❌ Clear')
     layout2.addWidget(clear_button)
     filter_line = QLineEdit()
-    filter_line.setPlaceholderText('Include keywords, press Enter to filter')
+    filter_line.setPlaceholderText('🔎 Include keywords, press Enter to filter')
     layout2.addWidget(filter_line, stretch=1)
     layout.addLayout(layout2)
     # text view
@@ -1534,8 +1573,9 @@ def build_lemon3d(widget: QWidget):
     layout = QHBoxLayout()
     tab_widget = QTabWidget()
     tab_widget.setStyleSheet(qtwidgets.tab_stylesheet)
+    qtwidgets.tab_widgets.append(tab_widget)
+
     # fbx
-    
     tab1 = QWidget()
     layout2 = QVBoxLayout()
     
@@ -2144,16 +2184,31 @@ def build_setting(widget: QWidget):
     # theme
     layout2 = QHBoxLayout()
     layout2.addWidget(QLabel('☀️ Theme: '))
-    box = QComboBox()
-    box.setMinimumWidth(200)
-    box.addItems([f.name for f in os.scandir('./res/themes') if f.is_dir()])
-    box.setCurrentText(setting.get('qtGUI.theme_name', 'raora'))
-    def change_theme(box):
-        setting.set('qtGUI.theme_name', box.currentText())
+    theme_box = QComboBox()
+    theme_box.setMinimumWidth(200)
+    theme_box.addItems([f.name for f in os.scandir('./res/themes') if f.is_dir()])
+    theme_box.setCurrentText(setting.get('qtGUI.theme_name', 'raora'))
+    def change_theme():
+        # init theme
+        theme_name = theme_box.currentText()
+        qtwidgets.theme_paths = qtwidgets.init_theme(theme_name)
+        # apply theme
+        qtwidgets.main_window.setStyleSheet(qtwidgets.window_stylesheet)
+        for tab_widget in qtwidgets.tab_widgets:
+            tab_widget.setStyleSheet(qtwidgets.tab_stylesheet)
+        qtwidgets.icon_label.setPixmap(QPixmap(qtwidgets.theme_paths['titlebaricon']).scaled(118, 40, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation))
+        # set background gif
+        if setting.get('qtGUI.animated_background', True):
+            qtwidgets.background_widget.setMovie(QMovie(qtwidgets.theme_paths['background']))
+            qtwidgets.background_widget.setScaledContents(True)
+            qtwidgets.background_widget.movie().start()
+        else:
+            qtwidgets.background_widget.setPixmap(QPixmap(qtwidgets.theme_paths['background']))
+            qtwidgets.background_widget.setScaledContents(True)
+        setting.set('qtGUI.theme_name', theme_name)
         setting.save()
-        print('setting: Restart is require for theme changes to take effect.')
-    box.currentTextChanged.connect(lambda event: change_theme(box))
-    layout2.addWidget(box)
+    theme_box.currentTextChanged.connect(change_theme)
+    layout2.addWidget(theme_box)
 
     checkbox = QCheckBox()
     checkbox.setText('🎞️ Animated background')
@@ -2161,7 +2216,13 @@ def build_setting(widget: QWidget):
     def animated_background_cmd():
         setting.set('qtGUI.animated_background', checkbox.isChecked())
         setting.save()
-        print('setting: Restart is require for theme changes to take effect.')
+        if setting.get('qtGUI.animated_background', True):
+            qtwidgets.background_widget.setMovie(QMovie(qtwidgets.theme_paths['background']))
+            qtwidgets.background_widget.setScaledContents(True)
+            qtwidgets.background_widget.movie().start()
+        else:
+            qtwidgets.background_widget.setPixmap(QPixmap(qtwidgets.theme_paths['background']))
+            qtwidgets.background_widget.setScaledContents(True)
     checkbox.clicked.connect(animated_background_cmd)
     layout2.addWidget(checkbox)
 

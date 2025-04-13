@@ -97,37 +97,35 @@ def load_mods():
             l = json.load(f)
         MOD.mods = [MOD(id, path, enable, profile) for id, path, enable, profile in l]
     except Exception as e:
-        import traceback
         print(f'cslmao: Error: Can not load {mod_file}: {e}')
+        import traceback
         print(traceback.format_exc())
         MOD.mods = []
         with open(mod_file, 'w+') as f:
             json.dump({}, f, indent=4)
         print(f'cslmao: Finish: Reset {mod_file}')
     # load outside mod file
+    existed_mod_path = [mod.get_path() for mod in MOD.mods]
     for dirname in os.listdir(raw_dir):
         info_file = os.path.join(raw_dir, dirname, 'META', 'info.json')
         if not os.path.exists(info_file):
             continue
-        existed_mod = False
-        for mod in MOD.mods:
-            if dirname == mod.get_path():
-                existed_mod = True
-                break
-        if existed_mod:
+        if dirname in existed_mod_path:
             continue
-
-        with open(info_file, 'r') as f:
-            info = json.load(f)
-        mod_path = f'{info["Name"]}'
-        mod = MOD(id=MOD.generate_id(), path=mod_path,
-                    enable=False, profile='0')
-        MOD.mods.append(mod)
-        os.rename(
-            os.path.abspath(os.path.join(raw_dir, dirname)),
-            os.path.abspath(os.path.join(raw_dir, mod.get_path()))
-        )
-        save_mods()
+        try: 
+            mod_id = MOD.generate_id()
+            mod_path = dirname
+            mod = MOD(id=mod_id, path=mod_path, enable=False, profile='0')
+            os.rename(
+                os.path.join(raw_dir, mod_path),
+                os.path.join(raw_dir, mod.get_path())
+            )
+            MOD.mods.append(mod)
+        except Exception as e:
+            print(f'cslmao: Error: Can not load {dirname}: {e}')
+            import traceback
+            print(traceback.format_exc())
+            
 
 def save_mods():
     with open(mod_file, 'w+') as f:

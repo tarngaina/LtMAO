@@ -811,8 +811,8 @@ class SKN:
             # get all uvs
             u_values = MFloatArray()
             v_values = MFloatArray()
-            u_value_count = len(u_values)
             mesh.getUVs(u_values, v_values)
+            uv_value_count = len(u_values)
             # iterator on vertices
             # to dump all new vertices base on unique uv
             iterator = MItMeshVertex(mesh_dagpath)
@@ -865,11 +865,9 @@ class SKN:
                     seen = []
                     for i in range(uv_count):
                         uv_index = uv_indices[i]
-                        if uv_index == -1:
-                            continue
-                        if uv_index > u_value_count:
+                        if uv_index < 0 or uv_index >= uv_value_count:
                             raise helper.FunnyError(
-                                f'SKN Expoter ({mesh.name()}): Please check if all UVs of this mesh is in the first UV set.')
+                                f'SKN Expoter ({mesh.name()}): Can not export UVs, please check if all UVs of this mesh is in the first UV set.')
                         if uv_index not in seen:
                             seen.append(uv_index)
                             uv = Vector(

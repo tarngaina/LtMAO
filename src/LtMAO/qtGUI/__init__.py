@@ -40,10 +40,7 @@ def set_font():
     family = QFontDatabase.applicationFontFamilies(id)[0] if id > -1 else 'Consolas'
     qtwidgets.app.setFont(QFont(family, weight=14))
 
-def init_theme():
-    # theme stuffs
-    global theme_paths
-    theme_name = setting.get('qtGUI.theme_name', 'raora')
+def init_theme(theme_name):
     theme_paths = {
         'splash': f'./res/themes/{theme_name}/splash.png',
         'background': f'./res/themes/{theme_name}/background.gif',
@@ -51,9 +48,20 @@ def init_theme():
     }
     # get the background accent color 
     import colorthief
-    r, g, b = colorthief.ColorThief(theme_paths['background']).get_color(quality=1)
-    f = 255*0.7 / max(r, g, b)
-    qtwidgets.accent_color = (int(r*f), int(g*f), int(b*f))
+    if '_' in theme_name:
+        colors = colorthief.ColorThief(theme_paths['background']).get_palette(quality=1, color_count=2)
+        r1, g1, b1 = colors[0]
+        f = 255*0.7 / max(r1, g1, b1)
+        r1, g1, b1 = (int(r1*f), int(g1*f), int(b1*f))
+        r2, g2, b2 = colors[1]
+        f = 255*0.7 / max(r2, g2, b2)
+        r2, g2, b2 = (int(r2*f), int(g2*f), int(b2*f))
+        qtwidgets.accent_color = f'qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0.0 #{r1:02x}{g1:02x}{b1:02x}, stop: 1.0 #{r2:02x}{g2:02x}{b2:02x})'
+    else:
+        r, g, b = colorthief.ColorThief(theme_paths['background']).get_color(quality=1)
+        f = 255*0.7 / max(r, g, b)
+        r, g, b = (int(r*f), int(g*f), int(b*f))
+        qtwidgets.accent_color = f'rgb({r}, {g}, {b})'
     # stylesheets
     qtwidgets.window_stylesheet = f"""
         QWidget {{
@@ -62,37 +70,40 @@ def init_theme():
         QLabel {{
             background-color: transparent;
         }}  
+        QScrollBar:handle {{
+            background-color: {qtwidgets.accent_color}; 
+        }}
         QScrollArea {{
             border: none;
             background-color: transparent;
         }}         
         QToolButton {{
             min-height: 30;
-            border-bottom: 2px solid rgb{qtwidgets.accent_color};
+            border-bottom: 2px solid {qtwidgets.accent_color};
         }}
         QToolButton:hover {{ 
-            background-color: rgb{qtwidgets.accent_color}; 
+            background-color: {qtwidgets.accent_color}; 
         }}
         QToolButton:checked {{ 
-            background-color: rgb{qtwidgets.accent_color}; 
+            background-color: {qtwidgets.accent_color}; 
         }}
         QCheckBox {{
             min-height: 30;
         }}
         QCheckBox:hover {{
-            border-bottom-color: rgb{qtwidgets.accent_color};  
+            border-bottom-color: {qtwidgets.accent_color};  
         }} 
         QLineEdit {{
             min-height: 30;
         }}
         QLineEdit:focus, QPlainTextEdit:focus {{
-            border-color: rgb{qtwidgets.accent_color};  
+            border-color: {qtwidgets.accent_color};  
         }}
         QComboBox {{
-            border-color: rgb{qtwidgets.accent_color};
+            border-color: {qtwidgets.accent_color};
         }}
         QComboBox QAbstractItemView:item:hover, QComboBox QAbstractItemView:item:selected {{
-            background-color: rgb{qtwidgets.accent_color};    
+            background-color: {qtwidgets.accent_color};    
         }}
         QTabWidget:pane {{
             border: none;
@@ -107,11 +118,11 @@ def init_theme():
         }}
         QTabBar:tab:selected {{
             color: #ffffff;
-            border-bottom-color: rgb{qtwidgets.accent_color};
-            background-color: rgb{qtwidgets.accent_color};
+            border-bottom-color: {qtwidgets.accent_color};
+            background-color: {qtwidgets.accent_color};
         }}
         QTableView {{
-            selection-background-color: rgb{qtwidgets.accent_color};
+            selection-background-color: {qtwidgets.accent_color};
         }}
         QHeaderView:section {{
             background-color: transparent;
@@ -121,10 +132,10 @@ def init_theme():
         }}
         QHeaderView:section:checked {{
             color: #ffffff;
-            background-color: rgb{qtwidgets.accent_color};
+            background-color: {qtwidgets.accent_color};
         }}
         QTreeView:item:selected  {{
-            background-color: rgb{qtwidgets.accent_color};
+            background-color: {qtwidgets.accent_color};
         }}
         QToolTip {{
             background-color: rgba(0, 0, 0, 127);
@@ -138,7 +149,7 @@ def init_theme():
         QToolButton {{
             min-height: 30;
             background-color: rgba(0, 0, 0, 127);
-            border-bottom: 2px solid rgb{qtwidgets.accent_color};
+            border-bottom: 2px solid {qtwidgets.accent_color};
         }}
         QLabel {{
             background-color: transparent;
@@ -151,18 +162,19 @@ def init_theme():
             background-color: rgba(0, 0, 0, 127);
         }}
         QToolButton:hover {{ 
-            background-color: rgb{qtwidgets.accent_color}; 
+            background-color: {qtwidgets.accent_color}; 
         }}
         QToolButton:checked {{ 
-            background-color: rgb{qtwidgets.accent_color}; 
+            background-color: {qtwidgets.accent_color}; 
         }}
         QTabBar::tab {{
-            border-bottom: 2px solid rgb{qtwidgets.accent_color};
+            border-bottom: 2px solid {qtwidgets.accent_color};
         }}
         QComboBox {{
             background-color: rgba(0, 0, 0, 127);
         }}
     """
+    return theme_paths
 
 def check_version(label):
     try:
@@ -216,7 +228,10 @@ def sync_changelog(changelog):
 def before_splash():
     setting.init()
     set_font()
-    init_theme()
+    # theme
+    qtwidgets.init_theme = init_theme
+    qtwidgets.theme_paths = init_theme(setting.get('qtGUI.theme_name', 'raora'))
+    
 
 def before_main_window():
     no_skin.init()
@@ -267,7 +282,7 @@ def build_app():
 
 def build_splash_screen(splash: QSplashScreen):
     splash.setWindowFlags(splash.windowFlags() | Qt.WindowStaysOnTopHint)
-    pixmap = QPixmap(theme_paths['splash']).scaled(400, 400, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation)
+    pixmap = QPixmap(qtwidgets.theme_paths['splash']).scaled(400, 400, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation)
     splash.setPixmap(pixmap)
     layout = QVBoxLayout()
     label = QLabel()
@@ -286,21 +301,21 @@ def build_main_window(window: QMainWindow):
     window.setStyleSheet(qtwidgets.window_stylesheet)
     build_grips(window)
     # set background gif
-    widget = QLabel()
+    qtwidgets.background_widget = background_widget = QLabel()
     if setting.get('qtGUI.animated_background', True):
-        movie = QMovie(theme_paths['background'])
-        widget.setMovie(movie)
-        widget.setScaledContents(True)
+        movie = QMovie(qtwidgets.theme_paths['background'])
+        background_widget.setMovie(movie)
+        background_widget.setScaledContents(True)
         movie.start()
     else:
-        pixmap = QPixmap(theme_paths['background'])
-        widget.setPixmap(pixmap)
-        widget.setScaledContents(True)
+        pixmap = QPixmap(qtwidgets.theme_paths['background'])
+        background_widget.setPixmap(pixmap)
+        background_widget.setScaledContents(True)
     # build main layout
     layout = QVBoxLayout()
-    build_main_layout(widget, layout)
-    widget.setLayout(layout)
-    window.setCentralWidget(widget)
+    build_main_layout(background_widget, layout)
+    background_widget.setLayout(layout)
+    window.setCentralWidget(background_widget)
 
     # events
     def changeEvent(event):
@@ -396,6 +411,8 @@ def build_main_layout(widget: QWidget, layout: QBoxLayout):
     layout.addWidget(widget, stretch=2)
 
     # build controlcontent after both mid content and status bar
+    # init tab widgets to change stylesheet mid run
+    qtwidgets.tab_widgets = [] 
     for c in control.all:
         c.build_command(c.content)
     
@@ -407,8 +424,8 @@ def build_title_bar(widget: QWidget, layout: QBoxLayout):
     layout.setSpacing(0)
 
     # icon
-    pixmap = QPixmap(theme_paths['titlebaricon']).scaled(120, 40, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation)
-    icon_label = QLabel(pixmap=pixmap)
+    pixmap = QPixmap(qtwidgets.theme_paths['titlebaricon']).scaled(118, 40, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation)
+    qtwidgets.icon_label = icon_label = QLabel(pixmap=pixmap)
     layout.addWidget(icon_label, stretch=3)
 
     # icon
