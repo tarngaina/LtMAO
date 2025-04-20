@@ -8,6 +8,8 @@ from PySide6.QtGui import (
     QFont,
     QPixmap,
     QMovie,
+    QColor,
+    QBrush,
 )
     
 from PySide6.QtWidgets import (
@@ -57,11 +59,13 @@ def init_theme(theme_name):
         f = 255*0.7 / max(r2, g2, b2)
         r2, g2, b2 = (int(r2*f), int(g2*f), int(b2*f))
         qtwidgets.accent_color = f'qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0.0 #{r1:02x}{g1:02x}{b1:02x}, stop: 1.0 #{r2:02x}{g2:02x}{b2:02x})'
+        qtwidgets.accent_brush = QBrush(QColor(r1, g1, b1))
     else:
         r, g, b = colorthief.ColorThief(theme_paths['background']).get_color(quality=1)
         f = 255*0.7 / max(r, g, b)
         r, g, b = (int(r*f), int(g*f), int(b*f))
         qtwidgets.accent_color = f'rgb({r}, {g}, {b})'
+        qtwidgets.accent_brush = QBrush(QColor(r, g, b))
     # stylesheets
     qtwidgets.window_stylesheet = f"""
         QWidget {{

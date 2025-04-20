@@ -1,7 +1,6 @@
-import os, os.path, shutil, math
-import pyaudio, wave
+import os, os.path, shutil
 from subprocess import Popen, CREATE_NO_WINDOW, PIPE
-from . import tools, pyRitoFile, bnk_tool
+from . import tools
 
 wwise_console_file = './res/wiwawe/WwiseApp/Authoring/x64/Release/bin/WwiseConsole.exe'
 wwise_wproj_file = './res/wiwawe/WwiseLeagueProjects/WWiseLeagueProjects.wproj'
@@ -80,7 +79,8 @@ def wav2wem(wav_files):
 def wem2wav(wem_files):
     for wem_file in wem_files:
         tools.VGMStream.to_wav(wem_file)
-        
+
+       
 def init():
     os.makedirs(wiwawe_dir, exist_ok=True)
     os.makedirs(input_dir, exist_ok=True)

@@ -3,14 +3,12 @@ from maya.OpenMayaMPx import *
 from maya.OpenMayaAnim import *
 from maya import cmds
 
-import os.path, random
+import random
 from . import helper
 from ..... import pyRitoFile
 from .....pyRitoFile.structs import Vector, Matrix4
 
-import logging
-
-class MAPGEOTranslator(MPxFileTranslator):
+class MAPGEOImporter(MPxFileTranslator):
     name = 'League of Legends: MAPGEO'
     extension = 'mapgeo'
 
@@ -19,6 +17,38 @@ class MAPGEOTranslator(MPxFileTranslator):
 
     def haveReadMethod(self):
         return True
+
+    def defaultExtension(self):
+        return self.extension
+
+    def filter(self):
+        return f'*.{self.extension}'
+    
+    def identifyFile(self, file, buffer, size):
+        if file.fullName().endswith(f'.{self.extension}'):
+            return MPxFileTranslator.kIsMyFileType
+        return MPxFileTranslator.kNotMyFileType
+
+    @classmethod
+    def creator(cls):
+        return asMPxPtr(cls())
+
+    def reader(self, file, options, access):
+        mapgeo_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+        # read mapgeo
+        print(f'MAPGEO Importer: Read {mapgeo_path}')
+        mapgeo = pyRitoFile.read_mapgeo(mapgeo_path)
+        # load mapgeo
+        helper.mirrorX(mapgeo=mapgeo)
+        MAPGEO.scene_load(mapgeo)
+        return True
+
+class MAPGEOExporter(MPxFileTranslator):
+    name = 'League of Legends: MAPGEO Export'
+    extension = 'mapgeo'
+
+    def __init__(self):
+        MPxFileTranslator.__init__(self)
     
     def haveWriteMethod(self):
         return True
@@ -38,17 +68,7 @@ class MAPGEOTranslator(MPxFileTranslator):
     def creator(cls):
         return asMPxPtr(cls())
 
-    def reader(self, file, option, access):
-        mapgeo_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        # read mapgeo
-        print(f'MAPGEO Importer: Read {mapgeo_path}')
-        mapgeo = pyRitoFile.read_mapgeo(mapgeo_path)
-        # load mapgeo
-        helper.mirrorX(mapgeo=mapgeo)
-        MAPGEO.scene_load(mapgeo)
-        return True
-
-    def writer(self, file, option, access):
+    def writer(self, file, options, access):
         # check selected
         selections = MSelectionList()
         MGlobal.getActiveSelectionList(selections)
@@ -66,19 +86,18 @@ class MAPGEOTranslator(MPxFileTranslator):
 
         # export options
         mapgeo_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        dismiss, mapgeo_export_options = MAPGEO.create_ui_mapgeo_export_options(mapgeo_path)
-        if dismiss != 'Export':
-            return False
         # dump mapgeo
         riot_mapgeo = None
-        riot_mapgeo_path = mapgeo_export_options['riot_mapgeo_path']
+        riot_mapgeo_path = helper.get_riot_path(mapgeo_path)
         if riot_mapgeo_path != '':
             riot_mapgeo = pyRitoFile.read_mapgeo(riot_mapgeo_path)
         mapgeo = pyRitoFile.MAPGEO()
+        options = {key: value for option in options.split(';') for key, value in (option.split('='), )}
+        print(options)
         dump_options = {
             'selected_group': selected_group,
-            'version': int(mapgeo_export_options['version']),
-            'float16': mapgeo_export_options['float16'],
+            'version': int(options['version']),
+            'float16': False if options['float16'] == '0' else True,
             'riot_mapgeo': riot_mapgeo,
         }
         MAPGEO.scene_dump(mapgeo, dump_options)
@@ -88,93 +107,9 @@ class MAPGEOTranslator(MPxFileTranslator):
 
 class MAPGEO:
     @staticmethod
-    def create_ui_mapgeo_export_options(mapgeo_path):
-        # check riot mapgeo path
-        riot_mapgeo_path = os.path.join(
-            os.path.dirname(mapgeo_path), 
-            f'riot_{os.path.basename(mapgeo_path)}'
-        ).replace('\\', '/')
-        if not os.path.exists(riot_mapgeo_path):
-            riot_mapgeo_path = os.path.join(
-                os.path.dirname(mapgeo_path),
-                'riot.mapgeo'
-            ).replace('\\', '/')
-        if not os.path.exists(riot_mapgeo_path):
-            riot_mapgeo_path = ''
-
-        if not cmds.optionVar(exists='lemon3d_mapgeo_version'):
-            cmds.optionVar(sv=('lemon3d_mapgeo_version', '17'), default=True)
-        if not cmds.optionVar(exists='lemon3d_mapgeo_float16'):
-            cmds.optionVar(iv=('lemon3d_mapgeo_float16', False), default=True)
-        mapgeo_export_options = {
-            'version': cmds.optionVar(query='lemon3d_mapgeo_version'),
-            'float16': cmds.optionVar(query='lemon3d_mapgeo_float16'),
-            'riot_mapgeo_path': riot_mapgeo_path
-        } 
-        def set_value_cmd(key, value):
-            mapgeo_export_options[key] = value
-
-
-        def ui_cmd():
-            cmds.columnLayout()
-
-            cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
-            cmds.text(label='MAPGEO Path:')
-            cmds.text(label=mapgeo_path, align='left', width=600)
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=3)
-            def change_cmd(item):
-                set_value_cmd('version', item)
-                cmds.optionVar(sv=('lemon3d_mapgeo_version', item))
-            option_menu = cmds.optionMenu(label='Version: ', changeCommand=change_cmd)
-            cmds.menuItem(label = '17')
-            cmds.menuItem(label = '13')
-            cmds.optionMenu(option_menu, edit=True, value=mapgeo_export_options['version'])
-            cmds.text(label='', w=100)
-            def check_cmd(value):
-                set_value_cmd('float16', value)
-                cmds.optionVar(iv=('lemon3d_mapgeo_float16', value))
-            cmds.checkBox(
-                label='Float 16',
-                value=mapgeo_export_options['float16'],
-                onCommand=lambda e: check_cmd(True),
-                offCommand=lambda e: check_cmd(False),
-            )
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=3, adjustableColumn=2)
-            cmds.text(label='Riot MAPGEO Path:')
-            mapgeo_text = cmds.text(label=riot_mapgeo_path, align='left', width=600)
-            def mapgeobrowse_cmd(text):
-                mapgeo_path = cmds.fileDialog2(
-                    dialogStyle=2, 
-                    fileMode=1,
-                    fileFilter='MAPGEO(*.mapgeo)',
-                    caption='Select Riot MAPGEO file',
-                    okCaption='Select'
-                )
-                if mapgeo_path:
-                    mapgeo_path = mapgeo_path[0].replace('\\', '/')
-                    cmds.text(text, edit=True, label=mapgeo_path)
-                    mapgeo_export_options['riot_mapgeo_path'] = mapgeo_path
-            cmds.button(label='Browse Riot MAPGEO', command=lambda e: mapgeobrowse_cmd(mapgeo_text))
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=2)
-            cmds.text(label='', w=700)
-            def dismiss(result):
-                cmds.layoutDialog(dismiss=result)
-            cmds.button(label='Export', width=100, command=lambda e: dismiss('Export'))
-        
-        return cmds.layoutDialog(title='MAPGEO Export Options', ui=ui_cmd), mapgeo_export_options
-
-    @staticmethod
     def scene_load(mapgeo):
         # ensure far clip plane, to see whole map
         cmds.setAttr('perspShape.farClipPlane', 300000)
-        # render with alpha cut
-        cmds.setAttr('hardwareRenderingGlobals.transparencyAlgorithm', 5)
         # layers
         layer_models = {}
         for i in range(8):
@@ -373,15 +308,13 @@ class MAPGEO:
             addElement='setBushes'
         )
         cmds.select(clear=True)
-
+        
     @staticmethod
     def scene_dump(mapgeo, dump_options):
         version = dump_options['version'] 
 
         group_transform = dump_options['selected_group']
         group_name = group_transform.name()
-        group_dagpath = MDagPath()
-        group_transform.getPath(group_dagpath)
         # auto freeze selected group transform
         cmds.makeIdentity(
             group_name,
@@ -419,18 +352,12 @@ class MAPGEO:
         # const define
         NO_COLOR = MColor(-1.0, -1.0, -1.0, -1.0)
         # iterator all meshes in group transform
-        mesh_dagpath = MDagPath()
-        iteratorMesh = MItDag(MItDag.kDepthFirst, MFn.kMesh)
-        iteratorMesh.reset(group_transform.object())
         mapgeo.models = []
+        mesh_dagpath = MDagPath()
+        iteratorMesh = MItDag()
+        iteratorMesh.reset(group_transform.object(), MItDag.kDepthFirst, MFn.kMesh)
         while not iteratorMesh.isDone():
             iteratorMesh.getPath(mesh_dagpath)
-            if mesh_dagpath == group_dagpath:
-                iteratorMesh.next()
-                continue
-            if mesh_dagpath.apiType() != MFn.kMesh:
-                iteratorMesh.next()
-                continue
             mesh = MFnMesh(mesh_dagpath)
             model = pyRitoFile.MAPGEOModel()
 

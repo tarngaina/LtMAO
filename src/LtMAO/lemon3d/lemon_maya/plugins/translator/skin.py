@@ -9,7 +9,7 @@ from ..... import pyRitoFile
 from .....pyRitoFile.helper import Elf
 from .....pyRitoFile.structs import Vector, Quaternion
 
-class SKNTranslator(MPxFileTranslator):
+class SKNImporter(MPxFileTranslator):
     name = 'League of Legends: SKN'
     extension = 'skn'
 
@@ -34,34 +34,38 @@ class SKNTranslator(MPxFileTranslator):
     def creator(cls):
         return asMPxPtr(cls())
 
-    def reader(self, file, option, access):
+    def reader(self, file, options, access):
         # import options
         skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        dismiss, import_options = SKN.create_ui_skn_import_options(skn_path)
-        if dismiss != 'Import': 
-            return False
         # read skn
         skn = pyRitoFile.read_skn(skn_path)
         skn_name = helper.get_name_from_path(skn_path)
+        # create skin group 
+        group_transform = MFnTransform()
+        group_transform.create()
+        group_transform.setName(f'group_{skn_name}')
         # load skeleton first if need
         skl = None
-        if import_options['import_skeleton']:
-            skl_path = import_options['skl_path']
+        skl_path = skn_path.replace('.skn', '.skl')
+        if os.path.exists(skl_path):
             skl = pyRitoFile.read_skl(skl_path)
             skl.joints = helper.convert_pyRitoFile_objects_to_Lemon(skl.joints, helper.LemonSKLJoint)
             helper.mirrorX(skl=skl)
-            SKL.scene_load(skl, {})
+            load_options = {
+                'group_transform': group_transform,
+            }
+            SKL.scene_load(skl, load_options)
         # load skn
         helper.mirrorX(skn=skn)
         load_options = {
+            'group_transform': group_transform,
             'skn_name': skn_name,
-            'separated_mesh': import_options['import_separated_mesh'],
             'skl': skl
         }
         SKN.scene_load(skn, load_options)
         return True
 
-class SKLTranslator(MPxFileTranslator):
+class SKLImporter(MPxFileTranslator):
     name = 'League of Legends: SKL'
     extension = 'skl'
 
@@ -86,7 +90,7 @@ class SKLTranslator(MPxFileTranslator):
     def creator(cls):
         return asMPxPtr(cls())
 
-    def reader(self, file, option, access):
+    def reader(self, file, options, access):
         # read skl
         skl_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
         skl = pyRitoFile.read_skl(skl_path)
@@ -95,13 +99,14 @@ class SKLTranslator(MPxFileTranslator):
         # load skl
         helper.mirrorX(skl=skl)
         load_options = {
+            'group_transform': None,
             'skl_name': skl_name,
         }
         SKL.scene_load(skl, load_options)
         return True
 
-class SkinTranslator(MPxFileTranslator):
-    name = 'League of Legends: SKN & SKL'
+class SkinExporter(MPxFileTranslator):
+    name = 'League of Legends: SKN & SKL Export'
     extension = 'skn'
 
     def __init__(self):
@@ -130,216 +135,129 @@ class SkinTranslator(MPxFileTranslator):
         selections = MSelectionList()
         MGlobal.getActiveSelectionList(selections)
         if selections.isEmpty():
-            raise helper.FunnyError('SKN Exporter: Please select meshes to export.')
-        selected_meshes = []
-        for i in range(selections.length()):
-            selected_dagpath = MDagPath()
-            selections.getDagPath(i, selected_dagpath)
-            if selected_dagpath.apiType() == MFn.kTransform:
-                selected_transform = MFnTransform(selected_dagpath)
-                first_child = selected_transform.child(0)
-                if first_child.apiType() == MFn.kMesh:
-                    selected_meshes.append(MFnMesh(first_child))
-        if len(selected_meshes) == 0:
-            raise helper.FunnyError('SKN Exporter: Please select meshes to export.')
+            raise helper.FunnyError('MAGPEO Exporter: Please select a group to export.')
+        iterator = MItSelectionList(selections, MFn.kTransform)
+        if iterator.isDone():
+            raise helper.FunnyError(f'MAGPEO Exporter: Please select a group to export.')
+        selected_dagpath = MDagPath()
+        iterator.getDagPath(selected_dagpath)
+        iterator.next()
+        if not iterator.isDone():
+            raise helper.FunnyError(f'MAGPEO Exporter: Please select only one group to export.')
+        selected_group = MFnTransform(selected_dagpath)
         # export options
         skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
         skl_path = skn_path.replace('.skn', '.skl')
-        dismiss, skn_export_options = SKN.create_ui_skn_export_options(skn_path, skl_path)
-        if dismiss != 'Export':
-            return False
         #  dump skl
         riot_skl = None
-        riot_skl_path = skn_export_options['riot_skl_path']
+        riot_skl_path = helper.get_riot_path(skl_path)
         if riot_skl_path != '':
             riot_skl = pyRitoFile.read_skl(riot_skl_path)
         dump_options = {
+            'selected_group': selected_group,
             'riot_skl': riot_skl
         }
         skl = pyRitoFile.SKL()
         SKL.scene_dump(skl, dump_options)
         helper.mirrorX(skl=skl)
+        pyRitoFile.write_skl(skl_path, skl)
         # dump skn
         riot_skn = None
-        riot_skn_path = skn_export_options['riot_skn_path']
+        riot_skn_path = helper.get_riot_path(skn_path)
         if riot_skn_path != '':
             riot_skn = pyRitoFile.read_skn(riot_skn_path)
         skn = pyRitoFile.SKN()
         dump_options = {
             'skl': skl,
-            'selected_meshes': selected_meshes,
+            'selected_group': selected_group,
             'riot_skn': riot_skn
         }
         SKN.scene_dump(skn, dump_options)
         helper.mirrorX(skn=skn)
-        pyRitoFile.write_skl(skl_path, skl)
         pyRitoFile.write_skn(skn_path, skn)
-        
         return True
+
+class SKLExporter(MPxFileTranslator):
+    name = 'League of Legends: SKL Export'
+    extension = 'skl'
+
+    def __init__(self):
+        MPxFileTranslator.__init__(self)
+
+    def haveWriteMethod(self):
+        return True
+    
+    def defaultExtension(self):
+        return self.extension
+
+    def filter(self):
+        return f'*.{self.extension}'
+    
+    def identifyFile(self, file, buffer, size):
+        if file.fullName().endswith(f'.{self.extension}'):
+            return MPxFileTranslator.kIsMyFileType
+        return MPxFileTranslator.kNotMyFileType
+        
+    @classmethod
+    def creator(cls):
+        return asMPxPtr(cls())
+
+    def writer(self, file, options, access):
+        # check selected
+        selections = MSelectionList()
+        MGlobal.getActiveSelectionList(selections)
+        if selections.isEmpty():
+            raise helper.FunnyError('MAGPEO Exporter: Please select a group to export.')
+        iterator = MItSelectionList(selections, MFn.kTransform)
+        if iterator.isDone():
+            raise helper.FunnyError(f'MAGPEO Exporter: Please select a group to export.')
+        selected_dagpath = MDagPath()
+        iterator.getDagPath(selected_dagpath)
+        iterator.next()
+        if not iterator.isDone():
+            raise helper.FunnyError(f'MAGPEO Exporter: Please select only one group to export.')
+        selected_group = MFnTransform(selected_dagpath)
+        # export options
+        skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+        skl_path = skn_path.replace('.skn', '.skl')
+        #  dump skl
+        riot_skl = None
+        riot_skl_path = helper.get_riot_path(skl_path)
+        if riot_skl_path != '':
+            riot_skl = pyRitoFile.read_skl(riot_skl_path)
+        dump_options = {
+            'selected_group': selected_group,
+            'riot_skl': riot_skl
+        }
+        skl = pyRitoFile.SKL()
+        SKL.scene_dump(skl, dump_options)
+        helper.mirrorX(skl=skl)
+        pyRitoFile.write_skl(skl_path, skl)
+        return True
+
 
 class SKN:
     @staticmethod
-    def create_ui_skn_import_options(skn_path):
-        # check skl path
-        skl_path = skn_path.replace('.skn', '.skl')
-        if not os.path.exists(skl_path):
-            skl_path = ''
-        skn_import_options = {
-            'import_skeleton': True,
-            'import_separated_mesh': True,
-            'skl_path': skl_path
-        }
-        def set_value_cmd(key, value):
-            skn_import_options[key] = value
-        # load optionVar
-        for key in ('import_skeleton', 'import_separated_mesh'):
-            if cmds.optionVar(exists=helper.get_option_key_name(key)):
-                skn_import_options[key] = cmds.optionVar(query=helper.get_option_key_name(key))
-        def ui_cmd():
-            cmds.columnLayout()
-
-            cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
-            cmds.text(label='SKN Path:')
-            cmds.text(label=skn_path, align='left', width=600)
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=3, adjustableColumn=2)
-            cmds.text(label='SKL Path:')
-            skl_text = cmds.text(label=skl_path, align='left', width=600)
-            def sklbrowse_cmd(text):
-                skl_path = cmds.fileDialog2(
-                    dialogStyle=2, 
-                    fileMode=1,
-                    fileFilter='SKL(*.skl)',
-                    caption='Select SKL file',
-                    okCaption='Select'
-                )
-                if skl_path:
-                    skl_path = skl_path[0].replace('\\', '/')
-                    cmds.text(text, edit=True, label=skl_path)
-                    skn_import_options['skl_path'] = skl_path
-            cmds.button(label='Browse SKL', command=lambda e: sklbrowse_cmd(skl_text))
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=1)
-            cmds.checkBoxGrp(
-                vertical=True, 
-                numberOfCheckBoxes=2, 
-                columnWidth=[(1, 400), (2, 400)], 
-                labelArray2=('Import with skeleton', 'Import mesh separated by materials.'),
-                valueArray2=(skn_import_options['import_skeleton'], skn_import_options['import_separated_mesh']),
-                onCommand1=lambda e: set_value_cmd('import_skeleton', True),
-                offCommand1=lambda e: set_value_cmd('import_skeleton', False),
-                onCommand2=lambda e: set_value_cmd('import_separated_mesh', True),
-                offCommand2=lambda e: set_value_cmd('import_separated_mesh', False)
-            )
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=2)
-            cmds.text(label='', w=700)
-            def dismiss(result):
-                # save optionVar
-                for key in ('import_skeleton', 'import_separated_mesh'):
-                    cmds.optionVar(intValue=(helper.get_option_key_name(key), skn_import_options[key]))
-                cmds.layoutDialog(dismiss=result)
-            cmds.button(label='Import', width=100, command=lambda e: dismiss('Import'))
-
-        return cmds.layoutDialog(title='SKN Import Options', ui=ui_cmd), skn_import_options
-    
-    @staticmethod
-    def create_ui_skn_export_options(skn_path, skl_path):
-        # check riot skn path
-        riot_skn_path = os.path.join(
-            os.path.dirname(skn_path), 
-            f'riot_{os.path.basename(skn_path)}'
-        ).replace('\\', '/')
-        if not os.path.exists(riot_skn_path):
-            riot_skn_path = os.path.join(
-                os.path.dirname(skn_path),
-                'riot.skn'
-            ).replace('\\', '/')
-        if not os.path.exists(riot_skn_path):
-            riot_skn_path = ''
-        # check riot skl path
-        riot_skl_path = os.path.join(
-            os.path.dirname(skl_path), 
-            f'riot_{os.path.basename(skl_path)}'
-        ).replace('\\', '/')
-        if not os.path.exists(riot_skl_path):
-            riot_skl_path = os.path.join(
-                os.path.dirname(skl_path),
-                'riot.skl'
-            ).replace('\\', '/')
-        if not os.path.exists(riot_skl_path):
-            riot_skl_path = ''
-
-        skn_export_options = {
-            'riot_skn_path': riot_skn_path,
-            'riot_skl_path': riot_skl_path
-        }
-
-        def ui_cmd():
-            cmds.columnLayout()
-
-            cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
-            cmds.text(label='SKN Path:')
-            cmds.text(label=skn_path, align='left', width=600)
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
-            cmds.text(label='SKL Path:')
-            cmds.text(label=skl_path, align='left', width=600)
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=3, adjustableColumn=2)
-            cmds.text(label='Riot SKN Path:')
-            skn_text = cmds.text(label=riot_skn_path, align='left', width=600)
-            def sknbrowse_cmd(text):
-                skn_path = cmds.fileDialog2(
-                    dialogStyle=2, 
-                    fileMode=1,
-                    fileFilter='SKN(*.skn)',
-                    caption='Select Riot SKN file',
-                    okCaption='Select'
-                )
-                if skn_path:
-                    skn_path = skn_path[0].replace('\\', '/')
-                    cmds.text(text, edit=True, label=skn_path)
-                    skn_export_options['riot_skn_path'] = skn_path
-            cmds.button(label='Browse Riot SKN', command=lambda e: sknbrowse_cmd(skn_text))
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=3, adjustableColumn=2)
-            cmds.text(label='Riot SKL Path:')
-            skl_text = cmds.text(label=riot_skl_path, align='left', width=600)
-            def sklbrowse_cmd(text):
-                skl_path = cmds.fileDialog2(
-                    dialogStyle=2, 
-                    fileMode=1,
-                    fileFilter='SKL(*.skl)',
-                    caption='Select Riot SKL file',
-                    okCaption='Select'
-                )
-                if skl_path:
-                    skl_path = skl_path[0].replace('\\', '/')
-                    cmds.text(text, edit=True, label=skl_path)
-                    skn_export_options['riot_skl_path'] = skl_path
-            cmds.button(label='Browse Riot SKL', command=lambda e: sklbrowse_cmd(skl_text))
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=2)
-            cmds.text(label='', w=700)
-            def dismiss(result):
-                cmds.layoutDialog(dismiss=result)
-            cmds.button(label='Export', width=100, command=lambda e: dismiss('Export'))
-        
-        return cmds.layoutDialog(title='SKN Export Options', ui=ui_cmd), skn_export_options
-
-    @staticmethod
     def scene_load(skn, load_options):
-        def load_combined():
-            vertex_count = len(skn.vertices)
-            index_count = len(skn.indices)
+        # init seperated meshes data
+        shader_count = len(skn.submeshes)
+        shader_vertices = {}
+        shader_indices = {}
+        shader_meshes = []
+        for shader_index in range(shader_count):
+            submesh = skn.submeshes[shader_index]
+            shader_vertices[shader_index] = skn.vertices[submesh.vertex_start:
+                                                            submesh.vertex_start+submesh.vertex_count]
+            shader_indices[shader_index] = skn.indices[submesh.index_start:
+                                                        submesh.index_start+submesh.index_count]
+            min_vertex = min(shader_indices[shader_index])
+            shader_indices[shader_index] = [
+                index-min_vertex for index in shader_indices[shader_index]]
+
+        skl = load_options['skl']
+        for shader_index in range(shader_count):
+            vertex_count = len(shader_vertices[shader_index])
+            index_count = len(shader_indices[shader_index])
             face_count = index_count // 3
 
             # create mesh
@@ -349,14 +267,14 @@ class SKN:
             poly_count = MIntArray(face_count, 3)
             poly_indices = MIntArray(index_count)
             for i in range(vertex_count):
-                vertex = skn.vertices[i]
+                vertex = shader_vertices[shader_index][i]
                 vertices[i].x = vertex.position.x
                 vertices[i].y = vertex.position.y
                 vertices[i].z = vertex.position.z
                 u_values[i] = vertex.uv.x
                 v_values[i] = 1.0 - vertex.uv.y
             for i in range(index_count):
-                poly_indices[i] = skn.indices[i]
+                poly_indices[i] = shader_indices[shader_index][i]
 
             mesh = MFnMesh()
             mesh.create(
@@ -372,51 +290,59 @@ class SKN:
                 poly_count, poly_indices
             )
 
+            # save the MFnMesh to bind later
+            shader_meshes.append(mesh)
+
             # name
+            submesh = skn.submeshes[shader_index]
             skn_name = load_options['skn_name']
-            mesh.setName(f'{skn_name}Shape')
+            mesh.setName(f'{skn_name}_{submesh.name}Shape')
             mesh_name = mesh.name()
             mesh_transform = MFnTransform(mesh.parent(0))
-            mesh_transform.setName(f'mesh_{skn_name}')
-            # materials
-            skl = load_options['skl']
-            for submesh in skn.submeshes:
-                # check duplicate name node
-                if skl != None:
-                    match_joint = next(
-                        (joint for joint in skl.joints if joint.name == submesh.name), None)
-                    if match_joint != None:
-                        submesh.name = submesh.name.lower()
+            mesh_transform.setName(
+                f'mesh_{submesh.name}')
+            
+            # add to skin group
+            group_transform = load_options['group_transform']
+            group_transform.addChild(mesh_transform.object())
 
-                # material
-                material = MFnStandardSurfaceShader()
-                material.create()
-                material.setName(submesh.name)
-                material_name = material.name()
-                # shading group
-                face_start = submesh.index_start // 3
-                face_end = (submesh.index_start + submesh.index_count) // 3
-                # create renderable, independent shading group
-                cmds.sets(
-                    renderable=True,
-                    noSurfaceShader=True,
-                    empty=True,
-                    name=f'{material_name}_SG'
-                )
-                # add submesh faces to shading group
-                cmds.sets(
-                    f'{mesh_name}.f[{face_start}:{face_end}]',
-                    forceElement=f'{material_name}_SG',
-                    e=True
-                )
-                # connect material to shading group
-                cmds.connectAttr(
-                    f'{material_name}.outColor',
-                    f'{material_name}_SG.surfaceShader',
-                    force=True
-                )
-
+            # check duplicate submesh name and joint name
             if skl != None:
+                match_joint = next(
+                    (joint for joint in skl.joints if joint.name == submesh.name), None)
+                if match_joint != None:
+                    submesh.name = submesh.name.lower()
+
+            # material
+            material = MFnStandardSurfaceShader()
+            material.create()
+            material.setName(submesh.name)
+            material_name = material.name()
+            # create renderable, independent shading group
+            cmds.sets(
+                renderable=True,
+                noSurfaceShader=True,
+                empty=True,
+                name=f'{material_name}_SG'
+            )
+            # add submesh faces to shading group
+            cmds.sets(
+                f'{mesh_name}.f[0:{face_count}]',
+                forceElement=f'{material_name}_SG',
+                e=True
+            )
+            # connect material to shading group
+            cmds.connectAttr(
+                f'{material_name}.outColor',
+                f'{material_name}_SG.surfaceShader',
+                force=True
+            )
+
+        if skl != None:
+            for shader_index in range(shader_count):
+                # get mesh base on shader
+                mesh = shader_meshes[shader_index]
+                mesh_name = mesh.name()
                 influence_count = len(skl.influences)
                 mesh_dagpath = MDagPath()
                 mesh.getPath(mesh_dagpath)
@@ -430,7 +356,7 @@ class SKN:
 
                 # bind selections
                 cmds.skinCluster(
-                    name=f'{skn_name}_skinCluster',
+                    name=f'{mesh_name}_skinCluster',
                     maximumInfluences=4,
                     toSelectedBones=True,
                 )
@@ -439,7 +365,8 @@ class SKN:
                 in_mesh = mesh.findPlug('inMesh')
                 plugs = MPlugArray()
                 in_mesh.connectedTo(plugs, True, False)
-                skin_cluster = MFnSkinCluster(plugs[0].node())
+                skin_cluster = MFnSkinCluster(
+                    plugs[0].node())
                 skin_cluster_name = skin_cluster.name()
 
                 # mask influence
@@ -448,212 +375,47 @@ class SKN:
                 mask_influence = MIntArray(influence_count)
                 for i in range(influence_count):
                     dagpath = skl.joints[skl.influences[i]].dagpath
-                    match_j = next(j for j in range(influence_count)
-                                    if dagpath == influences_dagpath[j])
+                    match_j = next(j for j in range(
+                        influence_count) if dagpath == influences_dagpath[j])
                     if match_j != None:
                         mask_influence[i] = match_j
 
                 # weights
                 cmds.setAttr(f'{skin_cluster_name}.normalizeWeights', 0)
                 component = MFnSingleIndexedComponent()
-                # empty vertex_component = all vertices
                 vertex_component = component.create(MFn.kMeshVertComponent)
+                vertex_count = len(shader_vertices[shader_index])
                 weights = MDoubleArray(vertex_count * influence_count)
                 for i in range(vertex_count):
-                    vertex = skn.vertices[i]
+                    vertex = shader_vertices[shader_index][i]
                     for j in range(4):
                         weight = vertex.weights[j]
                         influence = vertex.influences[j]
                         if weight > 0:
-                            weights[i * influence_count + influence] = weight
+                            weights[i * influence_count +
+                                    influence] = weight
                 skin_cluster.setWeights(
                     mesh_dagpath, vertex_component, mask_influence, weights, False)
-                cmds.setAttr(f'{skin_cluster_name}.normalizeWeights', 1)
                 cmds.skinPercent(
                     skin_cluster_name,
                     mesh_name,
                     normalize=True
                 )
-            cmds.select(clear=True)
-            # shud be final line
+                cmds.setAttr(f'{skin_cluster_name}.normalizeWeights', 1)
+
+        cmds.select(clear=True)
+        # shud be final line
+        for mesh in shader_meshes:
             mesh.updateSurface()
 
-        def load_separated():
-            # init seperated meshes data
-            shader_count = len(skn.submeshes)
-            shader_vertices = {}
-            shader_indices = {}
-            shader_meshes = []
-            for shader_index in range(shader_count):
-                submesh = skn.submeshes[shader_index]
-                shader_vertices[shader_index] = skn.vertices[submesh.vertex_start:
-                                                                submesh.vertex_start+submesh.vertex_count]
-                shader_indices[shader_index] = skn.indices[submesh.index_start:
-                                                            submesh.index_start+submesh.index_count]
-                min_vertex = min(shader_indices[shader_index])
-                shader_indices[shader_index] = [
-                    index-min_vertex for index in shader_indices[shader_index]]
-
-            skl = load_options['skl']
-            for shader_index in range(shader_count):
-                vertex_count = len(shader_vertices[shader_index])
-                index_count = len(shader_indices[shader_index])
-                face_count = index_count // 3
-
-                # create mesh
-                vertices = MFloatPointArray(vertex_count)
-                u_values = MFloatArray(vertex_count)
-                v_values = MFloatArray(vertex_count)
-                poly_count = MIntArray(face_count, 3)
-                poly_indices = MIntArray(index_count)
-                for i in range(vertex_count):
-                    vertex = shader_vertices[shader_index][i]
-                    vertices[i].x = vertex.position.x
-                    vertices[i].y = vertex.position.y
-                    vertices[i].z = vertex.position.z
-                    u_values[i] = vertex.uv.x
-                    v_values[i] = 1.0 - vertex.uv.y
-                for i in range(index_count):
-                    poly_indices[i] = shader_indices[shader_index][i]
-
-                mesh = MFnMesh()
-                mesh.create(
-                    vertex_count,
-                    face_count,
-                    vertices,
-                    poly_count,
-                    poly_indices,
-                    u_values,
-                    v_values
-                )
-                mesh.assignUVs(
-                    poly_count, poly_indices
-                )
-
-                # save the MFnMesh to bind later
-                shader_meshes.append(mesh)
-
-                # name
-                submesh = skn.submeshes[shader_index]
-                skn_name = load_options['skn_name']
-                mesh.setName(f'{skn_name}_{submesh.name}Shape')
-                mesh_name = mesh.name()
-                mesh_transform = MFnTransform(mesh.parent(0))
-                mesh_transform.setName(
-                    f'mesh_{submesh.name}')
-
-                # check duplicate name node
-                if skl != None:
-                    match_joint = next(
-                        (joint for joint in skl.joints if joint.name == submesh.name), None)
-                    if match_joint != None:
-                        submesh.name = submesh.name.lower()
-
-                # material
-                material = MFnStandardSurfaceShader()
-                material.create()
-                material.setName(submesh.name)
-                material_name = material.name()
-                # create renderable, independent shading group
-                cmds.sets(
-                    renderable=True,
-                    noSurfaceShader=True,
-                    empty=True,
-                    name=f'{material_name}_SG'
-                )
-                # add submesh faces to shading group
-                cmds.sets(
-                    f'{mesh_name}.f[0:{face_count}]',
-                    forceElement=f'{material_name}_SG',
-                    e=True
-                )
-                # connect material to shading group
-                cmds.connectAttr(
-                    f'{material_name}.outColor',
-                    f'{material_name}_SG.surfaceShader',
-                    force=True
-                )
-
-            if skl != None:
-                for shader_index in range(shader_count):
-                    # get mesh base on shader
-                    mesh = shader_meshes[shader_index]
-                    mesh_name = mesh.name()
-                    influence_count = len(skl.influences)
-                    mesh_dagpath = MDagPath()
-                    mesh.getPath(mesh_dagpath)
-
-                    # select mesh + joint
-                    selections = MSelectionList()
-                    selections.add(mesh_dagpath)
-                    for influence in skl.influences:
-                        selections.add(skl.joints[influence].dagpath)
-                    MGlobal.selectCommand(selections)
-
-                    # bind selections
-                    cmds.skinCluster(
-                        name=f'{mesh_name}_skinCluster',
-                        maximumInfluences=4,
-                        toSelectedBones=True,
-                    )
-
-                    # get skin cluster
-                    in_mesh = mesh.findPlug('inMesh')
-                    plugs = MPlugArray()
-                    in_mesh.connectedTo(plugs, True, False)
-                    skin_cluster = MFnSkinCluster(
-                        plugs[0].node())
-                    skin_cluster_name = skin_cluster.name()
-
-                    # mask influence
-                    influences_dagpath = MDagPathArray()
-                    skin_cluster.influenceObjects(influences_dagpath)
-                    mask_influence = MIntArray(influence_count)
-                    for i in range(influence_count):
-                        dagpath = skl.joints[skl.influences[i]].dagpath
-                        match_j = next(j for j in range(
-                            influence_count) if dagpath == influences_dagpath[j])
-                        if match_j != None:
-                            mask_influence[i] = match_j
-
-                    # weights
-                    cmds.setAttr(f'{skin_cluster_name}.normalizeWeights', 0)
-                    component = MFnSingleIndexedComponent()
-                    vertex_component = component.create(MFn.kMeshVertComponent)
-                    vertex_count = len(shader_vertices[shader_index])
-                    weights = MDoubleArray(vertex_count * influence_count)
-                    for i in range(vertex_count):
-                        vertex = shader_vertices[shader_index][i]
-                        for j in range(4):
-                            weight = vertex.weights[j]
-                            influence = vertex.influences[j]
-                            if weight > 0:
-                                weights[i * influence_count +
-                                        influence] = weight
-                    skin_cluster.setWeights(
-                        mesh_dagpath, vertex_component, mask_influence, weights, False)
-                    cmds.skinPercent(
-                        skin_cluster_name,
-                        mesh_name,
-                        normalize=True
-                    )
-                    cmds.setAttr(f'{skin_cluster_name}.normalizeWeights', 1)
-
-            cmds.select(clear=True)
-            # shud be final line
-            for mesh in shader_meshes:
-                mesh.updateSurface()
-
-        if load_options['separated_mesh']:
-            load_separated()
-        else:
-            load_combined()
 
     @staticmethod
     def scene_dump(skn, dump_options):
         skl = dump_options['skl']
-
+        selected_group = dump_options['selected_group']
+        
         def dump_mesh(mesh):
+
             # get mesh DAG path
             mesh_dagpath = MDagPath()
             mesh.getPath(mesh_dagpath)
@@ -781,9 +543,8 @@ class SKN:
                     f'SKN Expoter ({mesh.name()}): Mesh contains {bad_vertices.length()} vertices are shared by mutiple materials, those vertices will be selected in scene.\n'
                     'Save/backup scene first, try one of following methods to fix:\n'
                     '1. Seperate all connected faces that shared those vertices.\n'
-                    '2. Check and reassign correct material.\n'
-                    '3. [not recommended] Try auto fix shared vertices button on shelf.\n',
-                    '4. Combine all UVs into one using martin uv helper buttons in shelf and assign 1 material only to mesh.'
+                    '2. Combine all UVs into one square using martin uv helper buttons and assign 1 material only to mesh.\n'
+                    '3. [not recommended] Try auto fix shared vertices button on shelf.\n'
                     '\nBonus: If there is nothing selected (or they are invisible) after this error message, consider to delete history and rebind the skin, that might fix the problem.'
                 ))
 
@@ -944,11 +705,17 @@ class SKN:
                 submesh.vertices = shader_vertices[i]
             return submeshes
 
-        
         # dump all mesh of selected group
         submeshes = []
-        for scene_mesh in dump_options['selected_meshes']:
-            submeshes += dump_mesh(scene_mesh)
+        selected_child_count = selected_group.childCount()
+        if selected_child_count == 0:
+            raise helper.FunnyError( f'SKN Exporter({selected_group.name()}): Selected object is not a mesh or group of meshes?')
+        for i in range(selected_child_count):
+            transform_child = MFnTransform(selected_group.child(i))
+            if transform_child.childCount() > 0:
+                first_child_of_transform = transform_child.child(0)
+                if first_child_of_transform.apiType() == MFn.kMesh:
+                    submeshes += dump_mesh(MFnMesh(first_child_of_transform))
 
         # map submeshes by name
         map_submeshes = {}
@@ -1107,24 +874,33 @@ class SKL:
             ))
             
 
-        # link parent
+        # link parent and add to skin group
+        group_transform = load_options['group_transform']
         for joint in skl.joints:
+            child_node = MFnIkJoint(joint.dagpath)
             if joint.parent > -1:
                 parent_node = MFnIkJoint(skl.joints[joint.parent].dagpath)
-                child_node = MFnIkJoint(joint.dagpath)
                 if not parent_node.isParentOf(child_node.object()):
                     parent_node.addChild(child_node.object())
+            else:
+                if group_transform != None:
+                    group_transform.addChild(child_node.object())
+
+                
         
     @staticmethod
     def scene_dump(skl, dump_options):
+        selected_group = dump_options['selected_group']
+
         skl.joints = []
-        iterator = MItDag(MItDag.kDepthFirst, MFn.kJoint)
-        while not iterator.isDone():
+        iteratorJoint = MItDag()
+        iteratorJoint.reset(selected_group.object(), MItDag.kDepthFirst, MFn.kJoint)
+        while not iteratorJoint.isDone():
             joint = helper.LemonSKLJoint()
             
             # dagpath, name, transform
             joint.dagpath = MDagPath()
-            iterator.getPath(joint.dagpath)
+            iteratorJoint.getPath(joint.dagpath)
             ik_joint = MFnIkJoint(joint.dagpath)
             joint.name = ik_joint.name()
             joint.hash = Elf(joint.name)
@@ -1138,7 +914,7 @@ class SKL:
                 MSpace.kWorld
             )
             skl.joints.append(joint)
-            iterator.next()
+            iteratorJoint.next()
 
         # riot skl
         riot_skl = dump_options['riot_skl']

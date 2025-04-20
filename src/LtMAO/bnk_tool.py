@@ -188,7 +188,7 @@ class BankHelper:
                                     continue
                                 # check if wem already in containers, if not add to non containers
                                 new_wem = True                 
-                                for bank_container in bank_event.containers:
+                                for bank_container_id, bank_container in bank_event.containers.items():
                                     if wem_id in bank_container.wems:
                                         new_wem = False
                                         break
@@ -202,7 +202,7 @@ class BankHelper:
                             continue
                         # check if wem already in containers, if not add to non containers
                         new_wem = True                 
-                        for bank_container in bank_event.containers:
+                        for bank_container_id, bank_container in bank_event.containers.items():
                             if wem_id in bank_container.wems:
                                 new_wem = False
                                 break

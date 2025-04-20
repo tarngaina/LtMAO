@@ -11,7 +11,7 @@ def dds2png(src):
 def png2dds(src):
     tools.ImageMagick.to_dds(
         src=src,
-        png=src.replace('.png', '.dds')
+        dds=src.replace('.png', '.dds')
     )
 
 def dds2tex(src):

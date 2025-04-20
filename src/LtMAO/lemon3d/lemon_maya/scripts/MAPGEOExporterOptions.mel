@@ -1,0 +1,47 @@
+global proc int MAPGEOExporterOptions(string $parent, string $action, string $initialSettings, string $resultCallback)
+{
+    // create ui in post
+	if ($action == "post") {
+	    setParent $parent;
+        
+        // create ui
+        columnLayout -adjustableColumn true;
+        optionMenu -label "Version " version;
+        menuItem -label "13";
+        menuItem -label "17";
+        checkBox -label "Use Half Float" float16;
+
+        // split options by ;
+        string  $options[];
+        tokenize($initialSettings, ";", $options);
+
+        // split option by = and set value for ui
+        string	$option[];
+        for ($index = 0; $index < size($options); $index++) {
+		    tokenize($options[$index], "=", $option);
+            if ($option[0] == "version") {
+                optionMenu -edit -value $option[1] version;
+            }
+            if ($option[0] == "float16") {
+                if ($option[1] == "0") 
+                    checkBox -edit -value 0 float16;
+                else 
+                    checkBox -edit -value 1 float16;
+            }
+
+        }
+		return 1;
+	} 
+    // get value in query
+	else if ($action == "query") {
+		string $options = "";
+        $options = $options + "version=" + `optionMenu -query -value version` + ";";
+        if (`checkBox -q -value float16` == 0) 
+            $options = $options + "float16=0";
+        else
+            $options = $options + "float16=1";
+        eval($resultCallback + " \"" + $options + "\"");
+        return 1;
+	} 
+	return 0;
+}

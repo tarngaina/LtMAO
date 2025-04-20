@@ -1,0 +1,34 @@
+global proc int SCBExporterOptions(string $parent, string $action, string $initialSettings, string $resultCallback)
+{
+    // create ui in post
+	if ($action == "post") {
+	    setParent $parent;
+        
+        // create ui
+        columnLayout -adjustableColumn true;
+        optionMenu -label "Flags " scb_flags;
+        menuItem -label "HasVcp";
+        menuItem -label "HasLocalOriginLocatorAndPivot";
+
+        // split options by ;
+        string  $options[];
+        tokenize($initialSettings, ";", $options);
+
+        // split option by = and set value for ui
+        string	$option[];
+        for ($index = 0; $index < size($options); $index++) {
+		    tokenize($options[$index], "=", $option);
+            if ($option[0] == "scb_flags") {
+                optionMenu -edit -value $option[1] scb_flags;
+            }
+        }
+		return 1;
+	} 
+    // get value in query
+	else if ($action == "query") {
+		string $options = "scb_flags=" + `optionMenu -query -value scb_flags`;
+        eval($resultCallback + " \"" + $options + "\"");
+        return 1;
+	} 
+	return 0;
+}

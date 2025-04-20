@@ -352,6 +352,7 @@ def dump_anm(fbx_scene, fbx_joints, blender_armature_node_local_matrix):
     print(f'lemon_fbx: Animation stacks: {fbx_anim_stack_count}')
     for anim_stack_id in range(fbx_anim_stack_count):
         fbx_anim_stack = fbx_scene.GetSrcObject(FbxCriteria.ObjectType(FbxAnimStack.ClassId), anim_stack_id)
+        fbx_anim_layer = fbx_anim_stack.GetMember(FbxCriteria.ObjectType(FbxAnimLayer.ClassId), 0)
         fbx_scene.SetCurrentAnimationStack(fbx_anim_stack)
         fbx_anim_stack_name = fbx_anim_stack.GetName().replace('|', '_')
         start = fbx_anim_stack.LocalStop.Get().GetSecondDouble()
@@ -359,50 +360,70 @@ def dump_anm(fbx_scene, fbx_joints, blender_armature_node_local_matrix):
         animation_time_range = start - end
         frame_range = int(animation_time_range * fps)
         fbx_time = FbxTime()
-        tracks = {}
+        tracks = []
         for joint_name, fbx_joint in fbx_joints.items():
             parent_node = fbx_joint.GetParent()
             parent_is_blender_armature_node = False
             if type(parent_node.GetNodeAttribute()) == FbxNull:
                 parent_is_blender_armature_node = True
-            tracks[joint_name] = track = ANMTrack()
+            track = ANMTrack()
             track.joint_hash = Elf(joint_name)
             track.poses = {}
+
+            translatex_curve = fbx_joint.LclTranslation.GetCurve(fbx_anim_layer, 'X', True);
+            translatey_curve = fbx_joint.LclTranslation.GetCurve(fbx_anim_layer, 'Y', True);
+            translatez_curve = fbx_joint.LclTranslation.GetCurve(fbx_anim_layer, 'Z', True);
+
+            scalex_curve = fbx_joint.LclScaling.GetCurve(fbx_anim_layer, 'X', True);
+            scaley_curve = fbx_joint.LclScaling.GetCurve(fbx_anim_layer, 'Y', True);
+            scalez_curve = fbx_joint.LclScaling.GetCurve(fbx_anim_layer, 'Z', True);
+
+            rotatex_curve = fbx_joint.LclRotation.GetCurve(fbx_anim_layer, 'X', True);
+            rotatey_curve = fbx_joint.LclRotation.GetCurve(fbx_anim_layer, 'Y', True);
+            rotatez_curve = fbx_joint.LclRotation.GetCurve(fbx_anim_layer, 'Z', True);
+
             for frame in range(1, frame_range+1, 1):
                 track.poses[frame-1] = pose = ANMPose()
                 time = frame / fps
                 fbx_time.SetSecondDouble(time)
-                fbx_local_matrix = fbx_joint.EvaluateLocalTransform(fbx_time) 
+                
+                translate = FbxVector4(
+                    translatex_curve.Evaluate(fbx_time)[0],
+                    translatey_curve.Evaluate(fbx_time)[0],
+                    translatez_curve.Evaluate(fbx_time)[0]
+                )
+                rotate = FbxVector4(
+                    rotatex_curve.Evaluate(fbx_time)[0], 
+                    rotatey_curve.Evaluate(fbx_time)[0],
+                    rotatez_curve.Evaluate(fbx_time)[0]
+                )
+                scale_x = scalex_curve.Evaluate(fbx_time)[0]
+                scale_y = scaley_curve.Evaluate(fbx_time)[0]
+                scale_z = scalez_curve.Evaluate(fbx_time)[0]
+                if scale_x == 0.0:
+                    scale_x = 0.000001
+                if scale_y == 0.0:
+                    scale_y = 0.000001
+                if scale_z == 0.0:
+                    scale_z = 0.000001
+                scale = FbxVector4(scale_x, scale_y, scale_z)   
+                fbx_local_matrix = FbxAMatrix()
+                fbx_local_matrix.SetTRS(translate, rotate, scale)
                 if parent_is_blender_armature_node:
                     fbx_local_matrix = fbx_local_matrix * blender_armature_node_local_matrix
                 translate, rotate, scale = fbx_local_matrix.GetT(), fbx_local_matrix.GetQ(), fbx_local_matrix.GetS()
                 pose.translate = Vector(translate[0], translate[1], translate[2])
                 pose.rotate = Quaternion(rotate[0], rotate[1], rotate[2], rotate[3])
                 pose.scale = Vector(scale[0], scale[1], scale[2])
-                if math.isnan(pose.rotate.x):
-                    fbx_anim_evaluator = fbx_scene.GetAnimationEvaluator()
-                    translate = fbx_anim_evaluator.GetNodeLocalTranslation(fbx_joint, fbx_time)
-                    rotate = fbx_anim_evaluator.GetNodeLocalRotation(fbx_joint, fbx_time)
-                    scale = fbx_anim_evaluator.GetNodeLocalScaling(fbx_joint, fbx_time)
-                    fbx_local_matrix = FbxAMatrix()
-                    fbx_local_matrix.SetTRS(translate, rotate, scale)
-                    if parent_is_blender_armature_node:
-                        fbx_local_matrix = fbx_local_matrix * blender_armature_node_local_matrix
 
-                    translate = fbx_local_matrix.GetT()
-                    rotate = fbx_local_matrix.GetQ()
-                    scale = fbx_local_matrix.GetS()
-                    pose.translate = Vector(translate[0], translate[1], translate[2])
-                    pose.rotate = Quaternion(rotate[0], rotate[1], rotate[2], rotate[3])
-                    pose.scale = Vector(scale[0], scale[1], scale[2])
-
+            tracks.append(track)
 
         anm = ANM()
         anm.fps = fps
         anm.duration = frame_range
-        anm.tracks = list(tracks.values())
+        anm.tracks = tracks
         anms[fbx_anim_stack_name] = anm
-        print(f'lemon_fbx: Finish: Dump ANM: Animation stack: {fbx_anim_stack_name}, Frame range: {frame_range}, FPS: {fps}')
+        print(f'lemon_fbx: Finish: Dump ANM: Animation stack: {fbx_anim_stack_name}, Frame: {frame_range}, FPS: {fps}')
     return anms       
 
 
@@ -598,7 +619,6 @@ def load_anm(fbx_scene, anms, fbx_joint_nodes):
             rotatey_curve = fbx_joint_node.LclRotation.GetCurve(fbx_anim_layer, 'Y', True);
             rotatez_curve = fbx_joint_node.LclRotation.GetCurve(fbx_anim_layer, 'Z', True);
 
-
             joint_hash = Elf(fbx_joint_node.GetName())
             if joint_hash not in tracks:
                 continue
@@ -628,18 +648,6 @@ def load_anm(fbx_scene, anms, fbx_joint_nodes):
             translatez_curve.KeySetValue(key_index[0], translate[2])
             translatez_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
 
-            rotate = fbx_joint_node.LclRotation.Get()
-            fbx_time.SetSecondDouble(0.0)           
-            key_index = rotatex_curve.KeyAdd(fbx_time)
-            rotatex_curve.KeySetValue(key_index[0], rotate[0])
-            rotatex_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
-            key_index = rotatey_curve.KeyAdd(fbx_time)
-            rotatey_curve.KeySetValue(key_index[0], rotate[1])
-            rotatey_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
-            key_index = rotatez_curve.KeyAdd(fbx_time)
-            rotatez_curve.KeySetValue(key_index[0], rotate[2])
-            rotatez_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
-
             scale = fbx_joint_node.LclScaling.Get()
             fbx_time.SetSecondDouble(0.0)           
             key_index = scalex_curve.KeyAdd(fbx_time)
@@ -651,6 +659,18 @@ def load_anm(fbx_scene, anms, fbx_joint_nodes):
             key_index = scalez_curve.KeyAdd(fbx_time)
             scalez_curve.KeySetValue(key_index[0], scale[2])
             scalez_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
+
+            rotate = fbx_joint_node.LclRotation.Get()
+            fbx_time.SetSecondDouble(0.0)           
+            key_index = rotatex_curve.KeyAdd(fbx_time)
+            rotatex_curve.KeySetValue(key_index[0], rotate[0])
+            rotatex_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
+            key_index = rotatey_curve.KeyAdd(fbx_time)
+            rotatey_curve.KeySetValue(key_index[0], rotate[1])
+            rotatey_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
+            key_index = rotatez_curve.KeyAdd(fbx_time)
+            rotatez_curve.KeySetValue(key_index[0], rotate[2])
+            rotatez_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
 
             # the animations
             for frame in track.poses:
@@ -679,18 +699,18 @@ def load_anm(fbx_scene, anms, fbx_joint_nodes):
                     scalez_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
                 
                 if pose.rotate != None:
-                    rotate = FbxVector4()
-                    rotate.SetXYZ(FbxQuaternion(pose.rotate.x, pose.rotate.y, pose.rotate.z, pose.rotate.w))
-                
+                    fbx_local_matrix = FbxAMatrix()
+                    fbx_local_matrix.SetQ(FbxQuaternion(pose.rotate.x, pose.rotate.y, pose.rotate.z, pose.rotate.w))
+                    rotate = fbx_local_matrix.GetR()
                     key_index = rotatex_curve.KeyAdd(fbx_time)
                     rotatex_curve.KeySetValue(key_index[0], rotate[0])
-                    rotatex_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
+                    rotatex_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
                     key_index = rotatey_curve.KeyAdd(fbx_time)
                     rotatey_curve.KeySetValue(key_index[0], rotate[1])
-                    rotatey_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
+                    rotatey_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
                     key_index = rotatez_curve.KeyAdd(fbx_time)
                     rotatez_curve.KeySetValue(key_index[0], rotate[2])
-                    rotatez_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationCubic)
+                    rotatez_curve.KeySetInterpolation(key_index[0], FbxAnimCurveDef.EInterpolationType.eInterpolationLinear)
 
 
             translatex_curve.KeyModifyEnd()

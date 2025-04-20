@@ -3,12 +3,11 @@ from maya.OpenMayaMPx import *
 from maya.OpenMayaAnim import *
 from maya import cmds
 
-import os.path
 from . import helper
 from ..... import pyRitoFile
 from .....pyRitoFile.structs import Vector
 
-class SCOTranslator(MPxFileTranslator):
+class SCOImporter(MPxFileTranslator):
     name = 'League of Legends: SCO'
     extension = 'sco'
 
@@ -16,9 +15,6 @@ class SCOTranslator(MPxFileTranslator):
         MPxFileTranslator.__init__(self)
 
     def haveReadMethod(self):
-        return True
-    
-    def haveWriteMethod(self):
         return True
 
     def defaultExtension(self):
@@ -36,7 +32,7 @@ class SCOTranslator(MPxFileTranslator):
     def creator(cls):
         return asMPxPtr(cls())
 
-    def reader(self, file, option, access):
+    def reader(self, file, options, access):
         sco_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
         # read sco
         so = pyRitoFile.read_sco(sco_path)
@@ -46,51 +42,13 @@ class SCOTranslator(MPxFileTranslator):
         SO.scene_load(so, {})
         return True
 
-    def writer(self, file, option, access):
-        # check selected
-        selections = MSelectionList()
-        MGlobal.getActiveSelectionList(selections)
-        iterator = MItSelectionList(selections, MFn.kMesh)
-        if iterator.isDone():
-            raise helper.FunnyError(
-                f'SO Exporter: Please select a mesh to export.')
-        mesh_dagpath = MDagPath()
-        iterator.getDagPath(mesh_dagpath)
-        iterator.next()
-        if not iterator.isDone():
-            raise helper.FunnyError(
-                f'SO Exporter: Please select only one mesh to export.')
-        selected_mesh = MFnMesh(mesh_dagpath)
-        # export options
-        sco_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        dismiss, sco_export_options = SO.create_ui_sco_export_options(sco_path)
-        if dismiss != 'Export':
-            return False
-        so = pyRitoFile.SO()
-        riot_so = None
-        riot_sco_path = sco_export_options['riot_sco_path']
-        if riot_sco_path != '':
-            riot_so = pyRitoFile.read_sco(riot_sco_path)
-        dump_options = {
-            'selected_mesh': selected_mesh,
-            'riot_so': riot_so
-        }
-        SO.scene_dump(so, dump_options)
-        helper.mirrorX(so=so)
-        pyRitoFile.write_sco(sco_path, so)
-        return True
-    
-
-class SCBTranslator(MPxFileTranslator):
-    name = 'League of Legends: SCB'
-    extension = 'scb'
+class SCOExporter(MPxFileTranslator):
+    name = 'League of Legends: SCO Export'
+    extension = 'sco'
 
     def __init__(self):
         MPxFileTranslator.__init__(self)
 
-    def haveReadMethod(self):
-        return True
-    
     def haveWriteMethod(self):
         return True
 
@@ -109,7 +67,58 @@ class SCBTranslator(MPxFileTranslator):
     def creator(cls):
         return asMPxPtr(cls())
 
-    def reader(self, file, option, access):
+    def writer(self, file, options, access):
+        # check selected
+        selections = MSelectionList()
+        MGlobal.getActiveSelectionList(selections)
+        iterator = MItSelectionList(selections, MFn.kMesh)
+        if iterator.isDone():
+            raise helper.FunnyError(
+                f'SO Exporter: Please select a mesh to export.')
+        mesh_dagpath = MDagPath()
+        iterator.getDagPath(mesh_dagpath)
+        iterator.next()
+        if not iterator.isDone():
+            raise helper.FunnyError(
+                f'SO Exporter: Please select only one mesh to export.')
+        selected_mesh = MFnMesh(mesh_dagpath)
+        # export options
+        sco_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+        so = pyRitoFile.SO()
+        dump_options = {
+            'selected_mesh': selected_mesh,
+        }
+        SO.scene_dump(so, dump_options)
+        helper.mirrorX(so=so)
+        pyRitoFile.write_sco(sco_path, so)
+        return True
+    
+class SCBImporter(MPxFileTranslator):
+    name = 'League of Legends: SCB'
+    extension = 'scb'
+
+    def __init__(self):
+        MPxFileTranslator.__init__(self)
+
+    def haveReadMethod(self):
+        return True
+
+    def defaultExtension(self):
+        return self.extension
+
+    def filter(self):
+        return f'*.{self.extension}'
+    
+    def identifyFile(self, file, buffer, size):
+        if file.fullName().endswith(f'.{self.extension}'):
+            return MPxFileTranslator.kIsMyFileType
+        return MPxFileTranslator.kNotMyFileType
+
+    @classmethod
+    def creator(cls):
+        return asMPxPtr(cls())
+
+    def reader(self, file, options, access):
         scb_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
         # read scb
         so = pyRitoFile.read_scb(scb_path)
@@ -119,7 +128,32 @@ class SCBTranslator(MPxFileTranslator):
         SO.scene_load(so, {})
         return True
 
-    def writer(self, file, option, access):
+class SCBExporter(MPxFileTranslator):
+    name = 'League of Legends: SCB Export'
+    extension = 'scb'
+
+    def __init__(self):
+        MPxFileTranslator.__init__(self)
+    
+    def haveWriteMethod(self):
+        return True
+
+    def defaultExtension(self):
+        return self.extension
+
+    def filter(self):
+        return f'*.{self.extension}'
+    
+    def identifyFile(self, file, buffer, size):
+        if file.fullName().endswith(f'.{self.extension}'):
+            return MPxFileTranslator.kIsMyFileType
+        return MPxFileTranslator.kNotMyFileType
+
+    @classmethod
+    def creator(cls):
+        return asMPxPtr(cls())
+    
+    def writer(self, file, options, access):
         # check selected
         selections = MSelectionList()
         MGlobal.getActiveSelectionList(selections)
@@ -136,17 +170,10 @@ class SCBTranslator(MPxFileTranslator):
         selected_mesh = MFnMesh(mesh_dagpath)
         # export options
         scb_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        dismiss, scb_export_options = SO.create_ui_scb_export_options(scb_path)
-        if dismiss != 'Export':
-            return False
         so = pyRitoFile.SO()
-        riot_so = None
-        riot_scb_path = scb_export_options['riot_scb_path']
-        if riot_scb_path != '':
-            riot_so = pyRitoFile.read_scb(riot_scb_path)
         dump_options = {
             'selected_mesh': selected_mesh,
-            'riot_so': riot_so
+            'scb_flags': pyRitoFile.SOFlag.HasVcp if 'HasVcp' in options else pyRitoFile.SOFlag.HasLocalOriginLocatorAndPivot
         }
         SO.scene_dump(so, dump_options)
         helper.mirrorX(so=so)
@@ -155,110 +182,6 @@ class SCBTranslator(MPxFileTranslator):
 
 
 class SO:
-    @staticmethod
-    def create_ui_sco_export_options(sco_path):
-        # check riot sco path
-        riot_sco_path = os.path.join(
-            os.path.dirname(sco_path), 
-            f'riot_{os.path.basename(sco_path)}'
-        ).replace('\\', '/')
-        if not os.path.exists(riot_sco_path):
-            riot_sco_path = os.path.join(
-                os.path.dirname(sco_path),
-                'riot.sco'
-            ).replace('\\', '/')
-        if not os.path.exists(riot_sco_path):
-            riot_sco_path = ''
-        sco_export_options = {
-            'riot_sco_path': riot_sco_path
-        }
-
-        def ui_cmd():
-            cmds.columnLayout()
-
-            cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
-            cmds.text(label='SCO Path:')
-            cmds.text(label=sco_path, align='left', width=600)
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=3, adjustableColumn=2)
-            cmds.text(label='Riot SCO Path:')
-            sco_text = cmds.text(label=riot_sco_path, align='left', width=600)
-            def scobrowse_cmd(text):
-                sco_path = cmds.fileDialog2(
-                    dialogStyle=2, 
-                    fileMode=1,
-                    fileFilter='SCO(*.sco)',
-                    caption='Select Riot SCO file',
-                    okCaption='Select'
-                )
-                if sco_path:
-                    sco_path = sco_path[0].replace('\\', '/')
-                    cmds.text(text, edit=True, label=sco_path)
-                    sco_export_options['riot_sco_path'] = sco_path
-            cmds.button(label='Browse Riot SCO', command=lambda e: scobrowse_cmd(sco_text))
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=2)
-            cmds.text(label='', w=700)
-            def dismiss(result):
-                cmds.layoutDialog(dismiss=result)
-            cmds.button(label='Export', width=100, command=lambda e: dismiss('Export'))
-        
-        return cmds.layoutDialog(title='SCO Export Options', ui=ui_cmd), sco_export_options
-
-    @staticmethod
-    def create_ui_scb_export_options(scb_path):
-        # check riot scb path
-        riot_scb_path = os.path.join(
-            os.path.dirname(scb_path), 
-            f'riot_{os.path.basename(scb_path)}'
-        ).replace('\\', '/')
-        if not os.path.exists(riot_scb_path):
-            riot_scb_path = os.path.join(
-                os.path.dirname(scb_path),
-                'riot.scb'
-            ).replace('\\', '/')
-        if not os.path.exists(riot_scb_path):
-            riot_scb_path = ''
-        scb_export_options = {
-            'riot_scb_path': riot_scb_path
-        }
-
-        def ui_cmd():
-            cmds.columnLayout()
-
-            cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
-            cmds.text(label='SCB Path:')
-            cmds.text(label=scb_path, align='left', width=600)
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=3, adjustableColumn=2)
-            cmds.text(label='Riot SCB Path:')
-            scb_text = cmds.text(label=riot_scb_path, align='left', width=600)
-            def scbbrowse_cmd(text):
-                scb_path = cmds.fileDialog2(
-                    dialogStyle=2, 
-                    fileMode=1,
-                    fileFilter='SCB(*.scb)',
-                    caption='Select Riot SCB file',
-                    okCaption='Select'
-                )
-                if scb_path:
-                    scb_path = scb_path[0].replace('\\', '/')
-                    cmds.text(text, edit=True, label=scb_path)
-                    scb_export_options['riot_scb_path'] = scb_path
-            cmds.button(label='Browse Riot SCB', command=lambda e: scbbrowse_cmd(scb_text))
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=2)
-            cmds.text(label='', w=700)
-            def dismiss(result):
-                cmds.layoutDialog(dismiss=result)
-            cmds.button(label='Export', width=100, command=lambda e: dismiss('Export'))
-        
-        return cmds.layoutDialog(title='SCB Export Options', ui=ui_cmd), scb_export_options
-
     @staticmethod
     def scene_load(so, load_options):
         vertex_count = len(so.positions)
@@ -511,10 +434,5 @@ class SO:
         
         # set flags
         so.flags = pyRitoFile.SOFlag.HasLocalOriginLocatorAndPivot
-        # export base on riot file
-        riot_so = dump_options['riot_so']
-        if riot_so != None:
-            so.central = riot_so.central
-            so.pivot = riot_so.pivot
-            so.flags = riot_so.flags
-            print('SO Expoter: Found riot.so (scb/sco), updated central, pivot, flags.')
+        if 'scb_flags' in dump_options:
+            so.flags = dump_options['scb_flags']

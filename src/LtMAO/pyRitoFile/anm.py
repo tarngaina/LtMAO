@@ -248,7 +248,7 @@ class ANM:
                 track_count, frame_count = bs.read_u32(2)
                 bs.pad(4)  # jump cache count
                 max_time, self.fps = bs.read_f32(2)
-                self.duration = (max_time + 1) * self.fps
+                self.duration = max_time * self.fps + 1
                 # read error metrics
                 self.error_metrics = {'rotate': ANMErrorMetric(
                 ), 'translate': ANMErrorMetric(), 'scale': ANMErrorMetric()}
@@ -294,8 +294,7 @@ class ANM:
                         # this frame has wrong joint hash?
                         continue
                     # parse pose
-                    time = (compressed_time / 65535.0 *
-                            max_time) * self.fps
+                    time = (compressed_time / 65535.0 * max_time) * self.fps
                     if time in match_track.poses:
                         pose = match_track.poses[time]
                     else:
@@ -491,6 +490,7 @@ class ANM:
                 0, # flags1
                 0, # flags2
             )
+            print(self.duration)
             bs.write_u32(
                 len(self.tracks), # track_count
                 self.duration # frame_count

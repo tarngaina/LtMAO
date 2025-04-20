@@ -15,6 +15,22 @@ def get_name_from_path(path):
         name = 'lemon_' + name
     return name
 
+def get_riot_path(path):
+    # check riot path
+    ext = os.path.basename(path).split('.')[-1]
+    riot_path = os.path.join(
+        os.path.dirname(path), 
+        f'riot_{os.path.basename(path)}'
+    )
+    if not os.path.exists(riot_path):
+        riot_path = os.path.join(
+            os.path.dirname(path),
+            f'riot.{ext}'
+        )
+        if not os.path.exists(riot_path):
+            riot_path = ''
+    return riot_path.replace('\\', '/')
+
 def ensure_path_extension(path, ext):
     if not path.endswith(ext):
         path += f'.{ext}'

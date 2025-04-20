@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QTreeView,
 )
-from PySide6.QtGui import QBrush, QColor, QStandardItem, QStandardItemModel, QPixmap, QMovie
+from PySide6.QtGui import QColor, QStandardItem, QStandardItemModel, QPixmap, QMovie
 from PySide6.QtCore import Qt, QObject, Signal
 
 
@@ -120,6 +120,7 @@ def build_cslmao(widget: QWidget):
     layout2.addWidget(label, stretch=1)
     def select_game_folder(label):
         if is_overlay_running():
+            print('clsmao: Stop running mods to proceed.')
             return
         dialog = QFileDialog()
         dirpath = dialog.getExistingDirectory(
@@ -348,6 +349,7 @@ def build_cslmao(widget: QWidget):
         checkbox.setChecked(mod.enable)
         def enable_mod():
             if is_overlay_running():
+                print('clsmao: Stop running mods to proceed.')
                 # reverse it bacc, big brain
                 checkbox.setChecked(not checkbox.isChecked())
                 return
@@ -380,6 +382,7 @@ def build_cslmao(widget: QWidget):
         button.setText('✏️ Edit')
         def edit_cmd():
             if is_overlay_running():
+                print('clsmao: Stop running mods to proceed.')
                 return
             info, image = cslmao.get_info(mod)
             name_line.setText(info['Name'])
@@ -400,6 +403,7 @@ def build_cslmao(widget: QWidget):
         button.setText('📤 Export')
         def export_cmd():
             if is_overlay_running():
+                print('clsmao: Stop running mods to proceed.')
                 return
             dialog = QFileDialog()
             info, image = cslmao.get_info(mod)
@@ -431,6 +435,7 @@ def build_cslmao(widget: QWidget):
         button.setText('❌ Remove')
         def remove_cmd():
             if is_overlay_running():
+                print('clsmao: Stop running mods to proceed.')
                 return
             mod_widget.setParent(None)
             view_layout.mod_widgets.pop(mod)
@@ -523,6 +528,7 @@ def build_cslmao(widget: QWidget):
     # new mod
     def new_mod():
         if is_overlay_running():
+            print('clsmao: Stop running mods to proceed.')
             return
         mod_path = 'New Mod'
         mod_info = {
@@ -548,6 +554,7 @@ def build_cslmao(widget: QWidget):
     # import mod
     def import_mod():
         if is_overlay_running():
+            print('clsmao: Stop running mods to proceed.')
             return
         dialog = QFileDialog()
         filepaths = dialog.getOpenFileNames(
@@ -602,6 +609,7 @@ def build_cslmao(widget: QWidget):
     # enable/disable all
     def all_mods():
         if is_overlay_running():
+            print('clsmao: Stop running mods to proceed.')
             return
         show_mod_widgets, hide_mod_widgets = get_view_mod_widgets(setting.get('cslmao.profile', 'all'), search_line.text())
         for mod, mod_widget in show_mod_widgets.items():
@@ -1381,7 +1389,6 @@ def build_wad_tool(widget: QWidget):
                     break
         chunk_text.setPlainText('\n'.join(new_text_chunk_hashesh))
         chunk_doc = chunk_text.document()
-        brush = QBrush(QColor(*qtwidgets.accent_color))
         ess = []        
         for word in keywords:
             text_cursor = chunk_doc.find(word, 0)
@@ -1390,13 +1397,13 @@ def build_wad_tool(widget: QWidget):
             
             es = QTextEdit.ExtraSelection()
             es.cursor = text_cursor
-            es.format.setForeground(brush)
+            es.format.setForeground(qtwidgets.accent_brush)
             ess.append(es)
             while not text_cursor.isNull():
                 text_cursor = chunk_doc.find(word, text_cursor.selectionEnd())
                 es = QTextEdit.ExtraSelection()
                 es.cursor = text_cursor
-                es.format.setForeground(brush)
+                es.format.setForeground(qtwidgets.accent_brush)
                 ess.append(es)
         chunk_text.setExtraSelections(ess)
     filter_line.returnPressed.connect(lambda: filter_chunk(filter_line.text()))
@@ -1461,7 +1468,7 @@ def build_sborf(widget: QWidget):
     layout2.addWidget(skl_line, 1, 0)
     button = QToolButton()
     button.setText('🦴 Browse SKL')    
-    button.setMinimumWidth(260)
+    button.setMinimumWidth(300)
     button.clicked.connect(lambda event, line=skl_line: browse(line, 'Select SKL', 'SKL'))
     layout2.addWidget(button, 1, 1)
     riot_skl_line = QLineEdit()
@@ -1469,7 +1476,7 @@ def build_sborf(widget: QWidget):
     layout2.addWidget(riot_skl_line, 1, 2)
     button = QToolButton()
     button.setText('🦴 Browse Riot SKL')    
-    button.setMinimumWidth(260)
+    button.setMinimumWidth(300)
     button.clicked.connect(lambda event, line=riot_skl_line: browse(line, 'Select Riot SKL', 'SKL'))
     layout2.addWidget(button, 1, 3)
 
@@ -1479,7 +1486,7 @@ def build_sborf(widget: QWidget):
     layout2.addWidget(skn_line, 2, 0)
     button = QToolButton()
     button.setText('🧊 Browse SKN')    
-    button.setMinimumWidth(260)
+    button.setMinimumWidth(300)
     button.clicked.connect(lambda event, line=skn_line: browse(line, 'Select SKN', 'SKN'))
     layout2.addWidget(button, 2, 1)
     riot_skn_line = QLineEdit()
@@ -1487,7 +1494,7 @@ def build_sborf(widget: QWidget):
     layout2.addWidget(riot_skn_line, 2, 2)
     button = QToolButton()
     button.setText('🧊 Browse Riot SKN') 
-    button.setMinimumWidth(260)   
+    button.setMinimumWidth(300)   
     button.clicked.connect(lambda event, line=riot_skn_line: browse(line, 'Select Riot SKN', 'SKN'))
     layout2.addWidget(button, 2, 3)
 
@@ -1497,7 +1504,7 @@ def build_sborf(widget: QWidget):
     layout2.addWidget(anm_bin_line, 3, 0)
     button = QToolButton()
     button.setText('📝 Browse Animation BIN')    
-    button.setMinimumWidth(260)
+    button.setMinimumWidth(300)
     button.clicked.connect(lambda event, line=anm_bin_line: browse(line, 'Select Animation BIN', 'BIN'))
     layout2.addWidget(button, 3, 1)
     riot_anm_bin_line = QLineEdit()
@@ -1505,7 +1512,7 @@ def build_sborf(widget: QWidget):
     layout2.addWidget(riot_anm_bin_line, 3, 2)
     button = QToolButton()
     button.setText('📝 Browse Riot Animation BIN')    
-    button.setMinimumWidth(260)
+    button.setMinimumWidth(300)
     button.clicked.connect(lambda event, line=riot_anm_bin_line: browse(line, 'Select Riot Animation BIN', 'BIN'))
     layout2.addWidget(button, 3, 3)
     

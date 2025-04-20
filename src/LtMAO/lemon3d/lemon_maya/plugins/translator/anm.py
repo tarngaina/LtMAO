@@ -9,7 +9,7 @@ from .....pyRitoFile.helper import Elf
 from .....pyRitoFile.structs import Vector, Quaternion
 
 
-class ANMTranslator(MPxFileTranslator):
+class ANMImporter(MPxFileTranslator):
     name = 'League of Legends: ANM'
     extension = 'anm'
 
@@ -18,6 +18,42 @@ class ANMTranslator(MPxFileTranslator):
 
     def haveReadMethod(self):
         return True
+    
+    def defaultExtension(self):
+        return self.extension
+
+    def filter(self):
+        return f'*.{self.extension}'
+    
+    def identifyFile(self, file, buffer, size):
+        if file.fullName().endswith(f'.{self.extension}'):
+            return MPxFileTranslator.kIsMyFileType
+        return MPxFileTranslator.kNotMyFileType
+
+    @classmethod
+    def creator(cls):
+        return asMPxPtr(cls())
+
+    def reader(self, file, options, access):
+        # import options
+        anm_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+        # read anm
+        anm = pyRitoFile.read_anm(anm_path)
+        anm.tracks = helper.convert_pyRitoFile_objects_to_Lemon(anm.tracks, helper.LemonANMTrack)
+        # load anm
+        helper.mirrorX(anm=anm)
+        load_options = {
+            'reset_channel': False if 'reset_channel=0' in options else True
+        }
+        ANM.scene_load(anm, load_options)
+        return True
+
+class ANMExporter(MPxFileTranslator):
+    name = 'League of Legends: ANM Export'
+    extension = 'anm'
+
+    def __init__(self):
+        MPxFileTranslator.__init__(self)
     
     def haveWriteMethod(self):
         return True
@@ -37,129 +73,17 @@ class ANMTranslator(MPxFileTranslator):
     def creator(cls):
         return asMPxPtr(cls())
 
-    def reader(self, file, option, access):
-        # import options
-        anm_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        dismiss, import_options = ANM.create_ui_anm_import_options(anm_path)
-        if dismiss != 'Import': 
-            return False
-        # read anm
-        anm = pyRitoFile.read_anm(anm_path)
-        anm.tracks = helper.convert_pyRitoFile_objects_to_Lemon(anm.tracks, helper.LemonANMTrack)
-        # load anm
-        helper.mirrorX(anm=anm)
-        load_options = {
-            'reset_channel':import_options['reset_channel']
-        }
-        ANM.scene_load(anm, load_options)
-        return True
-
-    def writer(self, file, option, access):
+    def writer(self, file, options, access):
         # export options
         anm_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        dismiss, anm_export_options = ANM.create_ui_anm_export_options(anm_path)
-        if dismiss != 'Export':
-            return False
         anm = pyRitoFile.ANM()
-        dump_options = {
-            'export_start_time': anm_export_options['export_start_time'],
-            'export_end_time': anm_export_options['export_end_time'],
-        }
-        ANM.scene_dump(anm, dump_options)
+        ANM.scene_dump(anm, {})
         helper.mirrorX(anm=anm)
         pyRitoFile.write_anm(anm_path, anm)
         return True
 
+
 class ANM:
-    @staticmethod
-    def create_ui_anm_import_options(anm_path):
-        anm_import_options = {
-            'reset_channel': True
-        }
-        def set_value_cmd(key, value):
-            anm_import_options[key] = value
-
-        # load optionVar
-        for key in ('reset_channel',):
-            if cmds.optionVar(exists=helper.get_option_key_name(key)):
-                anm_import_options[key] = cmds.optionVar(query=helper.get_option_key_name(key))
-        def ui_cmd():
-            cmds.columnLayout()
-
-            cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
-            cmds.text(label='ANM Path:')
-            cmds.text(label=anm_path, align='left', width=600)
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=1)
-            
-            cmds.checkBox(
-                width=400,  
-                label='Reset scene channel, time, range before import.',
-                value=anm_import_options['reset_channel'],
-                onCommand=lambda e: set_value_cmd('reset_channel', True),
-                offCommand=lambda e: set_value_cmd('reset_channel', False),
-            )
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=2)
-            cmds.text(label='', w=700)
-            def dismiss(result):
-                # save optionVar
-                for key in ('reset_channel',):
-                    cmds.optionVar(intValue=(helper.get_option_key_name(key), anm_import_options[key]))
-                cmds.layoutDialog(dismiss=result)
-            cmds.button(label='Import', width=100, command=lambda e: dismiss('Import'))
-
-        return cmds.layoutDialog(title='ANM Import Options', ui=ui_cmd), anm_import_options
-    
-    @staticmethod
-    def create_ui_anm_export_options(anm_path):
-        anm_export_options = {
-            'export_start_time': int(MAnimControl.animationStartTime().value()),
-            'export_end_time': int(MAnimControl.animationEndTime().value())
-        } 
-        def set_value_cmd(key, value):
-            anm_export_options[key] = value
-
-        def ui_cmd():
-            cmds.columnLayout()
-
-            cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
-            cmds.text(label='ANM Path:')
-            cmds.text(label=anm_path, align='left', width=600)
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
-            cmds.text(label='Export start time:')
-            start_time_field = cmds.intField(
-                value=anm_export_options['export_start_time'], 
-                changeCommand=lambda e: set_value_cmd(
-                    'export_start_time',
-                    cmds.intField(start_time_field, query=True, value=True)
-                )
-            )
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=2, adjustableColumn=2)
-            cmds.text(label='Export end time:')
-            end_time_field = cmds.intField(
-                value=anm_export_options['export_end_time'], 
-                changeCommand=lambda e: set_value_cmd(
-                    'export_end_time',
-                    cmds.intField(end_time_field, query=True, value=True)
-                )
-            )
-            cmds.setParent('..')
-
-            cmds.rowLayout(numberOfColumns=2)
-            cmds.text(label='', w=700)
-            def dismiss(result):
-                cmds.layoutDialog(dismiss=result)
-            cmds.button(label='Export', width=100, command=lambda e: dismiss('Export'))
-        
-        return cmds.layoutDialog(title='ANM Export Options', ui=ui_cmd), anm_export_options
-
     @staticmethod
     def scene_load(anm, load_options):
         # ensure scene fps
@@ -338,8 +262,8 @@ class ANM:
 
         # dump from frame 1 to frame end
         # if its not then well, its the ppl fault, not mine. haha suckers
-        start = dump_options['export_start_time']
-        end = dump_options['export_end_time']
+        start = int(MAnimControl.animationStartTime().value())
+        end = int(MAnimControl.animationEndTime().value())
         anm.duration = abs(end-start)
 
         for frame in range(anm.duration):

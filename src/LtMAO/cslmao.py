@@ -177,19 +177,21 @@ def diagnose():
     return CSLOL.diagnose()
 
 def convert_raw_files_before_run():
-    # scan raw
+    # scan enabled mod paths
     py2bin_files = []
     dds2tex_files = []
-    for root, dirs, files in os.walk(raw_dir):
-        for file in files:
-            if file.endswith('.py'):
-                py_file = os.path.join(root, file)
-                bin_file = py_file.replace('.py', '.bin')
-                py2bin_files.append((py_file, bin_file))
-            elif file.endswith('.dds'):
-                dds_file = os.path.join(root, file)
-                tex_file = dds_file.replace('.dds', '.tex')
-                dds2tex_files.append((dds_file, tex_file))
+    for mod in MOD.mods:
+        if mod.enable:
+            for root, dirs, files in os.walk(os.path.join(raw_dir, mod.get_path())):
+                for file in files:
+                    if file.endswith('.py'):
+                        py_file = os.path.join(root, file)
+                        bin_file = py_file.replace('.py', '.bin')
+                        py2bin_files.append((py_file, bin_file))
+                    elif file.endswith('.dds'):
+                        dds_file = os.path.join(root, file)
+                        tex_file = dds_file.replace('.dds', '.tex')
+                        dds2tex_files.append((dds_file, tex_file))
     # converts
     if setting.get('cslmao.auto_py2bin', False):
         for py_file, bin_file in py2bin_files:
