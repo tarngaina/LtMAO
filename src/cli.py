@@ -247,6 +247,11 @@ class CLI:
         print(f'unzipfantome: Running: Unzip: {src} to {dst}')
         with ZipFile(src, 'r') as zip:
             zip.extractall(dst)
+
+    def geb(src):
+        from LtMAO import wiwawe
+        wiwawe.guess_events_bnk(src)
+        input()
         
 
 def main():
@@ -304,6 +309,8 @@ def main():
         CLI.zipfantome(args.source)
     elif args.tool == 'unzipfantome':
         CLI.unzipfantome(args.source)
+    elif args.tool == 'geb':
+        CLI.geb(args.source)
 
 
 if __name__ == '__main__':

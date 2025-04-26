@@ -48,17 +48,17 @@ class BankHelper:
     def parse_audio_bnk(audio_bnk):
         if audio_bnk.didx == None:
             raise Exception(
-                'bnk_tool: Error: Extract BNK: No DIDX section found in audio BNK.')
+                'bnk_tool: Error: Parse BNK: No DIDX section found in audio BNK.')
         if audio_bnk.data == None:
             raise Exception(
-                'bnk_tool: Error: Extract BNK: No DATA section found in audio BNK.')
+                'bnk_tool: Error: Parse BNK: No DATA section found in audio BNK.')
         return audio_bnk.didx, audio_bnk.data
 
     @staticmethod
     def parse_events_bnk(events_bnk):
         if events_bnk.hirc == None:
             raise Exception(
-                'bnk_tool: Error: Extract BNK: No HIRC section found in events BNK.')
+                'bnk_tool: Error: Parse BNK: No HIRC section found in events BNK.')
         hirc = events_bnk.hirc
         map_bnk_objects = {}
         # yes only map wat we want to easy debug, its hell
@@ -211,26 +211,35 @@ class BankHelper:
 
                     # if action link to a switch container 
                     # switch container child point to ranseq container
-                    # list wem inside ranseq container sounds
+                    # ranseq container sound ids could point to another ranseq container 
+                    # if sound id point to sound then list wem, otherwise keep dfs
                     if action.object_id in map_bnk_objects[BNKObjectType.SwitchContainer]:
+                        def list_ranseq_container_wems(ranseq_container_id):
+                            if ranseq_container_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
+                                ranseq_container = map_bnk_objects[BNKObjectType.RandomOrSequenceContainer][ranseq_container_id]
+                                for sound_id in ranseq_container.sound_ids:
+                                    # sound id point to another ranseq container, dfs
+                                    if sound_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
+                                        list_ranseq_container_wems(sound_id)
+                                    # list wem if point to sound object
+                                    elif sound_id in map_bnk_objects[BNKObjectType.Sound]:
+                                        wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
+                                        if wem_id not in existed_wems:
+                                            continue
+                                        # create container if need
+                                        if ranseq_container_id not in bank_event.containers:
+                                            bank_event.containers[ranseq_container_id] = BankContainer(ranseq_container_id)
+                                        # add wem to container
+                                        bank_container = bank_event.containers[ranseq_container_id]
+                                        if wem_id not in bank_container.wems:
+                                            bank_container.wems[wem_id] = BankWem(wem_id)
+                                        # remove wem if they in non containers 
+                                        if wem_id in bank_event.wems:
+                                            bank_event.wems.pop(wem_id)
+                            
                         switch_container = map_bnk_objects[BNKObjectType.SwitchContainer][action.object_id]
                         for child_id in switch_container.child_ids:
-                            if child_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
-                                ranseq_container = map_bnk_objects[BNKObjectType.RandomOrSequenceContainer][child_id]
-                                for sound_id in ranseq_container.sound_ids:
-                                    wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
-                                    if wem_id not in existed_wems:
-                                        continue
-                                    # create container if need
-                                    if child_id not in bank_event.containers:
-                                        bank_event.containers[child_id] = BankContainer(child_id)
-                                    # add wem to container
-                                    bank_container = bank_event.containers[child_id]
-                                    if wem_id not in bank_container.wems:
-                                        bank_container.wems[wem_id] = BankWem(wem_id)
-                                    # remove wem if they in non containers 
-                                    if wem_id in bank_event.wems:
-                                        bank_event.wems.pop(wem_id)
+                            list_ranseq_container_wems(child_id)
 
                     # if action link to a music playlist container
                     # music tracks of music playlist container could point to music segment 
@@ -262,8 +271,10 @@ class BankHelper:
                         def find_music_playlist_container_child(switch_container_id):
                             switch_container = map_bnk_objects[BNKObjectType.MusicSwitchContainer][switch_container_id]
                             for child_id in switch_container.child_ids:
+                                # child id point to another music switch container, keep dfs
                                 if child_id in map_bnk_objects[BNKObjectType.MusicSwitchContainer]:
                                     find_music_playlist_container_child(child_id)
+                                # point to music playlist container, list wems
                                 elif child_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer]:
                                     music_playlist_container = map_bnk_objects[BNKObjectType.MusicPlaylistContainer][child_id]
                                     for music_track_id in music_playlist_container.music_track_ids:

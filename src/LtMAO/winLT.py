@@ -108,12 +108,12 @@ class Context:
         # .bnk contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.bnk\\shell',
-            sub_commands='LtMAO.bnk2dir;LtMAO.LFI;'
+            sub_commands='LtMAO.bnk2dir;LtMAO.geb;LtMAO.LFI;'
         )
         # .wpk contexts
         Context.create_submenu(
             shell='SystemFileAssociations\\.wpk\\shell',
-            sub_commands='LtMAO.wpk2dir;LtMAO.LFI;'
+            sub_commands='LtMAO.wpk2dir;LtMAO.geb;LtMAO.LFI;'
         )
         # .wem contexts
         Context.create_submenu(
@@ -137,14 +137,14 @@ class Context:
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.RawToWad',
-                cmd_desc='wad_tool: Pack to WAD',
+                cmd_desc='wad_tool: Pack To WAD',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wadpack" -src="%V"'
             )
             # WadToRaw
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.WadToRaw',
-                cmd_desc='wad_tool: Unpack to Folder',
+                cmd_desc='wad_tool: Unpack To Folder',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wadunpack" -src="%V"'
             )
             # AllWadToRaw
@@ -298,29 +298,36 @@ class Context:
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.dir2bnk',
-                cmd_desc='bnk_tool: Pack to BNK',
+                cmd_desc='bnk_tool: Pack To BNK',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dir2bnk" -src="%V"'
             )
             # dir2wpk
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.dir2wpk',
-                cmd_desc='bnk_tool: Pack to WPK',
+                cmd_desc='bnk_tool: Pack To WPK',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dir2wpk" -src="%V"'
             )
             # bnk2dir
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.bnk2dir',
-                cmd_desc='bnk_tool: Unpack to Folder',
+                cmd_desc='bnk_tool: Unpack To Folder',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="bnk2dir" -src="%V"'
             )
             # wpk2dir
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.wpk2dir',
-                cmd_desc='bnk_tool: Unpack to Folder',
+                cmd_desc='bnk_tool: Unpack To Folder',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wpk2dir" -src="%V"'
+            )
+            # geb
+            Context.create_command(
+                root=key,
+                cmd_name='LtMAO.geb',
+                cmd_desc='wiwawe: Guess name of Voice Events BNK',
+                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="geb" -src="%V"'
             )
         print('winLT: Finish: Create Explorer Contexts')
 

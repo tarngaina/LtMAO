@@ -99,8 +99,15 @@ def init_theme(theme_name):
         }} 
         QLineEdit {{
             min-height: 30;
+            selection-background-color: {qtwidgets.accent_color};
         }}
-        QLineEdit:focus, QPlainTextEdit:focus {{
+        QLineEdit:focus {{
+            border-color: {qtwidgets.accent_color};  
+        }}
+        QPlainTextEdit {{
+            selection-background-color: {qtwidgets.accent_color};
+        }}
+        QPlainTextEdit:focus {{
             border-color: {qtwidgets.accent_color};  
         }}
         QComboBox {{

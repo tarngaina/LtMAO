@@ -1695,7 +1695,7 @@ def build_lemon3d(widget: QWidget):
     tab2 = QWidget()
     layout2 = QVBoxLayout()
     layout2.addWidget(QLabel("""
-Maya recommend version: 2022+. 
+Maya recommend version: 2023+. 
 Steps to install lemon3d maya:
     1. Please close maya before installing lemon3d.
     2. Click Install button below, select Documents/maya/<version> folder to install lemon3d.

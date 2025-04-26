@@ -22,30 +22,37 @@
 
 ## File Explorer Context menu
 Can be added/removed in setting tab.
+
 **Note**: You can to run `LtMAO` as Admin through shortcut if you encounter permission error. 
 
 ![](https://i.imgur.com/f3XIP4M.png)
 
 ## Theme
 You can create your custom theme by making a new folder in `LtMAO-hai/res/themes`.
+
+Your custom image sizes must be same ratio as original images.
+
 The accent color of the app will be the dominant color of your `background.gif`.
+
 If there is "_" in theme name, the accent color will be a gradient between the most 2 dominant colors.
+
 ![](https://i.imgur.com/Gn9bz17.png)
 
 ## cslmao
 Just `cslol-manager`, but different UI.
 
-**Important**: Need to set `League of Legends/Game` folder in settings first to work.
+**Important**: To make cslmao work -> Click `Show settings` in the top right cornet -> Set `League of Legends/Game` folder.
 
 ![](https://i.imgur.com/RfGXCio.png)
 
 ## hash_helper
+
 ![](https://i.imgur.com/vKwHUNl.png)
 
 **Important:** Please wait for all syncing/updating/loading hashes finished before process with any `LtMAO` functions.
+
 1. CDTB Hashes: Auto sync [CommunityDragon](https://github.com/CommunityDragon/CDTB/tree/master/cdragontoolbox) hashes. Can also be manually downloaded at mentioned link. 
-2. Extracted Hashes: Extract personally by user.
-    Hashes that can be extracted:
+2. Extracted Hashes: Extract personally by user. Hashes that can be extracted:
     - binentries:
         - VfxSystemDefinitionData -> particlePath in BIN.
         - StaticMaterialDef -> name in BIN.
@@ -58,7 +65,7 @@ Just `cslol-manager`, but different UI.
     - Custom Hashes is hashes that used with all LtMAO related functions: ritobin, wad_tool, no_skin,...
     - Custom Hashes = CDTB Hashes + Extracted Hashes + User Manually Added Hashes
 
-Also has generate wad & bin hash function. Those generated hashes can be added to Custom Hashes with  ui buttons.
+`hash_helper` also has generate wad & bin hash tool. Those generated hashes can be added to Custom Hashes with buttons.
 
 ## mask_viewer
 Edit MaskData's weights inside animation BINs.
@@ -66,9 +73,9 @@ Edit MaskData's weights inside animation BINs.
 ![](https://i.imgur.com/k09Gmhj.png)
 
 ## hapiBin
-An app with multiple functions related to BIN file:
+An app with multiple functions related to BIN file.
 
-![](hhttps://i.imgur.com/YtLtHEM.png)
+![](https://i.imgur.com/YtLtHEM.png)
 
 ## no_skin
 Create NO SKIN mod: Replace **almost** every League skins to default.
@@ -92,28 +99,34 @@ Can bulk unpack multiple WADs into same output with filter.
 
 ## sborf
 Fix skin based on rito files: moonwalk animations, layering animations,...
+
 Can also adapt your custom animation bin MaskData base on riot original files.
 
 ![](https://i.imgur.com/eBCUdGK.png)
 
 ## lemon3d
-To work with League 3d files.
+Tool to work with League 3d files.
 
 1. fbx:
 ![](https://i.imgur.com/hyCLJmZ.png)
 
 Convert League files to FBX and vice versa.
+
+This tool mainly support `blender`, for maya please use the maya plugin.
+
 Support: SKN, SKL, ANM. Todo: SCO, SCB, MAPGEO
 
 2. maya:
-![](https://i.imgur.com/xe1UHVN.png
+![](https://i.imgur.com/xe1UHVN.png)
+
 ![](https://i.imgur.com/BWuIm1y.png)
 
-`lol_maya` but rewritten, plugin for maya 2022+ with 3d.
+`lol_maya` but rewritten, plugin for maya 2023+ with 3d.
+
 Support: SKN, SKL, ANM, SCO, SCB, MAPGEO.
 
 
-![Click here to read full document of lemon3d](src/LtMAO/lemon3d/README.md)
+[Click here to read full document of lemon3d](src/LtMAO/lemon3d/README.md)
 
 ## texsmart
 Convert League texture files.
