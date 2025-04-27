@@ -1882,6 +1882,9 @@ def build_bnk_tool(widget: QWidget):
     def load_bnk():
         # clear cache
         model.clear()
+        if qtwidgets.inspector != None:
+            qtwidgets.inspector.stop()
+            qtwidgets.inspector.port.terminate()
         bnk_tool.Inspector.reset_cache()
         reset_autoplay_values()
         # inspect
@@ -1970,6 +1973,7 @@ def build_bnk_tool(widget: QWidget):
         model.clear()
         if qtwidgets.inspector != None:
             qtwidgets.inspector.stop()
+            qtwidgets.inspector.port.terminate()
         bnk_tool.Inspector.reset_cache()
         qtwidgets.inspector = None
         reset_autoplay_values()

@@ -354,6 +354,7 @@ class Inspector:
 
     def __init__(self, audio_path, events_path='', bin_path='', volume=1.0):
         self.volume = volume
+        self.port = pyaudio.PyAudio()
         self.streams = []
         self.audio_path = audio_path
         # parse audio.bnk or audio.wpk
@@ -492,9 +493,8 @@ class Inspector:
                     sampwidth = wav.getsampwidth()
                     def play_callback(in_data, frame_count, time_info, status):
                         return (audioop.mul(wav.readframes(frame_count), sampwidth, self.volume), pyaudio.paContinue)
-                    p = pyaudio.PyAudio()
-                    stream = p.open(
-                        format=p.get_format_from_width(sampwidth),
+                    stream = self.port.open(
+                        format=self.port.get_format_from_width(sampwidth),
                         channels=wav.getnchannels(),
                         rate=wav.getframerate(),
                         output=True,
@@ -504,7 +504,6 @@ class Inspector:
                     while stream.is_active():
                         time.sleep(0.1) 
                     stream.close()
-                    p.terminate()
             except:
                 import traceback
                 print(traceback.format_exc())
