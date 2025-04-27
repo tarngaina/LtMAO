@@ -105,7 +105,8 @@ def mini_no_skin(skin0_file, otherskins_files):
     print(f'no_skin: Finish: Swap {len(otherskins_files)} skinX as skin0.')
 
 
-def parse(champions_dir, output_dir, pool_size=4):
+def full_no_skin(champions_dir, output_dir, pool_size=4):
+    start_time = time.time()
     # filter wads
     files = os.listdir(champions_dir)
     wad_files = []
@@ -254,12 +255,13 @@ def parse(champions_dir, output_dir, pool_size=4):
     fantome_file = os.path.join(
         output_dir,
         f'{FANTOME_META["Name"]} V{FANTOME_META["Version"]} by {FANTOME_META["Author"]}.fantome'
-    )
+    ).replace('\\', '/')
     with zipfile.ZipFile(fantome_file, 'w') as z:
         z.write(info_file, 'META/info.json')
         z.write(wad_file, 'WAD/Annie.wad.client')
     delete_cache()
-    print(f'no_skin: Finish: Create Fantome: {fantome_file}')
+    end_time = time.time()
+    print(f'no_skin: Finish: Create Fantome: {fantome_file} with {end_time-start_time:.2f} seconds')
 
 
 def init():

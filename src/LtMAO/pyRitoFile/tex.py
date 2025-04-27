@@ -5,12 +5,11 @@ from enum import Enum
 
 class TEXFormat(Enum):
     ETC1 = 1
-    ETC2 = 2
-    ETC2_EAC = 3
+    ETC2_EAC = 2
+    ETC2 = 3
     DXT1 = 10
-    DXT1_ = 11
     DXT5 = 12
-    RGBA8 = 20
+    BGRA8 = 20
 
     def __json__(self):
         return self.name
@@ -56,9 +55,9 @@ class TEX:
             self.format = TEXFormat(self.format)
             self.mipmaps, = bs.read_b()
             # read data
-            if self.mipmaps and self.format in (TEXFormat.DXT1, TEXFormat.DXT1_, TEXFormat.DXT5, TEXFormat.RGBA8):
+            if self.mipmaps and self.format in (TEXFormat.DXT1, TEXFormat.DXT5, TEXFormat.BGRA8):
                 # if mipmaps and supported format
-                if self.format in (TEXFormat.DXT1, TEXFormat.DXT1_):
+                if self.format == TEXFormat.DXT1:
                     block_size = 4
                     bytes_per_block = 8
                 elif self.format == TEXFormat.DXT5:
@@ -90,7 +89,7 @@ class TEX:
             bs.write_u16(self.width, self.height)
             bs.write_u8(1, self.format.value, 0)  # unknown1, format, unknown2
             bs.write_b(self.mipmaps)
-            if self.mipmaps and self.format in (TEXFormat.DXT1, TEXFormat.DXT1_, TEXFormat.DXT5, TEXFormat.RGBA8):
+            if self.mipmaps and self.format in (TEXFormat.DXT1, TEXFormat.DXT5, TEXFormat.BGRA8):
                 for block_data in self.data:
                     bs.write(block_data)
             else:

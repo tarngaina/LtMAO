@@ -1,4 +1,5 @@
 from . import pyRitoFile
+import struct
 
 def dds2tex(dds_path, tex_path=None):
     # prepare path
@@ -38,7 +39,16 @@ def dds2tex(dds_path, tex_path=None):
         }
         dds_pixel_format = dds_header['ddspf']
         dds_data = bs.read(-1)
-    # prepare tex header
+    # for rgba convert
+    custom_rgba_format = False
+    rgba_indices = [-1, -1, -1, -1]
+    mask_to_index = {
+        0x000000ff: 0,
+        0x0000ff00: 1,
+        0x00ff0000: 2,
+        0xff000000: 3
+    }
+    #  prepare tex header
     tex = pyRitoFile.TEX()
     tex.width = dds_header['dwWidth']
     tex.height = dds_header['dwHeight']
@@ -47,13 +57,22 @@ def dds2tex(dds_path, tex_path=None):
     elif dds_pixel_format['dwFourCC'] == int('DXT5'.encode('ascii')[::-1].hex(), 16):
         tex.format = pyRitoFile.TEXFormat.DXT5
     elif (dds_pixel_format['dwFlags'] & 0x00000041) == 0x00000041:
-        if dds_pixel_format['dwRGBBitCount'] != 32 or dds_pixel_format['dwRBitMask'] != 0x000000ff or dds_pixel_format['dwGBitMask'] != 0x0000ff00 or dds_pixel_format['dwBBitMask'] != 0x00ff0000 or dds_pixel_format['dwABitMask'] != 0xff000000:
-            raise Exception(
-                f'Ritoddstex: Error: dds2tex: {dds_path}: DDS file is not in exact RGBA8 format.')
-        tex.format = pyRitoFile.TEXFormat.RGBA8
+        tex.format = pyRitoFile.TEXFormat.BGRA8
+        if dds_pixel_format['dwRGBBitCount'] != 32:
+            raise Exception(f'Ritoddstex: Error: dds2tex: {dds_path}: dwRGBBitCount is expected 32, not {dds_pixel_format['dwRGBBitCount']}.')
+        if dds_pixel_format['dwBBitMask'] != 0x000000ff or dds_pixel_format['dwGBitMask'] != 0x0000ff00  or dds_pixel_format['dwRBitMask'] != 0x00ff0000 or dds_pixel_format['dwABitMask'] != 0xff000000:
+            custom_rgba_format = True
+            rgba_indices[0] = mask_to_index[dds_pixel_format['dwRBitMask']] 
+            rgba_indices[1] = mask_to_index[dds_pixel_format['dwGBitMask']] 
+            rgba_indices[2] = mask_to_index[dds_pixel_format['dwBBitMask']] 
+            rgba_indices[3] = mask_to_index[dds_pixel_format['dwABitMask']] 
+            for index in rgba_indices:
+                if index == -1:
+                    raise Exception(f'Ritoddstex: Error: dds2tex: {dds_path}: bitmask data invalid. Can not convert to BGRA output format.')
     else:
         raise Exception(
             f'Ritoddstex: Error: dds2tex: {dds_path}: Unsupported DDS format: {dds_pixel_format["dwFourCC"]}')
+    # mipmaps
     if dds_header['dwMipMapCount'] > 1:
         expected_dwMipMapCount = 32 - \
             len(f'{max(dds_header["dwWidth"], dds_header["dwHeight"]):032b}'.split(
@@ -63,10 +82,22 @@ def dds2tex(dds_path, tex_path=None):
                 f'Ritoddstex: Error: dds2tex: {dds_path}: Wrong DDS mipmap count: {dds_header["dwMipMapCount"]}, expected: {expected_dwMipMapCount}'
             )
         tex.mipmaps = True
+    # rgba convert
+    if custom_rgba_format:
+        new_data = None
+        r_index, g_index, b_index, a_index = rgba_indices
+        for i in range(0, len(dds_data), 4):
+            current_pixel_data = 0
+            current_pixel_data |= dds_data[i + b_index] << 0
+            current_pixel_data |= dds_data[i + g_index] << 8
+            current_pixel_data |= dds_data[i + r_index] << 16
+            current_pixel_data |= dds_data[i + a_index] << 24
+            new_data += struct.pack('I', current_pixel_data)
+        dds_data = new_data
     # prepare tex data
     if tex.mipmaps:
         # if mipmaps and supported format
-        if tex.format in (pyRitoFile.TEXFormat.DXT1, pyRitoFile.TEXFormat.DXT1_):
+        if tex.format == pyRitoFile.TEXFormat.DXT1:
             block_size = 4
             bytes_per_block = 8
         elif tex.format == pyRitoFile.TEXFormat.DXT5:
@@ -79,8 +110,8 @@ def dds2tex(dds_path, tex_path=None):
         current_offset = 0
         tex.data = []
         for i in range(mipmap_count):
-            current_width = max(tex.width // (1 << i), 1)
-            current_height = max(tex.height // (1 << i), 1)
+            current_width = max(tex.width >> i, 1)
+            current_height = max(tex.height >> i, 1)
             block_width = (current_width +
                            block_size - 1) // block_size
             block_height = (current_height +
@@ -131,7 +162,7 @@ def tex2dds(tex_path, dds_path=None):
         'dwReserved2': 0,
     }
     dds_pixel_format = dds_header['ddspf']
-    if tex.format in (pyRitoFile.TEXFormat.DXT1, pyRitoFile.TEXFormat.DXT1_):
+    if tex.format == pyRitoFile.TEXFormat.DXT1:
         dds_pixel_format['dwFourCC'] = int(
             'DXT1'.encode('ascii')[::-1].hex(), 16)
         dds_pixel_format['dwFlags'] = 0x00000004
@@ -139,12 +170,12 @@ def tex2dds(tex_path, dds_path=None):
         dds_pixel_format['dwFourCC'] = int(
             'DXT5'.encode('ascii')[::-1].hex(), 16)
         dds_pixel_format['dwFlags'] = 0x00000004
-    elif tex.format == pyRitoFile.TEXFormat.RGBA8:
+    elif tex.format == pyRitoFile.TEXFormat.BGRA8:
         dds_pixel_format['dwFlags'] = 0x00000041
         dds_pixel_format['dwRGBBitCount'] = 32
-        dds_pixel_format['dwRBitMask'] = 0x000000ff
+        dds_pixel_format['dwBBitMask'] = 0x000000ff
         dds_pixel_format['dwGBitMask'] = 0x0000ff00
-        dds_pixel_format['dwBBitMask'] = 0x00ff0000
+        dds_pixel_format['dwRBitMask'] = 0x00ff0000
         dds_pixel_format['dwABitMask'] = 0xff000000
     else:
         raise Exception(

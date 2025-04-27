@@ -185,7 +185,7 @@ def generate_events_bnk_json(events_bnks_dir, events_bnks_file):
             for file in files:
                 if file.endswith('_events.bnk'):
                     bnk_path = os.path.join(root, file)
-                    events_bnks[lang][file] = list_wems_insdie_events_bnk(pyRitoFile.read_bnk(bnk_path))
+                    events_bnks[lang][file] = list_wem_inside_bank(pyRitoFile.read_bnk(bnk_path))
         print(f'Finish: {lang_path}')
     # save to file
     with open(events_bnks_file, 'w+') as f:

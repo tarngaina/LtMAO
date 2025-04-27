@@ -17,13 +17,13 @@ from PySide6.QtWidgets import (
     QItemDelegate,
     QTextEdit,
     QTreeView,
+    QSlider,
 )
 from PySide6.QtGui import QColor, QStandardItem, QStandardItemModel, QPixmap, QMovie
-from PySide6.QtCore import Qt, QObject, Signal
+from PySide6.QtCore import Qt, QObject, Signal, QTimer
 
 
-import os, os.path
-from PIL import Image
+import os, os.path, time
 from threading import Thread
 
 from . import helper
@@ -1110,18 +1110,6 @@ def build_no_skin(widget: QWidget):
     save_button.setText('💾 Save SKIPS.json')
     layout3.addWidget(save_button)
 
-    label = QLabel('🦺 Thread: ')
-    layout3.addWidget(label)
-    thread_box = QComboBox()
-    thread_box.setMinimumWidth(50)
-    thread_box.addItems(['1', '2', '4', '6', '8', '16'])
-    thread_box.setCurrentText(setting.get('no_skin.pool_size', '4'))
-    def change_thread_num():
-        setting.set('no_skin.pool_size', thread_box.currentText())
-        setting.save()
-    thread_box.currentTextChanged.connect(change_thread_num)
-    layout3.addWidget(thread_box)
-
     layout3.addStretch()
     full_button = QToolButton()
     full_button.setText('🐧 Make NO SKIN.fantome')
@@ -1135,7 +1123,7 @@ def build_no_skin(widget: QWidget):
         if dirpath != '':
             def no_skin_thrd():
                 final_path = dirpath
-                no_skin.parse(champs_line.text(), final_path, pool_size=int(setting.get('no_skin.pool_size', '4')))
+                no_skin.full_no_skin(champs_line.text(), final_path)
     
             helper.SafeThread.start('no_skin', no_skin_thrd)
     full_button.clicked.connect(no_skin_full)
@@ -1895,11 +1883,13 @@ def build_bnk_tool(widget: QWidget):
         # clear cache
         model.clear()
         bnk_tool.Inspector.reset_cache()
+        reset_autoplay_values()
         # inspect
         qtwidgets.inspector = inspector = bnk_tool.Inspector(
             audio_path=audio_line.text(),
             events_path=event_line.text(),
-            bin_path=bin_line.text()
+            bin_path=bin_line.text(),
+            volume=setting.get('bnk_tool.volume', True)
         )
         inspector.unpack(inspector.get_cache_dir())
         
@@ -1982,6 +1972,7 @@ def build_bnk_tool(widget: QWidget):
             qtwidgets.inspector.stop()
         bnk_tool.Inspector.reset_cache()
         qtwidgets.inspector = None
+        reset_autoplay_values()
     button.clicked.connect(clear_bnk)
     layout3.addWidget(button)
 
@@ -2061,7 +2052,7 @@ def build_bnk_tool(widget: QWidget):
                 text = select_index[-1].data()
                 if text.startswith('🎵'):
                     wem_id = text[2:]
-                    qtwidgets.inspector.play(wem_id)
+                    qtwidgets.inspector.play(wem_id, setting.get('bnk_tool.stop_previous', True))
         treeview.selectionModel().selectedIndexes()[-1].data
     button.clicked.connect(play_selected)
     layout3.addWidget(button)
@@ -2076,16 +2067,43 @@ def build_bnk_tool(widget: QWidget):
     button.clicked.connect(stop_playing)
     layout3.addWidget(button)
 
-    checkbox = QCheckBox()
-    checkbox.setChecked(setting.get('bnk_tool.auto_play', True))
-    checkbox.setText('🔁 Auto play')
-    checkbox.setMinimumWidth(230)
-    def autoplay_checkbox():
-        setting.set('bnk_tool.auto_play', checkbox.isChecked())
+    # explain:
+    # when we select wem, dont play sound
+    # enter selecting state with 1 sec delay, refresh 1 sec every new select
+    # if after 1 sec delay of selecting, nothing new selected, play the sound
+    # this is very complicated so we need a whole background thread for autoplay
+    def reset_autoplay_values():
+        qtwidgets.selected_wem_id = None
+        qtwidgets.is_selecting = False
+        qtwidgets.select_cd = 0.0
+    # autoplay thread  
+    def autoplay_thread():
+        fixed_delta_time = 0.0166
+        while setting.get('bnk_tool.auto_play', True):
+            if qtwidgets.inspector != None:
+                if qtwidgets.is_selecting:
+                    if qtwidgets.select_cd > 0.0:
+                        qtwidgets.select_cd -= fixed_delta_time
+                    else:
+                        if qtwidgets.selected_wem_id != None:
+                            qtwidgets.inspector.play(qtwidgets.selected_wem_id, setting.get('bnk_tool.stop_previous', True))
+                        qtwidgets.select_cd = 0.0
+                        qtwidgets.is_selecting = False
+            time.sleep(fixed_delta_time)
+    # autoplay checkbox
+    auto_playcheckbox = QCheckBox()
+    auto_playcheckbox.setChecked(setting.get('bnk_tool.auto_play', True))
+    auto_playcheckbox.setText('🔁 Auto play')
+    auto_playcheckbox.setMinimumWidth(230)
+    def autoplay_checkbox_cmd():
+        setting.set('bnk_tool.auto_play', auto_playcheckbox.isChecked())
         setting.save()
-    checkbox.clicked.connect(autoplay_checkbox)
-    layout3.addWidget(checkbox)
-    def autoplay_cmd(selected, deselected):
+        if setting.get('bnk_tool.auto_play', True):
+            helper.SafeThread.start('bnk_tool.auto_play', autoplay_thread)
+    auto_playcheckbox.clicked.connect(autoplay_checkbox_cmd)
+    layout3.addWidget(auto_playcheckbox)
+    # autoplay select cmd
+    def autoplay_select_cmd(selected, deselected):
         if qtwidgets.inspector == None:
             return
         if selected != None and setting.get('bnk_tool.auto_play', True) :
@@ -2096,8 +2114,40 @@ def build_bnk_tool(widget: QWidget):
                     text = select_index[-1].data()
                     if text.startswith('🎵'): 
                         wem_id = text[2:]
-                        qtwidgets.inspector.play(wem_id)
-    treeview.selectionModel().selectionChanged.connect(autoplay_cmd)
+                        if not qtwidgets.is_selecting:
+                            qtwidgets.is_selecting = True
+                        qtwidgets.select_cd = 0.5
+                        qtwidgets.selected_wem_id = wem_id
+    treeview.selectionModel().selectionChanged.connect(autoplay_select_cmd)
+    # start the autoplay event
+    reset_autoplay_values()
+    if setting.get('bnk_tool.auto_play', True):
+        helper.SafeThread.start('bnk_tool.auto_play', autoplay_thread)
+
+    # play one by one
+    stopprev_checkbox = QCheckBox()
+    stopprev_checkbox.setChecked(setting.get('bnk_tool.stop_previous', True))
+    stopprev_checkbox.setText('🔁 Stop previous sound')
+    stopprev_checkbox.setMinimumWidth(230)
+    def stopprev_checkbox_cmd():
+        setting.set('bnk_tool.stop_previous', stopprev_checkbox.isChecked())
+        setting.save()
+    stopprev_checkbox.clicked.connect(stopprev_checkbox_cmd)
+    layout3.addWidget(stopprev_checkbox)
+
+    # volume
+    volume_slider = QSlider()
+    volume_slider.setOrientation(Qt.Orientation.Horizontal)
+    volume_slider.setRange(0, 100)
+    volume_slider.setValue(int(setting.get('bnk_tool.volume', 1.0)*100))
+    def volume_changed(value):
+        volume_factor = float(value / 100)
+        if qtwidgets.inspector != None:
+            qtwidgets.inspector.volume = volume_factor
+        setting.set('bnk_tool.volume', volume_factor)
+        setting.save()
+    volume_slider.valueChanged.connect(volume_changed)
+    layout3.addWidget(volume_slider)
     
     layout3.addStretch()
     layout2.addLayout(layout3)

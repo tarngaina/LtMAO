@@ -1,3 +1,3 @@
-from LtMAO import wiwawe
+from LtMAO import Ritoddstex
 
-wiwawe.guess_events_bnk('D:/test/LIVE_mordekaiser_base_vo_events.bnk')
+Ritoddstex.tex2dds('D:/test/BGRA_test.tex', 'D:/test/BGRA_test.dds')

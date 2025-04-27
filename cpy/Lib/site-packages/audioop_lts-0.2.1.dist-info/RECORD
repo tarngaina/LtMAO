@@ -1,0 +1,12 @@
+audioop/__init__.py,sha256=4ep-Vq3-_RVpEMyra728Kioj--DnU8goSmmQ0k5hpHw,818
+audioop/__init__.pyi,sha256=GLg57iWIMSpr0HFrz5N1kSxxAFwRoUCvMMflxFVgmYc,2182
+audioop/__pycache__/__init__.cpython-313.pyc,,
+audioop/_audioop.pyd,sha256=NCdxAo_UJ7MebOkoQ5Uig3yxVVjGoFej5xRTBGFURsY,49152
+audioop/py.typed,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+audioop_lts-0.2.1.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+audioop_lts-0.2.1.dist-info/LICENSE,sha256=NDI35L5OF4e7VAGavNYdSEZax_wuEvQYOEb6aLhEc3E,14215
+audioop_lts-0.2.1.dist-info/METADATA,sha256=iLdCHLHdTlGS2J5sxAnw_2ks6ZrrFu3THafvmEG4LNc,1701
+audioop_lts-0.2.1.dist-info/RECORD,,
+audioop_lts-0.2.1.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+audioop_lts-0.2.1.dist-info/WHEEL,sha256=FrJs9BDd6ztsMBI1ShHocJoSEf0Q4UbqDCRBV0Uh_0M,100
+audioop_lts-0.2.1.dist-info/top_level.txt,sha256=zl-DTW3eCS46Ddt9xGWY-5evE7-FSvwemDaBMelsgCs,8

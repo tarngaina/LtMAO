@@ -152,6 +152,13 @@ def init_theme(theme_name):
             background-color: rgba(0, 0, 0, 127);
             border: none;   
         }}
+        QSlider:handle {{
+            background-color: {qtwidgets.accent_color};
+            border: none;
+        }}
+        QSlider:sub-page {{
+            background-color: {qtwidgets.accent_color};
+        }}
     """
     qtwidgets.tab_stylesheet = f"""
         QWidget {{
@@ -313,6 +320,7 @@ def build_main_window(window: QMainWindow):
     build_grips(window)
     # set background gif
     qtwidgets.background_widget = background_widget = QLabel()
+    background_widget.setObjectName('backgroundWidget')
     if setting.get('qtGUI.animated_background', True):
         movie = QMovie(qtwidgets.theme_paths['background'])
         background_widget.setMovie(movie)
@@ -322,6 +330,7 @@ def build_main_window(window: QMainWindow):
         pixmap = QPixmap(qtwidgets.theme_paths['background'])
         background_widget.setPixmap(pixmap)
         background_widget.setScaledContents(True)
+    background_widget.setStyleSheet('#backgroundWidget { border: 1px solid black; }')
     # build main layout
     layout = QVBoxLayout()
     build_main_layout(background_widget, layout)

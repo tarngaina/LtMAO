@@ -5,10 +5,11 @@ from . import tools, pyRitoFile
 
 import os
 import os.path
+import time
 from natsort import os_sorted
 from shutil import rmtree
 from threading import Thread
-import pyaudio, wave
+import pyaudio, wave, audioop
 
 
 class BankTree:
@@ -351,7 +352,8 @@ class Inspector:
         rmtree(Inspector.cache_dir, ignore_errors=True)
         os.makedirs(Inspector.cache_dir, exist_ok=True)
 
-    def __init__(self, audio_path, events_path='', bin_path=''):
+    def __init__(self, audio_path, events_path='', bin_path='', volume=1.0):
+        self.volume = volume
         self.streams = []
         self.audio_path = audio_path
         # parse audio.bnk or audio.wpk
@@ -390,9 +392,6 @@ class Inspector:
                 cache_wem_file = self.get_cache_wem_file(wem_id)
                 with open(cache_wem_file, 'wb+') as f:
                     f.write(wem_data)
-                wav_file = cache_wem_file.replace('.wem', '.wav')
-                if os.path.exists(wav_file):
-                    os.remove(wav_file)
 
     def extract(self, output_dir):
         map_wem_paths = {}
@@ -477,28 +476,38 @@ class Inspector:
     def get_cache_wem_file(self, wem_id):
         return os.path.join(self.get_cache_dir(), f'{wem_id}.wem')
 
-    def play(self, wem_id):
+    def play(self, wem_id, stop_previous=True):
         def play_thrd():
-            wem_file = self.get_cache_wem_file(wem_id)
-            if not os.path.exists(wem_file):
-                self.unpack_wem(self.get_cache_dir(), wem_id)
-            wav_file = wem_file.replace('.wem', '.wav')
-            tools.VGMStream.to_wav(wem_file)
-            with wave.open(wav_file, 'rb') as wav:
-                p = pyaudio.PyAudio()
-                stream = p.open(
-                    format=p.get_format_from_width(wav.getsampwidth()),
-                    channels=wav.getnchannels(),
-                    rate=wav.getframerate(),
-                    output=True
-                )
-                self.streams.append(stream)
-                while len(data := wav.readframes(1024)):
-                    if stream.is_active(): 
-                        stream.write(data)
-                stream.close()
-                p.terminate()
-        
+            try:
+                wem_file = self.get_cache_wem_file(wem_id)
+                if not os.path.exists(wem_file):
+                    self.unpack_wem(self.get_cache_dir(), wem_id)
+                wav_file = wem_file.replace('.wem', '.wav')
+                if not os.path.exists(wav_file):
+                    tools.VGMStream.to_wav(wem_file)
+                if stop_previous:
+                    self.stop()
+                with wave.open(wav_file, 'rb') as wav:
+                    
+                    sampwidth = wav.getsampwidth()
+                    def play_callback(in_data, frame_count, time_info, status):
+                        return (audioop.mul(wav.readframes(frame_count), sampwidth, self.volume), pyaudio.paContinue)
+                    p = pyaudio.PyAudio()
+                    stream = p.open(
+                        format=p.get_format_from_width(sampwidth),
+                        channels=wav.getnchannels(),
+                        rate=wav.getframerate(),
+                        output=True,
+                        stream_callback=play_callback
+                    )
+                    self.streams.append(stream)
+                    while stream.is_active():
+                        time.sleep(0.1) 
+                    stream.close()
+                    p.terminate()
+            except:
+                import traceback
+                print(traceback.format_exc())
         Thread(target=play_thrd, daemon=True).start()
 
     def stop(self):
@@ -551,6 +560,5 @@ def dir2bnk(dir_path, is_bnk):
         write_wpk(audio_path, audio, wem_datas)
     print(f'wad_tool: Finish: Pack: {audio_path}')
     
-
 def init():
     os.makedirs(Inspector.cache_dir, exist_ok=True)

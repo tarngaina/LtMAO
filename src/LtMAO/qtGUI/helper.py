@@ -1,8 +1,8 @@
-from threading import Thread
-
 class Keeper:
     def __init__(self):
         pass
+
+from threading import Thread
 
 class SafeThread:
     cached = {}
@@ -28,4 +28,4 @@ class SafeThread:
             SafeThread.cached[thread_name] = Thread(target=cmd, daemon=True)
             SafeThread.cached[thread_name].start()
         else:
-            print(f'{thread_name}: Error: Thread5 is already running, wait for it to end.')
+            print(f'{thread_name}: Error: Thread is already running, wait for it to end.')
