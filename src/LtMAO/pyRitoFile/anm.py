@@ -4,7 +4,6 @@ from .stream import BinStream
 from ..pyRitoFile.structs import Quaternion, Vector
 from .helper import Elf
 
-
 class ANMHepler:
     @staticmethod
     def decompress_quat(bytes):
@@ -115,57 +114,46 @@ class ANMHepler:
                 if pose.rotate == None:
                     pose.rotate = interpolate(frame, rotate_curve, Quaternion.slerp)
 
-                
-        
     @staticmethod
-    def build_uni_vecs_quats_frames(anm):
-        # build uni vecs, uni quats, frame data
-        uni_vecs = []
-        uni_vec_count = 0
-        uni_quats = []
-        uni_quat_count = 0
+    def build_frames(anm):
         track_count = len(anm.tracks)
+        vec_index = 0
+        quat_index = 0
+        vec_bank = {}
+        quat_bank = {}
         frames = [None] * anm.duration * track_count
-        vec_tol_right = 0.0001
-        vec_tol_left = -vec_tol_right
-        quat_tol_right = 0.0001
-        quat_tol_left = -quat_tol_right
         for t, track in enumerate(anm.tracks):
             for f in range(anm.duration):
                 translate, rotate, scale = track.poses[f].translate, track.poses[f].rotate, track.poses[f].scale
-                # translate check
-                translate_index = -1
-                for vec_index, vec in enumerate(uni_vecs):
-                    if vec_tol_left < translate.x-vec.x < vec_tol_right and vec_tol_left < translate.y-vec.y < vec_tol_right and vec_tol_left < translate.z-vec.z < vec_tol_right:
-                        translate_index = vec_index
-                        break
-                if translate_index == -1:
-                    uni_vecs.append(translate)
-                    translate_index = uni_vec_count
-                    uni_vec_count += 1
-                # scale check
-                scale_index = -1
-                for vec_index, vec in enumerate(uni_vecs):
-                    if vec_tol_left < scale.x-vec.x < vec_tol_right and vec_tol_left < scale.y-vec.y < vec_tol_right and vec_tol_left < scale.z-vec.z < vec_tol_right:
-                        scale_index = vec_index
-                        break
-                if scale_index == -1:
-                    uni_vecs.append(scale)
-                    scale_index = uni_vec_count
-                    uni_vec_count += 1
-                # rotate check
-                rotate_index = -1
-                for quat_index, quat in enumerate(uni_quats):
-                    if quat_tol_left < rotate.x-quat.x < quat_tol_right and quat_tol_left < rotate.y-quat.y < quat_tol_right and quat_tol_left < rotate.z-quat.z < quat_tol_right and quat_tol_left < rotate.w-quat.w < quat_tol_right:
-                        rotate_index = quat_index
-                        break 
-                if rotate_index == -1:
-                    uni_quats.append(rotate)
-                    rotate_index = uni_quat_count
-                    uni_quat_count += 1
+                # translate
+                translate_key = f'{translate.x:.4f} {translate.y:.4f} {translate.z:.4f}'
+                if translate_key not in vec_bank:
+                    vec_bank[translate_key] = vec_index
+                    translate_index = vec_index
+                    vec_index += 1
+                else:
+                    translate_index = vec_bank[translate_key]
+                # scale
+                scale_key = f'{scale.x:.4f} {scale.y:.4f} {scale.z:.4f}'
+                if scale_key not in vec_bank:
+                    vec_bank[scale_key] = vec_index
+                    scale_index = vec_index
+                    vec_index += 1
+                else:
+                    scale_index = vec_bank[scale_key]
+                # rotate
+                rotate_key = f'{rotate.x:.7f} {rotate.y:.7f} {rotate.z:.7f} {rotate.w:.7f}'
+                if rotate_key not in quat_bank:
+                    quat_bank[rotate_key] = quat_index
+                    rotate_index = quat_index
+                    quat_index += 1
+                else:
+                    rotate_index = quat_bank[rotate_key]
                 # add to frame
                 frames[f * track_count + t] = (translate_index, scale_index, rotate_index)
-        return uni_vecs, uni_quats, frames
+        vec_bank = [Vector(*[float(value) for value in vec_key.split()]) for vec_key in list(vec_bank.keys())]
+        quat_bank = [Quaternion(*[float(value) for value in quat_key.split()]) for quat_key in list(quat_bank.keys())]
+        return vec_bank, quat_bank, frames
 
 class ANMErrorMetric:
     __slots__ = (
@@ -352,10 +340,10 @@ class ANM:
                     joint_hashes = bs.read_u32(joint_hash_count)
                     # read vecs
                     bs.seek(vecs_offset + 12)
-                    uni_vecs = bs.read_vec3(vec_count)
+                    vec_bank = bs.read_vec3(vec_count)
                     # read quats
                     bs.seek(quats_offset + 12)
-                    uni_quats = [ANMHepler.decompress_quat(
+                    quat_bank = [ANMHepler.decompress_quat(
                         bs.read(6)) for i in range(quat_count)]
                     # prepare tracks
                     self.tracks = [ANMTrack() for i in range(track_count)]
@@ -369,12 +357,12 @@ class ANM:
                             translate_index, scale_index, rotate_index = bs.read_u16(3)
                             # parse pose
                             pose = ANMPose()
-                            translate = uni_vecs[translate_index]
+                            translate = vec_bank[translate_index]
                             pose.translate = Vector(
                                 translate.x, translate.y, translate.z)
-                            scale = uni_vecs[scale_index]
+                            scale = vec_bank[scale_index]
                             pose.scale = Vector(scale.x, scale.y, scale.z)
-                            rotate = uni_quats[rotate_index]
+                            rotate = quat_bank[rotate_index]
                             pose.rotate = Quaternion(
                                 rotate.x, rotate.y, rotate.z, rotate.w)
                             track.poses[f] = pose
@@ -406,10 +394,10 @@ class ANM:
                     quat_count = (frames_offset - quats_offset) // 16
                     # read uni vecs
                     bs.seek(vecs_offset + 12)
-                    uni_vecs = bs.read_vec3(vec_count)
+                    vec_bank = bs.read_vec3(vec_count)
                     # read uni quats
                     bs.seek(quats_offset + 12)
-                    uni_quats = bs.read_quat(quat_count)
+                    quat_bank = bs.read_quat(quat_count)
                     # prepare tracks
                     self.tracks = [ANMTrack() for i in range(track_count)]
                     for track in self.tracks:
@@ -439,12 +427,12 @@ class ANM:
                                         continue
                             # parse pose
                             pose = ANMPose()
-                            translate = uni_vecs[translate_index]
+                            translate = vec_bank[translate_index]
                             pose.translate = Vector(
                                 translate.x, translate.y, translate.z)
-                            scale = uni_vecs[scale_index]
+                            scale = vec_bank[scale_index]
                             pose.scale = Vector(scale.x, scale.y, scale.z)
-                            rotate = uni_quats[rotate_index]
+                            rotate = quat_bank[rotate_index]
                             pose.rotate = Quaternion(
                                 rotate.x, rotate.y, rotate.z, rotate.w)
                             track.poses[len(track.poses)] = pose
@@ -480,7 +468,7 @@ class ANM:
         with self.stream(path, 'wb', raw) as bs:
             self.duration = int(self.duration)
             ANMHepler.interpolate_integer_frames(self)
-            uni_vecs, uni_quats, frames = ANMHepler.build_uni_vecs_quats_frames(self)
+            vec_bank, quat_bank, frames = ANMHepler.build_frames(self)
             # start write anm
             bs.write_s('r3d2anmd') # signature
             bs.write_u32(
@@ -490,7 +478,6 @@ class ANM:
                 0, # flags1
                 0, # flags2
             )
-            print(self.duration)
             bs.write_u32(
                 len(self.tracks), # track_count
                 self.duration # frame_count
@@ -509,10 +496,10 @@ class ANM:
             # must in order: vecs -> quats -> joint_hashses -> frames
             # vec
             vecs_offset = bs.tell()
-            bs.write_vec3(*uni_vecs)
+            bs.write_vec3(*vec_bank)
             # quat
             quat_offsets = bs.tell()
-            bs.write(b''.join(ANMHepler.compress_quat(quat) for quat in uni_quats))
+            bs.write(b''.join(ANMHepler.compress_quat(quat) for quat in quat_bank))
             # joint_hash
             joint_hashes_offset = bs.tell()
             bs.write_u32(*[track.joint_hash for track in self.tracks])

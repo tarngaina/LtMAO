@@ -249,9 +249,9 @@ class CLI:
             zip.extractall(dst)
 
     def geb(src):
-        from LtMAO import wiwawe
-        wiwawe.guess_events_bnk(src)
-        input()
+        from LtMAO import bnk_tool
+        bnk_tool.guess_events_bnk(src)
+        input('Press enter to exit')
         
 
 def main():

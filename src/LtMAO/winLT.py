@@ -326,7 +326,7 @@ class Context:
             Context.create_command(
                 root=key,
                 cmd_name='LtMAO.geb',
-                cmd_desc='wiwawe: Guess name of Voice Events BNK',
+                cmd_desc='bnk_tool: Guess name of Voice Events BNK',
                 cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="geb" -src="%V"'
             )
         print('winLT: Finish: Create Explorer Contexts')
