@@ -3,9 +3,7 @@ from .pyRitoFile.helper import FNV1
 from .hash_helper import cached_bin_hashes
 from . import tools, pyRitoFile
 
-import os
-import os.path
-import time
+import os, os.path, time, io
 from natsort import os_sorted
 from shutil import rmtree
 from threading import Thread
@@ -393,6 +391,9 @@ class Inspector:
                 cache_wem_file = self.get_cache_wem_file(wem_id)
                 with open(cache_wem_file, 'wb+') as f:
                     f.write(wem_data)
+                wav_file = cache_wem_file.replace('.wem', '.wav')
+                if os.path.exists(wav_file):
+                    os.remove(wav_file)
 
     def extract(self, output_dir):
         map_wem_paths = {}
@@ -477,37 +478,33 @@ class Inspector:
     def get_cache_wem_file(self, wem_id):
         return os.path.join(self.get_cache_dir(), f'{wem_id}.wem')
 
+    # need to play in thread
     def play(self, wem_id, stop_previous=True):
-        def play_thrd():
-            try:
-                wem_file = self.get_cache_wem_file(wem_id)
-                if not os.path.exists(wem_file):
-                    self.unpack_wem(self.get_cache_dir(), wem_id)
-                wav_file = wem_file.replace('.wem', '.wav')
-                if not os.path.exists(wav_file):
-                    tools.VGMStream.to_wav(wem_file)
-                if stop_previous:
-                    self.stop()
-                with wave.open(wav_file, 'rb') as wav:
-                    
-                    sampwidth = wav.getsampwidth()
-                    def play_callback(in_data, frame_count, time_info, status):
-                        return (audioop.mul(wav.readframes(frame_count), sampwidth, self.volume), pyaudio.paContinue)
-                    stream = self.port.open(
-                        format=self.port.get_format_from_width(sampwidth),
-                        channels=wav.getnchannels(),
-                        rate=wav.getframerate(),
-                        output=True,
-                        stream_callback=play_callback
-                    )
-                    self.streams.append(stream)
-                    while stream.is_active():
-                        time.sleep(0.1) 
-                    stream.close()
-            except:
-                import traceback
-                print(traceback.format_exc())
-        Thread(target=play_thrd, daemon=True).start()
+        wem_file = self.get_cache_wem_file(wem_id)
+        if not os.path.exists(wem_file):
+            self.unpack_wem(self.get_cache_dir(), wem_id)
+        wav_file = wem_file.replace('.wem', '.wav')
+        if not os.path.exists(wav_file):
+            tools.VGMStream.to_wav(wem_file)
+        if stop_previous:
+            self.stop()
+        with open(wav_file, 'rb') as f:
+            wav_data = f.read()
+        with wave.open(io.BytesIO(wav_data), 'rb') as wav:
+            sampwidth = wav.getsampwidth()
+            def play_callback(in_data, frame_count, time_info, status):
+                return (audioop.mul(wav.readframes(frame_count), sampwidth, self.volume), pyaudio.paContinue)
+            stream = self.port.open(
+                format=self.port.get_format_from_width(sampwidth),
+                channels=wav.getnchannels(),
+                rate=wav.getframerate(),
+                output=True,
+                stream_callback=play_callback
+            )
+            self.streams.append(stream)
+            while stream.is_active():
+                time.sleep(0.1) 
+            stream.close()
 
     def stop(self):
         for stream in self.streams:

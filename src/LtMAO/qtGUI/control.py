@@ -1828,7 +1828,7 @@ def build_bnk_tool(widget: QWidget):
     event_line.setPlaceholderText('Require')
     layout2.addWidget(event_line, 1, 0)
     button = QToolButton()
-    button.setText('📋 Select Event BNK')    
+    button.setText('📋 Select Events BNK')    
     button.setMinimumWidth(260)
     def browse_event(line):
         dialog = QFileDialog()
@@ -2056,7 +2056,8 @@ def build_bnk_tool(widget: QWidget):
                 text = select_index[-1].data()
                 if text.startswith('🎵'):
                     wem_id = text[2:]
-                    qtwidgets.inspector.play(wem_id, setting.get('bnk_tool.stop_previous', True))
+                    play_thrd = lambda: qtwidgets.inspector.play(wem_id, setting.get('bnk_tool.stop_previous', True))
+                    helper.SafeThread.start(f'bnk_tool.play_{wem_id}_{time.time()}', play_thrd)
         treeview.selectionModel().selectedIndexes()[-1].data
     button.clicked.connect(play_selected)
     layout3.addWidget(button)
@@ -2118,9 +2119,8 @@ def build_bnk_tool(widget: QWidget):
                     text = select_index[-1].data()
                     if text.startswith('🎵'): 
                         wem_id = text[2:]
-                        if not qtwidgets.is_selecting:
-                            qtwidgets.is_selecting = True
-                        qtwidgets.select_cd = 0.5
+                        qtwidgets.is_selecting = True
+                        qtwidgets.select_cd = 0.25
                         qtwidgets.selected_wem_id = wem_id
     treeview.selectionModel().selectionChanged.connect(autoplay_select_cmd)
     # start the autoplay event

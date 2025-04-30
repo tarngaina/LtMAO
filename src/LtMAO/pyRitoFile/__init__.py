@@ -8,8 +8,7 @@ from ..pyRitoFile.bnk import BNK, BNKObjectType, BNKWem, BNKSectionData
 from ..pyRitoFile.wpk import WPK, WPKWem
 from ..pyRitoFile.tex import TEX, TEXFormat
 from ..pyRitoFile.wad import WAD, WADChunk, WADCompressionType, name_to_hex as wad_hash, guess_extension
-from . import helper
-from . import stream
+from . import helper, stream
 from json import dump, dumps, JSONEncoder
 
 GOOD_TYPES_CLASS = [SKL, SKN, SO, ANM, MAPGEO, BIN, BNK, WPK, TEX, WAD]

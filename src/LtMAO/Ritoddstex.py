@@ -59,7 +59,7 @@ def dds2tex(dds_path, tex_path=None):
     elif (dds_pixel_format['dwFlags'] & 0x00000041) == 0x00000041:
         tex.format = pyRitoFile.TEXFormat.BGRA8
         if dds_pixel_format['dwRGBBitCount'] != 32:
-            raise Exception(f'Ritoddstex: Error: dds2tex: {dds_path}: dwRGBBitCount is expected 32, not {dds_pixel_format['dwRGBBitCount']}.')
+            raise Exception(f'Ritoddstex: Error: dds2tex: {dds_path}: dwRGBBitCount is expected 32, not {dds_pixel_format["dwRGBBitCount"]}.')
         if dds_pixel_format['dwBBitMask'] != 0x000000ff or dds_pixel_format['dwGBitMask'] != 0x0000ff00  or dds_pixel_format['dwRBitMask'] != 0x00ff0000 or dds_pixel_format['dwABitMask'] != 0xff000000:
             custom_rgba_format = True
             rgba_indices[0] = mask_to_index[dds_pixel_format['dwRBitMask']] 
@@ -70,17 +70,14 @@ def dds2tex(dds_path, tex_path=None):
                 if index == -1:
                     raise Exception(f'Ritoddstex: Error: dds2tex: {dds_path}: bitmask data invalid. Can not convert to BGRA output format.')
     else:
-        raise Exception(
-            f'Ritoddstex: Error: dds2tex: {dds_path}: Unsupported DDS format: {dds_pixel_format["dwFourCC"]}')
+        raise Exception(f'Ritoddstex: Error: dds2tex: {dds_path}: Unsupported DDS format: {dds_pixel_format["dwFourCC"]}')
     # mipmaps
     if dds_header['dwMipMapCount'] > 1:
         expected_dwMipMapCount = 32 - \
             len(f'{max(dds_header["dwWidth"], dds_header["dwHeight"]):032b}'.split(
                 '1', 1)[0])
         if dds_header['dwMipMapCount'] != expected_dwMipMapCount:
-            raise Exception(
-                f'Ritoddstex: Error: dds2tex: {dds_path}: Wrong DDS mipmap count: {dds_header["dwMipMapCount"]}, expected: {expected_dwMipMapCount}'
-            )
+            raise Exception(f'Ritoddstex: Error: dds2tex: {dds_path}: Wrong DDS mipmap count: {dds_header["dwMipMapCount"]}, expected: {expected_dwMipMapCount}')
         tex.mipmaps = True
     # rgba convert
     if custom_rgba_format:
