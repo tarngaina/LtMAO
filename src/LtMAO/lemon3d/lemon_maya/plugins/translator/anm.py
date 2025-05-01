@@ -221,7 +221,7 @@ class ANM:
         # get all rotaion curves
         track_rotate_curves = []
         for track in scene_tracks:
-            track_rotate_curves += (f'{track.joint_name}.rotateX', f'{track.joint_name}.rotateY', f'{track.joint_name}.rotateZ')
+            track_rotate_curves += [f'{track.joint_name}.rotateX', f'{track.joint_name}.rotateY', f'{track.joint_name}.rotateZ']
         # quat slerp all rotation curve
         cmds.rotationInterpolation(
             track_rotate_curves,

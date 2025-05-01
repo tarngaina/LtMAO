@@ -2,8 +2,6 @@ from io import BytesIO
 from .stream import BinStream
 from ..pyRitoFile.structs import Vector
 from enum import Enum, IntFlag
-from random import uniform
-from math import sqrt
 
 class MAPGEOPlanarReflector:
     __slots__ = (
@@ -71,9 +69,11 @@ class MAPGEOBucketGrid:
     
     def __json__(self):
         dic = {key: getattr(self, key) for key in self.__slots__}
-        dic['vertices'] = ('write only first vertex to save memory', dic['vertices'][0])
-        dic['indices'] = ('not write to save memory')
-        dic['face_layers'] = ('not write to save memory')
+        dic['buckets'] = ('only last bucket', dic['buckets'][-1][-1])
+        dic['vertices'] = ('only last vertex', dic['vertices'][-1])
+        dic['indices'] = ('only last face', dic['indices'][-3], dic['indices'][-2], dic['indices'][-1])
+        if self.face_layers != None:
+            dic['face_layers'] = ('only last face', dic['face_layers'][-1])
         return dic
 
 class MAPGEOTextureOverride:
@@ -200,8 +200,8 @@ class MAPGEOModel:
 
     def __json__(self):
         dic = {key: getattr(self, key) for key in self.__slots__}
-        dic['vertices'] = ('write only first vertex to save memory', dic['vertices'][0])
-        dic['indices'] = ('not write to save memory')
+        dic['vertices'] = ('only last vertex', dic['vertices'][-1])
+        dic['indices'] = ('only last face', dic['indices'][-3], dic['indices'][-2], dic['indices'][-1])
         return dic
     
 class MAPGEOVertexElementName(Enum):

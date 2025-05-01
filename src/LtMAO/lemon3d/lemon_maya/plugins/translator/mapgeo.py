@@ -93,7 +93,6 @@ class MAPGEOExporter(MPxFileTranslator):
             riot_mapgeo = pyRitoFile.read_mapgeo(riot_mapgeo_path)
         mapgeo = pyRitoFile.MAPGEO()
         options = {key: value for option in options.split(';') for key, value in (option.split('='), )}
-        print(options)
         dump_options = {
             'selected_group': selected_group,
             'version': int(options['version']),

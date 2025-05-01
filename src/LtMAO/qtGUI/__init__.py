@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
     QStatusBar,
     QToolButton, 
     QSizeGrip,
+    QSystemTrayIcon,
 )
 
 from . import control, helper, log
@@ -454,6 +455,23 @@ def build_title_bar(widget: QWidget, layout: QBoxLayout):
     layout.addWidget(title_label, stretch=100)
 
     # buttons
+    # tray
+    tray_icon = QSystemTrayIcon()
+    tray_icon.setIcon(QPixmap('./res/appicon.ico'))
+    tray_button = QToolButton()
+    tray_button.setText('🟣 Tray')
+    tray_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+    layout.addWidget(tray_button, stretch=3)
+    def show_tray_cmd(reason):
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:
+            qtwidgets.main_window.show()
+            tray_icon.hide()
+    tray_icon.activated.connect(show_tray_cmd)
+    def hide_tray_cmd(event):
+        qtwidgets.main_window.hide()
+        tray_icon.show()
+    tray_button.clicked.connect(hide_tray_cmd)
+    # min
     min_button = QToolButton()
     min_button.setText('🟢 Minimize')
     min_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -465,20 +483,20 @@ def build_title_bar(widget: QWidget, layout: QBoxLayout):
         qtwidgets.main_window.showMinimized()
     min_button.clicked.connect(min_button_cmd)
     layout.addWidget(min_button, stretch=3)
-    
+    # nor
     qtwidgets.nor_button = nor_button = QToolButton()
     nor_button.setText('🟡 Restore')
     nor_button.setVisible(False)
     nor_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
     nor_button.clicked.connect(qtwidgets.main_window.showNormal)
     layout.addWidget(nor_button, stretch=3)
-
+    # max
     qtwidgets.max_button = max_button = QToolButton()
     max_button.setText('🔵 Maximize')
     max_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
     max_button.clicked.connect(qtwidgets.main_window.showMaximized)
     layout.addWidget(max_button, stretch=3)
-    
+    # close
     close_button = QToolButton()
     close_button.setText('🔴 Close')
     close_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
