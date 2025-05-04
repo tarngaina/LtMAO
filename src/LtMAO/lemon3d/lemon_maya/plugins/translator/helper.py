@@ -1,10 +1,18 @@
 from maya.OpenMaya import *
 from maya import cmds
 
-import os.path
+import os.path, traceback
 from random import choice
 from ..... import pyRitoFile
 from .....pyRitoFile.structs import Vector, Quaternion, Matrix4
+
+def try_cmd(cmd):
+    try:
+        cmd()
+        return True
+    except Exception as e:
+        print(traceback.format_exc())
+        raise e
 
 def get_option_key_name(key):
     return 'lemon3d_'+key

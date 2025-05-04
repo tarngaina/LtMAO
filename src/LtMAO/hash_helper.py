@@ -171,7 +171,7 @@ class ExtractedHashes:
 
         def extract_bin(file_path, raw=None):
             def extract_file_value(value, value_type):
-                if value_type == pyRitoFile.BINType.String:
+                if value_type == pyRitoFile.BINType.STRING:
                     value = value.lower()
                     if 'assets/' in value or 'data/' in value:
                         hashtables['hashes.game.txt'][wad_hash(
@@ -186,25 +186,25 @@ class ExtractedHashes:
                                 value2x)] = value2x
                             hashtables['hashes.game.txt'][wad_hash(
                                 value4x)] = value4x
-                elif value_type in (pyRitoFile.BINType.List, pyRitoFile.BINType.List2):
+                elif value_type in (pyRitoFile.BINType.LIST, pyRitoFile.BINType.LIST2):
                     for v in value.data:
                         extract_file_value(v, value_type)
-                elif value_type in (pyRitoFile.BINType.Embed, pyRitoFile.BINType.Pointer):
+                elif value_type in (pyRitoFile.BINType.EMBED, pyRitoFile.BINType.POINTER):
                     for f in value.data:
                         extract_file_field(f)
 
             def extract_file_field(field):
-                if field.type in (pyRitoFile.BINType.List, pyRitoFile.BINType.List2):
+                if field.type in (pyRitoFile.BINType.LIST, pyRitoFile.BINType.LIST2):
                     for v in field.data:
                         extract_file_value(v, field.value_type)
-                elif field.type in (pyRitoFile.BINType.Embed, pyRitoFile.BINType.Pointer):
+                elif field.type in (pyRitoFile.BINType.EMBED, pyRitoFile.BINType.POINTER):
                     for f in field.data:
                         extract_file_field(f)
-                elif field.type == pyRitoFile.BINType.Map:
+                elif field.type == pyRitoFile.BINType.MAP:
                     for key, value in field.data.items():
                         extract_file_value(key, field.key_type)
                         extract_file_value(value, field.value_type)
-                elif field.type == pyRitoFile.BINType.Option and field.value_type == pyRitoFile.BINType.String:
+                elif field.type == pyRitoFile.BINType.OPTION and field.value_type == pyRitoFile.BINType.STRING:
                     extract_file_value(field.data, field.value_type)
                 else:
                     extract_file_value(field.data, field.type)
@@ -236,7 +236,7 @@ class ExtractedHashes:
                     for field in entry.data:
                         extract_file_field(field)
                 for link in bin.links:
-                    extract_file_value(link, pyRitoFile.BINType.String)
+                    extract_file_value(link, pyRitoFile.BINType.STRING)
 
             except Exception as e:
                 print(f'hash_helper: Error: Extract hashes: {file_path}: {e}')

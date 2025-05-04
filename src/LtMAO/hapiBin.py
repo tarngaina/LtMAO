@@ -520,11 +520,11 @@ def fix_vfx_shape(src_bin, dst_bin):
                                     if inside_of_shape.hash == cached_bin_hashes["BirthTranslation"]:
                                         # To get the constant
                                         for i in range(len(inside_of_shape.data)):
-                                            if inside_of_shape.data[i].hash == cached_bin_hashes["ConstantValue"] and inside_of_shape.data[i].type == BINType.Vec3:
+                                            if inside_of_shape.data[i].hash == cached_bin_hashes["ConstantValue"] and inside_of_shape.data[i].type == BINType.VEC3:
                                                 birth_translation = BINField()
                                                 birth_translation.data = [inside_of_shape.data[i]]
                                                 birth_translation.hash = cached_bin_hashes["NewBirthTranslation"]
-                                                birth_translation.type = BINType.Embed
+                                                birth_translation.type = BINType.EMBED
                                                 birth_translation.hash_type = '68dc32b6'
                                                 emitter.data.append(birth_translation)
                                                 inside_of_shape.data = []
@@ -534,7 +534,7 @@ def fix_vfx_shape(src_bin, dst_bin):
                                     
                                     if inside_of_shape.hash == cached_bin_hashes["EmitOffset"]:
                                         for inside_of_emitoffset in inside_of_shape.data:
-                                            if inside_of_emitoffset.hash == cached_bin_hashes["ConstantValue"] and inside_of_emitoffset.type == BINType.Vec3:
+                                            if inside_of_emitoffset.hash == cached_bin_hashes["ConstantValue"] and inside_of_emitoffset.type == BINType.VEC3:
                                                 shit_dict["Radius"] = inside_of_emitoffset.data.x
                                                 shit_dict["Height"] = inside_of_emitoffset.data.y # lmao?
                                             if inside_of_emitoffset.hash == cached_bin_hashes["Dynamics"]:
@@ -568,7 +568,7 @@ def fix_vfx_shape(src_bin, dst_bin):
                                                 shit_dict["EmitRotationAxesShit"] = True
 
                                     shape.hash = cached_bin_hashes["NewShapeHash"]
-                                    shape.type = BINType.Pointer
+                                    shape.type = BINType.POINTER
                                     if not shit_dict.get("KeepItAs0x4f4e2ed7") and shit_dict["EmitRotationAnglesKeyValues"] and shit_dict["EmitRotationAxesShit"]:
                                         # wow 0x3dbe415d moment
                                         shape.hash_type = '3dbe415d'
@@ -599,7 +599,7 @@ def fix_vfx_shape(src_bin, dst_bin):
                                             shape.hash_type = 'ee39916f'
                                             constant_value = shape.data[0].data[0]
                                             emitoffset = BINField()
-                                            emitoffset.type = BINType.Vec3
+                                            emitoffset.type = BINType.VEC3
                                             emitoffset.hash = cached_bin_hashes["EmitOffset"]
                                             emitoffset.data = constant_value.data
                                             shape.data = [emitoffset]

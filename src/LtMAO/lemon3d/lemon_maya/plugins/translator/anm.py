@@ -35,18 +35,21 @@ class ANMImporter(MPxFileTranslator):
         return asMPxPtr(cls())
 
     def reader(self, file, options, access):
-        # import options
-        anm_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        # read anm
-        anm = pyRitoFile.read_anm(anm_path)
-        anm.tracks = helper.convert_pyRitoFile_objects_to_Lemon(anm.tracks, helper.LemonANMTrack)
-        # load anm
-        helper.mirrorX(anm=anm)
-        load_options = {
-            'reset_channel': False if 'reset_channel=0' in options else True
-        }
-        ANM.scene_load(anm, load_options)
-        return True
+        def read_cmd(file, options, access):
+            # import options
+            anm_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+            # read anm
+            anm = pyRitoFile.read_anm(anm_path)
+            anm.tracks = helper.convert_pyRitoFile_objects_to_Lemon(anm.tracks, helper.LemonANMTrack)
+            # load anm
+            helper.mirrorX(anm=anm)
+            load_options = {
+                'reset_channel': False if 'reset_channel=0' in options else True
+            }
+            ANM.scene_load(anm, load_options)
+            return True
+    
+        return helper.try_cmd(lambda: read_cmd(file, options, access))
 
 class ANMExporter(MPxFileTranslator):
     name = 'League of Legends: ANM Export'
@@ -74,13 +77,16 @@ class ANMExporter(MPxFileTranslator):
         return asMPxPtr(cls())
 
     def writer(self, file, options, access):
-        # export options
-        anm_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        anm = pyRitoFile.ANM()
-        ANM.scene_dump(anm, {})
-        helper.mirrorX(anm=anm)
-        pyRitoFile.write_anm(anm_path, anm)
-        return True
+        def write_cmd(file, options, access):
+            # export options
+            anm_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+            anm = pyRitoFile.ANM()
+            ANM.scene_dump(anm, {})
+            helper.mirrorX(anm=anm)
+            pyRitoFile.write_anm(anm_path, anm)
+            return True
+
+        return helper.try_cmd(lambda: write_cmd(file, options, access))
 
 
 class ANM:

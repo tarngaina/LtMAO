@@ -18,30 +18,30 @@ def parse_bin(bin, *, existing_files=[]):
         missing_files = []
 
         def parse_value(value, value_type):
-            if value_type == pyRitoFile.BINType.String:
+            if value_type == pyRitoFile.BINType.STRING:
                 value = value.lower()
                 if 'assets/' in value or 'data/' in value:
                     if value not in mentioned_files:
                         mentioned_files.append(value)
-            elif value_type in (pyRitoFile.BINType.List, pyRitoFile.BINType.List2):
+            elif value_type in (pyRitoFile.BINType.LIST, pyRitoFile.BINType.LIST2):
                 for v in value.data:
                     parse_value(v, value_type)
-            elif value_type in (pyRitoFile.BINType.Embed, pyRitoFile.BINType.Pointer):
+            elif value_type in (pyRitoFile.BINType.EMBED, pyRitoFile.BINType.POINTER):
                 for f in value.data:
                     parse_field(f)
 
         def parse_field(field):
-            if field.type in (pyRitoFile.BINType.List, pyRitoFile.BINType.List2):
+            if field.type in (pyRitoFile.BINType.LIST, pyRitoFile.BINType.LIST2):
                 for v in field.data:
                     parse_value(v, field.value_type)
-            elif field.type in (pyRitoFile.BINType.Embed, pyRitoFile.BINType.Pointer):
+            elif field.type in (pyRitoFile.BINType.EMBED, pyRitoFile.BINType.POINTER):
                 for f in field.data:
                     parse_field(f)
-            elif field.type == pyRitoFile.BINType.Map:
+            elif field.type == pyRitoFile.BINType.MAP:
                 for key, value in field.data.items():
                     parse_value(key, field.key_type)
                     parse_value(value, field.value_type)
-            elif field.type == pyRitoFile.BINType.Option and field.value_type == pyRitoFile.BINType.String:
+            elif field.type == pyRitoFile.BINType.OPTION and field.value_type == pyRitoFile.BINType.STRING:
                 parse_value(field.data, field.value_type)
             else:
                 parse_value(field.data, field.type)

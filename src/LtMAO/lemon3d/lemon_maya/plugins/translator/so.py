@@ -33,14 +33,17 @@ class SCOImporter(MPxFileTranslator):
         return asMPxPtr(cls())
 
     def reader(self, file, options, access):
-        sco_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        # read sco
-        so = pyRitoFile.read_sco(sco_path)
-        so.name = helper.get_name_from_path(sco_path)
-        # load so
-        helper.mirrorX(so=so)
-        SO.scene_load(so, {})
-        return True
+        def read_cmd(file, options, access):
+            sco_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+            # read sco
+            so = pyRitoFile.read_sco(sco_path)
+            so.name = helper.get_name_from_path(sco_path)
+            # load so
+            helper.mirrorX(so=so)
+            SO.scene_load(so, {})
+            return True
+    
+        return helper.try_cmd(lambda: read_cmd(file, options, access))
 
 class SCOExporter(MPxFileTranslator):
     name = 'League of Legends: SCO Export'
@@ -68,30 +71,33 @@ class SCOExporter(MPxFileTranslator):
         return asMPxPtr(cls())
 
     def writer(self, file, options, access):
-        # check selected
-        selections = MSelectionList()
-        MGlobal.getActiveSelectionList(selections)
-        iterator = MItSelectionList(selections, MFn.kMesh)
-        if iterator.isDone():
-            raise helper.FunnyError(
-                f'SO Exporter: Please select a mesh to export.')
-        mesh_dagpath = MDagPath()
-        iterator.getDagPath(mesh_dagpath)
-        iterator.next()
-        if not iterator.isDone():
-            raise helper.FunnyError(
-                f'SO Exporter: Please select only one mesh to export.')
-        selected_mesh = MFnMesh(mesh_dagpath)
-        # export options
-        sco_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        so = pyRitoFile.SO()
-        dump_options = {
-            'selected_mesh': selected_mesh,
-        }
-        SO.scene_dump(so, dump_options)
-        helper.mirrorX(so=so)
-        pyRitoFile.write_sco(sco_path, so)
-        return True
+        def write_cmd(file, options, access):
+            # check selected
+            selections = MSelectionList()
+            MGlobal.getActiveSelectionList(selections)
+            iterator = MItSelectionList(selections, MFn.kMesh)
+            if iterator.isDone():
+                raise helper.FunnyError(
+                    f'SO Exporter: Please select a mesh to export.')
+            mesh_dagpath = MDagPath()
+            iterator.getDagPath(mesh_dagpath)
+            iterator.next()
+            if not iterator.isDone():
+                raise helper.FunnyError(
+                    f'SO Exporter: Please select only one mesh to export.')
+            selected_mesh = MFnMesh(mesh_dagpath)
+            # export options
+            sco_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+            so = pyRitoFile.SO()
+            dump_options = {
+                'selected_mesh': selected_mesh,
+            }
+            SO.scene_dump(so, dump_options)
+            helper.mirrorX(so=so)
+            pyRitoFile.write_sco(sco_path, so)
+            return True
+
+        return helper.try_cmd(lambda: write_cmd(file, options, access))
     
 class SCBImporter(MPxFileTranslator):
     name = 'League of Legends: SCB'
@@ -119,14 +125,17 @@ class SCBImporter(MPxFileTranslator):
         return asMPxPtr(cls())
 
     def reader(self, file, options, access):
-        scb_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        # read scb
-        so = pyRitoFile.read_scb(scb_path)
-        so.name = helper.get_name_from_path(scb_path)
-        # load so
-        helper.mirrorX(so=so)
-        SO.scene_load(so, {})
-        return True
+        def read_cmd(file, options, access):
+            scb_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+            # read scb
+            so = pyRitoFile.read_scb(scb_path)
+            so.name = helper.get_name_from_path(scb_path)
+            # load so
+            helper.mirrorX(so=so)
+            SO.scene_load(so, {})
+            return True
+        
+        return helper.try_cmd(lambda: read_cmd(file, options, access))
 
 class SCBExporter(MPxFileTranslator):
     name = 'League of Legends: SCB Export'
@@ -154,33 +163,35 @@ class SCBExporter(MPxFileTranslator):
         return asMPxPtr(cls())
     
     def writer(self, file, options, access):
-        # check selected
-        selections = MSelectionList()
-        MGlobal.getActiveSelectionList(selections)
-        iterator = MItSelectionList(selections, MFn.kMesh)
-        if iterator.isDone():
-            raise helper.FunnyError(
-                f'SO Exporter: Please select a mesh to export.')
-        mesh_dagpath = MDagPath()
-        iterator.getDagPath(mesh_dagpath)
-        iterator.next()
-        if not iterator.isDone():
-            raise helper.FunnyError(
-                f'SO Exporter: Please select only one mesh to export.')
-        selected_mesh = MFnMesh(mesh_dagpath)
-        # export options
-        scb_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        so = pyRitoFile.SO()
-        dump_options = {
-            'selected_mesh': selected_mesh,
-            'scb_flags': pyRitoFile.SOFlag.HasVcp if 'HasVcp' in options else pyRitoFile.SOFlag.HasLocalOriginLocatorAndPivot
-        }
-        SO.scene_dump(so, dump_options)
-        helper.mirrorX(so=so)
-        pyRitoFile.write_scb(scb_path, so)
-        return True
+        def write_cmd(file, options, access):
+            # check selected
+            selections = MSelectionList()
+            MGlobal.getActiveSelectionList(selections)
+            iterator = MItSelectionList(selections, MFn.kMesh)
+            if iterator.isDone():
+                raise helper.FunnyError(
+                    f'SO Exporter: Please select a mesh to export.')
+            mesh_dagpath = MDagPath()
+            iterator.getDagPath(mesh_dagpath)
+            iterator.next()
+            if not iterator.isDone():
+                raise helper.FunnyError(
+                    f'SO Exporter: Please select only one mesh to export.')
+            selected_mesh = MFnMesh(mesh_dagpath)
+            # export options
+            scb_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+            so = pyRitoFile.SO()
+            dump_options = {
+                'selected_mesh': selected_mesh,
+                'scb_flags': pyRitoFile.SOFlag.HasVcp if 'HasVcp' in options else pyRitoFile.SOFlag.HasLocalOriginLocatorAndPivot
+            }
+            SO.scene_dump(so, dump_options)
+            helper.mirrorX(so=so)
+            pyRitoFile.write_scb(scb_path, so)
+            return True
 
-
+        return helper.try_cmd(lambda: write_cmd(file, options, access))
+    
 class SO:
     @staticmethod
     def scene_load(so, load_options):

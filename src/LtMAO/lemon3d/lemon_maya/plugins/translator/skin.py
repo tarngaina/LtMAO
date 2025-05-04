@@ -35,35 +35,38 @@ class SKNImporter(MPxFileTranslator):
         return asMPxPtr(cls())
 
     def reader(self, file, options, access):
-        # import options
-        skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        # read skn
-        skn = pyRitoFile.read_skn(skn_path)
-        skn_name = helper.get_name_from_path(skn_path)
-        # create skin group 
-        group_transform = MFnTransform()
-        group_transform.create()
-        group_transform.setName(f'group_{skn_name}')
-        # load skeleton first if need
-        skl = None
-        skl_path = skn_path.replace('.skn', '.skl')
-        if os.path.exists(skl_path):
-            skl = pyRitoFile.read_skl(skl_path)
-            skl.joints = helper.convert_pyRitoFile_objects_to_Lemon(skl.joints, helper.LemonSKLJoint)
-            helper.mirrorX(skl=skl)
+        def read_cmd(file, options, access):
+            # import options
+            skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+            # read skn
+            skn = pyRitoFile.read_skn(skn_path)
+            skn_name = helper.get_name_from_path(skn_path)
+            # create skin group 
+            group_transform = MFnTransform()
+            group_transform.create()
+            group_transform.setName(f'group_{skn_name}')
+            # load skeleton first if need
+            skl = None
+            skl_path = skn_path.replace('.skn', '.skl')
+            if os.path.exists(skl_path):
+                skl = pyRitoFile.read_skl(skl_path)
+                skl.joints = helper.convert_pyRitoFile_objects_to_Lemon(skl.joints, helper.LemonSKLJoint)
+                helper.mirrorX(skl=skl)
+                load_options = {
+                    'group_transform': group_transform,
+                }
+                SKL.scene_load(skl, load_options)
+            # load skn
+            helper.mirrorX(skn=skn)
             load_options = {
                 'group_transform': group_transform,
+                'skn_name': skn_name,
+                'skl': skl
             }
-            SKL.scene_load(skl, load_options)
-        # load skn
-        helper.mirrorX(skn=skn)
-        load_options = {
-            'group_transform': group_transform,
-            'skn_name': skn_name,
-            'skl': skl
-        }
-        SKN.scene_load(skn, load_options)
-        return True
+            SKN.scene_load(skn, load_options)
+            return True
+    
+        return helper.try_cmd(lambda: read_cmd(file, options, access))
 
 class SKLImporter(MPxFileTranslator):
     name = 'League of Legends: SKL'
@@ -91,19 +94,22 @@ class SKLImporter(MPxFileTranslator):
         return asMPxPtr(cls())
 
     def reader(self, file, options, access):
-        # read skl
-        skl_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        skl = pyRitoFile.read_skl(skl_path)
-        skl.joints = helper.convert_pyRitoFile_objects_to_Lemon(skl.joints, helper.LemonSKLJoint)
-        skl_name = helper.get_name_from_path(skl_path)
-        # load skl
-        helper.mirrorX(skl=skl)
-        load_options = {
-            'group_transform': None,
-            'skl_name': skl_name,
-        }
-        SKL.scene_load(skl, load_options)
-        return True
+        def read_cmd(file, options, access):
+            # read skl
+            skl_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+            skl = pyRitoFile.read_skl(skl_path)
+            skl.joints = helper.convert_pyRitoFile_objects_to_Lemon(skl.joints, helper.LemonSKLJoint)
+            skl_name = helper.get_name_from_path(skl_path)
+            # load skl
+            helper.mirrorX(skl=skl)
+            load_options = {
+                'group_transform': None,
+                'skl_name': skl_name,
+            }
+            SKL.scene_load(skl, load_options)
+            return True
+    
+        return helper.try_cmd(lambda: read_cmd(file, options, access))
 
 class SkinExporter(MPxFileTranslator):
     name = 'League of Legends: SKN & SKL Export'
@@ -131,51 +137,53 @@ class SkinExporter(MPxFileTranslator):
         return asMPxPtr(cls())
 
     def writer(self, file, options, access):
-        # check selected
-        selections = MSelectionList()
-        MGlobal.getActiveSelectionList(selections)
-        if selections.isEmpty():
-            raise helper.FunnyError('MAGPEO Exporter: Please select a group to export.')
-        iterator = MItSelectionList(selections, MFn.kTransform)
-        if iterator.isDone():
-            raise helper.FunnyError(f'MAGPEO Exporter: Please select a group to export.')
-        selected_dagpath = MDagPath()
-        iterator.getDagPath(selected_dagpath)
-        iterator.next()
-        if not iterator.isDone():
-            raise helper.FunnyError(f'MAGPEO Exporter: Please select only one group to export.')
-        selected_group = MFnTransform(selected_dagpath)
-        # export options
-        skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        skl_path = skn_path.replace('.skn', '.skl')
-        #  dump skl
-        riot_skl = None
-        riot_skl_path = helper.get_riot_path(skl_path)
-        if riot_skl_path != '':
-            riot_skl = pyRitoFile.read_skl(riot_skl_path)
-        dump_options = {
-            'selected_group': selected_group,
-            'riot_skl': riot_skl
-        }
-        skl = pyRitoFile.SKL()
-        SKL.scene_dump(skl, dump_options)
-        helper.mirrorX(skl=skl)
-        pyRitoFile.write_skl(skl_path, skl)
-        # dump skn
-        riot_skn = None
-        riot_skn_path = helper.get_riot_path(skn_path)
-        if riot_skn_path != '':
-            riot_skn = pyRitoFile.read_skn(riot_skn_path)
-        skn = pyRitoFile.SKN()
-        dump_options = {
-            'skl': skl,
-            'selected_group': selected_group,
-            'riot_skn': riot_skn
-        }
-        SKN.scene_dump(skn, dump_options)
-        helper.mirrorX(skn=skn)
-        pyRitoFile.write_skn(skn_path, skn)
-        return True
+        def write_cmd():
+            # check selected
+            selections = MSelectionList()
+            MGlobal.getActiveSelectionList(selections)
+            if selections.isEmpty():
+                raise helper.FunnyError('MAGPEO Exporter: Please select a group to export.')
+            iterator = MItSelectionList(selections, MFn.kTransform)
+            if iterator.isDone():
+                raise helper.FunnyError(f'MAGPEO Exporter: Please select a group to export.')
+            selected_dagpath = MDagPath()
+            iterator.getDagPath(selected_dagpath)
+            iterator.next()
+            if not iterator.isDone():
+                raise helper.FunnyError(f'MAGPEO Exporter: Please select only one group to export.')
+            selected_group = MFnTransform(selected_dagpath)
+            # export options
+            skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+            skl_path = skn_path.replace('.skn', '.skl')
+            #  dump skl
+            riot_skl = None
+            riot_skl_path = helper.get_riot_path(skl_path)
+            if riot_skl_path != '':
+                riot_skl = pyRitoFile.read_skl(riot_skl_path)
+            dump_options = {
+                'selected_group': selected_group,
+                'riot_skl': riot_skl
+            }
+            skl = pyRitoFile.SKL()
+            SKL.scene_dump(skl, dump_options)
+            helper.mirrorX(skl=skl)
+            pyRitoFile.write_skl(skl_path, skl)
+            # dump skn
+            riot_skn = None
+            riot_skn_path = helper.get_riot_path(skn_path)
+            if riot_skn_path != '':
+                riot_skn = pyRitoFile.read_skn(riot_skn_path)
+            skn = pyRitoFile.SKN()
+            dump_options = {
+                'skl': skl,
+                'selected_group': selected_group,
+                'riot_skn': riot_skn
+            }
+            SKN.scene_dump(skn, dump_options)
+            helper.mirrorX(skn=skn)
+            pyRitoFile.write_skn(skn_path, skn)
+        
+        return helper.try_cmd(write_cmd)
 
 class SKLExporter(MPxFileTranslator):
     name = 'League of Legends: SKL Export'
@@ -203,38 +211,40 @@ class SKLExporter(MPxFileTranslator):
         return asMPxPtr(cls())
 
     def writer(self, file, options, access):
-        # check selected
-        selections = MSelectionList()
-        MGlobal.getActiveSelectionList(selections)
-        if selections.isEmpty():
-            raise helper.FunnyError('MAGPEO Exporter: Please select a group to export.')
-        iterator = MItSelectionList(selections, MFn.kTransform)
-        if iterator.isDone():
-            raise helper.FunnyError(f'MAGPEO Exporter: Please select a group to export.')
-        selected_dagpath = MDagPath()
-        iterator.getDagPath(selected_dagpath)
-        iterator.next()
-        if not iterator.isDone():
-            raise helper.FunnyError(f'MAGPEO Exporter: Please select only one group to export.')
-        selected_group = MFnTransform(selected_dagpath)
-        # export options
-        skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        skl_path = skn_path.replace('.skn', '.skl')
-        #  dump skl
-        riot_skl = None
-        riot_skl_path = helper.get_riot_path(skl_path)
-        if riot_skl_path != '':
-            riot_skl = pyRitoFile.read_skl(riot_skl_path)
-        dump_options = {
-            'selected_group': selected_group,
-            'riot_skl': riot_skl
-        }
-        skl = pyRitoFile.SKL()
-        SKL.scene_dump(skl, dump_options)
-        helper.mirrorX(skl=skl)
-        pyRitoFile.write_skl(skl_path, skl)
-        return True
+        def write_cmd(file, options, access):
+            # check selected
+            selections = MSelectionList()
+            MGlobal.getActiveSelectionList(selections)
+            if selections.isEmpty():
+                raise helper.FunnyError('MAGPEO Exporter: Please select a group to export.')
+            iterator = MItSelectionList(selections, MFn.kTransform)
+            if iterator.isDone():
+                raise helper.FunnyError(f'MAGPEO Exporter: Please select a group to export.')
+            selected_dagpath = MDagPath()
+            iterator.getDagPath(selected_dagpath)
+            iterator.next()
+            if not iterator.isDone():
+                raise helper.FunnyError(f'MAGPEO Exporter: Please select only one group to export.')
+            selected_group = MFnTransform(selected_dagpath)
+            # export options
+            skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+            skl_path = skn_path.replace('.skn', '.skl')
+            #  dump skl
+            riot_skl = None
+            riot_skl_path = helper.get_riot_path(skl_path)
+            if riot_skl_path != '':
+                riot_skl = pyRitoFile.read_skl(riot_skl_path)
+            dump_options = {
+                'selected_group': selected_group,
+                'riot_skl': riot_skl
+            }
+            skl = pyRitoFile.SKL()
+            SKL.scene_dump(skl, dump_options)
+            helper.mirrorX(skl=skl)
+            pyRitoFile.write_skl(skl_path, skl)
+            return True
 
+        return helper.try_cmd(lambda: write_cmd(file, options, access))
 
 class SKN:
     @staticmethod

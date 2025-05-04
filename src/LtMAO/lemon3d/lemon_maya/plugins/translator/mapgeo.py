@@ -34,14 +34,17 @@ class MAPGEOImporter(MPxFileTranslator):
         return asMPxPtr(cls())
 
     def reader(self, file, options, access):
-        mapgeo_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        # read mapgeo
-        print(f'MAPGEO Importer: Read {mapgeo_path}')
-        mapgeo = pyRitoFile.read_mapgeo(mapgeo_path)
-        # load mapgeo
-        helper.mirrorX(mapgeo=mapgeo)
-        MAPGEO.scene_load(mapgeo)
-        return True
+        def read_cmd(file, options, access):
+            mapgeo_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+            # read mapgeo
+            print(f'MAPGEO Importer: Read {mapgeo_path}')
+            mapgeo = pyRitoFile.read_mapgeo(mapgeo_path)
+            # load mapgeo
+            helper.mirrorX(mapgeo=mapgeo)
+            MAPGEO.scene_load(mapgeo)
+            return True
+    
+        return helper.try_cmd(lambda: read_cmd(file, options, access))
 
 class MAPGEOExporter(MPxFileTranslator):
     name = 'League of Legends: MAPGEO Export'
@@ -69,40 +72,42 @@ class MAPGEOExporter(MPxFileTranslator):
         return asMPxPtr(cls())
 
     def writer(self, file, options, access):
-        # check selected
-        selections = MSelectionList()
-        MGlobal.getActiveSelectionList(selections)
-        if selections.isEmpty():
-            raise helper.FunnyError('MAGPEO Exporter: Please select a group to export.')
-        iterator = MItSelectionList(selections, MFn.kTransform)
-        if iterator.isDone():
-            raise helper.FunnyError(f'MAGPEO Exporter: Please select a group to export.')
-        selected_dagpath = MDagPath()
-        iterator.getDagPath(selected_dagpath)
-        iterator.next()
-        if not iterator.isDone():
-            raise helper.FunnyError(f'MAGPEO Exporter: Please select only one group to export.')
-        selected_group = MFnTransform(selected_dagpath)
+        def write_cmd(file, options, access):
+            # check selected
+            selections = MSelectionList()
+            MGlobal.getActiveSelectionList(selections)
+            if selections.isEmpty():
+                raise helper.FunnyError('MAGPEO Exporter: Please select a group to export.')
+            iterator = MItSelectionList(selections, MFn.kTransform)
+            if iterator.isDone():
+                raise helper.FunnyError(f'MAGPEO Exporter: Please select a group to export.')
+            selected_dagpath = MDagPath()
+            iterator.getDagPath(selected_dagpath)
+            iterator.next()
+            if not iterator.isDone():
+                raise helper.FunnyError(f'MAGPEO Exporter: Please select only one group to export.')
+            selected_group = MFnTransform(selected_dagpath)
 
-        # export options
-        mapgeo_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-        # dump mapgeo
-        riot_mapgeo = None
-        riot_mapgeo_path = helper.get_riot_path(mapgeo_path)
-        if riot_mapgeo_path != '':
-            riot_mapgeo = pyRitoFile.read_mapgeo(riot_mapgeo_path)
-        mapgeo = pyRitoFile.MAPGEO()
-        options = {key: value for option in options.split(';') for key, value in (option.split('='), )}
-        dump_options = {
-            'selected_group': selected_group,
-            'version': int(options['version']),
-            'float16': False if options['float16'] == '0' else True,
-            'riot_mapgeo': riot_mapgeo,
-        }
-        MAPGEO.scene_dump(mapgeo, dump_options)
-        helper.mirrorX(mapgeo=mapgeo)
-        pyRitoFile.write_mapgeo(mapgeo_path, mapgeo, float16=dump_options['float16'], version=dump_options['version'])
-        return True
+            # export options
+            mapgeo_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
+            # dump mapgeo
+            riot_mapgeo = None
+            riot_mapgeo_path = helper.get_riot_path(mapgeo_path)
+            if riot_mapgeo_path != '':
+                riot_mapgeo = pyRitoFile.read_mapgeo(riot_mapgeo_path)
+            mapgeo = pyRitoFile.MAPGEO()
+            options = {key: value for option in options.split(';') for key, value in (option.split('='), )}
+            dump_options = {
+                'selected_group': selected_group,
+                'version': int(options['version']),
+                'float16': False if options['float16'] == '0' else True,
+                'riot_mapgeo': riot_mapgeo,
+            }
+            MAPGEO.scene_dump(mapgeo, dump_options)
+            helper.mirrorX(mapgeo=mapgeo)
+            pyRitoFile.write_mapgeo(mapgeo_path, mapgeo, float16=dump_options['float16'], version=dump_options['version'])
+        
+        return helper.try_cmd(lambda: write_cmd(file, options, access))
 
 class MAPGEO:
     @staticmethod
@@ -374,14 +379,16 @@ class MAPGEO:
             # bush
             model.is_bush = True if model.name in bush_models else False
             # bucket hash
-            try:
-                if cmds.attributeQuery(
-                    'buckethash',
-                    exists=True,
-                    node=model.name
-                ):
+            if cmds.attributeQuery(
+                'buckethash',
+                exists=True,
+                node=model.name
+            ):
+                try:
                     model.bucket_grid_hash = int(cmds.getAttr(f'{model.name}.buckethash'), 16)
-            except:
+                except:
+                    model.bucket_grid_hash = 0
+            else:
                 model.bucket_grid_hash = 0
             # get shader/materials
             shaders = MObjectArray()

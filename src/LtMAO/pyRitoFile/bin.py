@@ -32,8 +32,8 @@ def name_or_hex_to_hash(value):
 
 class BINType(Enum):
     # basic
-    Empty = 0
-    Bool = 1
+    NONE = 0
+    BOOL = 1
     I8 = 2
     U8 = 3
     I16 = 4
@@ -43,23 +43,23 @@ class BINType(Enum):
     I64 = 8
     U64 = 9
     F32 = 10
-    Vec2 = 11
-    Vec3 = 12
-    Vec4 = 13
-    Mtx4 = 14
+    VEC2 = 11
+    VEC3 = 12
+    VEC4 = 13
+    MTX44 = 14
     RGBA = 15
-    String = 16
-    Hash = 17
-    File = 18
+    STRING = 16
+    HASH = 17
+    FILE = 18
     # complex
-    List = 128
-    List2 = 129
-    Pointer = 130
-    Embed = 131
-    Link = 132
-    Option = 133
-    Map = 134
-    Flag = 135
+    LIST = 128
+    LIST2 = 129
+    POINTER = 130
+    EMBED = 131
+    LINK = 132
+    OPTION = 133
+    MAP = 134
+    FLAG = 135
 
     def __json__(self):
         return self.name
@@ -94,8 +94,8 @@ class BINHelper:
     
     # read related stuffs
     read_value_dict = {
-        BINType.Empty:      lambda bs: bs.read_u16(3),
-        BINType.Bool:       lambda bs: bs.read_b()[0],
+        BINType.NONE:      lambda bs: bs.read_u16(3),
+        BINType.BOOL:       lambda bs: bs.read_b()[0],
         BINType.I8:         lambda bs: bs.read_i8()[0],
         BINType.U8:         lambda bs: bs.read_u8()[0],
         BINType.I16:        lambda bs: bs.read_i16()[0],
@@ -105,18 +105,18 @@ class BINHelper:
         BINType.I64:        lambda bs: bs.read_i64()[0],
         BINType.U64:        lambda bs: bs.read_u64()[0],
         BINType.F32:        lambda bs: bs.read_f32()[0],
-        BINType.Vec2:       lambda bs: bs.read_vec2()[0],
-        BINType.Vec3:       lambda bs: bs.read_vec3()[0],
-        BINType.Vec4:       lambda bs: bs.read_vec4()[0],
-        BINType.Mtx4:       lambda bs: bs.read_mtx4()[0],
+        BINType.VEC2:       lambda bs: bs.read_vec2()[0],
+        BINType.VEC3:       lambda bs: bs.read_vec3()[0],
+        BINType.VEC4:       lambda bs: bs.read_vec4()[0],
+        BINType.MTX44:       lambda bs: bs.read_mtx4()[0],
         BINType.RGBA:       lambda bs: bs.read_u8(4),
-        BINType.String:     lambda bs: bs.read_s_sized16(encoding='utf-8')[0],
-        BINType.Hash:       lambda bs: hash_to_hex(bs.read_u32()[0]),
-        BINType.File:       lambda bs: bs.read_u64()[0],
-        BINType.Pointer:    lambda bs: BINHelper.read_pointer_or_embed(bs, BINField(type=BINType.Pointer)),
-        BINType.Embed:      lambda bs: BINHelper.read_pointer_or_embed(bs, BINField(type=BINType.Embed)),
-        BINType.Link:       lambda bs: hash_to_hex(bs.read_u32()[0]),
-        BINType.Flag:       lambda bs: bs.read_u8()[0],
+        BINType.STRING:     lambda bs: bs.read_s_sized16(encoding='utf-8')[0],
+        BINType.HASH:       lambda bs: hash_to_hex(bs.read_u32()[0]),
+        BINType.FILE:       lambda bs: bs.read_u64()[0],
+        BINType.POINTER:    lambda bs: BINHelper.read_pointer_or_embed(bs, BINField(type=BINType.POINTER)),
+        BINType.EMBED:      lambda bs: BINHelper.read_pointer_or_embed(bs, BINField(type=BINType.EMBED)),
+        BINType.LINK:       lambda bs: hash_to_hex(bs.read_u32()[0]),
+        BINType.FLAG:       lambda bs: bs.read_u8()[0],
     }
 
     @staticmethod
@@ -180,12 +180,12 @@ class BINHelper:
         for field_type in read_value_dict
     }
     read_field_dict.update({
-        BINType.List:       lambda bs, field: BINHelper.read_list_or_list2(bs, field),
-        BINType.List2:      lambda bs, field: BINHelper.read_list_or_list2(bs, field),
-        BINType.Pointer:    lambda bs, field: BINHelper.read_pointer_or_embed(bs, field),
-        BINType.Embed:      lambda bs, field: BINHelper.read_pointer_or_embed(bs, field),
-        BINType.Option:     lambda bs, field: BINHelper.read_option(bs, field),
-        BINType.Map:        lambda bs, field: BINHelper.read_map(bs, field)
+        BINType.LIST:       lambda bs, field: BINHelper.read_list_or_list2(bs, field),
+        BINType.LIST2:      lambda bs, field: BINHelper.read_list_or_list2(bs, field),
+        BINType.POINTER:    lambda bs, field: BINHelper.read_pointer_or_embed(bs, field),
+        BINType.EMBED:      lambda bs, field: BINHelper.read_pointer_or_embed(bs, field),
+        BINType.OPTION:     lambda bs, field: BINHelper.read_option(bs, field),
+        BINType.MAP:        lambda bs, field: BINHelper.read_map(bs, field)
     })
 
     @staticmethod
@@ -198,8 +198,8 @@ class BINHelper:
 
     # write related stuffs
     write_value_dict = {
-        BINType.Empty:          lambda bs, value: (bs.write_u16(*value), 0),
-        BINType.Bool:           lambda bs, value: (bs.write_b(value), 1),
+        BINType.NONE:          lambda bs, value: (bs.write_u16(*value), 0),
+        BINType.BOOL:           lambda bs, value: (bs.write_b(value), 1),
         BINType.I8:             lambda bs, value: (bs.write_i8(value), 1),
         BINType.U8:             lambda bs, value: (bs.write_u8(value), 1),
         BINType.I16:            lambda bs, value: (bs.write_i16(value), 2),
@@ -209,18 +209,18 @@ class BINHelper:
         BINType.I64:            lambda bs, value: (bs.write_i64(value), 8),
         BINType.U64:            lambda bs, value: (bs.write_u64(value), 8),
         BINType.F32:            lambda bs, value: (bs.write_f32(value), 4),
-        BINType.Vec2:           lambda bs, value: (bs.write_vec2(value), 8),
-        BINType.Vec3:           lambda bs, value: (bs.write_vec3(value), 12),
-        BINType.Vec4:           lambda bs, value: (bs.write_vec4(value), 16),
-        BINType.Mtx4:           lambda bs, value: (bs.write_mtx4(value), 64),
+        BINType.VEC2:           lambda bs, value: (bs.write_vec2(value), 8),
+        BINType.VEC3:           lambda bs, value: (bs.write_vec3(value), 12),
+        BINType.VEC4:           lambda bs, value: (bs.write_vec4(value), 16),
+        BINType.MTX44:           lambda bs, value: (bs.write_mtx4(value), 64),
         BINType.RGBA:           lambda bs, value: (bs.write_u8(*value), 4),
-        BINType.String:         lambda bs, value: (bs.write_s_sized16(value, encoding='utf-8'), len(value.encode('utf-8'))+2),
-        BINType.Hash:           lambda bs, value: (bs.write_u32(name_or_hex_to_hash(value)), 4),
-        BINType.File:           lambda bs, value: (bs.write_u64(value), 8),
-        BINType.Pointer:        lambda bs, value: BINHelper.write_pointer_or_embed(bs, value),
-        BINType.Embed:          lambda bs, value: BINHelper.write_pointer_or_embed(bs, value),
-        BINType.Link:           lambda bs, value: (bs.write_u32(name_or_hex_to_hash(value)), 4),
-        BINType.Flag:           lambda bs, value: (bs.write_u8(value), 1),
+        BINType.STRING:         lambda bs, value: (bs.write_s_sized16(value, encoding='utf-8'), len(value.encode('utf-8'))+2),
+        BINType.HASH:           lambda bs, value: (bs.write_u32(name_or_hex_to_hash(value)), 4),
+        BINType.FILE:           lambda bs, value: (bs.write_u64(value), 8),
+        BINType.POINTER:        lambda bs, value: BINHelper.write_pointer_or_embed(bs, value),
+        BINType.EMBED:          lambda bs, value: BINHelper.write_pointer_or_embed(bs, value),
+        BINType.LINK:           lambda bs, value: (bs.write_u32(name_or_hex_to_hash(value)), 4),
+        BINType.FLAG:           lambda bs, value: (bs.write_u8(value), 1),
     }
 
     @staticmethod
@@ -315,12 +315,12 @@ class BINHelper:
         for field_type in write_value_dict
     }
     write_field_dict.update({
-        BINType.List:       lambda bs, field: BINHelper.write_list_or_list2(bs, field),
-        BINType.List2:      lambda bs, field: BINHelper.write_list_or_list2(bs, field),
-        BINType.Pointer:    lambda bs, field: BINHelper.write_pointer_or_embed(bs, field),
-        BINType.Embed:      lambda bs, field: BINHelper.write_pointer_or_embed(bs, field),
-        BINType.Option:     lambda bs, field: BINHelper.write_option(bs, field),
-        BINType.Map:        lambda bs, field: BINHelper.write_map(bs, field)
+        BINType.LIST:       lambda bs, field: BINHelper.write_list_or_list2(bs, field),
+        BINType.LIST2:      lambda bs, field: BINHelper.write_list_or_list2(bs, field),
+        BINType.POINTER:    lambda bs, field: BINHelper.write_pointer_or_embed(bs, field),
+        BINType.EMBED:      lambda bs, field: BINHelper.write_pointer_or_embed(bs, field),
+        BINType.OPTION:     lambda bs, field: BINHelper.write_option(bs, field),
+        BINType.MAP:        lambda bs, field: BINHelper.write_map(bs, field)
     })
 
     @staticmethod
@@ -344,13 +344,13 @@ class BINField:
 
     def __json__(self):
         dic = {key: getattr(self, key) for key in self.__slots__}
-        if self.type == BINType.List or self.type == BINType.List2:
+        if self.type == BINType.LIST or self.type == BINType.LIST2:
             dic.pop('key_type')
             dic.pop('hash_type')
-        elif self.type == BINType.Pointer or self.type == BINType.Embed:
+        elif self.type == BINType.POINTER or self.type == BINType.EMBED:
             dic.pop('key_type')
             dic.pop('value_type')
-        elif self.type == BINType.Map:
+        elif self.type == BINType.MAP:
             dic.pop('hash_type')
         else:
             dic.pop('key_type')
@@ -528,13 +528,13 @@ class BIN:
             return
 
         def un_hash_value(value, value_type):
-            if value_type == BINType.Hash:
+            if value_type == BINType.HASH:
                 return hex_to_name(hashtables, 'hashes.binhashes.txt', value)
-            elif value_type == BINType.Link:
+            elif value_type == BINType.LINK:
                 return hex_to_name(hashtables, 'hashes.binentries.txt', value)
-            elif value_type in (BINType.List, BINType.List2):
+            elif value_type in (BINType.LIST, BINType.LIST2):
                 value.data = [un_hash_value(v, value_type) for v in value.data]
-            elif value_type in (BINType.Embed, BINType.Pointer):
+            elif value_type in (BINType.EMBED, BINType.POINTER):
                 if value.hash_type != '00000000':
                     value.hash_type = hex_to_name(
                         hashtables, 'hashes.bintypes.txt',  value.hash_type)
@@ -547,18 +547,18 @@ class BIN:
                 hashtables, 'hashes.binfields.txt', field.hash)
             field.type = hex_to_name(
                 hashtables, 'hashes.bintypes.txt', field.type)
-            if field.type in (BINType.List, BINType.List2):
+            if field.type in (BINType.LIST, BINType.LIST2):
                 field.value_type = hex_to_name(
                     hashtables, 'hashes.bintypes.txt', field.value_type)
                 field.data = [un_hash_value(v, field.value_type)
                               for v in field.data]
-            elif field.type in (BINType.Embed, BINType.Pointer):
+            elif field.type in (BINType.EMBED, BINType.POINTER):
                 if field.hash_type != '00000000':
                     field.hash_type = hex_to_name(
                         hashtables, 'hashes.bintypes.txt', field.hash_type)
                     for f in field.data:
                         un_hash_field(f)
-            elif field.type == BINType.Map:
+            elif field.type == BINType.MAP:
                 field.key_type = hex_to_name(
                     hashtables, 'hashes.bintypes.txt', field.key_type)
                 field.value_type = hex_to_name(
