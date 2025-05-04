@@ -280,7 +280,6 @@ class MAPGEO:
             ):
                 if model.bucket_grid_hash == None:
                     model.bucket_grid_hash = 0
-
                 cmds.addAttr(
                     transform_name,
                     longName='buckethash',
@@ -288,6 +287,23 @@ class MAPGEO:
                     dataType='string'
                 )
             cmds.setAttr(f'{transform_name}.buckethash', f"{model.bucket_grid_hash:08x}", type='string')
+            # create render flags attribute
+            if not cmds.attributeQuery(
+                'renderflags',
+                exists=True,
+                node=transform_name
+            ):
+                if model.render == None:
+                    model.render = 0
+                cmds.addAttr(
+                    transform_name,
+                    longName='renderflags',
+                    niceName='Render Flags',
+                    attributeType='byte'
+                )
+            cmds.setAttr(f'{transform_name}.renderflags', model.render)
+
+            # add object to group
             group_transform.addChild(transform.object())
 
         group_transform.setName(group_name)
@@ -390,6 +406,20 @@ class MAPGEO:
                     model.bucket_grid_hash = 0
             else:
                 model.bucket_grid_hash = 0
+            # render flags
+            if cmds.attributeQuery(
+                'renderflags',
+                exists=True,
+                node=model.name
+            ):
+                try:
+                    model.render = int(cmds.getAttr(f'{model.name}.renderflags'))
+                except:
+                    model.render = 0
+            else:
+                model.render = 0
+            # disable backface culling
+            model.disable_backface_culling = False
             # get shader/materials
             shaders = MObjectArray()
             face_shader = MIntArray()
@@ -648,10 +678,14 @@ class MAPGEO:
         if len(mapgeo.models) == 0:
             raise helper.FunnyError(
                 f'MAPGEO Exporter ({group_name}): There is no mesh inside this group.')
+        
+        mapgeo.texture_overrides = []
+
         riot_mapgeo = dump_options['riot_mapgeo']
         if riot_mapgeo != None:
-            print('MAPGEO Exporter (riot.mapgeo): Found riot.mapgeo, copying bucket grids...')
+            print('MAPGEO Exporter (riot.mapgeo): Found riot.mapgeo, copying original data...')
+            mapgeo.texture_overrides = riot_mapgeo.texture_overrides
             mapgeo.bucket_grids = riot_mapgeo.bucket_grids
             mapgeo.planar_reflectors = riot_mapgeo.planar_reflectors
         else:
-            print('MAPGEO Exporter : No riot.mapgeo found, map can be crashed due to missing bucket grids...')
+            print('MAPGEO Exporter : No riot.mapgeo found, map can be crashed due to missing original data...')

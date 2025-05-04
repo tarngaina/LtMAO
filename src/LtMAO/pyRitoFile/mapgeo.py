@@ -696,9 +696,16 @@ class MAPGEO:
             bs.write_u32(self.version)
             # texture overrides
             if self.version > 13:
-                bs.write_u32(0) # texture override count
+                bs.write_u32(len(self.texture_overrides))
+                for texture_override in self.texture_overrides:
+                    bs.write_u32(texture_override.index)
+                    bs.write_s_sized32(texture_override.path)
             else:
-                bs.write_u32(0, 0) # length of texture override path 1 & 2
+                if len(self.texture_overrides) > 0:
+                    bs.write_s_sized32(self.texture_overrides[0].path)
+                    bs.write_s_sized32(self.texture_overrides[1].path)
+                else:
+                    bs.write_u32(0, 0)
             
             # vertex descriptions
             bs.write_u32(len(self.vertex_descriptions))
@@ -753,8 +760,8 @@ class MAPGEO:
                     bs.write_u32(
                         submesh.index_start, submesh.index_count, submesh.min_vertex, submesh.max_vertex)
 
-                # flip normals
-                bs.write_u8(0)
+                # disable backface culling
+                bs.write_b(model.disable_backface_culling)
 
                 # bounding box
                 bs.write_vec3(*model.bounding_box)
@@ -768,12 +775,12 @@ class MAPGEO:
                 # bush, render flag
                 if self.version > 13:
                     bs.write_u8(model.is_bush) # bush
-                    bs.write_u16(0) # render flag
+                    bs.write_u16(model.render) # render flag
                 else:
-                    bs.write_u8(0) # render flag
+                    bs.write_u8(model.render) # render flag
 
                 # baked light
-                if model.baked_light not in (None, ''):
+                if model.baked_light != None:
                     bs.write_s_sized32(model.baked_light.path)
                     bs.write_f32(1.0, 1.0, 0.0, 0.0)
                 else:
