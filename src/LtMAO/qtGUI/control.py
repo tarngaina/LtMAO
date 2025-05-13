@@ -1191,7 +1191,7 @@ def build_no_skin(widget: QWidget):
     layout2.addLayout(layout3, stretch=999)
 
     mini_button = QToolButton()
-    mini_button.setText('🦭 Make all Skinx BIN same as Skin0 BIN')
+    mini_button.setText('🦭 Swap all SkinX to Skin0')
     def no_skin_lite(label, text):
         def no_skin_thrd():
             no_skin.mini_no_skin(

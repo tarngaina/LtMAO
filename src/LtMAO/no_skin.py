@@ -105,7 +105,7 @@ def mini_no_skin(skin0_file, otherskins_files):
     print(f'no_skin: Finish: Swap {len(otherskins_files)} skinX as skin0.')
 
 
-def full_no_skin(champions_dir, output_dir, pool_size=4):
+def full_no_skin(champions_dir, output_dir):
     start_time = time.time()
     # filter wads
     files = os.listdir(champions_dir)
@@ -130,7 +130,7 @@ def full_no_skin(champions_dir, output_dir, pool_size=4):
             hashtables['hashes.game.txt'][key] = value
     hash_helper.free_wad_hashes()
     # parse wad func
-    def parse_wad(wad_file):    
+    for wad_file in wad_files:
         # read wad
         wad = pyRitoFile.read_wad(wad_file)
         # only unhash skinx.bin with rebuild hashtables
@@ -144,7 +144,7 @@ def full_no_skin(champions_dir, output_dir, pool_size=4):
             for chunk in wad.chunks:
                 # filter skins bin (only unhash skinx.bin)
                 if chunk.extension == 'bin':
-                    # chunk.hash = 'data/character/<character>/skins/skinx.bin'
+                    # chunk.hash = 'data/character/{character}/skins/{skinx}'
                     temp = chunk.hash.split('/')
                     character = temp[2]
                     skinx = temp[4]
@@ -209,30 +209,7 @@ def full_no_skin(champions_dir, output_dir, pool_size=4):
                 # create WAD chunk
                 swapped_chunks.append(
                     (chunk_hashes[character][id], base_bin[character].write('', raw=True)))
-            print(f'no_skin: Finish: Swap: {character}')
-    
-    
-    # pools stuffs
-    pools = [None] * pool_size
-    def work_cmd(target, pool_index):
-        try:
-            target()
-        except Exception as e:
-            import traceback
-            print(traceback.format_exc())
-            print(f'no_skin: Error: {e}')
-        pools[pool_index] = None
-    # pool start
-    target = len(wad_files)
-    current = 0
-    while current < target:
-        for i in range(pool_size):
-            if pools[i] == None:
-                wad_file = wad_files[current]
-                pools[i] = Thread(target=lambda: work_cmd(lambda: parse_wad(wad_file), i), daemon=True)
-                pools[i].start()
-                current += 1
-        time.sleep(0.166)
+            print(f'no_skin: Finish: {character}: Swap {len(skin_bins[character])} skinX to skin0.')
 
     # build new wad from swapped_chunks
     os.makedirs(cache_dir, exist_ok=True)
