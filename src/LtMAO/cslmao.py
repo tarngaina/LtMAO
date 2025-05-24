@@ -60,7 +60,7 @@ def delete_mod(mod):
 
 def get_info(mod):
     info_file = os.path.join(raw_dir, mod.get_path(), 'META', 'info.json')
-    with open(info_file, 'r') as f:
+    with open(info_file, 'r', encoding='utf-8') as f:
         info = json.load(f)
     image_path = None
     image_file = os.path.join(raw_dir, mod.get_path(), 'META', 'image.png')
@@ -93,7 +93,7 @@ def load_mods():
     # load through mod file
     try:
         l = []
-        with open(mod_file, 'r') as f:
+        with open(mod_file, 'r', encoding='utf-8') as f:
             l = json.load(f)
         MOD.mods = [MOD(id, path, enable, profile) for id, path, enable, profile in l]
     except Exception as e:
