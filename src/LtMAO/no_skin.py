@@ -1,7 +1,5 @@
 import json, os, os.path, zipfile, shutil, time
 from . import hash_helper, pyRitoFile
-from .hash_helper import cached_bin_hashes
-from threading import Thread
 
 def bin_hash(name):
     return f'{pyRitoFile.helper.FNV1a(name):08x}'
@@ -24,13 +22,13 @@ def delete_cache():
 
 def load_skips():
     global SKIPS
-    with open(skips_file, 'r') as f:
+    with open(skips_file, 'r', encoding='utf-8') as f:
         SKIPS = json.load(f)
 
 
 def save_skips():
-    with open(skips_file, 'w+') as f:
-        json.dump(SKIPS, f, indent=4)
+    with open(skips_file, 'w+', encoding='utf-8') as f:
+        json.dump(SKIPS, f, indent=4, ensure_ascii=False)
     print(f'no_skin: Finish: Write {skips_file}')
 
 
@@ -52,7 +50,7 @@ def mini_no_skin(skin0_file, otherskins_files):
     hash_helper.CustomHashes.read_hashes('hashes.binentries.txt')
     skin0_hashes = {}
     otherskins_hashes = {}
-    for key, value in hash_helper.HASHTABLES['hashes.binentries.txt'].items():
+    for key, value in hash_helper.Storage.hashtables['hashes.binentries.txt'].items():
         if 'Characters/' in value and '/Skins/' in value:
             if not '/Root' in value:
                 if '/Skin0' in value:
@@ -61,21 +59,21 @@ def mini_no_skin(skin0_file, otherskins_files):
                     otherskins_hashes[key] = value
     hash_helper.CustomHashes.free_hashes('hashes.binentries.txt')
     # read bins
-    skin0_bin = pyRitoFile.read_bin(skin0_file)
-    otherskins_bins = [pyRitoFile.read_bin(otherskins_file) for otherskins_file in otherskins_files]
+    skin0_bin = pyRitoFile.bin.BIN().read(skin0_file)
+    otherskins_bins = [pyRitoFile.bin.BIN().read(otherskins_file) for otherskins_file in otherskins_files]
     print(f'no_skin: Finish: Read BINs.')
     # skin0 bin
     base_scdp = None
     base_rr = None
     base_mrr = None
     for entry in skin0_bin.entries:
-        if entry.type == cached_bin_hashes['SkinCharacterDataProperties']:
+        if entry.type == hash_helper.Storage.bin_hashes['SkinCharacterDataProperties']:
             base_scdp = entry
             for field in entry.data:
-                if field.hash == cached_bin_hashes['mResourceResolver']:
+                if field.hash == hash_helper.Storage.bin_hashes['mResourceResolver']:
                     base_mrr = field
                     break
-        elif entry.type == cached_bin_hashes['ResourceResolver']:
+        elif entry.type == hash_helper.Storage.bin_hashes['ResourceResolver']:
             base_rr = entry
     if base_scdp.hash not in skin0_hashes:
         raise Exception(f'no_skin: Error: Swap skin: {skin0_file} is not a skin0.bin.')
@@ -85,10 +83,10 @@ def mini_no_skin(skin0_file, otherskins_files):
         skin_scdp_hash = None
         skin_rr_hash = None
         for entry in otherskins_bin.entries:
-            if entry.type == cached_bin_hashes['SkinCharacterDataProperties']:
+            if entry.type == hash_helper.Storage.bin_hashes['SkinCharacterDataProperties']:
                 skin_scdp_hash = entry.hash
                 for field in entry.data:
-                    if field.hash == cached_bin_hashes['mResourceResolver']:
+                    if field.hash == hash_helper.Storage.bin_hashes['mResourceResolver']:
                         skin_rr_hash = field.data
                         break
                 break
@@ -101,7 +99,7 @@ def mini_no_skin(skin0_file, otherskins_files):
             base_rr.hash = skin_rr_hash
             base_mrr.data = skin_rr_hash
         # write file
-        pyRitoFile.write_bin(otherskins_file, skin0_bin)
+        skin0_bin.write(otherskins_file)
     print(f'no_skin: Finish: Swap {len(otherskins_files)} skinX as skin0.')
 
 
@@ -120,19 +118,19 @@ def full_no_skin(champions_dir, output_dir):
     print(f'no_skin: Start: Create NO SKIN mod')
     swapped_chunks = []  # list of (chunk_hash, chunk_data)
     # read hashes
-    hash_helper.read_wad_hashes()
+    hash_helper.Storage.read_wad_hashes()
     # rebuild smaller hash for faster comparsion
     print(f'no_skin: Start: Rebuilding hashes')
     hashtables = {}
     hashtables['hashes.game.txt'] = {}
-    for key, value in hash_helper.HASHTABLES['hashes.game.txt'].items():
+    for key, value in hash_helper.Storage.hashtables['hashes.game.txt'].items():
         if '.bin' in value and 'data/characters/' in value and '/skins/' in value and 'root.bin' not in value:
             hashtables['hashes.game.txt'][key] = value
-    hash_helper.free_wad_hashes()
+    hash_helper.Storage.free_wad_hashes()
     # parse wad func
     for wad_file in wad_files:
         # read wad
-        wad = pyRitoFile.read_wad(wad_file)
+        wad = pyRitoFile.wad.WAD().read(wad_file)
         # only unhash skinx.bin with rebuild hashtables
         wad.un_hash(hashtables)
         # init data
@@ -154,7 +152,7 @@ def full_no_skin(champions_dir, output_dir):
                             continue
                     # read chunk
                     chunk.read_data(bs)
-                    bin = pyRitoFile.read_bin('', raw=chunk.data)
+                    bin = pyRitoFile.bin.BIN().read('', raw=chunk.data)
                     chunk.free_data()
                     if 'skin0.bin' in chunk.hash:
                         # found base bin
@@ -178,13 +176,13 @@ def full_no_skin(champions_dir, output_dir):
             base_rr = None
             base_mrr = None
             for entry in base_bin[character].entries:
-                if entry.type == cached_bin_hashes['SkinCharacterDataProperties']:
+                if entry.type == hash_helper.Storage.bin_hashes['SkinCharacterDataProperties']:
                     base_scdp = entry
                     for field in entry.data:
-                        if field.hash == cached_bin_hashes['mResourceResolver']:
+                        if field.hash == hash_helper.Storage.bin_hashes['mResourceResolver']:
                             base_mrr = field
                             break
-                elif entry.type == cached_bin_hashes['ResourceResolver']:
+                elif entry.type == hash_helper.Storage.bin_hashes['ResourceResolver']:
                     base_rr = entry
             # replace skin_bin hashes on same base_bin
             # each time dump base_bin as chunk_data
@@ -193,10 +191,10 @@ def full_no_skin(champions_dir, output_dir):
                 skin_scdp_hash = None
                 skin_rr_hash = None
                 for entry in skin_bin.entries:
-                    if entry.type == cached_bin_hashes['SkinCharacterDataProperties']:
+                    if entry.type == hash_helper.Storage.bin_hashes['SkinCharacterDataProperties']:
                         skin_scdp_hash = entry.hash
                         for field in entry.data:
-                            if field.hash == cached_bin_hashes['mResourceResolver']:
+                            if field.hash == hash_helper.Storage.bin_hashes['mResourceResolver']:
                                 skin_rr_hash = field.data
                                 break
                         break
@@ -213,9 +211,9 @@ def full_no_skin(champions_dir, output_dir):
 
     # build new wad from swapped_chunks
     os.makedirs(cache_dir, exist_ok=True)
-    wad_file = f'{cache_dir}/Annie.wad.client'
-    wad = pyRitoFile.WAD()
-    wad.chunks = [pyRitoFile.WADChunk.default()
+    wad_file = f'{cache_dir}/Zyra.wad.client'
+    wad = pyRitoFile.wad.WAD()
+    wad.chunks = [pyRitoFile.wad.WADChunk.default()
                   for id in range(len(swapped_chunks))]
     wad.write(wad_file)
     with wad.stream(wad_file, 'rb+') as bs:
@@ -227,8 +225,8 @@ def full_no_skin(champions_dir, output_dir):
     meta_dir = os.path.join(cache_dir, 'META')
     os.makedirs(meta_dir, exist_ok=True)
     info_file = os.path.join(meta_dir, 'info.json')
-    with open(info_file, 'w+') as f:
-        json.dump(FANTOME_META, f)
+    with open(info_file, 'w+', encoding='utf-8') as f:
+        json.dump(FANTOME_META, f, indent=4, ensure_ascii=False)
     fantome_file = os.path.join(
         output_dir,
         f'{FANTOME_META["Name"]} V{FANTOME_META["Version"]} by {FANTOME_META["Author"]}.fantome'
@@ -238,7 +236,7 @@ def full_no_skin(champions_dir, output_dir):
         z.write(wad_file, 'WAD/Annie.wad.client')
     delete_cache()
     end_time = time.time()
-    print(f'no_skin: Finish: Create Fantome: {fantome_file} with {end_time-start_time:.2f} seconds')
+    print(f'no_skin: Finish: Create Fantome: {fantome_file} with {end_time-start_time:.2g} seconds')
 
 
 def init():

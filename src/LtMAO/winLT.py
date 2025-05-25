@@ -1,7 +1,5 @@
 
-import os
-import os.path
-import winreg
+import os, os.path, winreg
 
 icon_file = './res/appicon.ico'
 pythonw_file = './cpy/pythonw.exe'
@@ -11,6 +9,215 @@ cli_file = './src/cli.py'
 
 
 class Context:
+    submenus = {
+        'Directory': {
+            'RawToWad': True,
+            'AllWadToRaw': True,
+            'hashextract': True,
+            'PT': True,
+            'ZipFantome': True,
+            'RitobinDirToPy': True,
+            'RitobinDirToBin': True,
+            'tex2ddsdir': True,
+            'dds2texdir': True,
+            'dir2bnk': True,
+            'dir2wpk': True,
+        },
+        'wad': {
+            'WadToRaw': True,
+            'hashextract': True,
+            'PT': True,
+            'LFI': True,
+        },
+        'bin': {
+            'RitobinToPy': True,
+            'hashextract': True,
+            'LFI': True,
+        },
+        'py': {
+            'RitobinToBin': True,
+        },
+        'skl': {
+            'hashextract': True,
+            'LFI': True,
+        },
+        'skn': {
+            'UVEE': True,
+            'hashextract': True,
+            'LFI': True,
+        },
+        'sco': {
+            'UVEE': True,
+            'LFI': True,
+        },
+        'scb': {
+            'UVEE': True,
+            'LFI': True,
+        },
+        'anm': {
+            'LFI': True,
+        },
+        'mapgeo': {
+            'LFI': True,
+        },
+        'tex': {
+            'tex2dds': True,
+            'LFI': True,
+        },
+        'dds': {
+            'dds2tex': True,
+            'dds2png': True,
+            'dds2x4x': True,
+        },
+        'png': {
+            'png2dds': True,
+            'png2ddsmm': True,
+        },
+        'bnk': {
+            'bnk2dir': True,
+            'geb': True,
+            'LFI': True,
+        },
+        'wpk': {
+            'wpk2dir': True,
+            'geb': True,
+            'LFI': True,
+        },
+        'wem': {
+            'wem2wav': True,
+        },
+        'wav': {
+            'wav2wem': True,
+        },
+        'fantome': {
+            'UnzipFantome': True,
+        },
+    }
+
+    commands = {
+        'RawToWad': {
+            'desc': 'wad_tool: Pack To WAD',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wadpack" -src="%V"'
+        },
+        'WadToRaw': {
+            'desc': 'wad_tool: Unpack To Folder',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wadunpack" -src="%V"'
+        },
+        'AllWadToRaw': {
+            'desc': 'wad_tool: Unpack All WAD',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wadunpack_all" -src="%V"'
+        },
+        'RitobinToPy': {
+            'desc': 'ritobin: Convert To PY',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin" -src="%V"'
+        },
+        'RitobinToBin': {
+            'desc': 'ritobin: Convert To BIN',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin" -src="%V"'
+        },
+        'RitobinDirToPy': {
+            'desc': 'ritobin: Convert All BIN To PY',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobindir2py" -src="%V"'
+        },
+        'RitobinDirToBin': {
+            'desc': 'ritobin: Convert All PY To BIN',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobindir2bin" -src="%V"'
+        },
+        'LFI': {
+            'desc': 'file_inspector: Print infos as JSON',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="lfi" -src="%V"'
+        },
+        'UVEE': {
+            'desc': 'uvee: Extract UVs out as PNGs',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="uvee" -src="%V"'
+        },
+        'hashextract': {
+            'desc': 'hash_helper: Extract hashes',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="hashextract" -src="%V"'
+        },
+        'PT': {
+            'desc': 'pyntex: Check mentioned, missing files of BINs',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="pyntex" -src="%V"'
+        },
+        'tex2dds': {
+            'desc': 'Ritoddstex: Convert To DDS',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="tex2dds" -src="%V"'
+        },
+        'dds2tex': {
+            'desc': 'Ritoddstex: Convert To TEX',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2tex" -src="%V"'
+        },
+        'tex2ddsdir': {
+            'desc': 'Ritoddstex: Convert All TEX To DDS',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="tex2ddsdir" -src="%V"'
+        },
+        'dds2texdir': {
+            'desc': 'Ritoddstex: Convert All DDS To TEX',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2texdir" -src="%V"'
+        },
+        'dds2png': {
+            'desc': 'ImageMagick: Convert To PNG',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2png" -src="%V"'
+        },
+        'png2dds': {
+            'desc': 'ImageMagick: Convert To DDS (No Mipmap)',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="png2dds" -src="%V"'
+        },
+        'png2ddsmm': {
+            'desc': 'ImageMagick: Convert To DDS (With Mipmap 10)',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="png2ddsmm" -src="%V"'
+        },
+        'dds2x4x': {
+            'desc': 'ImageMagick: Make 2x_, 4x_ DDS',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2x4x" -src="%V"'
+        },
+        'wem2wav': {
+            'desc': 'wiwawe: Convert To WAV',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wem2wav" -src="%V"'
+        },
+        'wav2wem': {
+            'desc': 'wiwawe: Convert To WEM',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wav2wem" -src="%V"'
+        },
+        'ZipFantome': {
+            'desc': 'cslmao: Zip Fantome',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="zipfantome" -src="%V"'
+        },
+        'UnzipFantome': {
+            'desc': 'cslmao: Unzip Fantome',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="unzipfantome" -src="%V"'
+        },
+        'dir2bnk': {
+            'desc': 'bnk_tool: Pack To BNK',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dir2bnk" -src="%V"'
+        },
+        'dir2wpk': {
+            'desc': 'bnk_tool: Pack To WPK',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dir2wpk" -src="%V"'
+        },
+        'bnk2dir': {
+            'desc': 'bnk_tool: Unpack To Folder',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="bnk2dir" -src="%V"'
+        },
+        'wpk2dir': {
+            'desc': 'bnk_tool: Unpack To Folder',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wpk2dir" -src="%V"'
+        },
+        'geb': {
+            'desc': 'bnk_tool: Guess name of Voice Events BNK',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="geb" -src="%V"'
+        },
+    }
+
+    @staticmethod
+    def get_shell(shell_id):
+        if shell_id == 'Directory':
+            return 'Directory\\shell'
+        elif shell_id == 'wad':
+            return 'SystemFileAssociations\\.client\\shell'
+        else:
+            return f'SystemFileAssociations\\.{shell_id}\\shell'
+
     @staticmethod
     def create_submenu(shell, sub_commands):
         with winreg.CreateKeyEx(winreg.HKEY_CLASSES_ROOT, shell) as key:
@@ -40,333 +247,42 @@ class Context:
 
     @staticmethod
     def create_contexts():
-        # folder contexts
-        Context.create_submenu(
-            shell='Directory\\shell',
-            sub_commands='LtMAO.RawToWad;LtMAO.AllWadToRaw;LtMAO.hashextract;LtMAO.ZipFantome;LtMAO.dir2bnk;LtMAO.dir2wpk;LtMAO.PT;LtMAO.RitobinDirToPy;LtMAO.RitobinDirToBin;LtMAO.tex2ddsdir;LtMAO.dds2texdir;'
-        )
-        # .wad (.client) contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.client\\shell',
-            sub_commands='LtMAO.WadToRaw;LtMAO.hashextract;LtMAO.PT;LtMAO.LFI;'
-        )
-        # .bin contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.bin\\shell',
-            sub_commands='LtMAO.RitobinToPy;LtMAO.hashextract;LtMAO.LFI;'
-        )
-        # .py contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.py\\shell',
-            sub_commands='LtMAO.RitobinToBin;'
-        )
-        # .skl contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.skl\\shell',
-            sub_commands='LtMAO.hashextract;LtMAO.LFI;'
-        )
-        # .skn contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.skn\\shell',
-            sub_commands='LtMAO.UVEE;LtMAO.hashextract;LtMAO.LFI;'
-        )
-        # .sco contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.sco\\shell',
-            sub_commands='LtMAO.UVEE;LtMAO.LFI;'
-        )
-        # .scb contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.scb\\shell',
-            sub_commands='LtMAO.UVEE;LtMAO.LFI;'
-        )
-        # .anm contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.anm\\shell',
-            sub_commands='LtMAO.LFI;'
-        )
-        # .mapgeo contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.mapgeo\\shell',
-            sub_commands='LtMAO.LFI;'
-        )
-        # .tex contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.tex\\shell',
-            sub_commands='LtMAO.tex2dds;LtMAO.LFI;'
-        )
-        # .dds contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.dds\\shell',
-            sub_commands='LtMAO.dds2tex;LtMAO.dds2png;LtMAO.dds2x4x;'
-        )
-        # .png contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.png\\shell',
-            sub_commands='LtMAO.png2dds;LtMAO.png2ddsmm;'
-        )
-        # .bnk contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.bnk\\shell',
-            sub_commands='LtMAO.bnk2dir;LtMAO.geb;LtMAO.LFI;'
-        )
-        # .wpk contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.wpk\\shell',
-            sub_commands='LtMAO.wpk2dir;LtMAO.geb;LtMAO.LFI;'
-        )
-        # .wem contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.wem\\shell',
-            sub_commands='LtMAO.wem2wav;'
-        )
-        # .wav contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.wav\\shell',
-            sub_commands='LtMAO.wav2wem;'
-        )
-        # .fantome contexts
-        Context.create_submenu(
-            shell='SystemFileAssociations\\.fantome\\shell',
-            sub_commands='LtMAO.UnzipFantome;'
-        )
+        # create submenus
+        for shell_id in Context.submenus:
+            commands = [f'LtMAO.{command_id}' for command_id in Context.submenus[shell_id] if Context.submenus[shell_id][command_id]]
+            if len(commands) > 0:
+                Context.create_submenu(
+                    shell=Context.get_shell(shell_id),
+                    sub_commands=';'.join(commands)
+                )
+            else:
+                Context.remove_submenu(Context.get_shell(shell_id))
 
         # create commands
         with winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE, 'Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell') as key:
-            # RawToWad
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.RawToWad',
-                cmd_desc='wad_tool: Pack To WAD',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wadpack" -src="%V"'
-            )
-            # WadToRaw
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.WadToRaw',
-                cmd_desc='wad_tool: Unpack To Folder',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wadunpack" -src="%V"'
-            )
-            # AllWadToRaw
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.AllWadToRaw',
-                cmd_desc='wad_tool: Unpack All WAD',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wadunpack_all" -src="%V"'
-            )
-            # RitobinToPy
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.RitobinToPy',
-                cmd_desc='ritobin: Convert To PY',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin" -src="%V"'
-            )
-            # RitobinToBin
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.RitobinToBin',
-                cmd_desc='ritobin: Convert To BIN',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin" -src="%V"'
-            )
-            # RitobinDirToPy
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.RitobinDirToPy',
-                cmd_desc='ritobin: Convert All BIN To PY',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobindir2py" -src="%V"'
-            )
-            # RitobinDirToBin
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.RitobinDirToBin',
-                cmd_desc='ritobin: Convert All PY To BIN',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobindir2bin" -src="%V"'
-            )
-            # LFI
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.LFI',
-                cmd_desc='file_inspector: Print infos as JSON',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="lfi" -src="%V"'
-            )
-            # UVEE
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.UVEE',
-                cmd_desc='uvee: Extract UVs out as PNGs',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="uvee" -src="%V"'
-            )
-            # hashextract
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.hashextract',
-                cmd_desc='hash_helper: Extract hashes',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="hashextract" -src="%V"'
-            )
-            # PT
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.PT',
-                cmd_desc='pyntex: Check mentioned, missing files of BINs',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="pyntex" -src="%V"'
-            )
-            # tex2dds
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.tex2dds',
-                cmd_desc='Ritoddstex: Convert To DDS',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="tex2dds" -src="%V"'
-            )
-            # dds2tex
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.dds2tex',
-                cmd_desc='Ritoddstex: Convert To TEX',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2tex" -src="%V"'
-            )
-            # tex2ddsdir
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.tex2ddsdir',
-                cmd_desc='Ritoddstex: Convert All TEX To DDS',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="tex2ddsdir" -src="%V"'
-            )
-            # dds2texdir
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.dds2texdir',
-                cmd_desc='Ritoddstex: Convert All DDS To TEX',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2texdir" -src="%V"'
-            )
-            # dds2png
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.dds2png',
-                cmd_desc='ImageMagick: Convert To PNG',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2png" -src="%V"'
-            )
-            # png2dds
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.png2dds',
-                cmd_desc='ImageMagick: Convert To DDS (No Mipmap)',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="png2dds" -src="%V"'
-            )
-            # png2ddsmm
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.png2ddsmm',
-                cmd_desc='ImageMagick: Convert To DDS (With Mipmap 10)',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="png2ddsmm" -src="%V"'
-            )
-            # dds2x4x
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.dds2x4x',
-                cmd_desc='ImageMagick: Make 2x_, 4x_ DDS',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dds2x4x" -src="%V"'
-            )
-            # wem2wav
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.wem2wav',
-                cmd_desc='wiwawe: Convert To WAV',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wem2wav" -src="%V"'
-            )
-            # wav2wem
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.wav2wem',
-                cmd_desc='wiwawe: Convert To WEM',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wav2wem" -src="%V"'
-            )
-            # ZipFantome
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.ZipFantome',
-                cmd_desc='cslmao: Zip Fantome',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="zipfantome" -src="%V"'
-            )
-            # UnzipFantome
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.UnzipFantome',
-                cmd_desc='cslmao: Unzip Fantome',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="unzipfantome" -src="%V"'
-            )
-            # dir2bnk
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.dir2bnk',
-                cmd_desc='bnk_tool: Pack To BNK',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dir2bnk" -src="%V"'
-            )
-            # dir2wpk
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.dir2wpk',
-                cmd_desc='bnk_tool: Pack To WPK',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="dir2wpk" -src="%V"'
-            )
-            # bnk2dir
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.bnk2dir',
-                cmd_desc='bnk_tool: Unpack To Folder',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="bnk2dir" -src="%V"'
-            )
-            # wpk2dir
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.wpk2dir',
-                cmd_desc='bnk_tool: Unpack To Folder',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wpk2dir" -src="%V"'
-            )
-            # geb
-            Context.create_command(
-                root=key,
-                cmd_name='LtMAO.geb',
-                cmd_desc='bnk_tool: Guess name of Voice Events BNK',
-                cmd_value=f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="geb" -src="%V"'
-            )
-        print('winLT: Finish: Create Explorer Contexts')
+            for command_id in Context.commands:
+                Context.create_command(
+                    root=key,
+                    cmd_name=f'LtMAO.{command_id}',
+                    cmd_desc=Context.commands[command_id]['desc'],
+                    cmd_value=Context.commands[command_id]['value']
+                )
+        print('winLT: Finish: Set Explorer Contexts')
 
     @staticmethod
     def remove_submenu(shell):
         with winreg.OpenKeyEx(winreg.HKEY_CLASSES_ROOT, shell) as key:
             try:
                 winreg.DeleteKeyEx(key, 'LtMAO')
+            except FileNotFoundError:
+                pass
             except Exception as e:
                 raise e
 
     @staticmethod
     def remove_contexts():
-        # folder contexts
-        Context.remove_submenu('Directory\\shell')
-        # .wad (.client) contexts
-        Context.remove_submenu('SystemFileAssociations\\.client\\shell')
-        # .bin contexts
-        Context.remove_submenu('SystemFileAssociations\\.bin\\shell')
-        # .py contexts
-        Context.remove_submenu('SystemFileAssociations\\.py\\shell')
-        # .skl contexts
-        Context.remove_submenu('SystemFileAssociations\\.skl\\shell')
-        # .skn contexts
-        Context.remove_submenu('SystemFileAssociations\\.skn\\shell')
-        # .sco contexts
-        Context.remove_submenu('SystemFileAssociations\\.sco\\shell')
-        # .scb contexts
-        Context.remove_submenu('SystemFileAssociations\\.scb\\shell')
-        # .anm contexts
-        Context.remove_submenu('SystemFileAssociations\\.anm\\shell')
-        # .mapgeo contexts
-        Context.remove_submenu('SystemFileAssociations\\.mapgeo\\shell')
-        # .tex contexts
-        Context.remove_submenu('SystemFileAssociations\\.tex\\shell')
-        # .dds contexts
-        Context.remove_submenu('SystemFileAssociations\\.dds\\shell')
-        # .png contexts
-        Context.remove_submenu('SystemFileAssociations\\.png\\shell')
+        for shell_id in Context.submenus:
+            Context.remove_submenu(Context.get_shell(shell_id))
         print('winLT: Finish: Remove Explorer Contexts')
 
 

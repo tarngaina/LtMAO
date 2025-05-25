@@ -1,9 +1,5 @@
-import os.path
-from shutil import copy, copytree
-from .pyRitoFile import read_bin, write_bin, read_wad, write_wad, BINHelper
-from .pyRitoFile import BINField, BINType
-from .pyRitoFile.structs import Vector
-from .hash_helper import cached_bin_hashes
+import os.path, shutil
+from . import pyRitoFile, hash_helper
 
 class Helper:
     qt_datas = [] 
@@ -69,9 +65,9 @@ class Helper:
         map_wad_src_dst = {}
         if src_type == 'bin':
             if require_dst:
-                map_bin_src_dst[src] = (dst, read_bin(src), read_bin(dst))
+                map_bin_src_dst[src] = (dst, pyRitoFile.bin.BIN().read(src), pyRitoFile.bin.BIN().read(dst))
             else:
-                map_bin_src_dst[src] = (None, read_bin(src), None)
+                map_bin_src_dst[src] = (None, pyRitoFile.bin.BIN().read(src), None)
         elif src_type == 'folder':
             # scan src folder
             src_bin_paths = []
@@ -87,22 +83,22 @@ class Helper:
                 if require_dst:
                     dst_bin_path = os.path.join(dst, os.path.relpath(src_bin_path, src)).replace('\\','/')
                     if os.path.exists(dst_bin_path):
-                        map_bin_src_dst[src_bin_path] = (dst_bin_path, read_bin(src_bin_path), read_bin(dst_bin_path))
+                        map_bin_src_dst[src_bin_path] = (dst_bin_path, pyRitoFile.bin.BIN().read(src_bin_path), pyRitoFile.bin.BIN().read(dst_bin_path))
                 else:
-                    map_bin_src_dst[src_bin_path] = (None, read_bin(src_bin_path), None)
+                    map_bin_src_dst[src_bin_path] = (None, pyRitoFile.bin.BIN().read(src_bin_path), None)
             # match bin in wads
             for src_wad_path in src_wad_paths:
-                src_wad = read_wad(src_wad_path)
+                src_wad = pyRitoFile.wad.WAD().read(src_wad_path)
                 if require_dst:
                     dst_wad_path = os.path.join(dst, os.path.relpath(src_wad_path, src)).replace('\\','/')
-                    dst_wad = read_wad(dst_wad_path)
+                    dst_wad = pyRitoFile.wad.WAD().read(dst_wad_path)
                     map_wad_src_dst[src_wad_path] = (dst_wad_path, [])
                     dst_bins = {}
                     with dst_wad.stream(dst_wad_path, 'rb') as bs:
                         for dst_chunk in dst_wad.chunks:
                             dst_chunk.read_data(bs)
                             if dst_chunk.extension == 'bin':
-                                dst_bins[dst_chunk.hash] = read_bin('', raw=dst_chunk.data)
+                                dst_bins[dst_chunk.hash] = pyRitoFile.bin.BIN().read('', raw=dst_chunk.data)
                             dst_chunk.free_data()
                 else:
                      map_wad_src_dst[src_wad_path] = (None, [])
@@ -114,13 +110,13 @@ class Helper:
                                 if src_chunk.hash in dst_bins:
                                     map_wad_src_dst[src_wad_path][1].append((
                                         src_chunk.hash,
-                                        read_bin('', raw=src_chunk.data), 
+                                        pyRitoFile.bin.BIN().read('', raw=src_chunk.data), 
                                         dst_bins[src_chunk.hash]
                                     ))
                             else:
                                 map_wad_src_dst[src_wad_path][1].append((
                                     src_chunk.hash,
-                                    read_bin('', raw=src_chunk.data), 
+                                    pyRitoFile.bin.BIN().read('', raw=src_chunk.data), 
                                     None,
                                 ))
                         src_chunk.free_data()
@@ -132,9 +128,9 @@ class Helper:
         for src_bin_path in map_bin_src_dst:
             dst_bin_path, src_bin, dst_bin = map_bin_src_dst[src_bin_path]
             if require_dst:
-                write_bin(dst_bin_path, dst_bin)
+                dst_bin.write(dst_bin_path)
             else:
-                write_bin(src_bin_path, src_bin)
+                src_bin.write(src_bin_path)
         # write bin inside wads
         for src_wad_path in map_wad_src_dst:
             dst_wad_path, wad_datas = map_wad_src_dst[src_wad_path]
@@ -143,7 +139,7 @@ class Helper:
                 map_wad_datas[chunk_hash] = dst_bin if require_dst else src_bin
 
             wad_path = dst_wad_path if require_dst else src_wad_path
-            wad = read_wad(wad_path)
+            wad = pyRitoFile.wad.WAD().read(wad_path)
             with wad.stream(wad_path, 'rb+') as bs:
                 for chunk in wad.chunks:
                     if chunk.hash in map_wad_datas:
@@ -159,9 +155,9 @@ class Helper:
         )
         print(f'hapiBin: Start:  Backup target {path} -> {backup_path}.')
         if os.path.isdir(path):
-            copytree(path, backup_path, dirs_exist_ok=True)
+            shutil.copytree(path, backup_path, dirs_exist_ok=True)
         else:
-            copy(path, backup_path)
+            shutil.copy(path, backup_path)
         print(f'hapiBin: Finish: Backup target {path} -> {backup_path}.')
 
 
@@ -183,207 +179,169 @@ def copy_vfx_colors(src_bin, dst_bin):
     copied_field_count = 0
     for dst_entry in dst_bin.entries:
         # VfxSystemDefinitionData entry
-        if dst_entry.type == cached_bin_hashes['VfxSystemDefinitionData']:
+        if dst_entry.type == hash_helper.Storage.bin_hashes['VfxSystemDefinitionData']:
             # matching VfxSystemDefinitionData
             dst_VfxSystemDefinitionData = dst_entry
-            src_VfxSystemDefinitionData = BINHelper.find_item(
-                items=src_bin.entries,
-                compare_func=lambda entry: entry.hash == dst_VfxSystemDefinitionData.hash and entry.type == cached_bin_hashes[
-                    'VfxSystemDefinitionData']
+            src_VfxSystemDefinitionDatas = src_bin.get_items(
+                lambda entry: entry.hash == dst_VfxSystemDefinitionData.hash and entry.type == hash_helper.Storage.bin_hashes['VfxSystemDefinitionData']
             )
-            if src_VfxSystemDefinitionData != None:
-                # finding particlePath
-                dst_particlePath = BINHelper.find_item(
-                    items=dst_VfxSystemDefinitionData.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes['particlePath'],
-                    return_func=lambda field: field.data
-                )
-                if dst_particlePath == None:
-                    dst_particlePath == dst_VfxSystemDefinitionData.hash
+            if len(src_VfxSystemDefinitionDatas) > 0:
+                src_VfxSystemDefinitionData = src_VfxSystemDefinitionDatas[0]
+                matching_emitter = [] 
                 # finding complexEmitterDefinitionData block
-                dst_complexEmitterDefinitionData = BINHelper.find_item(
-                    items=dst_VfxSystemDefinitionData.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes[
-                        'complexEmitterDefinitionData']
+                dst_complexEmitterDefinitionDatas = dst_VfxSystemDefinitionData.get_items(
+                    lambda field: field.hash == hash_helper.Storage.bin_hashes['complexEmitterDefinitionData']
                 )
-                src_complexEmitterDefinitionData = BINHelper.find_item(
-                    items=src_VfxSystemDefinitionData.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes[
-                        'complexEmitterDefinitionData']
+                src_complexEmitterDefinitionDatas = src_VfxSystemDefinitionData.get_items(
+                    lambda field: field.hash == hash_helper.Storage.bin_hashes['complexEmitterDefinitionData']
                 )
+                if len(dst_complexEmitterDefinitionDatas) > 0 and len(src_complexEmitterDefinitionDatas) > 0:
+                    matching_emitter.append((dst_complexEmitterDefinitionDatas[0], src_complexEmitterDefinitionDatas[0]))
                 # finding simpleEmitterDefinitionData block
-                dst_simpleEmitterDefinitionData = BINHelper.find_item(
-                    items=dst_VfxSystemDefinitionData.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes[
-                        'simpleEmitterDefinitionData']
+                dst_simpleEmitterDefinitionDatas = dst_VfxSystemDefinitionData.get_items(
+                    lambda field: field.hash == hash_helper.Storage.bin_hashes['simpleEmitterDefinitionData']
                 )
-                src_simpleEmitterDefinitionData = BINHelper.find_item(
-                    items=src_VfxSystemDefinitionData.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes[
-                        'simpleEmitterDefinitionData']
+                src_simpleEmitterDefinitionDatas = src_VfxSystemDefinitionData.get_items(
+                    lambda field: field.hash == hash_helper.Storage.bin_hashes['simpleEmitterDefinitionData']
                 )
-                for dst_emitters, src_emitters in [
-                    (dst_complexEmitterDefinitionData,
-                     src_complexEmitterDefinitionData),
-                    (dst_simpleEmitterDefinitionData,
-                     src_simpleEmitterDefinitionData)
-                ]:
-                    if dst_emitters == None or src_emitters == None:
-                        continue
-                    for dst_VfxEmitterDefinitionData in dst_emitters.data:
+                if len(dst_simpleEmitterDefinitionDatas) > 0 and len(src_simpleEmitterDefinitionDatas) > 0:
+                    matching_emitter.append((dst_simpleEmitterDefinitionDatas[0], src_simpleEmitterDefinitionDatas[0]))
+                for dst_emitter, src_emitter in matching_emitter:
+                    matching_vfxdatas = []
+                    for dst_VfxEmitterDefinitionData in dst_emitter.data:
                         # find dst emitterName
-                        dst_emitterName = BINHelper.find_item(
-                            items=dst_VfxEmitterDefinitionData.data,
-                            compare_func=lambda field: field.hash == cached_bin_hashes['emitterName'],
-                            return_func=lambda field: field.data
+                        dst_emitterNames = dst_VfxEmitterDefinitionData.get_items(
+                            lambda field: field.hash == hash_helper.Storage.bin_hashes['emitterName']
                         )
-                        if dst_emitterName != None:
-                            # matching VfxEmitterDefinitionData with emitterName
-                            src_VfxEmitterDefinitionData = BINHelper.find_item(
-                                items=src_emitters.data,
-                                compare_func=lambda emitter: BINHelper.find_item(
-                                    items=emitter.data,
-                                    compare_func=lambda field: field.hash == cached_bin_hashes[
-                                        'emitterName'] and field.data == dst_emitterName
-                                ) != None
-                            )
-                            if src_VfxEmitterDefinitionData != None:
-                                # copy colors from src_VfxEmitterDefinitionData to dst_VfxEmitterDefinitionData:
-                                for dst_field in dst_VfxEmitterDefinitionData.data:
-                                    for field_name in (
-                                        'color',
-                                        'birthColor',
-                                        'reflectionDefinition',
-                                        'lingerColor'
-                                    ):
-                                        if dst_field.hash == cached_bin_hashes[field_name]:
-                                            src_field = BINHelper.find_item(
-                                                items=src_VfxEmitterDefinitionData.data,
-                                                compare_func=lambda field: field.hash == cached_bin_hashes[
-                                                    field_name]
-                                            )
-                                            if src_field != None:
-                                                dst_field.data = src_field.data
-                                                copied_field_count += 1
+                        if len(dst_emitterNames) > 0:
+                            dst_emitterName = dst_emitterNames[0]
+                            for src_VfxEmitterDefinitionData in src_emitter.data:
+                                src_emitterNames = src_VfxEmitterDefinitionData.get_items(
+                                    lambda field: field.hash == hash_helper.Storage.bin_hashes['emitterName']
+                                )
+                                if len(src_emitterNames) > 0:
+                                    src_emitterName = src_emitterNames[0]
+                                    if src_emitterName.data == dst_emitterName.data:
+                                        matching_vfxdatas.append((dst_VfxEmitterDefinitionData, src_VfxEmitterDefinitionData))
+                    for dst_VfxEmitterDefinitionData, src_VfxEmitterDefinitionData in matching_vfxdatas:
+                        # copy colors from src_VfxEmitterDefinitionData to dst_VfxEmitterDefinitionData:
+                        for dst_field in dst_VfxEmitterDefinitionData.data:
+                            for field_name in (
+                                'color',
+                                'birthColor',
+                                'reflectionDefinition',
+                                'lingerColor'
+                            ):
+                                if dst_field.hash == hash_helper.Storage.bin_hashes[field_name]:
+                                    src_fields = src_VfxEmitterDefinitionData.get_items(
+                                        lambda field: field.hash == hash_helper.Storage.bin_hashes[field_name]
+                                    )
+                                    if len(src_fields) > 0:
+                                        src_field = src_fields[0]
+                                        dst_field.data = src_field.data
+                                        copied_field_count += 1
                                                 
-        elif dst_entry.type == cached_bin_hashes['StaticMaterialDef']:
+        elif dst_entry.type == hash_helper.Storage.bin_hashes['StaticMaterialDef']:
             # matching StaticMaterialDef
             dst_StaticMaterialDef = dst_entry
-            src_StaticMaterialDef = BINHelper.find_item(
-                items=src_bin.entries,
-                compare_func=lambda entry: entry.hash == dst_StaticMaterialDef.hash and entry.type == cached_bin_hashes[
-                    'StaticMaterialDef']
+            src_StaticMaterialDefs = src_bin.get_items(
+                lambda entry: entry.hash == dst_StaticMaterialDef.hash and entry.type == hash_helper.Storage.bin_hashes['StaticMaterialDef']
             )
-            if src_StaticMaterialDef != None:
-                # finding name
-                dst_name = BINHelper.find_item(
-                    items=dst_StaticMaterialDef.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes['name'],
-                    return_func=lambda field: field.data
-                )
-                if dst_name == None:
-                    dst_name == dst_StaticMaterialDef.hash
+            if len(src_StaticMaterialDefs) > 0:
+                src_StaticMaterialDef = src_StaticMaterialDefs[0]
                 # finding paramValues
-                dst_paramValues = BINHelper.find_item(
-                    items=dst_StaticMaterialDef.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes['paramValues']
+                dst_paramValuess = dst_StaticMaterialDef.get_items(
+                    lambda field: field.hash == hash_helper.Storage.bin_hashes['paramValues']
                 )
-                src_paramValues = BINHelper.find_item(
-                    items=src_StaticMaterialDef.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes['paramValues']
+                src_paramValuess = src_StaticMaterialDef.get_items(
+                    lambda field: field.hash == hash_helper.Storage.bin_hashes['paramValues']
                 )
-                if dst_paramValues != None and src_paramValues != None:
-                    for color_field_name in ['Color', 'Fresnel_Color']:
-                        # matching StaticMaterialShaderParamDef.Fresnel_Color
-                        dst_StaticMaterialShaderParamDef_color_field = BINHelper.find_item(
-                            items=dst_paramValues.data,
-                            compare_func=lambda param: BINHelper.find_item(
-                                items=param.data,
-                                compare_func=lambda field: field.hash == cached_bin_hashes[
-                                    'name'] and field.data == color_field_name
-                            ) != None
+                if len(dst_paramValuess) > 0 and len(src_paramValuess) > 0:
+                    dst_paramValues = dst_paramValuess[0]
+                    src_paramValues = src_paramValuess[0]
+
+                    matching_paramdefs = []
+                    for dst_StaticMaterialShaderParamDef in dst_paramValues.data:
+                        # find name
+                        dst_names = dst_StaticMaterialShaderParamDef.get_items(
+                            lambda field: field.hash == hash_helper.Storage.bin_hashes['name']
                         )
-                        src_StaticMaterialShaderParamDef_color_field = BINHelper.find_item(
-                            items=src_paramValues.data,
-                            compare_func=lambda param: BINHelper.find_item(
-                                items=param.data,
-                                compare_func=lambda field: field.hash == cached_bin_hashes[
-                                    'name'] and field.data == color_field_name
-                            ) != None
+                        if len(dst_names) > 0:
+                            dst_name = dst_names[0]
+                            for src_StaticMaterialShaderParamDef in src_paramValues.data:
+                                src_names = src_StaticMaterialShaderParamDef.get_items(
+                                    lambda field: field.hash == hash_helper.Storage.bin_hashes['name']
+                                )
+                                if len(src_names) > 0:
+                                    src_name = src_names[0]
+                                    if src_name.data == dst_name.data:
+                                        if src_name in ('Color', 'Fresnel_Color'):
+                                            matching_paramdefs.append((dst_StaticMaterialShaderParamDef, src_StaticMaterialShaderParamDef))
+                    for dst_StaticMaterialShaderParamDef, src_StaticMaterialShaderParamDef in matching_paramdefs:
+                        dst_values = dst_StaticMaterialDef.get_items(
+                            lambda field: field.hash == hash_helper.Storage.bin_hashes['value']
                         )
-                        # copy StaticMaterialShaderParamDef.Fresnel_Color
-                        if dst_StaticMaterialShaderParamDef_color_field != None and src_StaticMaterialShaderParamDef_color_field != None:
-                            dst_StaticMaterialShaderParamDef_color_field.data = src_StaticMaterialShaderParamDef_color_field.data
+                        src_values = src_StaticMaterialDef.get_items(
+                            lambda field: field.hash == hash_helper.Storage.bin_hashes['value']
+                        )
+                        if len(dst_values) > 0 and len(src_values) > 0:
+                            dst_values[0].data = src_values[0].data
                             copied_field_count += 1
                 # finding dynamicMaterial
-                dst_dynamicMaterial = BINHelper.find_item(
-                    items=dst_StaticMaterialDef.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes['dynamicMaterial']
+                dst_dynamicMaterials = dst_StaticMaterialDef.get_items(
+                    lambda field: field.hash == hash_helper.Storage.bin_hashes['dynamicMaterial']
                 )
-                src_dynamicMaterial = BINHelper.find_item(
-                    items=src_StaticMaterialDef.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes['dynamicMaterial']
+                src_dynamicMaterials = src_StaticMaterialDef.get_items(
+                    lambda field: field.hash == hash_helper.Storage.bin_hashes['dynamicMaterial']
                 )
-                if dst_dynamicMaterial != None and src_dynamicMaterial != None:
-                    dst_parameters = BINHelper.find_item(
-                        items=dst_dynamicMaterial.data,
-                        compare_func=lambda field: field.hash == cached_bin_hashes['parameters']
+                if len(dst_dynamicMaterials) > 0 and len(src_dynamicMaterials) > 0:
+                    dst_dynamicMaterial = dst_dynamicMaterials[0]
+                    src_dynamicMaterial = src_dynamicMaterials[0]
+                    dst_parameters = dst_dynamicMaterial.get_items(
+                        lambda field: field.hash == hash_helper.Storage.bin_hashes['parameters']
                     )
-                    if dst_parameters == None:
-                        continue
-                    src_parameters = BINHelper.find_item(
-                        items=src_dynamicMaterial.data,
-                        compare_func=lambda field: field.hash == cached_bin_hashes['parameters']
+                    src_parameters = src_dynamicMaterial.get_items(
+                        lambda field: field.hash == hash_helper.Storage.bin_hashes['parameters']
                     )
-                    if src_parameters == None:
+                    if len(dst_dynamicMaterials) == 0 or len(src_dynamicMaterials) == 0:
                         continue
                     # matching DynamicMaterialParameterDef.Fresnel_Color
-                    dst_DynamicMaterialParameterDef_Fresnel_Color = BINHelper.find_item(
-                        items=dst_parameters.data,
-                        compare_func=lambda param: BINHelper.find_item(
-                            items=param.data,
-                            compare_func=lambda field: field.hash == cached_bin_hashes[
-                                'name'] and field.data == 'Fresnel_Color'
-                        ) != None
-                    )
-                    if dst_DynamicMaterialParameterDef_Fresnel_Color == None:
-                        continue
-                    src_DynamicMaterialParameterDef_Fresnel_Color = BINHelper.find_item(
-                        items=src_parameters.data,
-                        compare_func=lambda param: BINHelper.find_item(
-                            items=param.data,
-                            compare_func=lambda field: field.hash == cached_bin_hashes[
-                                'name'] and field.data == 'Fresnel_Color'
-                        ) != None
-                    )
-                    if src_DynamicMaterialParameterDef_Fresnel_Color == None:
+                    dst_Fresnel_Color = None
+                    for dst_DynamicMaterialParameterDef in dst_parameters[0].data:
+                        dst_Fresnel_Colors = dst_DynamicMaterialParameterDef.get_items(
+                            lambda field: field.hash == hash_helper.Storage.bin_hashes['name'] and field.data == 'Fresnel_Color'
+                        )
+                        if len(dst_Fresnel_Colors) > 0:
+                            dst_Fresnel_Color = dst_Fresnel_Colors[0]
+                    src_Fresnel_Color = None
+                    for src_DynamicMaterialParameterDef in src_parameters[0].data:
+                        src_Fresnel_Colors = src_DynamicMaterialParameterDef.get_items(
+                            lambda field: field.hash == hash_helper.Storage.bin_hashes['name'] and field.data == 'Fresnel_Color'
+                        )
+                        if len(src_Fresnel_Colors) > 0:
+                            src_Fresnel_Color = src_Fresnel_Colors[0]
+                    if dst_Fresnel_Color == None or src_Fresnel_Color == None:
                         continue
                     # matching driver
-                    dst_driver = BINHelper.find_item(
-                        items=dst_DynamicMaterialParameterDef_Fresnel_Color.data,
-                        compare_func=lambda field: field.hash == cached_bin_hashes['driver']
+                    dst_drivers = dst_Fresnel_Color.get_items(
+                        lambda field: field.hash == hash_helper.Storage.bin_hashes['driver']
                     )
-                    if dst_driver == None:
-                        continue
-                    src_driver = BINHelper.find_item(
-                        items=src_DynamicMaterialParameterDef_Fresnel_Color.data,
-                        compare_func=lambda field: field.hash == cached_bin_hashes['driver']
+                    src_drivers = src_Fresnel_Color.get_items(
+                        lambda field: field.hash == hash_helper.Storage.bin_hashes['driver']
                     )
-                    if src_driver == None:
+                    if len(dst_drivers) == 0 or len(src_drivers) == 0:
                         continue
                     # matching mElements
-                    dst_mElements = BINHelper.find_item(
-                        items=dst_driver.data,
-                        compare_func=lambda field: field.hash == cached_bin_hashes['mElements']
+                    dst_mElementss = dst_drivers[0].get_items(
+                        lambda field: field.hash == hash_helper.Storage.bin_hashes['mElements']
                     )
-                    if dst_mElements == None:
-                        continue
-                    src_mElements = BINHelper.find_item(
-                        items=src_driver.data,
-                        compare_func=lambda field: field.hash == cached_bin_hashes['mElements']
+                    src_mElementss = src_drivers[0].get_items(
+                        lambda field: field.hash == hash_helper.Storage.bin_hashes['mElements']
                     )
-                    if src_mElements == None:
+                    if len(dst_mElementss) == 0 or len(src_mElementss) == 0:
                         continue
+                    dst_mElements = dst_mElementss[0]
+                    src_mElements = src_mElementss[0]
                     # matching SwitchMaterialDriverElement by order
                     src_mElements_length = len(src_mElements.data)
                     for id, dst_SwitchMaterialDriverElement in enumerate(dst_mElements.data):
@@ -391,18 +349,16 @@ def copy_vfx_colors(src_bin, dst_bin):
                             continue
                         src_SwitchMaterialDriverElement = src_mElements.data[id]
                         # matching mValue
-                        dst_mValue = BINHelper.find_item(
-                            items=dst_SwitchMaterialDriverElement.data,
-                            compare_func=lambda field: field.hash == cached_bin_hashes['mValue']
+                        dst_mValues = dst_SwitchMaterialDriverElement.get_items(
+                            lambda field: field.hash == hash_helper.Storage.bin_hashes['mValue']
                         )
-                        if dst_mValue == None:
-                            continue
-                        src_mValue = BINHelper.find_item(
-                            items=src_SwitchMaterialDriverElement.data,
-                            compare_func=lambda field: field.hash == cached_bin_hashes['mValue']
+                        src_mValues = src_SwitchMaterialDriverElement.get_items(
+                            lambda field: field.hash == hash_helper.Storage.bin_hashes['mValue']
                         )
-                        if src_mValue == None:
+                        if len(dst_mValues) == 0 or len(src_mValues) == 0:
                             continue
+                        dst_mValue = dst_mValues[0]
+                        src_mValue = src_mValues[0]
                         # copy colors from src_mValue to dst_mValue
                         for dst_field in dst_mValue.data:
                             for field_name in (
@@ -410,14 +366,12 @@ def copy_vfx_colors(src_bin, dst_bin):
                                 'mColorOn',
                                 'mColorOff',
                             ):
-                                if dst_field.hash == cached_bin_hashes[field_name]:
-                                    src_field = BINHelper.find_item(
-                                        items=src_mValue.data,
-                                        compare_func=lambda field: field.hash == cached_bin_hashes[
-                                            field_name]
+                                if dst_field.hash == hash_helper.Storage.bin_hashes[field_name]:
+                                    src_fields = src_mValue.get_items(
+                                        lambda field: field.hash == hash_helper.Storage.bin_hashes[field_name]
                                     )
-                                    if src_field != None:
-                                        dst_field.data = src_field.data
+                                    if len(src_fields) > 0:
+                                        dst_field.data = src_fields[0].data
                                         copied_field_count += 1
     print(f'hapiBin: Finish: Copy {copied_field_count} color fields.')                          
 
@@ -428,28 +382,27 @@ def copy_vfx_colors(src_bin, dst_bin):
     require_dst=True
 )
 def copy_loadscreen_icon(src_bin, dst_bin):
-    dst_SkinCharacterDataProperties =  BINHelper.find_item(
-        items=dst_bin.entries,
-        compare_func=lambda entry: entry.type == cached_bin_hashes['SkinCharacterDataProperties']
-    )
-    src_SkinCharacterDataProperties = BINHelper.find_item(
-        items=src_bin.entries,
-        compare_func=lambda entry: entry.type == cached_bin_hashes['SkinCharacterDataProperties']
-    )
     fields_to_copy = (
-        cached_bin_hashes('loadscreen'), 
-        cached_bin_hashes('iconCircle'), 
-        cached_bin_hashes('iconSquare')
+        hash_helper.Storage.bin_hashes('loadscreen'), 
+        hash_helper.Storage.bin_hashes('iconCircle'), 
+        hash_helper.Storage.bin_hashes('iconSquare')
     )
-    if dst_SkinCharacterDataProperties != None and src_SkinCharacterDataProperties != None:    
+    dst_SkinCharacterDataPropertiess =  dst_bin.get_items(
+        lambda entry: entry.type == hash_helper.Storage.bin_hashes['SkinCharacterDataProperties']
+    )
+    src_SkinCharacterDataPropertiess = src_bin.get_items(
+        lambda entry: entry.type == hash_helper.Storage.bin_hashes['SkinCharacterDataProperties']
+    )
+    if len(dst_SkinCharacterDataPropertiess) > 0 and len(src_SkinCharacterDataPropertiess) > 0:
+        dst_SkinCharacterDataProperties = dst_SkinCharacterDataPropertiess[0]
+        src_SkinCharacterDataProperties = src_SkinCharacterDataPropertiess[0]
         for dst_field in dst_SkinCharacterDataProperties.fields:
             if dst_field.hash in fields_to_copy:
-                src_field = BINHelper.find_item(
-                    items=src_SkinCharacterDataProperties.fields,
-                    compare_func=lambda field: field.hash == dst_field.hash
+                src_fields = src_SkinCharacterDataProperties.get_items(
+                    lambda field: field.hash == dst_field.hash
                 )
-                if src_field != None:
-                    dst_field.data = src_field.data
+                if len(src_fields) > 0:
+                    dst_field.data = src_fields[0].data
     print(f'hapiBin: Finish: Copy loadscreen and icons.')  
 
 
@@ -462,30 +415,28 @@ def copy_loadscreen_icon(src_bin, dst_bin):
 def add_vfx_emitters(src_bin, dst_bin):
     emitters_copied = 0
     for dst_entry in dst_bin.entries:
-        if dst_entry.type == cached_bin_hashes['VfxSystemDefinitionData']:
+        if dst_entry.type == hash_helper.Storage.bin_hashes['VfxSystemDefinitionData']:
             # find VfxSystemDefinitionData entry
             dst_VfxSystemDefinitionData = dst_entry
-            src_VfxSystemDefinitionData = BINHelper.find_item(
-                items=src_bin.entries,
-                compare_func=lambda entry: entry.hash == dst_VfxSystemDefinitionData.hash and entry.type == cached_bin_hashes[
+            src_VfxSystemDefinitionDatas = src_bin.get_items(
+                lambda entry: entry.hash == dst_VfxSystemDefinitionData.hash and entry.type == hash_helper.Storage.bin_hashes[
                     'VfxSystemDefinitionData']
             )
-            if src_VfxSystemDefinitionData != None:
+            if len(src_VfxSystemDefinitionDatas) > 0:
+                src_VfxSystemDefinitionData = src_VfxSystemDefinitionDatas[0]
                 # find complexEmitterDefinitionData block
-                dst_complexEmitterDefinitionData = BINHelper.find_item(
-                    items=dst_VfxSystemDefinitionData.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes[
+                dst_complexEmitterDefinitionDatas = dst_VfxSystemDefinitionData.get_items(
+                    lambda field: field.hash == hash_helper.Storage.bin_hashes[
                         'complexEmitterDefinitionData']
                 )
-                src_complexEmitterDefinitionData = BINHelper.find_item(
-                    items=src_VfxSystemDefinitionData.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes[
+                src_complexEmitterDefinitionDatas = src_VfxSystemDefinitionData.get_items(
+                    lambda field: field.hash == hash_helper.Storage.bin_hashes[
                         'complexEmitterDefinitionData']
                 )
-                if src_complexEmitterDefinitionData != None and dst_complexEmitterDefinitionData != None:
+                if len(src_complexEmitterDefinitionDatas) > 0 and len(dst_complexEmitterDefinitionDatas) > 0:
                     # merge 2 list 
-                    emitters_copied += len(src_complexEmitterDefinitionData.data)
-                    dst_complexEmitterDefinitionData.data += src_complexEmitterDefinitionData.data
+                    dst_complexEmitterDefinitionDatas[0].data += src_complexEmitterDefinitionDatas[0].data
+                    emitters_copied += len(src_complexEmitterDefinitionDatas[0].data)
     print(f'hapiBin: Finish: Copy {emitters_copied} emitters.')   
 
 
@@ -496,17 +447,17 @@ def add_vfx_emitters(src_bin, dst_bin):
 )
 def fix_vfx_shape(src_bin, dst_bin):
     # These ones we dont know the name so hard keep it as a hash instead of trying to generate one u know
-    cached_bin_hashes["NewBirthTranslation"] = "563d4a22"
-    cached_bin_hashes["NewShapeHash"] = "3bf0b4ed"
-    possible_emitters_containers = (cached_bin_hashes["ComplexEmitterDefinitionData"],
-                                    cached_bin_hashes["SimpleEmitterDefinitionData"])
+    hash_helper.Storage.bin_hashes["NewBirthTranslation"] = "563d4a22"
+    hash_helper.Storage.bin_hashes["NewShapeHash"] = "3bf0b4ed"
+    possible_emitters_containers = (hash_helper.Storage.bin_hashes["ComplexEmitterDefinitionData"],
+                                    hash_helper.Storage.bin_hashes["SimpleEmitterDefinitionData"])
     for entry in src_bin.entries:
-        if entry.type == cached_bin_hashes['VfxSystemDefinitionData']:
+        if entry.type == hash_helper.Storage.bin_hashes['VfxSystemDefinitionData']:
             for data in entry.data:
                 if data.hash in possible_emitters_containers:
                     for emitter in data.data:
                         for attribute in emitter.data:
-                            if attribute.hash == cached_bin_hashes["Shape"]:
+                            if attribute.hash == hash_helper.Storage.bin_hashes["Shape"]:
                                 shape = attribute
                                 if not len(shape.data): continue
                                 shit_dict = {}
@@ -517,14 +468,14 @@ def fix_vfx_shape(src_bin, dst_bin):
                                 
                                 for inside_of_shape in shape.data:
                                     # Handle birtTranslatation outside
-                                    if inside_of_shape.hash == cached_bin_hashes["BirthTranslation"]:
+                                    if inside_of_shape.hash == hash_helper.Storage.bin_hashes["BirthTranslation"]:
                                         # To get the constant
                                         for i in range(len(inside_of_shape.data)):
-                                            if inside_of_shape.data[i].hash == cached_bin_hashes["ConstantValue"] and inside_of_shape.data[i].type == BINType.VEC3:
-                                                birth_translation = BINField()
+                                            if inside_of_shape.data[i].hash == hash_helper.Storage.bin_hashes["ConstantValue"] and inside_of_shape.data[i].type == pyRitoFile.bin.BINType.VEC3:
+                                                birth_translation = pyRitoFile.bin.BINField()
                                                 birth_translation.data = [inside_of_shape.data[i]]
-                                                birth_translation.hash = cached_bin_hashes["NewBirthTranslation"]
-                                                birth_translation.type = BINType.EMBED
+                                                birth_translation.hash = hash_helper.Storage.bin_hashes["NewBirthTranslation"]
+                                                birth_translation.type = pyRitoFile.bin.BINType.EMBED
                                                 birth_translation.hash_type = '68dc32b6'
                                                 emitter.data.append(birth_translation)
                                                 inside_of_shape.data = []
@@ -532,75 +483,75 @@ def fix_vfx_shape(src_bin, dst_bin):
                                                 #shape.data.remove(inside_of_shape)  Cancer line
                                         inside_of_shape.data = []
                                     
-                                    if inside_of_shape.hash == cached_bin_hashes["EmitOffset"]:
+                                    if inside_of_shape.hash == hash_helper.Storage.bin_hashes["EmitOffset"]:
                                         for inside_of_emitoffset in inside_of_shape.data:
-                                            if inside_of_emitoffset.hash == cached_bin_hashes["ConstantValue"] and inside_of_emitoffset.type == BINType.VEC3:
+                                            if inside_of_emitoffset.hash == hash_helper.Storage.bin_hashes["ConstantValue"] and inside_of_emitoffset.type == pyRitoFile.bin.BINType.VEC3:
                                                 shit_dict["Radius"] = inside_of_emitoffset.data.x
                                                 shit_dict["Height"] = inside_of_emitoffset.data.y # lmao?
-                                            if inside_of_emitoffset.hash == cached_bin_hashes["Dynamics"]:
+                                            if inside_of_emitoffset.hash == hash_helper.Storage.bin_hashes["Dynamics"]:
                                                 for table_data in inside_of_emitoffset.data:
-                                                    if table_data.hash == cached_bin_hashes["ProbabilityTables"]:
+                                                    if table_data.hash == hash_helper.Storage.bin_hashes["ProbabilityTables"]:
                                                         for shit in table_data.data:
                                                             for smoll_shit in shit.data:
-                                                                if smoll_shit.hash == cached_bin_hashes["KeyValues"]:
+                                                                if smoll_shit.hash == hash_helper.Storage.bin_hashes["KeyValues"]:
                                                                     if smoll_shit.data[0] == 0 and smoll_shit.data[1] >= 1:
                                                                         shit_dict["Flags"] = True
                                                                     elif smoll_shit.data[0] == -1 and smoll_shit.data[1] == 1:
                                                                         shit_dict["KeepItAs0x4f4e2ed7"] = True
 
-                                    if inside_of_shape.hash == cached_bin_hashes["EmitRotationAngles"]:
+                                    if inside_of_shape.hash == hash_helper.Storage.bin_hashes["EmitRotationAngles"]:
                                         for value_float in inside_of_shape.data:
                                             for stuff in value_float.data:
-                                                if stuff.hash == cached_bin_hashes["Dynamics"]:
+                                                if stuff.hash == hash_helper.Storage.bin_hashes["Dynamics"]:
                                                     for table_data in stuff.data:
-                                                        if table_data.hash == cached_bin_hashes["ProbabilityTables"]:
+                                                        if table_data.hash == hash_helper.Storage.bin_hashes["ProbabilityTables"]:
                                                             for shit in table_data.data:
                                                                 for smoll_shit in shit.data:
-                                                                    if smoll_shit.hash == cached_bin_hashes["KeyValues"]:
+                                                                    if smoll_shit.hash == hash_helper.Storage.bin_hashes["KeyValues"]:
                                                                         if smoll_shit.data[0] == 0 and smoll_shit.data[1] > 1:
                                                                             shit_dict["EmitRotationAnglesKeyValues"] = True
                                                 
-                                    if inside_of_shape.hash == cached_bin_hashes["EmitRotationAxes"]:
+                                    if inside_of_shape.hash == hash_helper.Storage.bin_hashes["EmitRotationAxes"]:
                                         if len(inside_of_shape.data) == 2:
                                             # This is just a theory that if EmitRotationAxes: list[vec3] = { { 0, 1, 0 } { 0, 0, 1 } }
                                             # Will create a 3dbe415d
                                             if int(inside_of_shape.data[0].y) == 1 and int(inside_of_shape.data[1].z) == 1:
                                                 shit_dict["EmitRotationAxesShit"] = True
 
-                                    shape.hash = cached_bin_hashes["NewShapeHash"]
-                                    shape.type = BINType.POINTER
+                                    shape.hash = hash_helper.Storage.bin_hashes["NewShapeHash"]
+                                    shape.type = pyRitoFile.bin.BINType.POINTER
                                     if not shit_dict.get("KeepItAs0x4f4e2ed7") and shit_dict["EmitRotationAnglesKeyValues"] and shit_dict["EmitRotationAxesShit"]:
                                         # wow 0x3dbe415d moment
                                         shape.hash_type = '3dbe415d'
                                         shape.data = []
                                         
-                                        radius = BINField()
+                                        radius = pyRitoFile.bin.BINField()
                                         radius.data = float(shit_dict.get("Radius", 0))
-                                        radius.type = BINType.F32
-                                        radius.hash = cached_bin_hashes["Radius"]
+                                        radius.type = pyRitoFile.bin.BINType.F32
+                                        radius.hash = hash_helper.Storage.bin_hashes["Radius"]
                                         shape.data.append(radius)
 
                                         if shit_dict.get("Height"):
-                                            height = BINField()
+                                            height = pyRitoFile.bin.BINField()
                                             height.data = float(shit_dict.get("Height", 0))
-                                            height.type = BINType.F32
-                                            height.hash = cached_bin_hashes["Height"]
+                                            height.type = pyRitoFile.bin.BINType.F32
+                                            height.hash = hash_helper.Storage.bin_hashes["Height"]
                                             shape.data.append(radius)
                                         if shit_dict["Flags"]:
-                                            flags = BINField()
+                                            flags = pyRitoFile.bin.BINField()
                                             flags.data = 1
-                                            flags.type = BINType.U8
-                                            flags.hash = cached_bin_hashes["Flags"]
+                                            flags.type = pyRitoFile.bin.BINType.U8
+                                            flags.hash = hash_helper.Storage.bin_hashes["Flags"]
                                             shape.data.append(flags)
                                         continue
                                     else:
-                                        if len(shape.data) == 1 and shape.data[0].hash == cached_bin_hashes["EmitOffset"] and isinstance(shape.data[0].data[0].data, Vector):
+                                        if len(shape.data) == 1 and shape.data[0].hash == hash_helper.Storage.bin_hashes["EmitOffset"] and isinstance(shape.data[0].data[0].data, pyRitoFile.structs.Vector):
                                             # 0xee39916f moment, transform emitoffset to a vec3
                                             shape.hash_type = 'ee39916f'
                                             constant_value = shape.data[0].data[0]
-                                            emitoffset = BINField()
-                                            emitoffset.type = BINType.VEC3
-                                            emitoffset.hash = cached_bin_hashes["EmitOffset"]
+                                            emitoffset = pyRitoFile.bin.BINField()
+                                            emitoffset.type = pyRitoFile.bin.BINType.VEC3
+                                            emitoffset.hash = hash_helper.Storage.bin_hashes["EmitOffset"]
                                             emitoffset.data = constant_value.data
                                             shape.data = [emitoffset]
                                             continue

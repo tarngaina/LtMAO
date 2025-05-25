@@ -168,6 +168,8 @@ class SKL:
                     influence_count, = bs.read_u32()
                     self.influences = bs.read_u32(influence_count)
 
+            return self
+        
     def write(self, path, raw=None):
         with self.stream(path, 'wb', raw) as bs:
             # file size, magic, version

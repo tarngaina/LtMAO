@@ -7,9 +7,9 @@ def install_plugin(maya_pref_dir):
     maya_env = {}
     # ensure maya.env
     if not os.path.exists(maya_env_file):
-        open(maya_env_file, 'w+').close()
+        open(maya_env_file, 'w+', encoding='utf-8').close()
     # read existed maya.env 
-    with open(maya_env_file, 'r') as f:
+    with open(maya_env_file, 'r', encoding='utf-8') as f:
         for line in f:
             if line.startswith('#') or not line.strip():
                 continue
@@ -33,7 +33,7 @@ def install_plugin(maya_pref_dir):
                 maya_env[key] += ';'
             maya_env[key] += value
     # save maya.env
-    with open(maya_env_file, 'w+') as f:
+    with open(maya_env_file, 'w+', encoding='utf-8') as f:
         for key, value in maya_env.items():
             f.write(f'{key}={value}\n')
     print(f'lemon_maya: Finish: Install plugin: {maya_pref_dir}')

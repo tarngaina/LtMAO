@@ -347,7 +347,8 @@ class BNK:
                     section.data = bs.read(section.size)
                     self.unknown_sections.append(section)
 
-
+            return self
+        
     def write(self, path, wem_datas, raw=None):
         with self.stream(path, 'wb', raw) as bs:
             # write bkhd

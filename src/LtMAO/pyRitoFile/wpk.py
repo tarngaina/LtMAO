@@ -59,6 +59,8 @@ class WPK:
                 wem.offset, wem.size = bs.read_u32(2)
                 wem.id, = bs.read_c_sep_0(bs.read_u32()[0])
                 wem.id = int(wem.id.replace('.wem', ''))
+            
+            return self
 
     def write(self, path, wem_datas, raw=None):
         with self.stream(path, 'wb', raw) as bs:

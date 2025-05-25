@@ -1,6 +1,4 @@
-import os
-import os.path
-import json
+import os, os.path, json
 
 class SETTINGS:
     __settings__ = {}
@@ -25,7 +23,7 @@ class SETTINGS:
     @staticmethod
     def save():
         with open(SETTINGS.local_file, 'w+', encoding='utf-8') as f:
-            json.dump(SETTINGS.__settings__, f, indent=4)
+            json.dump(SETTINGS.__settings__, f, indent=4, ensure_ascii=False)
 
 
 def get(key, default): return SETTINGS.get(key, default)
@@ -40,6 +38,6 @@ def init():
     os.makedirs(SETTINGS.local_dir, exist_ok=True)
     # ensure file
     if not os.path.exists(SETTINGS.local_file):
-        with open(SETTINGS.local_file, 'w+') as f:
+        with open(SETTINGS.local_file, 'w+', encoding='utf-8') as f:
             f.write('{}')
     load()

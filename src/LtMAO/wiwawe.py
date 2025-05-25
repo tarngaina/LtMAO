@@ -1,10 +1,5 @@
 import os, os.path, shutil
-from subprocess import Popen, CREATE_NO_WINDOW, PIPE
 from . import tools
-
-# wwise convert stuffs
-wwise_console_file = './res/wiwawe/WwiseApp/Authoring/x64/Release/bin/WwiseConsole.exe'
-wwise_wproj_file = './res/wiwawe/WwiseLeagueProjects/WWiseLeagueProjects.wproj'
 
 wiwawe_dir = './pref/wiwawe'
 wsources_file = f'{wiwawe_dir}/wiwawe.wsources'
@@ -29,24 +24,11 @@ def generate_wsources(map_sounds):
     for basename in map_sounds:
         lines.append(f'\t<Source Path="{basename}.wav" Conversion="Vorbis Quality High" />\n')
     lines.append('</ExternalSourcesList>')
-    with open(wsources_file, 'w+') as f:
+    with open(wsources_file, 'w+', encoding='utf-8') as f:
         f.writelines(lines)
 
 def convert_inputs():
-    cmds = [
-        wwise_console_file,
-        'convert-external-source',
-        os.path.abspath(wwise_wproj_file),
-        '--source-file',
-        os.path.abspath(wsources_file),
-        '--output',
-        os.path.abspath(ouput_dir)
-    ]
-    p = Popen(
-        cmds, creationflags=CREATE_NO_WINDOW,
-        stdout=PIPE, stderr=PIPE
-    )
-    tools.block_and_stream_process_output(p, 'WwiseConsole: ')
+    tools.WWiseConsole.to_wem(os.path.abspath(wsources_file), os.path.abspath(ouput_dir))
 
 def copy_output_to_wem(map_sounds):
     map_wems = {}

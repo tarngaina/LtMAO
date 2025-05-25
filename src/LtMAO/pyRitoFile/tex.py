@@ -82,6 +82,8 @@ class TEX:
             else:
                 self.data = [bs.read(-1)]
 
+            return self
+        
     def write(self, path, raw=None):
         with self.stream(path, 'wb', raw) as bs:
             # write headers

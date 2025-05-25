@@ -5,6 +5,10 @@
     ],
     "_azirsoldier": "crash some game for no reason",
     "azirsoldier": "all",
+    "_mel": "invisible particles",
+    "mel": "all",
+    "_aniviaiceblock": "some, but not all walls are invisible",
+    "aniviaiceblock": "all",
     "_ekko": "true damage ekko become transparent",
     "ekko": [
         "skin19.bin",

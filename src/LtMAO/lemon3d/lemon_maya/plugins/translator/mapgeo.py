@@ -6,7 +6,6 @@ from maya import cmds
 import random
 from . import helper
 from ..... import pyRitoFile
-from .....pyRitoFile.structs import Vector, Matrix4
 
 class MAPGEOImporter(MPxFileTranslator):
     name = 'League of Legends: MAPGEO'
@@ -38,7 +37,7 @@ class MAPGEOImporter(MPxFileTranslator):
             mapgeo_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
             # read mapgeo
             print(f'MAPGEO Importer: Read {mapgeo_path}')
-            mapgeo = pyRitoFile.read_mapgeo(mapgeo_path)
+            mapgeo = pyRitoFile.mapgeo.MAPGEO().read(mapgeo_path)
             # load mapgeo
             helper.mirrorX(mapgeo=mapgeo)
             MAPGEO.scene_load(mapgeo)
@@ -94,8 +93,8 @@ class MAPGEOExporter(MPxFileTranslator):
             riot_mapgeo = None
             riot_mapgeo_path = helper.get_riot_path(mapgeo_path)
             if riot_mapgeo_path != '':
-                riot_mapgeo = pyRitoFile.read_mapgeo(riot_mapgeo_path)
-            mapgeo = pyRitoFile.MAPGEO()
+                riot_mapgeo = pyRitoFile.mapgeo.MAPGEO().read(riot_mapgeo_path)
+            mapgeo = pyRitoFile.mapgeo.MAPGEO()
             options = {key: value for option in options.split(';') for key, value in (option.split('='), )}
             dump_options = {
                 'selected_group': selected_group,
@@ -105,7 +104,7 @@ class MAPGEOExporter(MPxFileTranslator):
             }
             MAPGEO.scene_dump(mapgeo, dump_options)
             helper.mirrorX(mapgeo=mapgeo)
-            pyRitoFile.write_mapgeo(mapgeo_path, mapgeo, float16=dump_options['float16'], version=dump_options['version'])
+            mapgeo.write(mapgeo_path, float16=dump_options['float16'], version=dump_options['version'])
         
         return helper.try_cmd(lambda: write_cmd(file, options, access))
 
@@ -171,11 +170,11 @@ class MAPGEO:
             poly_indices = MIntArray(index_count)
             for i in range(vertex_count):
                 vertex = model.vertices[i]
-                position = vertex.value[pyRitoFile.MAPGEOVertexElementName.Position]
+                position = vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Position]
                 vertices[i].x = position.x
                 vertices[i].y = position.y
                 vertices[i].z = position.z
-                diffuse_uv = vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord0]
+                diffuse_uv = vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Texcoord0]
                 u_values[i] = diffuse_uv.x
                 v_values[i] = 1.0 - diffuse_uv.y
             for i in range(index_count):
@@ -219,7 +218,7 @@ class MAPGEO:
                 lightmap_v_values = MFloatArray(vertex_count)
                 for i in range(vertex_count):
                     vertex = model.vertices[i]
-                    lightmap_uv = vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord7]
+                    lightmap_uv = vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Texcoord7]
                     lightmap_u_values[i] = lightmap_uv.x * model.baked_light.scale[0] + model.baked_light.offset[0]
                     lightmap_v_values[i] = 1.0-(lightmap_uv.y * model.baked_light.scale[1] + model.baked_light.offset[1])
 
@@ -231,12 +230,12 @@ class MAPGEO:
                 )
 
             # color
-            if pyRitoFile.MAPGEOVertexElementName.PrimaryColor in model.vertices[0].value:
+            if pyRitoFile.mapgeo.MAPGEOVertexElementName.PrimaryColor in model.vertices[0].value:
                 colors = MColorArray(vertex_count, MColor(1.0, 1.0, 1.0, 1.0))
                 vertex_indices = MIntArray(vertex_count)
                 for i in range(vertex_count):
                     vertex_indices[i] = i
-                    color = vertex.value[pyRitoFile.MAPGEOVertexElementName.PrimaryColor]
+                    color = vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.PrimaryColor]
                     colors[i].b = color[0] / 255.0
                     colors[i].g = color[1] / 255.0
                     colors[i].r = color[2] / 255.0
@@ -379,19 +378,19 @@ class MAPGEO:
         while not iteratorMesh.isDone():
             iteratorMesh.getPath(mesh_dagpath)
             mesh = MFnMesh(mesh_dagpath)
-            model = pyRitoFile.MAPGEOModel()
+            model = pyRitoFile.mapgeo.MAPGEOModel()
 
             # name and transform
             transform = MFnTransform(mesh.parent(0))
             model.name = transform.name()
             print(f'MAGPEO Exporter: Dumping {model.name}')
             matrix = transform.transformationMatrix()
-            model.matrix = Matrix4(*[matrix(i, j) for i in range(4) for j in range(4)])
+            model.matrix = pyRitoFile.structs.Matrix4(*[matrix(i, j) for i in range(4) for j in range(4)])
 
             # layer
             model.layer = ''.join(
                 ['1' if model.name in layer_models[7-i] else '0' for i in range(8)])
-            model.layer = pyRitoFile.MAPGEOLayer(int(model.layer, 2))
+            model.layer = pyRitoFile.mapgeo.MAPGEOLayer(int(model.layer, 2))
             # bush
             model.is_bush = True if model.name in bush_models else False
             # bucket hash
@@ -440,7 +439,7 @@ class MAPGEO:
             # ignore other sets
             lightmap_flag = False
             if len(uv_names) > 1:
-                model.baked_light = pyRitoFile.MAPGEOChannel()
+                model.baked_light = pyRitoFile.mapgeo.MAPGEOChannel()
                 if group_name.startswith('lm_'):
                     model.baked_light.path = group_name.replace('lm_', '').replace('__', '/')+'/'+uv_names[1]
                 else:
@@ -501,7 +500,7 @@ class MAPGEO:
                 selections = MSelectionList()
                 selections.add(mesh_dagpath, face_component)
                 MGlobal.selectCommand(selections)
-                raise FunnyError(
+                raise helper.FunnyError(
                     f'MAPGEO Exporter ({mesh.name()}): Mesh contains {bad_faces.length()} invalid triangulation faces, those faces will be selected in scene.\nBonus: If there is nothing selected (or they are invisible) after this error message, consider to delete history, that might fix the problem.')
             if bad_faces2.length() > 0:
                 component = MFnSingleIndexedComponent()
@@ -511,7 +510,7 @@ class MAPGEO:
                 selections = MSelectionList()
                 selections.add(mesh_dagpath, face_component)
                 MGlobal.selectCommand(selections)
-                raise FunnyError(
+                raise helper.FunnyError(
                     f'MAPGEO Exporter ({mesh.name()}): Mesh contains {bad_faces2.length()} faces have no material assigned, those faces will be selected in scene.\nBonus: If there is nothing selected (or they are invisible) after this error message, consider to delete history, that might fix the problem.')
             if bad_faces3.length() > 0:
                 component = MFnSingleIndexedComponent()
@@ -521,7 +520,7 @@ class MAPGEO:
                 selections = MSelectionList()
                 selections.add(mesh_dagpath, face_component)
                 MGlobal.selectCommand(selections)
-                raise FunnyError(
+                raise helper.FunnyError(
                     f'MAPGEO Exporter ({mesh.name()}): Mesh contains {bad_faces3.length()} faces have no UVs assigned, or, those faces UVs are not in first UV set, those faces will be selected in scene.\nBonus: If there is nothing selected (or they are invisible) after this error message, consider to delete history, that might fix the problem.')
 
             # get uv values
@@ -560,22 +559,22 @@ class MAPGEO:
 
                         # position
                         pos = iterator.position(MSpace.kTransform)
-                        position = Vector(pos.x, pos.y, pos.z)
-                        vertex.value[pyRitoFile.MAPGEOVertexElementName.Position] = position
+                        position = pyRitoFile.structs.Vector(pos.x, pos.y, pos.z)
+                        vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Position] = position
 
                         # bush vertex animation 
                         if version > 13 and model.is_bush:
-                            bush_vertex_animation = Vector(
+                            bush_vertex_animation = pyRitoFile.structs.Vector(
                                 random.uniform(-0.005, 0.005) * position.x + position.x,
                                 random.uniform(-0.005, 0.005) * position.y + position.y,
                                 random.uniform(-0.005, 0.005) * position.z + position.z
                             )
-                            vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord5] = bush_vertex_animation
+                            vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Texcoord5] = bush_vertex_animation
 
                         # average of normals of all faces connect to this vertex
                         iterator.getNormals(normals)
                         normal_count = normals.length()
-                        normal = Vector(0.0, 0.0, 0.0)
+                        normal = pyRitoFile.structs.Vector(0.0, 0.0, 0.0)
                         for i in range(normal_count):
                             normal.x += normals[i].x
                             normal.y += normals[i].y
@@ -583,22 +582,22 @@ class MAPGEO:
                         normal.x /= normal_count
                         normal.y /= normal_count
                         normal.z /= normal_count
-                        vertex.value[pyRitoFile.MAPGEOVertexElementName.Normal] = normal
+                        vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Normal] = normal
 
                         # uv
-                        diffuse_uv = Vector(
+                        diffuse_uv = pyRitoFile.structs.Vector(
                             u_values[uv_index],
                             1.0 - v_values[uv_index]
                         )
-                        vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord0] = diffuse_uv
+                        vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Texcoord0] = diffuse_uv
                         if lightmap_flag:
                             if uv_index >= 0 and uv_index < lightmap_uv_count:
                                 if lightmap_u_values[uv_index] != None and lightmap_v_values[uv_index] != None:
-                                    lightmap_uv = Vector(
+                                    lightmap_uv = pyRitoFile.structs.Vector(
                                         lightmap_u_values[uv_index],
                                         1.0 - lightmap_v_values[uv_index]
                                     )
-                                    vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord7] = lightmap_uv
+                                    vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Texcoord7] = lightmap_uv
                                 else:
                                     bad_lightmap_mesh = True
                             else:
@@ -615,7 +614,7 @@ class MAPGEO:
                                 int(color.r * 255.0),
                                 int(color.a * 255.0)
                             )
-                            vertex.value[pyRitoFile.MAPGEOVertexElementName.PrimaryColor] = color
+                            vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.PrimaryColor] = color
 
                         model.vertices.append(vertex)
                 iterator.next()
@@ -630,7 +629,7 @@ class MAPGEO:
             # create MAPGEOModel data
             index_start = 0
             model.indices = []
-            model.submeshes = [pyRitoFile.MAPGEOSubmesh() for i in range(shader_count)]
+            model.submeshes = [pyRitoFile.mapgeo.MAPGEOSubmesh() for i in range(shader_count)]
             for shader_index in range(shader_count):
                 # get shader name
                 ss = MFnDependencyNode(

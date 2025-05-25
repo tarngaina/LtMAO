@@ -1,10 +1,5 @@
-import os
-import os.path
-import json
-import datetime
-from .tools import CSLOL, block_and_stream_process_output, RITOBIN
-from . import setting, Ritoddstex
-from shutil import rmtree, copy
+import os, os.path, json, datetime, shutil
+from . import tools, setting, Ritoddstex
 
 
 class MOD:
@@ -56,11 +51,11 @@ def create_mod_folder(mod):
 def delete_mod(mod):
     if mod in MOD.mods:
        MOD.mods.remove(mod)
-    rmtree(os.path.join(raw_dir, mod.get_path()), ignore_errors=True)
+    shutil.rmtree(os.path.join(raw_dir, mod.get_path()), ignore_errors=True)
 
 def get_info(mod):
     info_file = os.path.join(raw_dir, mod.get_path(), 'META', 'info.json')
-    with open(info_file, 'r') as f:
+    with open(info_file, 'r', encoding='utf-8') as f:
         info = json.load(f)
     image_path = None
     image_file = os.path.join(raw_dir, mod.get_path(), 'META', 'image.png')
@@ -78,11 +73,11 @@ def set_info(mod, info=None, image_path=None):
     )
     if info != None:
         info_file = os.path.join(raw_dir, mod.get_path(), 'META', 'info.json')
-        with open(info_file, 'w+') as f:
-            json.dump(info, f, indent=4)
+        with open(info_file, 'w+', encoding='utf-8') as f:
+            json.dump(info, f, indent=4, ensure_ascii=False)
     if image_path != None:
         image_file = os.path.join(raw_dir, mod.get_path(), 'META', 'image.png')
-        copy(image_path, image_file)
+        shutil.copy(image_path, image_file)
 
 def delete_info_image(mod):
     image_file = os.path.join(raw_dir, mod.get_path(), 'META', 'image.png')
@@ -93,7 +88,7 @@ def load_mods():
     # load through mod file
     try:
         l = []
-        with open(mod_file, 'r') as f:
+        with open(mod_file, 'r', encoding='utf-8') as f:
             l = json.load(f)
         MOD.mods = [MOD(id, path, enable, profile) for id, path, enable, profile in l]
     except Exception as e:
@@ -101,8 +96,8 @@ def load_mods():
         import traceback
         print(traceback.format_exc())
         MOD.mods = []
-        with open(mod_file, 'w+') as f:
-            json.dump({}, f, indent=4)
+        with open(mod_file, 'w+', encoding='utf-8') as f:
+            json.dump({}, f, indent=4, ensure_ascii=False)
         print(f'cslmao: Finish: Reset {mod_file}')
     # load outside mod file
     existed_mod_path = [mod.get_path() for mod in MOD.mods]
@@ -128,25 +123,25 @@ def load_mods():
             
 
 def save_mods():
-    with open(mod_file, 'w+') as f:
-        json.dump([(mod.id, mod.path, mod.enable, mod.profile) for mod in MOD.mods], f, indent=4)
+    with open(mod_file, 'w+', encoding='utf-8') as f:
+        json.dump([(mod.id, mod.path, mod.enable, mod.profile) for mod in MOD.mods], f, indent=4, ensure_ascii=False)
 
 def import_fantome(fantome_path, mod_path):
-    p = CSLOL.import_fantome(
+    p = tools.CSLOL.import_fantome(
         src=fantome_path,
         dst=os.path.abspath(os.path.join(raw_dir, mod_path)),
         game=setting.get('game_folder', '')
     )
-    block_and_stream_process_output(p, 'cslmao: ')
+    tools.block_and_stream_process_output(p, 'cslmao: ')
     return p
 
 def export_fantome(mod_path, fantome_path):
-    p = CSLOL.export_fantome(
+    p = tools.CSLOL.export_fantome(
         src=mod_path,
         dst=fantome_path,
         game=setting.get('game_folder', '')
     )
-    block_and_stream_process_output(p, 'cslmao: ')
+    tools.block_and_stream_process_output(p, 'cslmao: ')
     return p
 
 def make_overlay(profile):
@@ -157,7 +152,7 @@ def make_overlay(profile):
             mod.get_path() for mod in MOD.mods if mod.enable and mod.profile == profile]
     overlay = f'{profile_dir}/{profile}'
     os.makedirs(overlay, exist_ok=True)
-    return CSLOL.make_overlay(
+    return tools.CSLOL.make_overlay(
         src=os.path.abspath(raw_dir),
         overlay=os.path.abspath(overlay),
         game=setting.get('game_folder', ''),
@@ -167,14 +162,14 @@ def make_overlay(profile):
 
 def run_overlay(profile):
     overlay = f'{profile_dir}/{profile}'
-    return CSLOL.run_overlay(
+    return tools.CSLOL.run_overlay(
         overlay=overlay,
         config=config_file,
         game=setting.get('game_folder', '')
     )
 
 def diagnose():
-    return CSLOL.diagnose()
+    return tools.CSLOL.diagnose()
 
 def convert_raw_files_before_run():
     # scan enabled mod paths
@@ -195,7 +190,7 @@ def convert_raw_files_before_run():
     # converts
     if setting.get('cslmao.auto_py2bin', False):
         for py_file, bin_file in py2bin_files:
-            RITOBIN.run(py_file, bin_file)
+            tools.RITOBIN.run(py_file, bin_file)
         print(f'cslmao: Finish: Convert {len(py2bin_files)} files from PY to BIN.')
     if setting.get('cslmao.auto_dds2tex', False):
         for dds_file, tex_file in dds2tex_files:
@@ -206,20 +201,14 @@ def convert_raw_files_before_run():
         print(f'cslmao: Finish: Convert {len(dds2tex_files)} files from DDS to TEX.')
 
 
-
-tk_add_mod = None
-tk_refresh_profile = None
-preparing = False
-
-
 def init():
     # ensure folders and files
     os.makedirs(raw_dir, exist_ok=True)
     os.makedirs(profile_dir, exist_ok=True)
     if not os.path.exists(config_file):
-        open(config_file, 'w+').close()
+        open(config_file, 'w+', encoding='utf-8').close()
     if not os.path.exists(mod_file):
-        with open(mod_file, 'w+') as f:
+        with open(mod_file, 'w+', encoding='utf-8') as f:
             f.write('{}')
     load_mods()
     save_mods()

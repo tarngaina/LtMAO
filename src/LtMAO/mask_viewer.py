@@ -1,45 +1,29 @@
-from .pyRitoFile.helper import FNV1a
-from .pyRitoFile import BINHelper, bin_hash
-from .hash_helper import cached_bin_hashes
-
+from . import hash_helper
 
 def find_mMaskDataMap(bin):
-    animationGraphData = BINHelper.find_item(
-        items=bin.entries,
-        compare_func=lambda entry: entry.type == cached_bin_hashes[
-            'animationGraphData'] or bin_hash(entry.type) == cached_bin_hashes['animationGraphData']
-    )
-    if animationGraphData == None:
-        raise Exception(
-            'animask_viewer: Error: Find mMaskDataMap: Not Animation BIN.')
-    mMaskDataMap = BINHelper.find_item(
-        items=animationGraphData.data,
-        compare_func=lambda field: field.hash == cached_bin_hashes[
-            'mMaskDataMap'] or bin_hash(field.hash) == cached_bin_hashes['mMaskDataMap']
-    )
-    if mMaskDataMap == None:
-        raise Exception(
-            'animask_viewer: Error: Find mMaskDataMap: No mMaskDataMap in this BIN.')
-    return mMaskDataMap
-
+    animationGraphDatas = bin.get_items(lambda entry: entry.type == hash_helper.Storage.bin_hashes['animationGraphData'])
+    for animationGraphData in animationGraphDatas:
+        mMaskDataMaps = animationGraphData.get_items(lambda field: field.hash == hash_helper.Storage.bin_hashes['mMaskDataMap'])
+        if len(mMaskDataMaps) == 0:
+            raise Exception(
+                'animask_viewer: Error: No mMaskDataMap in this BIN.')
+        else:
+            return mMaskDataMaps[0]
+    raise Exception('animask_viewer: Error: Not Animation BIN.')
 
 def get_weights(bin):
     mask_data = {}
     mMaskDataMap = find_mMaskDataMap(bin)
     for mask_name, MaskData in mMaskDataMap.data.items():
-        mask_data[mask_name] = BINHelper.find_item(
-            items=MaskData.data,
-            compare_func=lambda field: field.hash == cached_bin_hashes[
-                'mWeightList'] or bin_hash(field.hash) == cached_bin_hashes['mWeightList'],
-            return_func=lambda field: field.data
-        )
+        mWeightLists = MaskData.get_items(lambda field: field.hash == hash_helper.Storage.bin_hashes['mWeightList'])
+        if len(mWeightLists) > 0:
+            mask_data[mask_name] = mWeightLists[0].data
     return mask_data
 
 
 def set_weights(bin, mask_data):
     mMaskDataMap = find_mMaskDataMap(bin)
     for mask_name, MaskData in mMaskDataMap.data.items():
-        for field in MaskData.data:
-            if field.hash == cached_bin_hashes['mWeightList'] or bin_hash(field.hash) == cached_bin_hashes['mWeightList']:
-                field.data = mask_data[mask_name]
-                break
+        mWeightLists = MaskData.get_items(lambda field: field.hash == hash_helper.Storage.bin_hashes['mWeightList'])
+        if len(mWeightLists) > 0:
+            mWeightLists[0].data = mask_data[mask_name]

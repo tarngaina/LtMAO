@@ -1,14 +1,10 @@
-import os
-import os.path
-import traceback
+import os, os.path, traceback, json
 from . import hash_helper, pyRitoFile
-from .hash_helper import cached_bin_hashes
-import json
 
 def parse_bin(bin, *, existing_files=[]):
-    bin_hash = pyRitoFile.bin_hash
+    bin_hash = pyRitoFile.bin.BINHasher.raw_to_hex
     temp_hashes = [
-        cached_bin_hashes[text] for text in (
+        hash_helper.Storage.bin_hashes[text] for text in (
             'SkinCharacterDataProperties', 'StaticMaterialDef', 'GearSkinUpgrade', 'VfxSystemDefinitionData'
         )
     ]
@@ -18,30 +14,30 @@ def parse_bin(bin, *, existing_files=[]):
         missing_files = []
 
         def parse_value(value, value_type):
-            if value_type == pyRitoFile.BINType.STRING:
+            if value_type == pyRitoFile.bin.BINType.STRING:
                 value = value.lower()
                 if 'assets/' in value or 'data/' in value:
                     if value not in mentioned_files:
                         mentioned_files.append(value)
-            elif value_type in (pyRitoFile.BINType.LIST, pyRitoFile.BINType.LIST2):
+            elif value_type in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
                 for v in value.data:
                     parse_value(v, value_type)
-            elif value_type in (pyRitoFile.BINType.EMBED, pyRitoFile.BINType.POINTER):
+            elif value_type in (pyRitoFile.bin.BINType.EMBED, pyRitoFile.bin.BINType.POINTER):
                 for f in value.data:
                     parse_field(f)
 
         def parse_field(field):
-            if field.type in (pyRitoFile.BINType.LIST, pyRitoFile.BINType.LIST2):
+            if field.type in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
                 for v in field.data:
                     parse_value(v, field.value_type)
-            elif field.type in (pyRitoFile.BINType.EMBED, pyRitoFile.BINType.POINTER):
+            elif field.type in (pyRitoFile.bin.BINType.EMBED, pyRitoFile.bin.BINType.POINTER):
                 for f in field.data:
                     parse_field(f)
-            elif field.type == pyRitoFile.BINType.MAP:
+            elif field.type == pyRitoFile.bin.BINType.MAP:
                 for key, value in field.data.items():
                     parse_value(key, field.key_type)
                     parse_value(value, field.value_type)
-            elif field.type == pyRitoFile.BINType.OPTION and field.value_type == pyRitoFile.BINType.STRING:
+            elif field.type == pyRitoFile.bin.BINType.OPTION and field.value_type == pyRitoFile.bin.BINType.STRING:
                 parse_value(field.data, field.value_type)
             else:
                 parse_value(field.data, field.type)
@@ -80,12 +76,12 @@ def parse_dir(path):
         '\\', '/') for file_path in full_files]
     # parsing
     print(f'pyntex: Start:  Read bin hashes')
-    hash_helper.read_bin_hashes()
+    hash_helper.Storage.read_bin_hashes()
     for i, full_file in enumerate(full_files):
         if full_file.endswith('.bin'):
             try:
-                bin = pyRitoFile.read_bin(full_file)
-                bin.un_hash(hash_helper.HASHTABLES)
+                bin = pyRitoFile.bin.BIN().read(full_file)
+                bin.un_hash(hash_helper.Storage.hashtables)
                 result = parse_bin(bin, existing_files=existing_files)
                 if len(result) > 0:
                     res[existing_files[i]] = result
@@ -93,11 +89,11 @@ def parse_dir(path):
             except Exception as e:
                 print(f'pyntex: Error: Parse {full_file}: {e}')
                 print(traceback.format_exc())
-    hash_helper.free_bin_hashes()
+    hash_helper.Storage.free_bin_hashes()
     # write json out
     json_file = path + '.pyntex.json'
-    with open(json_file, 'w+') as f:
-        json.dump(res, f, indent=4)
+    with open(json_file, 'w+', encoding='utf-8') as f:
+        json.dump(res, f, indent=4, ensure_ascii=False)
     print(f'pyntex: Finish: Write {json_file}')
 
 
@@ -105,29 +101,29 @@ def parse_wad(path):
     res = {}
     # read wad
     print(f'pyntex: Start:  Read wad hashes')
-    hash_helper.read_wad_hashes()
-    wad = pyRitoFile.read_wad(path)
-    wad.un_hash(hash_helper.HASHTABLES)
-    hash_helper.free_wad_hashes()
+    hash_helper.Storage.read_wad_hashes()
+    wad = pyRitoFile.wad.WAD().read(path)
+    wad.un_hash(hash_helper.Storage.hashtables)
+    hash_helper.Storage.free_wad_hashes()
     # rehash the data/ bins
     for chunk in wad.chunks:
         if chunk.extension == 'bin':
             if os.path.dirname(chunk.hash) == 'data':
-                chunk.hash = pyRitoFile.wad_hash(chunk.hash) + '.bin'
+                chunk.hash = pyRitoFile.wad.WADHasher.raw_to_hex(chunk.hash) + '.bin'
     # list all chunk hashes
     chunk_hashes = []
     for chunk in wad.chunks:
         chunk_hashes.append(chunk.hash)
     # parsing
     print(f'pyntex: Start:  Read bin hashes')
-    hash_helper.read_bin_hashes()
+    hash_helper.Storage.read_bin_hashes()
     with wad.stream(path, 'rb') as bs:
         for chunk in wad.chunks:
             chunk.read_data(bs)
             if chunk.extension == 'bin':
                 try:
-                    bin = pyRitoFile.read_bin('', raw=chunk.data)
-                    bin.un_hash(hash_helper.HASHTABLES)
+                    bin = pyRitoFile.bin.BIN().read('', raw=chunk.data)
+                    bin.un_hash(hash_helper.Storage.hashtables)
                     result = parse_bin(bin, existing_files=chunk_hashes)
                     if len(result) > 0:
                         res[chunk.hash] = result
@@ -136,11 +132,11 @@ def parse_wad(path):
                     print(f'pyntex: Error: Parse {chunk.hash}: {e}')
                     print(traceback.format_exc())
             chunk.free_data()
-    hash_helper.free_bin_hashes()
+    hash_helper.Storage.free_bin_hashes()
     # write json out
     json_file = path + '.pyntex.json'
-    with open(json_file, 'w+') as f:
-        json.dump(res, f, indent=4)
+    with open(json_file, 'w+', encoding='utf-8') as f:
+        json.dump(res, f, indent=4, ensure_ascii=False)
     print(f'pyntex: Finish: Write {json_file}')
 
 

@@ -1,53 +1,69 @@
 from . import pyRitoFile
+import json
 
-def to_json(path, hashtables=None):
-    json = {}
+class PRFEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if hasattr(obj, '__json__'):
+            return obj.__json__()
+        elif isinstance(obj, bytes):
+            return str(obj.hex(' ').upper())
+        else:
+            return json.JSONEncoder.default(self, obj)
+
+def write_json(path, obj):
+    for good_type in (
+        pyRitoFile.skl.SKL, 
+        pyRitoFile.skn.SKN, 
+        pyRitoFile.so.SO, 
+        pyRitoFile.anm.ANM,
+        pyRitoFile.mapgeo.MAPGEO, 
+        pyRitoFile.bin.BIN, 
+        pyRitoFile.bnk.BNK, 
+        pyRitoFile.wpk.WPK, 
+        pyRitoFile.tex.TEX, 
+        pyRitoFile.wad.WAD
+    ):
+        if isinstance(obj, good_type):
+            with open(path, 'w+', encoding='utf-8') as f:
+                json.dump(obj, f, indent=4, ensure_ascii=False, cls=PRFEncoder)
+
+def inspect(path, hashtables=None):
     with open(path, 'rb') as f:
         data = f.read(20)
-    file_type = pyRitoFile.guess_extension(data)
+    file_type = pyRitoFile.wad.WADExtensioner.guess_extension(data)
     if file_type == 'skl':
-        obj = pyRitoFile.read_skl(path)
+        obj = pyRitoFile.skl.SKL().read(path)
         print(f'file_inspector: Finish: Read SKL: {path}')
-        json = pyRitoFile.to_json(obj)
     elif file_type == 'skn':
-        obj = pyRitoFile.read_skn(path)
+        obj = pyRitoFile.skn.SKN().read(path)
         print(f'file_inspector: Finish: Read SKN: {path}')
-        json = pyRitoFile.to_json(obj)
     elif file_type == 'sco':
-        obj = pyRitoFile.read_sco(path)
+        obj = pyRitoFile.so.SO().read_sco(path)
         print(f'file_inspector: Finish: Read SCO: {path}')
-        json = pyRitoFile.to_json(obj)
     elif file_type == 'scb':
-        obj = pyRitoFile.read_scb(path)
+        obj = pyRitoFile.so.SO().read_scb(path)
         print(f'file_inspector: Finish: Read SCB: {path}')
-        json = pyRitoFile.to_json(obj)
     elif file_type == 'anm':
-        obj = pyRitoFile.read_anm(path)
+        obj = pyRitoFile.anm.ANM().read(path)
         print(f'file_inspector: Finish: Read ANM: {path}')
-        json = pyRitoFile.to_json(obj)
     elif file_type == 'mapgeo':
-        obj = pyRitoFile.read_mapgeo(path)
+        obj = pyRitoFile.mapgeo.MAPGEO().read(path)
         print( f'file_inspector: Finish: Read MAPGEO: {path}')
-        json = pyRitoFile.to_json(obj)
     elif file_type == 'bin':
-        obj = pyRitoFile.read_bin(path)
+        obj = pyRitoFile.bin.BIN().read(path)
         obj.un_hash(hashtables)
         print(f'file_inspector: Finish: Read BIN: {path}')
-        json = pyRitoFile.to_json(obj)
     elif file_type == 'bnk':
-        obj = pyRitoFile.read_bnk(path)
+        obj = pyRitoFile.bnk.BNK().read(path)
         print(f'file_inspector: Finish: Read BNK: {path}')
-        json = pyRitoFile.to_json(obj)
     elif file_type == 'wpk':
-        obj = pyRitoFile.read_wpk(path)
+        obj = pyRitoFile.wpk.WPK().read(path)
         print(f'file_inspector: Finish: Read WPK: {path}')
-        json = pyRitoFile.to_json(obj)
     elif file_type == 'tex':
-        obj = pyRitoFile.read_tex(path)
+        obj = pyRitoFile.tex.TEX().read(path)
         print(f'file_inspector: Finish: Read TEX: {path}')
-        json = pyRitoFile.to_json(obj)
     elif file_type == 'wad':
-        obj = pyRitoFile.read_wad(path)
+        obj = pyRitoFile.wad.WAD().read(path)
         obj.un_hash(hashtables)
         # read chunk data to guess extension (incase poor unhash)
         with obj.stream(path, 'rb') as bs:
@@ -55,8 +71,8 @@ def to_json(path, hashtables=None):
                 chunk.read_data(bs)
                 chunk.free_data()
         print(f'file_inspector: Finish: Read WAD: {path}')
-        json = pyRitoFile.to_json(obj)
     else:
-        raise Exception(
-            f'file_inspector: Error: Read: {path}: Unknown file type')
-    return json
+        raise Exception(f'file_inspector: Error: Read: {path}: Unknown file type')
+    json_file = path + '.json'
+    write_json(json_file, obj)
+    print(f'file_inspector: Finish: Write Json: {json_file}')

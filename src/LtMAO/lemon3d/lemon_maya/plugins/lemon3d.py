@@ -27,7 +27,7 @@ def ensure_pythonpaths():
     AUTHOR = 'tarngaina'
     version_file = ltmao_dir+'/version'
     try: 
-        with open(version_file, 'r') as f:
+        with open(version_file, 'r', encoding='utf-8') as f:
             VERSION = f.read()
     except:
         VERSION = 'Unknown'

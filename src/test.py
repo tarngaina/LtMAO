@@ -1,7 +1,5 @@
 from LtMAO import ritobin, hash_helper, pyRitoFile
-"""
-hash_helper.read_bin_hashes()
-ritobin.bin_to_text('D:/test/skin0.bin', hashtables=hash_helper.HASHTABLES)
-hash_helper.free_bin_hashes()
-"""
-a = pyRitoFile.read_mapgeo('D:/test/bloom.mapgeo')
+
+hash_helper.Storage.read_bin_hashes()
+ritobin.bin_to_text('D:/test/bloom.materials.bin', hashtables=hash_helper.Storage.hashtables)
+hash_helper.Storage.free_bin_hashes()

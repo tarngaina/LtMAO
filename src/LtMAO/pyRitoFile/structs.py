@@ -19,11 +19,11 @@ class Vector:
             yield self.w
 
     def __str__(self):
-        s = f'{self.x:.4f} {self.y:.4f}'
+        s = f'{self.x:.4g} {self.y:.4g}'
         if self.z != None:
-            s += f' {self.z:.4f}'
+            s += f' {self.z:.4g}'
         if self.w != None:
-            s += f' {self.w:.4f}'
+            s += f' {self.w:.4g}'
         return s
 
     def __json__(self):
@@ -61,7 +61,7 @@ class Quaternion:
         return self
 
     def __str__(self):
-        return f'{self.x:.4f} {self.y:.4f} {self.z:.4f} {self.w:.4f}'
+        return f'{self.x:.4g} {self.y:.4g} {self.z:.4g} {self.w:.4g}'
 
     def __json__(self):
         return [v for v in self]
@@ -136,10 +136,10 @@ class Matrix4:
 
     def __str__(self):
         return (
-            f'{self.a:.4f} {self.b:.4f} {self.c:.4f} {self.d:.4f}\n'
-            f'{self.e:.4f} {self.f:.4f} {self.g:.4f} {self.h:.4f}\n'
-            f'{self.i:.4f} {self.j:.4f} {self.k:.4f} {self.l:.4f}\n'
-            f'{self.m:.4f} {self.n:.4f} {self.o:.4f} {self.p:.4f}'
+            f'{self.a:.4g} {self.b:.4g} {self.c:.4g} {self.d:.4g}\n'
+            f'{self.e:.4g} {self.f:.4g} {self.g:.4g} {self.h:.4g}\n'
+            f'{self.i:.4g} {self.j:.4g} {self.k:.4g} {self.l:.4g}\n'
+            f'{self.m:.4g} {self.n:.4g} {self.o:.4g} {self.p:.4g}'
         )
 
     def __json__(self):

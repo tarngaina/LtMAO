@@ -1,6 +1,4 @@
-import os
-import os.path
-from subprocess import Popen, CREATE_NO_WINDOW, PIPE, STDOUT
+import os, os.path, subprocess
 
 def block_and_stream_process_output(process, log_message_header=''):
     for line in process.stdout:
@@ -22,9 +20,9 @@ class CSLOL:
             cmds.append('--game:' + game)
         if noTFT:
             cmds.append('--noTFT')
-        p = Popen(
-            cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+        p = subprocess.Popen(
+            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         return p
 
@@ -36,9 +34,9 @@ class CSLOL:
             cmds.append('--game:' + game)
         if noTFT:
             cmds.append('--noTFT')
-        p = Popen(
-            cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+        p = subprocess.Popen(
+            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         return p
 
@@ -54,9 +52,9 @@ class CSLOL:
             cmds.append('--noTFT')
         if ignore_conflict:
             cmds.append('--ignoreConflict')
-        p = Popen(
-            cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+        p = subprocess.Popen(
+            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         return p
 
@@ -66,9 +64,9 @@ class CSLOL:
         cmds = [local_file, 'runoverlay', overlay, config]
         if game:
             cmds.append(game)
-        p = Popen(
-            cmds, creationflags=CREATE_NO_WINDOW,
-            stdin=PIPE, stdout=PIPE, stderr=STDOUT
+        p = subprocess.Popen(
+            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         return p
     
@@ -77,9 +75,9 @@ class CSLOL:
     def diagnose():
         diag_file = os.path.abspath(CSLOL.diag_file)
         cmds = [diag_file]
-        p = Popen(
-            cmds, creationflags=CREATE_NO_WINDOW,
-            stdin=PIPE, stdout=PIPE, stderr=STDOUT
+        p = subprocess.Popen(
+            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         block_and_stream_process_output(p, 'cslol-diag: ')
         return p
@@ -101,9 +99,9 @@ class RITOBIN:
                 cmds.extend(('--input-format', 'bin', '--output-format', 'text'))
             else:
                 cmds.extend(('--input-format', 'text', '--output-format', 'bin'))
-        p = Popen(
-            cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+        p = subprocess.Popen(
+            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         block_and_stream_process_output(p, 'ritobin: ')
         return p
@@ -119,9 +117,9 @@ class ImageMagick:
             src,
             png
         ]
-        p = Popen(
-            cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+        p = subprocess.Popen(
+            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         block_and_stream_process_output(p, 'ImageMagick: ')
         return p
@@ -139,9 +137,9 @@ class ImageMagick:
             f'dds:mipmaps={10 if mipmap else 0}',
             dds
         ]
-        p = Popen(
-            cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+        p = subprocess.Popen(
+            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         block_and_stream_process_output(p, 'ImageMagick: ')
         return p
@@ -155,9 +153,9 @@ class ImageMagick:
             f'{width}x{height}',
             dst
         ]
-        p = Popen(
-            cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+        p = subprocess.Popen(
+            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         block_and_stream_process_output(p, 'ImageMagick: ')
         return p
@@ -174,9 +172,31 @@ class VGMStream:
             src.replace('.wem', '.wav'),
             src,
         ]
-        p = Popen(
-            cmds, creationflags=CREATE_NO_WINDOW,
-            stdout=PIPE, stderr=STDOUT
+        p = subprocess.Popen(
+            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         p.wait()
         return p
+    
+
+class WWiseConsole:
+    local_file = './res/wiwawe/WwiseApp/Authoring/x64/Release/bin/WwiseConsole.exe'
+    wproj_file = './res/wiwawe/WwiseLeagueProjects/WWiseLeagueProjects.wproj'
+
+    @staticmethod
+    def to_wem(wsources_file, output_dir):
+        cmds = [
+            WWiseConsole.local_file,
+            'convert-external-source',
+            os.path.abspath(WWiseConsole.wproj_file),
+            '--source-file',
+            os.path.abspath(wsources_file),
+            '--output',
+            os.path.abspath(output_dir)
+        ]
+        p = subprocess.Popen(
+            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        block_and_stream_process_output(p, 'WwiseConsole: ')

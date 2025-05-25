@@ -10,80 +10,82 @@ try:
 except:
     print('Warning: pyRitoFile.wad failed to import pyzstd, xxhash.')
 
-signature_to_extension = {
-    b'OggS': 'ogg',
-    bytes.fromhex('00010000'): 'ttf',
-    bytes.fromhex('1a45dfa3'): 'webm',
-    b'true': 'ttf',
-    b'OTTO\0': 'otf',
-    b'"use strict";': 'min.js',
-    b'<template ': 'template.html',
-    b'<!-- Elements -->': 'template.html',
-    b'DDS ': 'dds',
-    b'<svg': 'svg',
-    b'PROP': 'bin',
-    b'PTCH': 'bin',
-    b'BKHD': 'bnk',
-    b'r3d2Mesh': 'scb',
-    b'r3d2anmd': 'anm',
-    b'r3d2canm': 'anm',
-    b'r3d2sklt': 'skl',
-    b'r3d2': 'wpk',
-    bytes.fromhex('33221100'): 'skn',
-    b'PreLoadBuildingBlocks = {': 'preload',
-    b'\x1bLuaQ\x00\x01\x04\x04': 'luabin',
-    b'\x1bLuaQ\x00\x01\x04\x08': 'luabin64',
-    bytes.fromhex('023d0028'): 'troybin',
-    b'[ObjectBegin]': 'sco',
-    b'OEGM': 'mapgeo',
-    b'TEX\0': 'tex',
-    b'RW': 'wad'
-}
+class WADExtensioner:
+    signature_to_extension = {
+        b'OggS': 'ogg',
+        bytes.fromhex('00010000'): 'ttf',
+        bytes.fromhex('1a45dfa3'): 'webm',
+        b'true': 'ttf',
+        b'OTTO\0': 'otf',
+        b'"use strict";': 'min.js',
+        b'<template ': 'template.html',
+        b'<!-- Elements -->': 'template.html',
+        b'DDS ': 'dds',
+        b'<svg': 'svg',
+        b'PROP': 'bin',
+        b'PTCH': 'bin',
+        b'BKHD': 'bnk',
+        b'r3d2Mesh': 'scb',
+        b'r3d2anmd': 'anm',
+        b'r3d2canm': 'anm',
+        b'r3d2sklt': 'skl',
+        b'r3d2': 'wpk',
+        bytes.fromhex('33221100'): 'skn',
+        b'PreLoadBuildingBlocks = {': 'preload',
+        b'\x1bLuaQ\x00\x01\x04\x04': 'luabin',
+        b'\x1bLuaQ\x00\x01\x04\x08': 'luabin64',
+        bytes.fromhex('023d0028'): 'troybin',
+        b'[ObjectBegin]': 'sco',
+        b'OEGM': 'mapgeo',
+        b'TEX\0': 'tex',
+        b'RW': 'wad'
+    }
 
+    @staticmethod
+    def guess_extension(data):
+        if data[4:8] == bytes.fromhex('c34ffd22'):
+            return 'skl'
+        else:
+            for signature, extension in WADExtensioner.signature_to_extension.items():
+                if data.startswith(signature):
+                    return extension
 
-def guess_extension(data):
-    if data[4:8] == bytes.fromhex('c34ffd22'):
-        return 'skl'
-    else:
-        for signature, extension in signature_to_extension.items():
-            if data.startswith(signature):
+    @staticmethod
+    def get_extension(path):
+        if path.endswith('.wad.client'):
+            return 'wad'
+        for _, extension in WADExtensioner.signature_to_extension.items():
+            if path.endswith(extension):
                 return extension
+            
 
+class WADHasher:
+    HASHTABLE_NAMES = (
+        'hashes.game.txt',
+        'hashes.lcu.txt',
+    )
+    @staticmethod
+    def hex_to_raw(hashtables, hash):
+        for table_name in reversed(WADHasher.HASHTABLE_NAMES):
+            if table_name in hashtables and hash in hashtables[table_name]:
+                return hashtables[table_name][hash]
+        return hash
+    
+    @staticmethod
+    def raw_to_hex(raw):
+        return xxh64(raw.lower()).hexdigest()
 
-def parse_extension(path):
-    if path.endswith('.wad.client'):
-        return 'wad'
-    for _, extension in signature_to_extension.items():
-        if path.endswith(extension):
-            return extension
+    @staticmethod
+    def hash_to_hex(hash):
+        return f'{hash:08x}'
 
-
-def hash_to_hex(hash):
-    return f'{hash:016x}'
-
-
-def hex_to_hash(hex):
-    return int(hex, 16)
-
-
-def name_to_hash(name):
-    return xxh64(name.lower()).intdigest()
-
-
-def hex_to_name(hashtables, table_name, hash):
-    return hashtables.get(table_name, {}).get(hash, hash)
-
-
-def name_to_hex(name):
-    return xxh64(name.lower()).hexdigest()
-
-
-def name_or_hex_to_hash(value):
-    try:
-        return hex_to_hash(value)
-    except:
-        return name_to_hash(value)
-
+    @staticmethod
+    def raw_or_hex_to_hash(raw_or_hex):
+        try:
+            return int(raw_or_hex, 16)
+        except:
+            return xxh64(raw_or_hex.lower()).intdigest()
+        
 
 class WADCompressionType(Enum):
     Raw = 0
@@ -159,7 +161,7 @@ class WADChunk:
                 self.data = raw
         # guess extension
         if self.extension == None:
-            self.extension = guess_extension(self.data)
+            self.extension = WADExtensioner.guess_extension(self.data)
 
     def write_data(self, bs, chunk_id, chunk_hash, chunk_data, *, previous_chunks=None):
         self.hash = chunk_hash
@@ -202,7 +204,7 @@ class WADChunk:
         self.id = chunk_id
         chunk_offset = 272 + chunk_id * 32
         bs.seek(chunk_offset)
-        bs.write_u64(name_or_hex_to_hash(chunk_hash))
+        bs.write_u64(WADHasher.raw_or_hex_to_hash(chunk_hash))
         bs.write_u32(
             self.offset,
             self.compressed_size,
@@ -261,7 +263,7 @@ class WAD:
             self.chunks = [WADChunk() for i in range(chunk_count)]
             for chunk_id, chunk in enumerate(self.chunks):
                 chunk.id = chunk_id
-                chunk.hash = hash_to_hex(bs.read_u64()[0])
+                chunk.hash = WADHasher.hash_to_hex(bs.read_u64()[0])
                 chunk.offset, chunk.compressed_size, chunk.decompressed_size, = bs.read_u32(
                     3)
                 chunk.compression_type = WADCompressionType(
@@ -270,6 +272,8 @@ class WAD:
                 chunk.subchunk_start, = bs.read_u16()
                 chunk.subchunk_count = chunk.compression_type.value >> 4
                 chunk.checksum = bs.read_u64()[0] if major >= 2 else 0
+            
+            return self
 
     def write(self, path, raw=None):
         with self.stream(path, 'wb', raw) as bs:
@@ -281,7 +285,7 @@ class WAD:
             bs.write_u32(len(self.chunks))
             # write chunks
             for chunk in self.chunks:
-                bs.write_u64(name_or_hex_to_hash(chunk.hash))
+                bs.write_u64(WADHasher.raw_or_hex_to_hash(chunk.hash))
                 bs.write_u32(
                     chunk.offset,
                     chunk.compressed_size,
@@ -297,7 +301,7 @@ class WAD:
         if hashtables == None:
             return
         for chunk in self.chunks:
-            chunk.hash = hex_to_name(hashtables, 'hashes.game.txt', chunk.hash)
+            chunk.hash = WADHasher.hex_to_raw(hashtables, chunk.hash)
             if '.' in chunk.hash and chunk.extension == None:
-                chunk.extension = parse_extension(chunk.hash)
+                chunk.extension = WADExtensioner.get_extension(chunk.hash)
         self.chunks = sorted(self.chunks, key=lambda chunk: chunk.hash)

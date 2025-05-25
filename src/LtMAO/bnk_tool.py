@@ -1,12 +1,8 @@
-from .pyRitoFile import BNKObjectType, BINHelper, read_bnk, read_wpk, read_bin, write_bnk, write_wpk, BNK, BNKWem, BNKSectionData, WPK, WPKWem
-from .pyRitoFile.helper import FNV1
-from .hash_helper import cached_bin_hashes
-from . import tools
+from . import tools, pyRitoFile, hash_helper
 
 import os, os.path, time, io, json
 from natsort import os_sorted
 from shutil import rmtree
-from threading import Thread
 import pyaudio, wave, audioop
 
 
@@ -62,15 +58,15 @@ class BankHelper:
         map_bnk_objects = {}
         # yes only map wat we want to easy debug, its hell
         bnk_obj_types_need_to_be_mapped = [
-            BNKObjectType.Sound,
-            BNKObjectType.Event,
-            BNKObjectType.Action,
-            BNKObjectType.RandomOrSequenceContainer,
-            BNKObjectType.SwitchContainer,
-            BNKObjectType.MusicSegment,
-            BNKObjectType.MusicTrack,
-            BNKObjectType.MusicPlaylistContainer,
-            BNKObjectType.MusicSwitchContainer
+            pyRitoFile.bnk.BNKObjectType.Sound,
+            pyRitoFile.bnk.BNKObjectType.Event,
+            pyRitoFile.bnk.BNKObjectType.Action,
+            pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer,
+            pyRitoFile.bnk.BNKObjectType.SwitchContainer,
+            pyRitoFile.bnk.BNKObjectType.MusicSegment,
+            pyRitoFile.bnk.BNKObjectType.MusicTrack,
+            pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer,
+            pyRitoFile.bnk.BNKObjectType.MusicSwitchContainer
         ]
         for object_type in bnk_obj_types_need_to_be_mapped:
             map_bnk_objects[object_type] = {}
@@ -84,78 +80,37 @@ class BankHelper:
     def parse_bin(bin):
         map_event_namnes = {}
         # parse skin bin
-        SkinCharacterDataProperties = BINHelper.find_item(
-            items=bin.entries,
-            compare_func=lambda entry: entry.type == cached_bin_hashes['SkinCharacterDataProperties']
-        )
-        if SkinCharacterDataProperties != None:
-            skinAudioProperties = BINHelper.find_item(
-                items=SkinCharacterDataProperties.data,
-                compare_func=lambda field: field.hash == cached_bin_hashes['skinAudioProperties']
-            )
-            if skinAudioProperties != None:
-                bankUnits = BINHelper.find_item(
-                    items=skinAudioProperties.data,
-                    compare_func=lambda field: field.hash == cached_bin_hashes['bankUnits']
-                )
-                if bankUnits != None and len(bankUnits.data) > 0:
+        SkinCharacterDataPropertiess = bin.get_items(lambda entry: entry.type == hash_helper.Storage.bin_hashes['SkinCharacterDataProperties'])
+        for SkinCharacterDataProperties in SkinCharacterDataPropertiess:
+            skinAudioPropertiess = SkinCharacterDataProperties.get_items(lambda field: field.hash == hash_helper.Storage.bin_hashes['skinAudioProperties'])
+            for skinAudioProperties in skinAudioPropertiess:
+                bankUnitss = skinAudioProperties.get_items(lambda field: field.hash == hash_helper.Storage.bin_hashes['bankUnits'])
+                for bankUnits in bankUnitss:
                     for BankUnit in bankUnits.data:
-                        events = BINHelper.find_item(
-                            items=BankUnit.data,
-                            compare_func=lambda field: field.hash == cached_bin_hashes['events']
-                        )
-                        if events == None:
-                            continue
-                        for event in events.data:
-                            map_event_namnes[FNV1(event)] = event
+                        eventss = BankUnit.get_items(lambda field: field.hash == hash_helper.Storage.bin_hashes['events'])
+                        for events in eventss:
+                            for event_name in events.data:
+                                map_event_namnes[pyRitoFile.helper.FNV1(event_name)] = event_name
         # parse feature bin
-        FeatureAudioDataPropertiesCollection = BINHelper.find_items(
-            items=bin.entries,
-            compare_func=lambda entry: entry.type == cached_bin_hashes['FeatureAudioDataProperties']
-        )
-        if len(FeatureAudioDataPropertiesCollection) > 0:
-            for FeatureAudioDataProperties in FeatureAudioDataPropertiesCollection:
-                if FeatureAudioDataProperties != None:
-                    bankUnitsCollection = BINHelper.find_items(
-                        items=FeatureAudioDataProperties.data,
-                        compare_func=lambda field: field.hash == cached_bin_hashes['bankUnits']
-                    )
-                    if len(bankUnitsCollection) > 0:
-                        for bankUnits in bankUnitsCollection:
-                            if bankUnits != None and len(bankUnits.data) > 0:
-                                for BankUnit in bankUnits.data:
-                                    events = BINHelper.find_item(
-                                        items=BankUnit.data,
-                                        compare_func=lambda field: field.hash == cached_bin_hashes['events']
-                                    )
-                                    if events == None:
-                                        continue
-                                    for event in events.data:
-                                        map_event_namnes[FNV1(event)] = event
+        FeatureAudioDataPropertiess =  bin.get_items(lambda entry: entry.type == hash_helper.Storage.bin_hashes['FeatureAudioDataProperties'])
+        for FeatureAudioDataProperties in FeatureAudioDataPropertiess:
+            bankUnitss = FeatureAudioDataProperties.get_items(lambda field: field.hash == hash_helper.Storage.bin_hashes['bankUnits'])
+            for bankUnits in bankUnitss:
+                for BankUnit in bankUnits.data:
+                    eventss = BankUnit.get_items(lambda field: field.hash == hash_helper.Storage.bin_hashes['events'])
+                    for events in eventss:
+                        for event_name in events.data:
+                            map_event_namnes[pyRitoFile.helper.FNV1(event_name)] = event_name
         # parse map bin
-        MapAudioDataPropertiesCollection = BINHelper.find_items(
-            items=bin.entries,
-            compare_func=lambda entry: entry.type == cached_bin_hashes['MapAudioDataProperties']
-        )
-        if len(MapAudioDataPropertiesCollection) > 0:
-            for MapAudioDataProperties in MapAudioDataPropertiesCollection:
-                if MapAudioDataProperties != None:
-                    bankUnitsCollection = BINHelper.find_items(
-                        items=MapAudioDataProperties.data,
-                        compare_func=lambda field: field.hash == cached_bin_hashes['bankUnits']
-                    )
-                    if len(bankUnitsCollection) > 0:
-                        for bankUnits in bankUnitsCollection:
-                            if bankUnits != None and len(bankUnits.data) > 0:
-                                for BankUnit in bankUnits.data:
-                                    events = BINHelper.find_item(
-                                        items=BankUnit.data,
-                                        compare_func=lambda field: field.hash == cached_bin_hashes['events']
-                                    )
-                                    if events == None:
-                                        continue
-                                    for event in events.data:
-                                        map_event_namnes[FNV1(event)] = event
+        MapAudioDataPropertiess =  bin.get_items(lambda entry: entry.type == hash_helper.Storage.bin_hashes['MapAudioDataProperties'])
+        for MapAudioDataProperties in MapAudioDataPropertiess:
+            bankUnitss = MapAudioDataProperties.get_items(lambda field: field.hash == hash_helper.Storage.bin_hashes['bankUnits'])
+            for bankUnits in bankUnitss:
+                for BankUnit in bankUnits.data:
+                    eventss = BankUnit.get_items(lambda field: field.hash == hash_helper.Storage.bin_hashes['events'])
+                    for events in eventss:
+                        for event_name in events.data:
+                            map_event_namnes[pyRitoFile.helper.FNV1(event_name)] = event_name
         return map_event_namnes
 
     @staticmethod
@@ -167,22 +122,22 @@ class BankHelper:
                 bank_tree.wems[wem_id] = BankWem(wem_id)
             return bank_tree
         # parse if events file
-        for event_id, event in map_bnk_objects[BNKObjectType.Event].items():
+        for event_id, event in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Event].items():
             bank_tree.events[event_id] = bank_event = BankEvent(event_id)
             for action_id in event.action_ids:
-                action = map_bnk_objects[BNKObjectType.Action][action_id]
+                action = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Action][action_id]
                 if hasattr(action, 'object_id'):
                     if action.type != 4: # play 
                         continue
 
                     # if action link to ranseq container object
-                    if action.object_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
-                        container = map_bnk_objects[BNKObjectType.RandomOrSequenceContainer][action.object_id]
+                    if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
+                        container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer][action.object_id]
                         for sound_id in container.sound_ids: 
                             # it not actually a sound object, can point to a blend container too
                             # thats why we check if its in sounds
-                            if sound_id in map_bnk_objects[BNKObjectType.Sound]: 
-                                wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
+                            if sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]: 
+                                wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][sound_id].wem_id
                                 if wem_id not in existed_wems:
                                     continue
                                 # check if wem already in containers, if not add to non containers
@@ -195,8 +150,8 @@ class BankHelper:
                                     bank_event.wems[wem_id] = BankWem(wem_id)
                                 
                     # if action link to sound object
-                    if action.object_id in map_bnk_objects[BNKObjectType.Sound]:
-                        wem_id = map_bnk_objects[BNKObjectType.Sound][action.object_id].wem_id
+                    if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]:
+                        wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][action.object_id].wem_id
                         if wem_id not in existed_wems:
                             continue
                         # check if wem already in containers, if not add to non containers
@@ -212,17 +167,17 @@ class BankHelper:
                     # switch container child point to ranseq container
                     # ranseq container sound ids could point to another ranseq container 
                     # if sound id point to sound then list wem, otherwise keep dfs
-                    if action.object_id in map_bnk_objects[BNKObjectType.SwitchContainer]:
+                    if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer]:
                         def list_ranseq_container_wems(ranseq_container_id):
-                            if ranseq_container_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
-                                ranseq_container = map_bnk_objects[BNKObjectType.RandomOrSequenceContainer][ranseq_container_id]
+                            if ranseq_container_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
+                                ranseq_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer][ranseq_container_id]
                                 for sound_id in ranseq_container.sound_ids:
                                     # sound id point to another ranseq container, dfs
-                                    if sound_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
+                                    if sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
                                         list_ranseq_container_wems(sound_id)
                                     # list wem if point to sound object
-                                    elif sound_id in map_bnk_objects[BNKObjectType.Sound]:
-                                        wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
+                                    elif sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]:
+                                        wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][sound_id].wem_id
                                         if wem_id not in existed_wems:
                                             continue
                                         # create container if need
@@ -236,19 +191,19 @@ class BankHelper:
                                         if wem_id in bank_event.wems:
                                             bank_event.wems.pop(wem_id)
                             
-                        switch_container = map_bnk_objects[BNKObjectType.SwitchContainer][action.object_id]
+                        switch_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer][action.object_id]
                         for child_id in switch_container.child_ids:
                             list_ranseq_container_wems(child_id)
 
                     # if action link to a music playlist container
                     # music tracks of music playlist container could point to music segment 
                     # list wem inside those segments 
-                    if action.object_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer]:
-                        for music_track_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer][action.object_id].music_track_ids:
-                            if music_track_id in map_bnk_objects[BNKObjectType.MusicSegment]:
+                    if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer]:
+                        for music_track_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer][action.object_id].music_track_ids:
+                            if music_track_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSegment]:
                                 music_segment_id = music_track_id
-                                for real_music_track_id in map_bnk_objects[BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
-                                    for wem_id in map_bnk_objects[BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
+                                for real_music_track_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
+                                    for wem_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
                                         if wem_id not in existed_wems:
                                             continue
                                         # create container if need
@@ -266,21 +221,21 @@ class BankHelper:
                     # music switch container can have another music switch container as child
                     # keep dfs the child until the child appear as music playlist container
                     # list all wems inside music play list container same method as above
-                    if action.object_id in map_bnk_objects[BNKObjectType.MusicSwitchContainer]:
+                    if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSwitchContainer]:
                         def find_music_playlist_container_child(switch_container_id):
-                            switch_container = map_bnk_objects[BNKObjectType.MusicSwitchContainer][switch_container_id]
+                            switch_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSwitchContainer][switch_container_id]
                             for child_id in switch_container.child_ids:
                                 # child id point to another music switch container, keep dfs
-                                if child_id in map_bnk_objects[BNKObjectType.MusicSwitchContainer]:
+                                if child_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSwitchContainer]:
                                     find_music_playlist_container_child(child_id)
                                 # point to music playlist container, list wems
-                                elif child_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer]:
-                                    music_playlist_container = map_bnk_objects[BNKObjectType.MusicPlaylistContainer][child_id]
+                                elif child_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer]:
+                                    music_playlist_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer][child_id]
                                     for music_track_id in music_playlist_container.music_track_ids:
-                                        if music_track_id in map_bnk_objects[BNKObjectType.MusicSegment]:
+                                        if music_track_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSegment]:
                                             music_segment_id = music_track_id
-                                            for real_music_track_id in map_bnk_objects[BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
-                                                for wem_id in map_bnk_objects[BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
+                                            for real_music_track_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
+                                                for wem_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
                                                     if wem_id not in existed_wems:
                                                         continue
                                                     # create container if need
@@ -297,7 +252,7 @@ class BankHelper:
                         find_music_playlist_container_child(action.object_id)
 
         # list music track wems that dont link to anything????
-        for music_track_id, music_track in map_bnk_objects[BNKObjectType.MusicTrack].items():
+        for music_track_id, music_track in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicTrack].items():
             for wem_id in music_track.wem_ids:
                 if wem_id not in existed_wems:
                     continue
@@ -358,21 +313,21 @@ class Inspector:
         # parse audio.bnk or audio.wpk
         self.is_bnk = True if audio_path.endswith('.bnk') else False
         if self.is_bnk:
-            self.audio = read_bnk(audio_path)
+            self.audio = pyRitoFile.bnk.BNK().read(audio_path)
             self.didx, self.data = BankHelper.parse_audio_bnk(self.audio)
             self.wems = self.didx.wems
         else:
-            self.audio = read_wpk(audio_path)
+            self.audio = pyRitoFile.wpk.WPK().read(audio_path)
             self.wems = self.audio.wems
         # parse events.bnk
         map_bnk_objects = None
         if events_path != '':
-            events_bnk = read_bnk(events_path)
+            events_bnk = pyRitoFile.bnk.BNK().read(events_path)
             map_bnk_objects = BankHelper.parse_events_bnk(events_bnk)
         # parse bin
         map_event_namnes = {}
         if bin_path != '':
-            bin = read_bin(bin_path)
+            bin = pyRitoFile.bin.BIN().read(bin_path)
             map_event_namnes = BankHelper.parse_bin(bin)
         # parse bank tree
         self.bank_tree = BankHelper.parse_bank_tree(map_bnk_objects, [wem.id for wem in self.wems])
@@ -457,20 +412,12 @@ class Inspector:
                     break
 
     def pack(self, output_file):
-        if self.is_bnk:
-            wem_datas = []
-            for wem in self.wems:
-                wem_file = self.get_cache_wem_file(wem.id)
-                with open(wem_file, 'rb') as f:
-                    wem_datas.append(f.read())
-            write_bnk(output_file, self.audio, wem_datas) 
-        else:
-            wem_datas = []
-            for wem in self.wems:
-                wem_file = self.get_cache_wem_file(wem.id)
-                with open(wem_file, 'rb') as f:
-                    wem_datas.append(f.read())
-            write_wpk(output_file, self.audio, wem_datas)
+        wem_datas = []
+        for wem in self.wems:
+            wem_file = self.get_cache_wem_file(wem.id)
+            with open(wem_file, 'rb') as f:
+                wem_datas.append(f.read())
+        self.audio.write(output_file, wem_datas)
 
     def get_cache_dir(self):
         return os.path.join(Inspector.cache_dir, os.path.basename(self.audio_path).replace('.bnk', '') if self.is_bnk else os.path.basename(self.audio_path).replace('.wpk', ''))
@@ -525,55 +472,55 @@ def dir2bnk(dir_path, is_bnk):
                 wem_files.append(wem_file)
     if is_bnk:
         audio_path = dir_path + '.bnk'
-        audio = BNK()
-        audio.didx = BNKSectionData()
+        audio = pyRitoFile.bnk.BNK()
+        audio.didx = pyRitoFile.bnk.BNKSectionData()
         audio.didx.wems = []
         wem_datas = []
         for wem_file in wem_files:
             wem_id = os.path.basename(wem_file).replace('.wem', '')
             if wem_id.isnumeric():
                 wem_id = int(wem_id)
-                wem = BNKWem()
+                wem = pyRitoFile.bnk.BNKWem()
                 wem.id = wem_id
                 with open(wem_file, 'rb') as f:
                     wem_datas.append(f.read())
                 audio.didx.wems.append(wem)
-        write_bnk(audio_path, audio, wem_datas) 
+        audio.write(audio_path, wem_datas) 
     else:
         audio_path = dir_path + '.wpk'
-        audio = WPK()
+        audio = pyRitoFile.wpk.WPK()
         audio.wems = []
         wem_datas = []
         for wem_file in wem_files:
             wem_id = os.path.basename(wem_file).replace('.wem', '')
             if wem_id.isnumeric():
                 wem_id = int(wem_id)
-                wem = WPKWem()
+                wem = pyRitoFile.wpk.WPKWem()
                 wem.id = wem_id
                 with open(wem_file, 'rb') as f:
                     wem_datas.append(f.read())
                 audio.wems.append(wem)
-        write_wpk(audio_path, audio, wem_datas)
+        audio.write(audio_path, wem_datas)
     print(f'wad_tool: Finish: Pack: {audio_path}')
     
 # event bnk stuffs
 def list_wem_inside_bank(bank_file, is_bnk):
     if is_bnk:
-        bank = read_bnk(bank_file)
+        bank = pyRitoFile.bnk.BNK().read(bank_file)
         if bank.hirc != None:
             # maps
             hirc = bank.hirc
             map_bnk_objects = {}
             bnk_obj_types_need_to_be_mapped = [
-                BNKObjectType.Sound,
-                BNKObjectType.Event,
-                BNKObjectType.Action,
-                BNKObjectType.RandomOrSequenceContainer,
-                BNKObjectType.SwitchContainer,
-                BNKObjectType.MusicSegment,
-                BNKObjectType.MusicTrack,
-                BNKObjectType.MusicPlaylistContainer,
-                BNKObjectType.MusicSwitchContainer
+                pyRitoFile.bnk.BNKObjectType.Sound,
+                pyRitoFile.bnk.BNKObjectType.Event,
+                pyRitoFile.bnk.BNKObjectType.Action,
+                pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer,
+                pyRitoFile.bnk.BNKObjectType.SwitchContainer,
+                pyRitoFile.bnk.BNKObjectType.MusicSegment,
+                pyRitoFile.bnk.BNKObjectType.MusicTrack,
+                pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer,
+                pyRitoFile.bnk.BNKObjectType.MusicSwitchContainer
             ]
             for object_type in bnk_obj_types_need_to_be_mapped:
                 map_bnk_objects[object_type] = {}
@@ -582,62 +529,62 @@ def list_wem_inside_bank(bank_file, is_bnk):
                     map_bnk_objects[obj.type][obj.id] = obj.data
             # list wem - copied bnk tool codes
             listed_wems = []
-            for event_id, event in map_bnk_objects[BNKObjectType.Event].items():
+            for event_id, event in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Event].items():
                 for action_id in event.action_ids:
-                    action = map_bnk_objects[BNKObjectType.Action][action_id]
+                    action = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Action][action_id]
                     if hasattr(action, 'object_id'):
                         if action.type != 4: # play 
                             continue
-                        if action.object_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
-                            container = map_bnk_objects[BNKObjectType.RandomOrSequenceContainer][action.object_id]
+                        if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
+                            container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer][action.object_id]
                             for sound_id in container.sound_ids: 
-                                if sound_id in map_bnk_objects[BNKObjectType.Sound]: 
-                                    wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
+                                if sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]: 
+                                    wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][sound_id].wem_id
                                     if wem_id not in listed_wems:
                                         listed_wems.append(wem_id)
-                        if action.object_id in map_bnk_objects[BNKObjectType.Sound]:
-                            wem_id = map_bnk_objects[BNKObjectType.Sound][action.object_id].wem_id
+                        if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]:
+                            wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][action.object_id].wem_id
                             if wem_id not in listed_wems:
                                 listed_wems.append(wem_id)
-                        if action.object_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer]:
-                            for music_track_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer][action.object_id].music_track_ids:
-                                if music_track_id in map_bnk_objects[BNKObjectType.MusicSegment]:
+                        if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer]:
+                            for music_track_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer][action.object_id].music_track_ids:
+                                if music_track_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSegment]:
                                     music_segment_id = music_track_id
-                                    for real_music_track_id in map_bnk_objects[BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
-                                        for wem_id in map_bnk_objects[BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
+                                    for real_music_track_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
+                                        for wem_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
                                             if wem_id not in listed_wems:
                                                 listed_wems.append(wem_id)
-                        if action.object_id in map_bnk_objects[BNKObjectType.SwitchContainer]:
+                        if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer]:
                             def list_ranseq_container_wems(ranseq_container_id):
-                                if ranseq_container_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
-                                    ranseq_container = map_bnk_objects[BNKObjectType.RandomOrSequenceContainer][ranseq_container_id]
+                                if ranseq_container_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
+                                    ranseq_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer][ranseq_container_id]
                                     for sound_id in ranseq_container.sound_ids:
-                                        if sound_id in map_bnk_objects[BNKObjectType.RandomOrSequenceContainer]:
+                                        if sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
                                             list_ranseq_container_wems(sound_id)
-                                        elif sound_id in map_bnk_objects[BNKObjectType.Sound]:
-                                            wem_id = map_bnk_objects[BNKObjectType.Sound][sound_id].wem_id
+                                        elif sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]:
+                                            wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][sound_id].wem_id
                                             if wem_id not in listed_wems:
                                                 listed_wems.append(wem_id)
-                            switch_container = map_bnk_objects[BNKObjectType.SwitchContainer][action.object_id]
+                            switch_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer][action.object_id]
                             for child_id in switch_container.child_ids:
                                 list_ranseq_container_wems(child_id)
-                        if action.object_id in map_bnk_objects[BNKObjectType.MusicSwitchContainer]:
+                        if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSwitchContainer]:
                             def find_music_playlist_container_child(switch_container_id):
-                                switch_container = map_bnk_objects[BNKObjectType.MusicSwitchContainer][switch_container_id]
+                                switch_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSwitchContainer][switch_container_id]
                                 for child_id in switch_container.child_ids:
-                                    if child_id in map_bnk_objects[BNKObjectType.MusicSwitchContainer]:
+                                    if child_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSwitchContainer]:
                                         find_music_playlist_container_child(child_id)
-                                    elif child_id in map_bnk_objects[BNKObjectType.MusicPlaylistContainer]:
-                                        music_playlist_container = map_bnk_objects[BNKObjectType.MusicPlaylistContainer][child_id]
+                                    elif child_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer]:
+                                        music_playlist_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer][child_id]
                                         for music_track_id in music_playlist_container.music_track_ids:
-                                            if music_track_id in map_bnk_objects[BNKObjectType.MusicSegment]:
+                                            if music_track_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSegment]:
                                                 music_segment_id = music_track_id
-                                                for real_music_track_id in map_bnk_objects[BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
-                                                    for wem_id in map_bnk_objects[BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
+                                                for real_music_track_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
+                                                    for wem_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
                                                         if wem_id not in listed_wems:
                                                             listed_wems.append(wem_id)  
                             find_music_playlist_container_child(action.object_id)
-            for music_track_id, music_track in map_bnk_objects[BNKObjectType.MusicTrack].items():
+            for music_track_id, music_track in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicTrack].items():
                 for wem_id in music_track.wem_ids:
                     if wem_id not in listed_wems:
                         listed_wems.append(wem_id)  
@@ -646,7 +593,7 @@ def list_wem_inside_bank(bank_file, is_bnk):
         if bank.didx != None:
             return sorted(wem.id for wem in bank.didx.wems)
     else:
-        bank = read_wpk(bank_file)
+        bank = pyRitoFile.wpk.WPK().read(bank_file)
         return sorted(wem.id for wem in bank.wems)
 
 def generate_events_bnk_json(events_bnks_dir, events_bnks_file):
@@ -658,7 +605,7 @@ def generate_events_bnk_json(events_bnks_dir, events_bnks_file):
             for file in files:
                 if file.endswith('_events.bnk'):
                     bnk_path = os.path.join(root, file)
-                    events_bnks[lang][file] = list_wem_inside_bank(read_bnk(bnk_path))
+                    events_bnks[lang][file] = list_wem_inside_bank(pyRitoFile.bnk.BNK().read(bnk_path))
         print(f'Finish: {lang_path}')
     # save to file
     with open(events_bnks_file, 'w+') as f:
@@ -685,7 +632,7 @@ def guess_events_bnk(bank_file):
     res = dict(sorted(res.items(), key=lambda item: item[1], reverse=True))
     wem_count = len(wems)
     if len(res) > 0:
-        result_text = '\n'.join(f'{res[r]/wem_count*100:.2f}%: {r}: {res[r]}/{wem_count} wems' for r in res)
+        result_text = '\n'.join(f'{res[r]/wem_count*100:.2g}%: {r}: {res[r]}/{wem_count} wems' for r in res)
         print(f'Compared result: {bank_file}:\n{result_text}')
     else:
         print(f'Could not guess {bank_file} name. Nothing i can do.')

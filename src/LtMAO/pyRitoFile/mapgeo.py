@@ -557,7 +557,8 @@ class MAPGEO:
                     planar_reflector.plane = bs.read_vec3(2)
                     planar_reflector.normal, = bs.read_vec3()
 
-
+            return self
+        
     def write(self, path, version, float16=False, raw=None):
         if version not in (13, 17):
             raise Exception(

@@ -49,15 +49,15 @@ def dds2tex(dds_path, tex_path=None):
         0xff000000: 3
     }
     #  prepare tex header
-    tex = pyRitoFile.TEX()
+    tex = pyRitoFile.tex.TEX()
     tex.width = dds_header['dwWidth']
     tex.height = dds_header['dwHeight']
     if dds_pixel_format['dwFourCC'] == int('DXT1'.encode('ascii')[::-1].hex(), 16):
-        tex.format = pyRitoFile.TEXFormat.DXT1
+        tex.format = pyRitoFile.tex.TEXFormat.DXT1
     elif dds_pixel_format['dwFourCC'] == int('DXT5'.encode('ascii')[::-1].hex(), 16):
-        tex.format = pyRitoFile.TEXFormat.DXT5
+        tex.format = pyRitoFile.tex.TEXFormat.DXT5
     elif (dds_pixel_format['dwFlags'] & 0x00000041) == 0x00000041:
-        tex.format = pyRitoFile.TEXFormat.BGRA8
+        tex.format = pyRitoFile.tex.TEXFormat.BGRA8
         if dds_pixel_format['dwRGBBitCount'] != 32:
             raise Exception(f'Ritoddstex: Error: dds2tex: {dds_path}: dwRGBBitCount is expected 32, not {dds_pixel_format["dwRGBBitCount"]}.')
         if dds_pixel_format['dwBBitMask'] != 0x000000ff or dds_pixel_format['dwGBitMask'] != 0x0000ff00  or dds_pixel_format['dwRBitMask'] != 0x00ff0000 or dds_pixel_format['dwABitMask'] != 0xff000000:
@@ -94,10 +94,10 @@ def dds2tex(dds_path, tex_path=None):
     # prepare tex data
     if tex.mipmaps:
         # if mipmaps and supported format
-        if tex.format == pyRitoFile.TEXFormat.DXT1:
+        if tex.format == pyRitoFile.tex.TEXFormat.DXT1:
             block_size = 4
             bytes_per_block = 8
-        elif tex.format == pyRitoFile.TEXFormat.DXT5:
+        elif tex.format == pyRitoFile.tex.TEXFormat.DXT5:
             block_size = 4
             bytes_per_block = 16
         else:
@@ -131,7 +131,7 @@ def tex2dds(tex_path, dds_path=None):
     if dds_path == None:
         dds_path = tex_path.split('.tex')[0] + '.dds'
     # read tex
-    tex = pyRitoFile.read_tex(tex_path)
+    tex = pyRitoFile.tex.TEX().read(tex_path)
     # prepare dds header
     dds_header = {
         'dwSize': 124,
@@ -159,15 +159,15 @@ def tex2dds(tex_path, dds_path=None):
         'dwReserved2': 0,
     }
     dds_pixel_format = dds_header['ddspf']
-    if tex.format == pyRitoFile.TEXFormat.DXT1:
+    if tex.format == pyRitoFile.tex.TEXFormat.DXT1:
         dds_pixel_format['dwFourCC'] = int(
             'DXT1'.encode('ascii')[::-1].hex(), 16)
         dds_pixel_format['dwFlags'] = 0x00000004
-    elif tex.format == pyRitoFile.TEXFormat.DXT5:
+    elif tex.format == pyRitoFile.tex.TEXFormat.DXT5:
         dds_pixel_format['dwFourCC'] = int(
             'DXT5'.encode('ascii')[::-1].hex(), 16)
         dds_pixel_format['dwFlags'] = 0x00000004
-    elif tex.format == pyRitoFile.TEXFormat.BGRA8:
+    elif tex.format == pyRitoFile.tex.TEXFormat.BGRA8:
         dds_pixel_format['dwFlags'] = 0x00000041
         dds_pixel_format['dwRGBBitCount'] = 32
         dds_pixel_format['dwBBitMask'] = 0x000000ff

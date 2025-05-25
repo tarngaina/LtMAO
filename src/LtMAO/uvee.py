@@ -1,7 +1,5 @@
-import os
-import os.path
-import traceback
-from .pyRitoFile import read_skn, read_scb, read_sco
+import os, os.path
+from . import pyRitoFile
 from PIL import Image, ImageDraw
 
 TEXTURE_SIZE = 1024
@@ -10,7 +8,7 @@ UV_COLOR = 0xFFFFFFFF
 def uvee_skn(path):
     imgs = []
     # read file
-    skn = read_skn(path)
+    skn = pyRitoFile.skn.SKN().read(path)
     for submesh in skn.submeshes:
         # init values
         vertex_start = submesh.vertex_start
@@ -48,15 +46,14 @@ def uvee_skn(path):
         img.save(img_path)
         print(f'uvee: Finish: Extract UV: {img_path}')
         imgs.append((submesh.name, img))
-    return imgs
 
 
 def uvee_so(path):
     # read file
     if path.endswith('.sco'):
-        so = read_sco(path)
+        so = pyRitoFile.so.SO().read_sco(path)
     else:
-        so = read_scb(path)
+        so = pyRitoFile.so.SO().read_scb(path)
     # init values
     uvs = so.uvs
     face_count = len(uvs) // 3
@@ -79,22 +76,12 @@ def uvee_so(path):
     img_path = os.path.join(dir, f'uvee_{base}.png').replace('\\', '/')
     img.save(img_path)
     print(f'uvee: Finish: Extract UV: {img_path}')
-    return [(so.material, img)]
 
 
 def uvee_file(path):
     if path.endswith('.skn'):
-        try:
-            return uvee_skn(path)
-        except Exception as e:
-            print(f'uvee: Error: Extract UV: {path}: {e}')
-            print(traceback.format_exc())
+        uvee_skn(path)
     elif path.endswith('.scb') or path.endswith('.sco'):
-        try:
-            return uvee_so(path)
-        except Exception as e:
-            print(f'uvee: Error: Extract UV: {path}: {e}')
-            print(traceback.format_exc())
-    return None
+        uvee_so(path)
 
 

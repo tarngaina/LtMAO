@@ -126,7 +126,7 @@ class ANMHepler:
             for f in range(anm.duration):
                 translate, rotate, scale = track.poses[f].translate, track.poses[f].rotate, track.poses[f].scale
                 # translate
-                translate_key = f'{translate.x:.4f} {translate.y:.4f} {translate.z:.4f}'
+                translate_key = f'{translate.x:.4g} {translate.y:.4g} {translate.z:.4g}'
                 if translate_key not in vec_bank:
                     vec_bank[translate_key] = vec_index
                     translate_index = vec_index
@@ -134,7 +134,7 @@ class ANMHepler:
                 else:
                     translate_index = vec_bank[translate_key]
                 # scale
-                scale_key = f'{scale.x:.4f} {scale.y:.4f} {scale.z:.4f}'
+                scale_key = f'{scale.x:.4g} {scale.y:.4g} {scale.z:.4g}'
                 if scale_key not in vec_bank:
                     vec_bank[scale_key] = vec_index
                     scale_index = vec_index
@@ -142,7 +142,7 @@ class ANMHepler:
                 else:
                     scale_index = vec_bank[scale_key]
                 # rotate
-                rotate_key = f'{rotate.x:.7f} {rotate.y:.7f} {rotate.z:.7f} {rotate.w:.7f}'
+                rotate_key = f'{rotate.x:.7g} {rotate.y:.7g} {rotate.z:.7g} {rotate.w:.7g}'
                 if rotate_key not in quat_bank:
                     quat_bank[rotate_key] = quat_index
                     rotate_index = quat_index
@@ -463,7 +463,9 @@ class ANM:
             else:
                 raise Exception(
                     f'pyRitoFile: Error: Read ANM: Wrong signature file: {hex(self.signature)}') 
-
+            
+            return self
+        
     def write(self, path, raw=None):
         with self.stream(path, 'wb', raw) as bs:
             self.duration = int(self.duration)

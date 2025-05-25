@@ -1,10 +1,8 @@
 from maya.OpenMaya import *
 from maya import cmds
 
-import os.path, traceback
-from random import choice
+import os.path, traceback, random
 from ..... import pyRitoFile
-from .....pyRitoFile.structs import Vector, Quaternion, Matrix4
 
 def try_cmd(cmd):
     try:
@@ -84,17 +82,17 @@ def mirrorX(skn=None, skl=None, anm=None, so=None, mapgeo=None):
             rotate.y = -rotate.y
             rotate.z = -rotate.z
             matrix = MayaTransformMatrix.compose(translate, rotate, scale, MSpace.kWorld).asMatrix()
-            model.matrix = Matrix4(*[matrix(i, j) for i in range(4) for j in range(4)]) 
+            model.matrix = pyRitoFile.structs.Matrix4(*[matrix(i, j) for i in range(4) for j in range(4)]) 
             # flip vertex
             for vertex in model.vertices:
-                if pyRitoFile.MAPGEOVertexElementName.Position in vertex.value:
-                    position = vertex.value[pyRitoFile.MAPGEOVertexElementName.Position]
+                if pyRitoFile.mapgeo.MAPGEOVertexElementName.Position in vertex.value:
+                    position = vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Position]
                     position.x = -position.x
-                if pyRitoFile.MAPGEOVertexElementName.Texcoord5 in vertex.value:
-                    bush_vertex_animation = vertex.value[pyRitoFile.MAPGEOVertexElementName.Texcoord5]
+                if pyRitoFile.mapgeo.MAPGEOVertexElementName.Texcoord5 in vertex.value:
+                    bush_vertex_animation = vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Texcoord5]
                     bush_vertex_animation.x = -bush_vertex_animation.x
-                if pyRitoFile.MAPGEOVertexElementName.Normal in vertex.value:
-                    normal = vertex.value[pyRitoFile.MAPGEOVertexElementName.Normal]
+                if pyRitoFile.mapgeo.MAPGEOVertexElementName.Normal in vertex.value:
+                    normal = vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Normal]
                     normal.y = -normal.y
                     normal.z = -normal.z
 
@@ -114,16 +112,16 @@ class MayaTransformMatrix:
         matrix.getScale(ptr, space)
 
         return (
-            Vector(
+            pyRitoFile.structs.Vector(
                 translate.x, translate.y, translate.z
             ),
-            Quaternion(
+            pyRitoFile.structs.Quaternion(
                 rotate.x,
                 rotate.y,
                 rotate.z,
                 rotate.w
             ),
-            Vector(
+            pyRitoFile.structs.Vector(
                 util.getDoubleArrayItem(ptr, 0),
                 util.getDoubleArrayItem(ptr, 1),
                 util.getDoubleArrayItem(ptr, 2)
@@ -161,7 +159,7 @@ class FunnyError(Exception):
         temp = text.split(':')
         title = temp[0]
         message = ':'.join(temp[1:])
-        button = choice([
+        button = random.choice([
             'UwU', '<(\")', 'ok boomer', 'funny man', 'jesus', 'bruh', 'bro', 'please', 'man',
             'stop', 'get some help', 'haha', 'lmao', 'ay yo', 'SUS', 'sOcIEtY.', 'yeah', 'whatever',
             'gurl', 'fck', 'im ded', '(~`u`)~', 't(^u^t)', '(>w<)', 'xdd', 'cluegi', 'kappachungusdeluxe'
@@ -178,27 +176,27 @@ class FunnyError(Exception):
 def convert_pyRitoFile_objects_to_Lemon(pyritofile_objects, lemon_class):
     return [lemon_class(**{key: getattr(pyritofile_object, key) for key in pyritofile_object.__slots__}) for pyritofile_object in pyritofile_objects]
 
-class LemonSKLJoint(pyRitoFile.SKLJoint):
+class LemonSKLJoint(pyRitoFile.skl.SKLJoint):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.dagpath = None
 
-class LemonSKNVertex(pyRitoFile.SKNVertex):
+class LemonSKNVertex(pyRitoFile.skn.SKNVertex):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.uv_index = None
         self.new_index = None
 
-class LemonSKNSubmesh(pyRitoFile.SKNSubmesh):
+class LemonSKNSubmesh(pyRitoFile.skn.SKNSubmesh):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.indices = []
         self.vertices = []
 
-class LemonANMTrack(pyRitoFile.ANMTrack):
+class LemonANMTrack(pyRitoFile.anm.ANMTrack):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -207,7 +205,7 @@ class LemonANMTrack(pyRitoFile.ANMTrack):
         self.curve_times = {}
         self.curve_values = {}
 
-class LemonMAPGEOVertex(pyRitoFile.MAPGEOVertex):
+class LemonMAPGEOVertex(pyRitoFile.mapgeo.MAPGEOVertex):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

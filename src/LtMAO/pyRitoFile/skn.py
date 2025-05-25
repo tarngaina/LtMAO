@@ -158,6 +158,8 @@ class SKN:
                     if self.vertex_type == SKNVertexType.TANGENT:
                         vertex.tangent, = bs.read_vec4()
 
+            return self
+        
     def write(self, path, raw=None):
         with self.stream(path, 'wb', raw) as bs:
             # magic, version

@@ -1,7 +1,5 @@
 from . import pyRitoFile
-import os
-import json
-
+import os, json
 
 def check_hashed_name(basename):
     try:
@@ -14,7 +12,7 @@ def check_hashed_name(basename):
 def unpack(wad_file, raw_dir, hashtables, filter=None):
     print(f'wad_tool: Start:  Unpack WAD: {wad_file}')
     # read wad
-    wad = pyRitoFile.read_wad(wad_file)
+    wad = pyRitoFile.wad.WAD().read(wad_file)
     wad.un_hash(hashtables)
     hashed_files = {}
     # create dirs first
@@ -39,12 +37,12 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
             file_path = file_path.replace('\\', '/')
             # hash data vfx bin 
             if os.path.dirname(file_path).endswith('data') and chunk.extension == 'bin':
-                hashed_bin = os.path.join(raw_dir, pyRitoFile.wad_hash(chunk.hash)+'.bin')
+                hashed_bin = os.path.join(raw_dir, pyRitoFile.wad.WADHasher.raw_to_hex(chunk.hash)+'.bin')
                 hashed_files[os.path.basename(hashed_bin)] = chunk.hash
                 file_path = hashed_bin
             # hash file same name with dir
             if os.path.exists(file_path) and os.path.isdir(file_path):
-                hashed_file =  os.path.join(raw_dir, pyRitoFile.wad_hash(chunk.hash))
+                hashed_file =  os.path.join(raw_dir, pyRitoFile.wad.WADHasher.raw_to_hex(chunk.hash))
                 hashed_files[os.path.basename(hashed_file)] = chunk.hash
                 file_path = hashed_file
             # write out chunk data to file
@@ -58,8 +56,8 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
             os.rmdir(root)
     # write hashed bins json
     if len(hashed_files) > 0:
-        with open(os.path.join(raw_dir, 'hashed_files.json'), 'w+') as f:
-            json.dump(hashed_files, f, indent=4)
+        with open(os.path.join(raw_dir, 'hashed_files.json'), 'w+', encoding='utf-8') as f:
+            json.dump(hashed_files, f, indent=4, ensure_ascii=False)
 
 
 def pack(raw_dir, wad_file):
@@ -88,8 +86,8 @@ def pack(raw_dir, wad_file):
                 chunk_hashes.append(os.path.relpath(
                     file_path, raw_dir).replace('\\', '/'))
     # write wad
-    wad = pyRitoFile.WAD()
-    wad.chunks = [pyRitoFile.WADChunk.default()
+    wad = pyRitoFile.wad.WAD()
+    wad.chunks = [pyRitoFile.wad.WADChunk.default()
                   for id in range(len(chunk_hashes))]
     wad.write(wad_file)
     # write wad chunk

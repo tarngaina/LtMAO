@@ -5,7 +5,6 @@ from maya import cmds
 
 from . import helper
 from ..... import pyRitoFile
-from .....pyRitoFile.structs import Vector
 
 class SCOImporter(MPxFileTranslator):
     name = 'League of Legends: SCO'
@@ -36,7 +35,7 @@ class SCOImporter(MPxFileTranslator):
         def read_cmd(file, options, access):
             sco_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
             # read sco
-            so = pyRitoFile.read_sco(sco_path)
+            so = pyRitoFile.so.SO().read_sco(sco_path)
             so.name = helper.get_name_from_path(sco_path)
             # load so
             helper.mirrorX(so=so)
@@ -88,13 +87,13 @@ class SCOExporter(MPxFileTranslator):
             selected_mesh = MFnMesh(mesh_dagpath)
             # export options
             sco_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-            so = pyRitoFile.SO()
+            so = pyRitoFile.so.SO()
             dump_options = {
                 'selected_mesh': selected_mesh,
             }
             SO.scene_dump(so, dump_options)
             helper.mirrorX(so=so)
-            pyRitoFile.write_sco(sco_path, so)
+            so.write_sco(sco_path)
             return True
 
         return helper.try_cmd(lambda: write_cmd(file, options, access))
@@ -128,7 +127,7 @@ class SCBImporter(MPxFileTranslator):
         def read_cmd(file, options, access):
             scb_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
             # read scb
-            so = pyRitoFile.read_scb(scb_path)
+            so = pyRitoFile.so.SO().read_scb(scb_path)
             so.name = helper.get_name_from_path(scb_path)
             # load so
             helper.mirrorX(so=so)
@@ -180,14 +179,14 @@ class SCBExporter(MPxFileTranslator):
             selected_mesh = MFnMesh(mesh_dagpath)
             # export options
             scb_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-            so = pyRitoFile.SO()
+            so = pyRitoFile.so.SO()
             dump_options = {
                 'selected_mesh': selected_mesh,
-                'scb_flags': pyRitoFile.SOFlag.HasVcp if 'HasVcp' in options else pyRitoFile.SOFlag.HasLocalOriginLocatorAndPivot
+                'scb_flags': pyRitoFile.so.SOFlag.HasVcp if 'HasVcp' in options else pyRitoFile.so.SOFlag.HasLocalOriginLocatorAndPivot
             }
             SO.scene_dump(so, dump_options)
             helper.mirrorX(so=so)
-            pyRitoFile.write_scb(scb_path, so)
+            so.write_scb(scb_path)
             return True
 
         return helper.try_cmd(lambda: write_cmd(file, options, access))
@@ -312,7 +311,7 @@ class SO:
         # central point: translation of mesh
         transform = MFnTransform(mesh.parent(0))
         central_translation = transform.getTranslation(MSpace.kTransform)
-        so.central = Vector(
+        so.central = pyRitoFile.structs.Vector(
             central_translation.x, central_translation.y, central_translation.z)
 
         # check hole
@@ -335,7 +334,7 @@ class SO:
                     f'SO Expoter ({mesh.name()}): More than 1 joint bound with this mesh, can not determine which one is pivot joint.')
             ik_joint = MFnTransform(influences_dagpath[0])
             joint_translation = ik_joint.getTranslation(MSpace.kTransform)
-            so.pivot = Vector(
+            so.pivot = pyRitoFile.structs.Vector(
                 so.central.x - joint_translation.x,
                 so.central.y - joint_translation.y,
                 so.central.z - joint_translation.z
@@ -345,7 +344,7 @@ class SO:
         vertex_count = mesh.numVertices()
         points = MFloatPointArray()
         mesh.getPoints(points, MSpace.kWorld)
-        so.positions = [Vector(points[i].x, points[i].y, points[i].z)
+        so.positions = [pyRitoFile.structs.Vector(points[i].x, points[i].y, points[i].z)
                          for i in range(vertex_count)]
         so.indices = []
         so.uvs = []
@@ -394,7 +393,7 @@ class SO:
                 index = indices[i]
                 so.indices.append(index)
                 uv_index = map_indices[index]
-                so.uvs.append(Vector(
+                so.uvs.append(pyRitoFile.structs.Vector(
                     u_values[uv_index],
                     1.0 - v_values[uv_index]
                 ))
@@ -444,6 +443,6 @@ class SO:
             so.material = 'standardSurface69'
         
         # set flags
-        so.flags = pyRitoFile.SOFlag.HasLocalOriginLocatorAndPivot
+        so.flags = pyRitoFile.so.SOFlag.HasLocalOriginLocatorAndPivot
         if 'scb_flags' in dump_options:
             so.flags = dump_options['scb_flags']

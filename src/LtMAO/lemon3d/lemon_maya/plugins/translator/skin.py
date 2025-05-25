@@ -6,8 +6,6 @@ from maya import cmds
 import os.path
 from . import helper
 from ..... import pyRitoFile
-from .....pyRitoFile.helper import Elf
-from .....pyRitoFile.structs import Vector, Quaternion
 
 class SKNImporter(MPxFileTranslator):
     name = 'League of Legends: SKN'
@@ -39,7 +37,7 @@ class SKNImporter(MPxFileTranslator):
             # import options
             skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
             # read skn
-            skn = pyRitoFile.read_skn(skn_path)
+            skn = pyRitoFile.skn.SKN().read(skn_path)
             skn_name = helper.get_name_from_path(skn_path)
             # create skin group 
             group_transform = MFnTransform()
@@ -49,7 +47,7 @@ class SKNImporter(MPxFileTranslator):
             skl = None
             skl_path = skn_path.replace('.skn', '.skl')
             if os.path.exists(skl_path):
-                skl = pyRitoFile.read_skl(skl_path)
+                skl = pyRitoFile.skl.SKL().read(skl_path)
                 skl.joints = helper.convert_pyRitoFile_objects_to_Lemon(skl.joints, helper.LemonSKLJoint)
                 helper.mirrorX(skl=skl)
                 load_options = {
@@ -97,7 +95,7 @@ class SKLImporter(MPxFileTranslator):
         def read_cmd(file, options, access):
             # read skl
             skl_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-            skl = pyRitoFile.read_skl(skl_path)
+            skl = pyRitoFile.skl.SKL().read(skl_path)
             skl.joints = helper.convert_pyRitoFile_objects_to_Lemon(skl.joints, helper.LemonSKLJoint)
             skl_name = helper.get_name_from_path(skl_path)
             # load skl
@@ -159,21 +157,21 @@ class SkinExporter(MPxFileTranslator):
             riot_skl = None
             riot_skl_path = helper.get_riot_path(skl_path)
             if riot_skl_path != '':
-                riot_skl = pyRitoFile.read_skl(riot_skl_path)
+                riot_skl = pyRitoFile.skl.SKL().read(riot_skl_path)
             dump_options = {
                 'selected_group': selected_group,
                 'riot_skl': riot_skl
             }
-            skl = pyRitoFile.SKL()
+            skl = pyRitoFile.skl.SKL()
             SKL.scene_dump(skl, dump_options)
             helper.mirrorX(skl=skl)
-            pyRitoFile.write_skl(skl_path, skl)
+            skl.write(skl_path)
             # dump skn
             riot_skn = None
             riot_skn_path = helper.get_riot_path(skn_path)
             if riot_skn_path != '':
-                riot_skn = pyRitoFile.read_skn(riot_skn_path)
-            skn = pyRitoFile.SKN()
+                riot_skn = pyRitoFile.skn.SKN().read(riot_skn_path)
+            skn = pyRitoFile.skn.SKN()
             dump_options = {
                 'skl': skl,
                 'selected_group': selected_group,
@@ -181,7 +179,7 @@ class SkinExporter(MPxFileTranslator):
             }
             SKN.scene_dump(skn, dump_options)
             helper.mirrorX(skn=skn)
-            pyRitoFile.write_skn(skn_path, skn)
+            skn.write(skn_path)
         
         return helper.try_cmd(write_cmd)
 
@@ -233,15 +231,15 @@ class SKLExporter(MPxFileTranslator):
             riot_skl = None
             riot_skl_path = helper.get_riot_path(skl_path)
             if riot_skl_path != '':
-                riot_skl = pyRitoFile.read_skl(riot_skl_path)
+                riot_skl = pyRitoFile.skl.SKL().read(riot_skl_path)
             dump_options = {
                 'selected_group': selected_group,
                 'riot_skl': riot_skl
             }
-            skl = pyRitoFile.SKL()
+            skl = pyRitoFile.skl.SKL()
             SKL.scene_dump(skl, dump_options)
             helper.mirrorX(skl=skl)
-            pyRitoFile.write_skl(skl_path, skl)
+            skl.write(skl_path)
             return True
 
         return helper.try_cmd(lambda: write_cmd(file, options, access))
@@ -641,15 +639,15 @@ class SKN:
                                 f'SKN Expoter ({mesh.name()}): Can not export UVs, please check if all UVs of this mesh is in the first UV set.')
                         if uv_index not in seen:
                             seen.append(uv_index)
-                            uv = Vector(
+                            uv = pyRitoFile.structs.Vector(
                                 u_values[uv_index],
                                 1.0 - v_values[uv_index]
                             )
                             # dump vertices
                             vertex = helper.LemonSKNVertex()
-                            vertex.position = Vector(
+                            vertex.position = pyRitoFile.structs.Vector(
                                 position.x, position.y, position.z)
-                            vertex.normal = Vector(
+                            vertex.normal = pyRitoFile.structs.Vector(
                                 normal.x, normal.y, normal.z)
                             vertex.influences = bytes(influences)
                             vertex.weights = vertex_weights
@@ -913,7 +911,7 @@ class SKL:
             iteratorJoint.getPath(joint.dagpath)
             ik_joint = MFnIkJoint(joint.dagpath)
             joint.name = ik_joint.name()
-            joint.hash = Elf(joint.name)
+            joint.hash = pyRitoFile.helper.Elf(joint.name)
             joint.radius = 2.1
             joint.local_translate, joint.local_rotate, joint.local_scale = helper.MayaTransformMatrix.decompose(
                 MTransformationMatrix(ik_joint.transformationMatrix()),
@@ -956,15 +954,15 @@ class SKL:
                     joint = helper.LemonSKLJoint()
                     joint.dagpath = None
                     joint.name = riot_joint.name
-                    joint.hash = Elf(joint.name)
+                    joint.hash = pyRitoFile.helper.Elf(joint.name)
                     joint.parent = -1
                     joint.radius = 2.1
-                    joint.local_translate = Vector(0.0, 0.0, 0.0)
-                    joint.local_rotate = Quaternion(0.0, 0.0, 0.0, 1.0)
-                    joint.local_scale = Vector(0.0, 0.0, 0.0)
-                    joint.ibind_translate = Vector(0.0, 0.0, 0.0)
-                    joint.ibind_rotate = Quaternion(0.0, 0.0, 0.0, 1.0)
-                    joint.ibind_scale = Vector(0.0, 0.0, 0.0)
+                    joint.local_translate = pyRitoFile.structs.Vector(0.0, 0.0, 0.0)
+                    joint.local_rotate = pyRitoFile.structs.Quaternion(0.0, 0.0, 0.0, 1.0)
+                    joint.local_scale = pyRitoFile.structs.Vector(0.0, 0.0, 0.0)
+                    joint.ibind_translate = pyRitoFile.structs.Vector(0.0, 0.0, 0.0)
+                    joint.ibind_rotate = pyRitoFile.structs.Quaternion(0.0, 0.0, 0.0, 1.0)
+                    joint.ibind_scale = pyRitoFile.structs.Vector(0.0, 0.0, 0.0)
                     new_joints.append(joint)
 
             # joint in scene = riot joint: good

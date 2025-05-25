@@ -5,8 +5,6 @@ from maya import cmds
 
 from . import helper
 from ..... import pyRitoFile
-from .....pyRitoFile.helper import Elf
-from .....pyRitoFile.structs import Vector, Quaternion
 
 
 class ANMImporter(MPxFileTranslator):
@@ -39,7 +37,7 @@ class ANMImporter(MPxFileTranslator):
             # import options
             anm_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
             # read anm
-            anm = pyRitoFile.read_anm(anm_path)
+            anm = pyRitoFile.anm.ANM().read(anm_path)
             anm.tracks = helper.convert_pyRitoFile_objects_to_Lemon(anm.tracks, helper.LemonANMTrack)
             # load anm
             helper.mirrorX(anm=anm)
@@ -80,10 +78,10 @@ class ANMExporter(MPxFileTranslator):
         def write_cmd(file, options, access):
             # export options
             anm_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-            anm = pyRitoFile.ANM()
+            anm = pyRitoFile.anm.ANM()
             ANM.scene_dump(anm, {})
             helper.mirrorX(anm=anm)
-            pyRitoFile.write_anm(anm_path, anm)
+            anm.write(anm_path)
             return True
 
         return helper.try_cmd(lambda: write_cmd(file, options, access))
@@ -135,7 +133,7 @@ class ANM:
 
             # find file's joints that match this scene's joint's name
             match_track = next(
-                (track for track in anm.tracks if track.joint_hash == Elf(joint_name)), None)
+                (track for track in anm.tracks if track.joint_hash == pyRitoFile.helper.Elf(joint_name)), None)
             if match_track != None:
                 match_track.joint_name = joint_name
                 match_track.ik_joint = ik_joint
@@ -255,7 +253,7 @@ class ANM:
             track = helper.LemonANMTrack()
             track.ik_joint = MFnIkJoint(dagpath)
             track.joint_name = track.ik_joint.name()
-            track.joint_hash = Elf(track.joint_name)
+            track.joint_hash = pyRitoFile.helper.Elf(track.joint_name)
             track.poses = {}
             anm.tracks.append(track)
 
@@ -276,17 +274,17 @@ class ANM:
             MAnimControl.setCurrentTime(MTime(start+1+frame, ui_unit))
             for track in anm.tracks:
 
-                pose = pyRitoFile.ANMPose()
+                pose = pyRitoFile.anm.ANMPose()
                 # translate
                 translate = track.ik_joint.getTranslation(MSpace.kTransform)
-                pose.translate = Vector(
+                pose.translate = pyRitoFile.structs.Vector(
                     translate.x, translate.y, translate.z)
                 # scale
                 util = MScriptUtil()
                 util.createFromDouble(0.0, 0.0, 0.0)
                 ptr = util.asDoublePtr()
                 track.ik_joint.getScale(ptr)
-                pose.scale = Vector(
+                pose.scale = pyRitoFile.structs.Vector(
                     util.getDoubleArrayItem(ptr, 0),
                     util.getDoubleArrayItem(ptr, 1),
                     util.getDoubleArrayItem(ptr, 2)
@@ -298,6 +296,6 @@ class ANM:
                 rotate = MQuaternion()
                 track.ik_joint.getRotation(rotate, MSpace.kTransform)
                 rotate = axe * rotate * orient
-                pose.rotate = Quaternion(
+                pose.rotate = pyRitoFile.structs.Quaternion(
                     rotate.x, rotate.y, rotate.z, rotate.w)
                 track.poses[frame] = pose

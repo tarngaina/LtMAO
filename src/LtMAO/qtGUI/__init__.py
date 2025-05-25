@@ -199,7 +199,7 @@ def check_version(label):
     try:
         # read offline
         local_file = './version'
-        with open(local_file, 'r') as f:
+        with open(local_file, 'r', encoding='utf-8') as f:
             VERSION = f.read()
         title = f'LtMAO-hai V{VERSION}'
         label.setText(title)

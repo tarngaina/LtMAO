@@ -2,44 +2,10 @@ try:
     import requests
 except: 
     print('Warning: hash_helper failed to import requests.')
-import os
-import os.path
-import json
-import traceback
+import os, os.path, json, traceback
 from . import pyRitoFile, setting
 
-BIN_HASHES = (
-    'hashes.binentries.txt',
-    'hashes.binfields.txt',
-    'hashes.bintypes.txt',
-    'hashes.binhashes.txt'
-)
-WAD_HASHES = (
-    'hashes.game.txt',
-    'hashes.lcu.txt',
-)
-ALL_HASHES = BIN_HASHES + WAD_HASHES
-HASHTABLES = {key: {} for key in ALL_HASHES}
-
-
-def read_all_hashes(): CustomHashes.read_all_hashes()
-def read_wad_hashes(): CustomHashes.read_wad_hashes()
-def read_bin_hashes(): CustomHashes.read_bin_hashes()
-def free_all_hashes(): CustomHashes.free_all_hashes()
-def free_wad_hashes(): CustomHashes.free_wad_hashes()
-def free_bin_hashes(): CustomHashes.free_bin_hashes()
-
-class CACHED_BIN_HASHES(dict):
-    def __getitem__(self, key):
-        if key in self.keys():
-            return super().__getitem__(key)
-        else:
-            super().__setitem__(key, pyRitoFile.bin_hash(key))
-            return super().__getitem__(key)
-        
-cached_bin_hashes = CACHED_BIN_HASHES()
-
-def HASH_SEPARATOR(filename):
+def get_hash_separator(filename):
     # space separator in hashes txt
     # use this to skip using split()
     return 16 if filename in WAD_HASHES else 8
@@ -48,6 +14,38 @@ def HASH_SEPARATOR(filename):
 def to_human(size): return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) + \
     ["", " KB", " MB", " GB", " TB", " PB",
         " EB"][max(size.bit_length()-1, 0)//10]
+
+class Bin_Hashes(dict):
+    def __getitem__(self, key):
+        if key in self.keys():
+            return super().__getitem__(key)
+        else:
+            super().__setitem__(key, pyRitoFile.bin.BINHasher.raw_to_hex(key))
+            return super().__getitem__(key)
+
+
+BIN_HASHES = (
+    'hashes.binentries.txt',
+    'hashes.binhashes.txt',
+    'hashes.bintypes.txt',
+    'hashes.binfields.txt'
+)
+WAD_HASHES = (
+    'hashes.game.txt',
+    'hashes.lcu.txt',
+)
+ALL_HASHES = BIN_HASHES + WAD_HASHES
+
+class Storage:
+    hashtables = {key: {} for key in ALL_HASHES}
+    bin_hashes = Bin_Hashes()
+
+    def read_all_hashes(): CustomHashes.read_all_hashes()
+    def read_wad_hashes(): CustomHashes.read_wad_hashes()
+    def read_bin_hashes(): CustomHashes.read_bin_hashes()
+    def free_all_hashes(): CustomHashes.free_all_hashes()
+    def free_wad_hashes(): CustomHashes.free_wad_hashes()
+    def free_bin_hashes(): CustomHashes.free_bin_hashes()
 
 
 class CDTBHashes:
@@ -105,7 +103,7 @@ class CDTBHashes:
             except Exception as e:
                 print(f'hash_helper: Error: Sync hash: {filename}: {e}')
                 print(traceback.format_exc())
-            combine_custom_hashes(filename)
+            CustomHashes.combine_custom_hashes(filename)
         print(f'hash_helper: Finish: Sync all hashes.')
 
     @staticmethod
@@ -113,12 +111,12 @@ class CDTBHashes:
         # read etags
         CDTBHashes.ETAG = {}
         if os.path.exists(CDTBHashes.etag_path):
-            with open(CDTBHashes.etag_path, 'r') as f:
+            with open(CDTBHashes.etag_path, 'r', encoding='utf-8') as f:
                 CDTBHashes.ETAG = json.load(f)
         CDTBHashes.sync_hashes(*ALL_HASHES)
         # write etags
-        with open(CDTBHashes.etag_path, 'w+') as f:
-            json.dump(CDTBHashes.ETAG, f, indent=4)
+        with open(CDTBHashes.etag_path, 'w+', encoding='utf-8') as f:
+            json.dump(CDTBHashes.ETAG, f, indent=4, ensure_ascii=False)
 
 
 class ExtractedHashes:
@@ -128,6 +126,7 @@ class ExtractedHashes:
     def local_file(filename): 
         return f'{ExtractedHashes.local_dir}/{filename}'
 
+    @staticmethod
     def calculate_size():
         total_size = 0
         for root, dirs, files in os.walk(ExtractedHashes.local_dir):
@@ -135,8 +134,17 @@ class ExtractedHashes:
                 total_size += os.path.getsize(os.path.join(root, file))
         return to_human(total_size)
     
+    @staticmethod
+    def clear_extract_hashes(*filenames):
+        for filename in filenames:
+            eh_file = ExtractedHashes.local_file(filename)
+            if os.path.exists(eh_file):
+                os.remove(os.path.abspath(eh_file))
+        print('hash_helper: Finish: Clear Extract Hashes.')
+    
+    @staticmethod
     def extract(*file_paths):
-        wad_hash = pyRitoFile.wad_hash
+        wad_hash = pyRitoFile.wad.WADHasher.raw_to_hex
 
         hashtables = {
             'hashes.binentries.txt': {},
@@ -147,9 +155,9 @@ class ExtractedHashes:
             try:
                 # extract submesh hash <-> submesh name
                 if raw == None:
-                    skn = pyRitoFile.read_skn(file_path)
+                    skn = pyRitoFile.skn.SKN().read(file_path)
                 else:
-                    skn = pyRitoFile.read_skn('', raw)
+                    skn = pyRitoFile.skn.SKN().read('', raw)
                 for submesh in skn.submeshes:
                     hashtables['hashes.binhashes.txt'][submesh.bin_hash] = submesh.name
             except Exception as e:
@@ -160,9 +168,9 @@ class ExtractedHashes:
             try:
                 # extract joint hash <-> joint name
                 if raw == None:
-                    skl = pyRitoFile.read_skl(file_path)
+                    skl = pyRitoFile.skl.SKL().read(file_path)
                 else:
-                    skl = pyRitoFile.read_skl('', raw)
+                    skl = pyRitoFile.skl.SKL().read('', raw)
                 for joint in skl.joints:
                     hashtables['hashes.binhashes.txt'][joint.bin_hash] = joint.name
             except Exception as e:
@@ -171,9 +179,9 @@ class ExtractedHashes:
 
         def extract_bin(file_path, raw=None):
             def extract_file_value(value, value_type):
-                if value_type == pyRitoFile.BINType.STRING:
+                if value_type == pyRitoFile.bin.BINType.STRING:
                     value = value.lower()
-                    if 'assets/' in value or 'data/' in value:
+                    if '/' in value:
                         hashtables['hashes.game.txt'][wad_hash(
                             value)] = value
                         if value.endswith('.dds'):
@@ -186,57 +194,52 @@ class ExtractedHashes:
                                 value2x)] = value2x
                             hashtables['hashes.game.txt'][wad_hash(
                                 value4x)] = value4x
-                elif value_type in (pyRitoFile.BINType.LIST, pyRitoFile.BINType.LIST2):
+                elif value_type in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
                     for v in value.data:
                         extract_file_value(v, value_type)
-                elif value_type in (pyRitoFile.BINType.EMBED, pyRitoFile.BINType.POINTER):
+                elif value_type in (pyRitoFile.bin.BINType.EMBED, pyRitoFile.bin.BINType.POINTER):
                     for f in value.data:
                         extract_file_field(f)
 
             def extract_file_field(field):
-                if field.type in (pyRitoFile.BINType.LIST, pyRitoFile.BINType.LIST2):
+                if field.type in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
                     for v in field.data:
                         extract_file_value(v, field.value_type)
-                elif field.type in (pyRitoFile.BINType.EMBED, pyRitoFile.BINType.POINTER):
+                elif field.type in (pyRitoFile.bin.BINType.EMBED, pyRitoFile.bin.BINType.POINTER):
                     for f in field.data:
                         extract_file_field(f)
-                elif field.type == pyRitoFile.BINType.MAP:
+                elif field.type == pyRitoFile.bin.BINType.MAP:
                     for key, value in field.data.items():
                         extract_file_value(key, field.key_type)
                         extract_file_value(value, field.value_type)
-                elif field.type == pyRitoFile.BINType.OPTION and field.value_type == pyRitoFile.BINType.STRING:
+                elif field.type == pyRitoFile.bin.BINType.OPTION and field.value_type == pyRitoFile.bin.BINType.STRING:
                     extract_file_value(field.data, field.value_type)
                 else:
                     extract_file_value(field.data, field.type)
 
             try:
                 if raw == None:
-                    bin = pyRitoFile.read_bin(file_path)
+                    bin = pyRitoFile.bin.BIN().read(file_path)
                 else:
-                    bin = pyRitoFile.read_bin('', raw)
-                for entry in bin.entries:
-                    # extract VfxSystemDefinitionData <-> particlePath
-                    if entry.type == cached_bin_hashes['VfxSystemDefinitionData']:
-                        particlePath = pyRitoFile.BINHelper.find_item(
-                            items=entry.data,
-                            compare_func=lambda field: field.hash == cached_bin_hashes['particlePath']
-                        )
-                        if particlePath != None:
-                            hashtables['hashes.binentries.txt'][entry.hash] = particlePath.data
-                    # extract StaticMaterialDef <-> name
-                    elif entry.type == cached_bin_hashes['StaticMaterialDef']:
-                        name = pyRitoFile.BINHelper.find_item(
-                            items=entry.data,
-                            compare_func=lambda field: field.hash == cached_bin_hashes['name']
-                        )
-                        if name != None:
-                            hashtables['hashes.binentries.txt'][entry.hash] = name.data
+                    bin = pyRitoFile.bin.BIN().read('', raw)
+                # extract VfxSystemDefinitionData <-> particlePath
+                VfxSystemDefinitionDatas = bin.get_items(lambda entry: entry.type == Storage.bin_hashes['VfxSystemDefinitionData'])
+                for VfxSystemDefinitionData in VfxSystemDefinitionDatas:
+                    particlePaths = VfxSystemDefinitionData.get_items(lambda field: field.hash == Storage.bin_hashes['particlePath'])
+                    if len(particlePaths) > 0:
+                        hashtables['hashes.binentries.txt'][VfxSystemDefinitionData.hash] = particlePaths[0].data
+                # extract StaticMaterialDef <-> name
+                StaticMaterialDefs = bin.get_items(lambda entry: entry.type == Storage.bin_hashes['StaticMaterialDef'])
+                for StaticMaterialDef in StaticMaterialDefs:
+                    names = StaticMaterialDef.get_items(lambda field: field.hash == Storage.bin_hashes['name'])
+                    if len(names) > 0:
+                        hashtables['hashes.binentries.txt'][StaticMaterialDef.hash] = names[0].data
                 # extract file hashes
                 for entry in bin.entries:
                     for field in entry.data:
                         extract_file_field(field)
                 for link in bin.links:
-                    extract_file_value(link, pyRitoFile.BINType.STRING)
+                    extract_file_value(link, pyRitoFile.bin.BINType.STRING)
 
             except Exception as e:
                 print(f'hash_helper: Error: Extract hashes: {file_path}: {e}')
@@ -244,7 +247,7 @@ class ExtractedHashes:
 
         def extract_wad(file_path):
             try:
-                wad = pyRitoFile.read_wad(file_path)
+                wad = pyRitoFile.wad.WAD().read(file_path)
                 with wad.stream(file_path, 'rb') as bs:
                     for chunk in wad.chunks:
                         chunk.read_data(bs)
@@ -275,14 +278,14 @@ class ExtractedHashes:
         # write out hashes txt
         for filename, hashtable in hashtables.items():
             local_file = ExtractedHashes.local_file(filename)
-            sep = HASH_SEPARATOR(filename)
+            sep = get_hash_separator(filename)
             # read existed extracted hashes
             if os.path.exists(local_file):
-                with open(local_file, 'r') as f:
+                with open(local_file, 'r', encoding='utf-8') as f:
                     for line in f:
                         hashtable[line[:sep]] = line[sep+1:-1]
             # write
-            with open(local_file, 'w+') as f:
+            with open(local_file, 'w+', encoding='utf-8') as f:
                 f.writelines(
                     f'{key} {value}\n'
                     for key, value in sorted(
@@ -290,7 +293,7 @@ class ExtractedHashes:
                     )
                 )
             print(f'hash_helper: Finish: Extract: {local_file}')
-            combine_custom_hashes(filename)
+            CustomHashes.combine_custom_hashes(filename)
 
 
 class CustomHashes:
@@ -315,21 +318,21 @@ class CustomHashes:
             # safe check
             if os.path.exists(local_file):
                 # read hashes
-                with open(local_file, 'r') as f:
-                    sep = HASH_SEPARATOR(filename)
+                with open(local_file, 'r', encoding='utf-8') as f:
+                    sep = get_hash_separator(filename)
                     for line in f:
-                        HASHTABLES[filename][line[:sep]] = line[sep+1:-1]
+                        Storage.hashtables[filename][line[:sep]] = line[sep+1:-1]
 
     @staticmethod
     def write_hashes(*filenames):
         for filename in filenames:
             local_file = CustomHashes.local_file(filename)
             # write combined hashes
-            with open(local_file, 'w+') as f:
+            with open(local_file, 'w+', encoding='utf-8') as f:
                 f.writelines(
                     f'{key} {value}\n'
                     for key, value in sorted(
-                        HASHTABLES[filename].items(), key=lambda item: item[1]
+                        Storage.hashtables[filename].items(), key=lambda item: item[1]
                     )
                 )
 
@@ -348,7 +351,7 @@ class CustomHashes:
     @staticmethod
     def free_hashes(*filenames):
         for filename in filenames:
-            HASHTABLES[filename] = {}
+            Storage.hashtables[filename] = {}
 
     @staticmethod
     def free_bin_hashes(*filenames):
@@ -362,57 +365,50 @@ class CustomHashes:
     def free_all_hashes():
         CustomHashes.free_hashes(*ALL_HASHES)
 
-
-def combine_custom_hashes(*filenames):
-    for filename in filenames:
-        hashtable = {}
-        cdtb_file = CDTBHashes.local_file(filename)
-        ex_file = ExtractedHashes.local_file(filename)
-        ch_file = CustomHashes.local_file(filename)
-        sep = HASH_SEPARATOR(filename)
-        # read cdtb hashes
-        if os.path.exists(cdtb_file):
-            with open(cdtb_file, 'r') as f:
-                for line in f:
-                    hashtable[line[:sep]] = line[sep+1:-1]
-        # read extracted hashes
-        if os.path.exists(ex_file):
-            with open(ex_file, 'r') as f:
-                for line in f:
-                    hashtable[line[:sep]] = line[sep+1:-1]
-        # read existed custom hashes
-        if os.path.exists(ch_file):
-            with open(ch_file, 'r') as f:
-                for line in f:
-                    hashtable[line[:sep]] = line[sep+1:-1]
-        # write combined hashes
-        with open(ch_file, 'w+') as f:
-            f.writelines(
-                f'{key} {value}\n'
-                for key, value in sorted(
-                    hashtable.items(), key=lambda item: item[1]
+    @staticmethod
+    def combine_custom_hashes(*filenames):
+        for filename in filenames:
+            hashtable = {}
+            cdtb_file = CDTBHashes.local_file(filename)
+            ex_file = ExtractedHashes.local_file(filename)
+            ch_file = CustomHashes.local_file(filename)
+            sep = get_hash_separator(filename)
+            # read cdtb hashes
+            if os.path.exists(cdtb_file):
+                with open(cdtb_file, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        hashtable[line[:sep]] = line[sep+1:-1]
+            # read extracted hashes
+            if os.path.exists(ex_file):
+                with open(ex_file, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        hashtable[line[:sep]] = line[sep+1:-1]
+            # read existed custom hashes
+            if os.path.exists(ch_file):
+                with open(ch_file, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        hashtable[line[:sep]] = line[sep+1:-1]
+            # write combined hashes
+            with open(ch_file, 'w+', encoding='utf-8') as f:
+                f.writelines(
+                    f'{key} {value}\n'
+                    for key, value in sorted(
+                        hashtable.items(), key=lambda item: item[1]
+                    )
                 )
-            )
-        print(f'hash_helper: Finish: Update: {ch_file}')
+            print(f'hash_helper: Finish: Update: {ch_file}')
 
-
-def reset_custom_hashes(*filenames):
-    for filename in filenames:
-        cdtb_file = CDTBHashes.local_file(filename)
-        ch_file = CustomHashes.local_file(filename)
-        # copy file from cdtb
-        with open(cdtb_file, 'rb') as f:
-            data = f.read()
-        with open(ch_file, 'wb+') as f:
-            f.write(data)
-    print('hash_helper: Finish: Reset Custom Hashes to CDTB Hashes.')
-
-def clear_extract_hashes(*filenames):
-    for filename in filenames:
-        eh_file = ExtractedHashes.local_file(filename)
-        if os.path.exists(eh_file):
-            os.remove(os.path.abspath(eh_file))
-    print('hash_helper: Finish: Clear Extract Hashes.')
+    @staticmethod
+    def reset_custom_hashes(*filenames):
+        for filename in filenames:
+            cdtb_file = CDTBHashes.local_file(filename)
+            ch_file = CustomHashes.local_file(filename)
+            # copy file from cdtb
+            with open(cdtb_file, 'rb') as f:
+                data = f.read()
+            with open(ch_file, 'wb+') as f:
+                f.write(data)
+        print('hash_helper: Finish: Reset Custom Hashes to CDTB Hashes.')
 
 def init():
     # load setting first

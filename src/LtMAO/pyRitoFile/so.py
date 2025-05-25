@@ -126,21 +126,23 @@ class SO:
 
                 index += 1
 
+            return self
+        
     def write_sco(self, path, raw=None):
         with self.stream_sco(path, 'w', raw) as f:
             f.write('[ObjectBegin]\n')  # magic
             f.write(f'Name= {self.name}\n') # name
             # central
             f.write(
-                f'CentralPoint= {self.central.x:.4f} {self.central.y:.4f} {self.central.z:.4f}\n') \
+                f'CentralPoint= {self.central.x:.4g} {self.central.y:.4g} {self.central.z:.4g}\n') \
             # pivot
             if self.pivot != None:
                 f.write(
-                    f'PivotPoint= {self.pivot.x:.4f} {self.pivot.y:.4f} {self.pivot.z:.4f}\n')
+                    f'PivotPoint= {self.pivot.x:.4g} {self.pivot.y:.4g} {self.pivot.z:.4g}\n')
             # positions
             f.write(f'Verts= {len(self.positions)}\n')
             for position in self.positions:
-                f.write(f'{position.x:.4f} {position.y:.4f} {position.z:.4f}\n')
+                f.write(f'{position.x:.4g} {position.y:.4g} {position.z:.4g}\n')
             # faces
             face_count = len(self.indices) // 3
             f.write(f'Faces= {face_count}\n')
@@ -204,6 +206,8 @@ class SO:
                 self.uvs.append(Vector(uvs[0], uvs[3]))
                 self.uvs.append(Vector(uvs[1], uvs[4]))
                 self.uvs.append(Vector(uvs[2], uvs[5]))
+            
+            return self
 
     def write_scb(self, path, raw=None):
         def get_bounding_box():

@@ -17,10 +17,12 @@ from PySide6.QtWidgets import (
     QItemDelegate,
     QTextEdit,
     QTreeView,
-    QSlider,
+    QSlider, 
+    QTreeWidget,
+    QTreeWidgetItem,
 )
 from PySide6.QtGui import QColor, QStandardItem, QStandardItemModel, QPixmap, QMovie
-from PySide6.QtCore import Qt, QObject, Signal, QTimer
+from PySide6.QtCore import Qt, QObject, Signal
 
 
 import os, os.path, time
@@ -85,7 +87,8 @@ all = [
     Control('🍋\nlemon3d', 7, lambda widget: build_lemon3d(widget)),
     Control('🛣️\ntexsmart', 8, lambda widget: build_texsmart(widget)),
     Control('🔊\nbnk_tool', 9, lambda widget: build_bnk_tool(widget)),
-    Control('🎛️\nwiwawe', 10, lambda widget: build_wiwawe(widget)),
+    Control('📼\nwiwawe', 10, lambda widget: build_wiwawe(widget)),
+    Control('🪟\nwinLT', 11, lambda widget: build_winLT(widget)),
 ]
 
 def build_cslmao(widget: QWidget):
@@ -722,7 +725,7 @@ def build_hash_helper(widget: QWidget):
     layout2 = QHBoxLayout()
     button = QToolButton()
     button.setText('❌ Reset Custom hash to CDTB hash')
-    button.clicked.connect(lambda event: hash_helper.reset_custom_hashes(*hash_helper.ALL_HASHES))
+    button.clicked.connect(lambda event: hash_helper.CustomHashes.reset_custom_hashes(*hash_helper.ALL_HASHES))
     layout2.addWidget(button)
     button = QToolButton()
     button.setText('❌ Clear Extract hash')
@@ -793,7 +796,7 @@ def build_hash_helper(widget: QWidget):
             filename = f'hashes.bin{binhash_name.lower()}.txt'
             hash_helper.CustomHashes.read_hashes(filename)
             for i in range(len(raws)):
-                hash_helper.HASHTABLES[filename][hashes[i]] = raws[i]
+                hash_helper.Storage.hashtables[filename][hashes[i]] = raws[i]
             hash_helper.CustomHashes.write_hashes(filename)
             hash_helper.CustomHashes.free_hashes(filename)
             print(f'hash_helper: Finish: Add {raw_count} hashes to {filename} of custom hash.')
@@ -811,7 +814,7 @@ def build_hash_helper(widget: QWidget):
     layout.addLayout(layout2)
     def input_text():
         textedit2.clear()
-        textedit2.setPlainText('\n'.join([pyRitoFile.bin_hash(text) if text != '' else '' for text in textedit.toPlainText().split('\n')]))
+        textedit2.setPlainText('\n'.join([pyRitoFile.bin.BINHasher.raw_to_hex(text) if text != '' else '' for text in textedit.toPlainText().split('\n')]))
     textedit.textChanged.connect(input_text)
     
     # generate wad hash
@@ -833,7 +836,7 @@ def build_hash_helper(widget: QWidget):
             filename = f'hashes.{wadhash_name.lower()}.txt'
             hash_helper.CustomHashes.read_hashes(filename)
             for i in range(len(raws)):
-                hash_helper.HASHTABLES[filename][hashes[i]] = raws[i]
+                hash_helper.Storage.hashtables[filename][hashes[i]] = raws[i]
             hash_helper.CustomHashes.write_hashes(filename)
             hash_helper.CustomHashes.free_hashes(filename)
             print(f'hash_helper: Finish: Add {raw_count} hashes to {filename} of custom hash.')
@@ -851,7 +854,7 @@ def build_hash_helper(widget: QWidget):
     layout.addLayout(layout2)
     def input_text():
         textedit4.clear()
-        textedit4.setPlainText('\n'.join([pyRitoFile.wad_hash(text) if text != '' else '' for text in textedit3.toPlainText().split('\n')]))
+        textedit4.setPlainText('\n'.join([pyRitoFile.wad.WADHasher.raw_to_hex(text) if text != '' else '' for text in textedit3.toPlainText().split('\n')]))
     textedit3.textChanged.connect(input_text)
 
 
@@ -928,22 +931,24 @@ def build_mask_viewer(widget: QWidget):
 
     # action cmds
     def load_table(skl_line, anm_bin_line, table: QTableWidget):
-        hash_helper.read_bin_hashes()
-        skl_file = pyRitoFile.read_skl(skl_line.text())
+        hash_helper.Storage.read_bin_hashes()
+        skl_file = pyRitoFile.skl.SKL().read(skl_line.text())
         joint_names = [f'[{joint_id}] {joint.name}' for joint_id, joint in enumerate(skl_file.joints)]
-        hash_helper.free_bin_hashes()
-        qtwidgets.mask_viewer_bin_file = bin_file = pyRitoFile.read_bin(anm_bin_line.text())
+        hash_helper.Storage.free_bin_hashes()
+        qtwidgets.mask_viewer_bin_file = bin_file = pyRitoFile.bin.BIN().read(anm_bin_line.text())
         mask_data = mask_viewer.get_weights(bin_file)
         mask_names, weights = list(mask_data.keys()), list(mask_data.values())
-        if len(joint_names) > len(weights):
-            weights += [0.0] * (len(joint_names) - len(weights))
         table.setRowCount(len(joint_names))
         table.setColumnCount(len(mask_names))
         table.setHorizontalHeaderLabels(mask_names)
         table.setVerticalHeaderLabels(joint_names)
         for j in range(table.columnCount()):
             for i in range(table.rowCount()):
-                table.setItem(i, j, QTableWidgetItem(str(weights[j][i])))
+                try:
+                    weight = str(weights[j][i])
+                except:
+                    weight = '0.0'
+                table.setItem(i, j, QTableWidgetItem(weight))
         print(f'mask_viewer: Finish: Load table: {anm_bin_line.text()}')
 
     def save_table(table: QTableWidget):
@@ -958,9 +963,11 @@ def build_mask_viewer(widget: QWidget):
             final_path = filepath[0]
             mask_data = {}
             for j in range(table.columnCount()):
-                mask_data[table.horizontalHeaderItem(j).text()] = [float(table.itemAt(i, j).text()) for i in range(table.rowCount())]
+                mask_name = table.horizontalHeaderItem(j).text()
+                weights = [float(table.item(i, j).text()) for i in range(table.rowCount())]
+                mask_data[mask_name] = weights
             mask_viewer.set_weights(qtwidgets.mask_viewer_bin_file, mask_data)
-            pyRitoFile.write_bin(final_path, qtwidgets.mask_viewer_bin_file)
+            qtwidgets.mask_viewer_bin_file.write(final_path)
             print(f'mask_viewer: Finish: Save table: {final_path}')
 
     def clear_table(table: QTableWidget):
@@ -1230,12 +1237,12 @@ def build_wad_tool(widget: QWidget):
         )
         if len(filepath[0]) > 0:
             def wad_thrd(): 
-                hash_helper.read_wad_hashes()
+                hash_helper.Storage.read_wad_hashes()
                 src = filepath[0]
                 dst = src.replace('.wad.client', '.wad')
-                wad_tool.unpack(src, dst, hash_helper.HASHTABLES)
+                wad_tool.unpack(src, dst, hash_helper.Storage.hashtables)
                 print(f'wad_tool: Finish: Unpack {src}')
-                hash_helper.free_wad_hashes()
+                hash_helper.Storage.free_wad_hashes()
             helper.SafeThread.start('wad_tool', wad_thrd)
     button.clicked.connect(wad_to_dir)
     layout2.addWidget(button)
@@ -1340,17 +1347,17 @@ def build_wad_tool(widget: QWidget):
                             final_paths.append(os.path.join(root, file).replace('\\', '/'))
         if len(final_paths) > 0:
             def wad_thrd():
-                hash_helper.read_wad_hashes()
+                hash_helper.Storage.read_wad_hashes()
                 for wad_path in final_paths:
                     try:
                         if wad_path not in qtwidgets.text_wad_paths:
-                            wad = pyRitoFile.read_wad(wad_path)
-                            wad.un_hash(hash_helper.HASHTABLES)
+                            wad = pyRitoFile.wad.WAD().read(wad_path)
+                            wad.un_hash(hash_helper.Storage.hashtables)
                             qtwidgets.text_wad_paths.append(wad_path)
                             qtwidgets.text_chunk_hashes.extend(chunk.hash for chunk in wad.chunks)
                     except:
                         pass
-                hash_helper.free_wad_hashes()
+                hash_helper.Storage.free_wad_hashes()
                 
                 print('wad_tool: Finish: Load WADs.')
                 wadchunk_text.setPlainText('\n'.join(qtwidgets.text_wad_paths), '\n'.join(qtwidgets.text_chunk_hashes))
@@ -1410,10 +1417,10 @@ def build_wad_tool(widget: QWidget):
                 chunk_hashes = None
             if len(wad_paths) > 0:
                 def bulk_unpack_thrd():
-                    hash_helper.read_wad_hashes()
+                    hash_helper.Storage.read_wad_hashes()
                     for wad_path in wad_paths:
-                        wad_tool.unpack(wad_path, dirpath, hash_helper.HASHTABLES, filter=chunk_hashes)
-                    hash_helper.free_wad_hashes()
+                        wad_tool.unpack(wad_path, dirpath, hash_helper.Storage.hashtables, filter=chunk_hashes)
+                    hash_helper.Storage.free_wad_hashes()
                     print(f'wad_tool: Finish: Unpack to {dirpath}')
                 helper.SafeThread.start('wad_tool', bulk_unpack_thrd)
     unpack_button.clicked.connect(bulk_unpack)
@@ -2108,21 +2115,17 @@ def build_bnk_tool(widget: QWidget):
     auto_playcheckbox.clicked.connect(autoplay_checkbox_cmd)
     layout3.addWidget(auto_playcheckbox)
     # autoplay select cmd
-    def autoplay_select_cmd(selected, deselected):
+    def autoplay_select_cmd(current, previous):
         if qtwidgets.inspector == None:
             return
-        if selected != None and setting.get('bnk_tool.auto_play', True) :
-            select_range = selected.data()
-            if select_range != None:
-                select_index = select_range.indexes()
-                if len(select_index) > 0:
-                    text = select_index[-1].data()
-                    if text.startswith('🎵'): 
-                        wem_id = text[2:]
-                        qtwidgets.is_selecting = True
-                        qtwidgets.select_cd = 0.25
-                        qtwidgets.selected_wem_id = wem_id
-    treeview.selectionModel().selectionChanged.connect(autoplay_select_cmd)
+        if setting.get('bnk_tool.auto_play', True) :
+            text = current.data()
+            if text != None and text.startswith('🎵'): 
+                wem_id = text[2:]
+                qtwidgets.is_selecting = True
+                qtwidgets.select_cd = 0.25
+                qtwidgets.selected_wem_id = wem_id
+    treeview.selectionModel().currentChanged.connect(autoplay_select_cmd)
     # start the autoplay event
     reset_autoplay_values()
     if setting.get('bnk_tool.auto_play', True):
@@ -2131,7 +2134,7 @@ def build_bnk_tool(widget: QWidget):
     # play one by one
     stopprev_checkbox = QCheckBox()
     stopprev_checkbox.setChecked(setting.get('bnk_tool.stop_previous', True))
-    stopprev_checkbox.setText('🔁 Stop previous sound')
+    stopprev_checkbox.setText('⏭️ Stop previous sound')
     stopprev_checkbox.setMinimumWidth(230)
     def stopprev_checkbox_cmd():
         setting.set('bnk_tool.stop_previous', stopprev_checkbox.isChecked())
@@ -2221,6 +2224,62 @@ def build_wiwawe(widget: QWidget):
         layout2.addWidget(dir_button)
         layout2.addStretch()
         layout.addLayout(layout2)
+    layout.addStretch()
+    widget.setLayout(layout)
+
+def build_winLT(widget: QWidget):
+    layout = QVBoxLayout()
+
+    # shortcuts
+    layout2 = QHBoxLayout()
+    desktop_button = QToolButton()
+    desktop_button.setText('🖥️ Create desktop shortcut')
+    desktop_button.clicked.connect(winLT.Shortcut.create_desktop)
+    layout2.addWidget(desktop_button)
+    launch_button = QToolButton()
+    launch_button.setText('🚀 Create launch shortcut')
+    launch_button.clicked.connect(winLT.Shortcut.create_launch)
+    layout2.addWidget(launch_button)
+    layout2.addStretch()
+    layout.addLayout(layout2)
+
+    layout.addSpacing(30)
+    
+    # contexts
+    # treewidget
+    def set_context_data(shell_id, command_id, value):
+        winLT.Context.submenus[shell_id][command_id] = value
+    layout2 = QHBoxLayout()
+    treewidget = QTreeWidget()
+    treewidget.setHeaderHidden(True)
+    treewidget.setSelectionMode(treewidget.SelectionMode.SingleSelection)
+    for shell_id in winLT.Context.submenus:
+        shell_item = QTreeWidgetItem(treewidget)
+        shell_item.setText(0, f'💬 {shell_id}')
+        for command_id in winLT.Context.submenus[shell_id]:
+            command_item = QTreeWidgetItem(shell_item)
+            command_item.setText(0, '')
+            checkbox = QCheckBox(f'🔧 {winLT.Context.commands[command_id]["desc"]}')
+            checkbox.setChecked(winLT.Context.submenus[shell_id][command_id])
+            checkbox.clicked.connect(lambda value, shell_id=shell_id, command_id=command_id: set_context_data(shell_id, command_id, value))
+            treewidget.setItemWidget(command_item, 0, checkbox)
+    treewidget.expandAll()
+
+    layout2.addWidget(treewidget)
+    layout.addLayout(layout2, stretch=1)
+    # buttons
+    layout2 = QHBoxLayout()
+    set_button = QToolButton()
+    set_button.setText('💬 Set explorer context')
+    set_button.clicked.connect(winLT.Context.create_contexts)
+    layout2.addWidget(set_button)
+    remove_button = QToolButton()
+    remove_button.setText('❌ Remove explorer context')
+    remove_button.clicked.connect(winLT.Context.remove_contexts)
+    layout2.addWidget(remove_button)
+    layout2.addStretch()
+    layout.addLayout(layout2)
+
     layout.addStretch()
     widget.setLayout(layout)
     
@@ -2314,26 +2373,10 @@ def build_setting(widget: QWidget):
     layout2.addWidget(label)
     layout2.addStretch()
     layout.addLayout(layout2)
-    # winlt stuffs
-    layout2 = QHBoxLayout()
-    button = QToolButton()
-    button.setText('💬 Create explorer context')
-    button.clicked.connect(winLT.Context.create_contexts)
-    layout2.addWidget(button)
-    button = QToolButton()
-    button.setText('❌ Remove explorer context')
-    button.clicked.connect(winLT.Context.remove_contexts)
-    layout2.addWidget(button)
-    button = QToolButton()
-    button.setText('🖥️ Create desktop shortcut')
-    button.clicked.connect(winLT.Shortcut.create_desktop)
-    layout2.addWidget(button)
-    layout2.addStretch()
-    layout.addLayout(layout2)
     # restart + update + support
     layout2 = QHBoxLayout()
     button = QToolButton()
-    button.setText('🚀 Restart LtMAO')
+    button.setText('♻️ Restart LtMAO')
     def restart_cmd():
         print(f'Running: Restart LtMAO')
         os.system(os.path.join(os.path.abspath(os.path.curdir),'start.bat'))

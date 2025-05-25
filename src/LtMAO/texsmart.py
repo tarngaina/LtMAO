@@ -1,5 +1,5 @@
-from PIL import Image
 import os.path
+from PIL import Image
 from . import tools, Ritoddstex
 
 def dds2png(src):

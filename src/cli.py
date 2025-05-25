@@ -42,22 +42,22 @@ class CLI:
         from LtMAO import wad_tool, hash_helper
         if dst == None:
             dst = src.replace('.wad.client', '.wad')
-        hash_helper.read_wad_hashes()
-        wad_tool.unpack(src, dst, hash_helper.HASHTABLES)
-        hash_helper.free_wad_hashes()
+        hash_helper.Storage.read_wad_hashes()
+        wad_tool.unpack(src, dst, hash_helper.Storage.hashtables)
+        hash_helper.Storage.free_wad_hashes()
 
     @staticmethod
     def wadunpack_all(src, dst):
         from LtMAO import wad_tool, hash_helper
         import os, os.path
-        hash_helper.read_wad_hashes()
+        hash_helper.Storage.read_wad_hashes()
         for root, dirs, files in os.walk(src):
             for file in files:
                 if file.endswith('.wad.client'):
                     wad = os.path.join(root, file)
                     dir = wad.replace('.wad.client', '.wad')
-                    wad_tool.unpack(wad, dir, hash_helper.HASHTABLES)
-        hash_helper.free_wad_hashes()
+                    wad_tool.unpack(wad, dir, hash_helper.Storage.hashtables)
+        hash_helper.Storage.free_wad_hashes()
 
     @staticmethod
     def ritobin(src, dst):
@@ -73,12 +73,9 @@ class CLI:
     @staticmethod
     def lfi(src):
         from LtMAO import hash_helper, file_inspector
-        hash_helper.read_all_hashes()
-        json = file_inspector.to_json(src, hash_helper.HASHTABLES)
-        hash_helper.free_all_hashes()
-        dst = src + '.json'
-        with open(dst, 'w+') as f:
-            f.write(json)
+        hash_helper.Storage.read_all_hashes()
+        file_inspector.inspect(src, hash_helper.Storage.hashtables)
+        hash_helper.Storage.free_all_hashes()
         
     @staticmethod
     def uvee(src):
@@ -228,7 +225,7 @@ class CLI:
             raise Exception(f'zipfantome: Error:  No META/info.json found inside {src}.')
 
         info = {}
-        with open(info_file, 'r') as f:
+        with open(info_file, 'r', encoding='utf-8') as f:
             info = json.load(f)
 
         dst = os.path.dirname(src) + f'/{info["Name"]} V{info["Version"]} by {info["Author"]}.fantome'
