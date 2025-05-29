@@ -23,7 +23,7 @@
 ## File Explorer Context menu
 Can be added/removed in setting tab.
 
-**Note**: You can to run `LtMAO` as Admin through shortcut if you encounter permission error. 
+**Note**: You can run `LtMAO` as Admin through shortcut if you encounter permission error. 
 
 ![](https://i.imgur.com/f3XIP4M.png)
 

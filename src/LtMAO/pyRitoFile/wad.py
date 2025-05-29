@@ -73,11 +73,11 @@ class WADHasher:
     
     @staticmethod
     def raw_to_hex(raw):
-        return xxh64(raw.lower()).hexdigest()
+        return f'{xxh64(raw.lower()).intdigest():016x}'
 
     @staticmethod
     def hash_to_hex(hash):
-        return f'{hash:08x}'
+        return f'{hash:016x}'
 
     @staticmethod
     def raw_or_hex_to_hash(raw_or_hex):

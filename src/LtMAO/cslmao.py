@@ -1,6 +1,7 @@
 import os, os.path, json, datetime, shutil
 from . import tools, setting, Ritoddstex
 
+block_and_stream_process_output = tools.block_and_stream_process_output
 
 class MOD:
     __slots__ = (

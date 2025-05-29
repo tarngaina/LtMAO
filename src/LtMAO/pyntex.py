@@ -1,7 +1,7 @@
 import os, os.path, traceback, json
 from . import hash_helper, pyRitoFile
 
-def parse_bin(bin, *, existing_files=[]):
+def parse_bin(bin, *, existing_files={}):
     bin_hash = pyRitoFile.bin.BINHasher.raw_to_hex
     temp_hashes = [
         hash_helper.Storage.bin_hashes[text] for text in (
@@ -45,9 +45,12 @@ def parse_bin(bin, *, existing_files=[]):
         for field in entry.data:
             parse_field(field)
 
-        if len(existing_files) > 0:
-            missing_files = [
-                file for file in mentioned_files if file not in existing_files]
+        if len(existing_files) > 0:   
+            for file in mentioned_files:
+                if file in existing_files:
+                    existing_files[file] = False
+                else:
+                    missing_files.append(file)     
 
         dic = {}
         dic['hash'] = entry.hash
@@ -72,23 +75,24 @@ def parse_dir(path):
         for file in files:
             full_files.append(os.path.join(root, file).replace('\\', '/'))
     full_files.sort()
-    existing_files = [os.path.relpath(file_path, path).replace(
-        '\\', '/') for file_path in full_files]
+    existing_files = {
+        os.path.relpath(file_path, path).replace('\\', '/'): True 
+        for file_path in full_files
+    }
+    short_files = list(existing_files.keys())
     # parsing
     print(f'pyntex: Start:  Read bin hashes')
     hash_helper.Storage.read_bin_hashes()
-    for i, full_file in enumerate(full_files):
+    for full_file_index, full_file in enumerate(full_files):
         if full_file.endswith('.bin'):
-            try:
-                bin = pyRitoFile.bin.BIN().read(full_file)
-                bin.un_hash(hash_helper.Storage.hashtables)
-                result = parse_bin(bin, existing_files=existing_files)
-                if len(result) > 0:
-                    res[existing_files[i]] = result
-                    print(f'pyntex: Finish: Parse {full_file}')
-            except Exception as e:
-                print(f'pyntex: Error: Parse {full_file}: {e}')
-                print(traceback.format_exc())
+            bin = pyRitoFile.bin.BIN().read(full_file)
+            bin.un_hash(hash_helper.Storage.hashtables)
+            result = parse_bin(bin, existing_files=existing_files)
+            if len(result) > 0:
+                res[short_files[full_file_index]] = result
+                print(f'pyntex: Finish: Parse {full_file}')
+            existing_files[short_files[full_file_index]] = False
+    res['junk_files'] = [file for file in existing_files if existing_files[file]]
     hash_helper.Storage.free_bin_hashes()
     # write json out
     json_file = path + '.pyntex.json'
@@ -111,9 +115,7 @@ def parse_wad(path):
             if os.path.dirname(chunk.hash) == 'data':
                 chunk.hash = pyRitoFile.wad.WADHasher.raw_to_hex(chunk.hash) + '.bin'
     # list all chunk hashes
-    chunk_hashes = []
-    for chunk in wad.chunks:
-        chunk_hashes.append(chunk.hash)
+    chunk_hashes = {chunk.hash: True for chunk in wad.chunks}
     # parsing
     print(f'pyntex: Start:  Read bin hashes')
     hash_helper.Storage.read_bin_hashes()
@@ -121,17 +123,15 @@ def parse_wad(path):
         for chunk in wad.chunks:
             chunk.read_data(bs)
             if chunk.extension == 'bin':
-                try:
-                    bin = pyRitoFile.bin.BIN().read('', raw=chunk.data)
-                    bin.un_hash(hash_helper.Storage.hashtables)
-                    result = parse_bin(bin, existing_files=chunk_hashes)
-                    if len(result) > 0:
-                        res[chunk.hash] = result
-                        print(f'pyntex: Finish: Parse {chunk.hash}')
-                except Exception as e:
-                    print(f'pyntex: Error: Parse {chunk.hash}: {e}')
-                    print(traceback.format_exc())
+                bin = pyRitoFile.bin.BIN().read('', raw=chunk.data)
+                bin.un_hash(hash_helper.Storage.hashtables)
+                result = parse_bin(bin, existing_files=chunk_hashes)
+                if len(result) > 0:
+                    res[chunk.hash] = result
+                    print(f'pyntex: Finish: Parse {chunk.hash}')
+                chunk_hashes[chunk.hash] = False
             chunk.free_data()
+    res['junk_files'] = [file for file in chunk_hashes if chunk_hashes[file]]
     hash_helper.Storage.free_bin_hashes()
     # write json out
     json_file = path + '.pyntex.json'
