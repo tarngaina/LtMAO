@@ -1899,7 +1899,7 @@ def build_bnk_tool(widget: QWidget):
             audio_path=audio_line.text(),
             events_path=event_line.text(),
             bin_path=bin_line.text(),
-            volume=setting.get('bnk_tool.volume', True)
+            volume=setting.get('bnk_tool.volume', 0.5)
         )
         inspector.unpack(inspector.get_cache_dir())
         
@@ -2146,7 +2146,7 @@ def build_bnk_tool(widget: QWidget):
     volume_slider = QSlider()
     volume_slider.setOrientation(Qt.Orientation.Horizontal)
     volume_slider.setRange(0, 100)
-    volume_slider.setValue(int(setting.get('bnk_tool.volume', 1.0)*100))
+    volume_slider.setValue(int(setting.get('bnk_tool.volume', 0.5)*100))
     def volume_changed(value):
         volume_factor = float(value / 100)
         if qtwidgets.inspector != None:

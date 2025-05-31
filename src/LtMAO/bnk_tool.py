@@ -305,7 +305,7 @@ class Inspector:
         rmtree(Inspector.cache_dir, ignore_errors=True)
         os.makedirs(Inspector.cache_dir, exist_ok=True)
 
-    def __init__(self, audio_path, events_path='', bin_path='', volume=1.0):
+    def __init__(self, audio_path, events_path='', bin_path='', volume=0.5):
         self.volume = volume
         self.port = pyaudio.PyAudio()
         self.streams = []
