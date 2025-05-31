@@ -69,6 +69,14 @@ class BINHasher:
     @staticmethod
     def hash_to_hex(hash):
         return f'{hash:08x}'
+    
+    @staticmethod
+    def is_hash(raw):
+        try: 
+            int(raw, 16)
+            return True
+        except:
+            return False
 
     @staticmethod
     def raw_or_hex_to_hash(raw_or_hex):

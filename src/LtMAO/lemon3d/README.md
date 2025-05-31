@@ -10,7 +10,7 @@ Here is some `required` blender fbx export settings:
 - Scale 0.01: Scale in blender is 100x bigger compare to maya, this setting reduce scale 100 times back.
 - Triangualate Faces: This setting is a must, because League use triangualated mesh.
 - No Leaf Bones: "_end" bones that blender fbx plugin added for some reason, we don't wan those joints.
-- First frame of animation (should to be frame 0): This frame need to be bindpose of the model, bascially you press I when on bindpose at this frame.
+- First frame of animation: This frame need to be bindpose of the model. How: Go to bindpose -> Move to first frame -> press I to set keyframe.
 
 `Bonus stuffs related to maya:` Some animation converted to fbx look very wrong in maya, to fix this problem: change all rotate curve to quaternion slerp by `Graph editor -> Select rotation curves -> Graph editor toolbar -> Change Rotation Interp -> Quaternion Slerp`.
 

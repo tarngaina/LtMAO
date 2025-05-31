@@ -15,6 +15,7 @@ class Context:
             'AllWadToRaw': True,
             'hashextract': True,
             'PT': True,
+            'PTdeljunk': True,
             'ZipFantome': True,
             'RitobinDirToPy': True,
             'RitobinDirToBin': True,
@@ -27,6 +28,7 @@ class Context:
             'WadToRaw': True,
             'hashextract': True,
             'PT': True,
+            'PTdeljunk': True,
             'LFI': True,
         },
         'bin': {
@@ -136,8 +138,12 @@ class Context:
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="hashextract" -src="%V"'
         },
         'PT': {
-            'desc': 'pyntex: Check mentioned, missing files of BINs',
+            'desc': 'pyntex: Check mentioned, missing, junk files of BINs',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="pyntex" -src="%V"'
+        },
+        'PTdeljunk': {
+            'desc': 'pyntex: Remove junk files',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="pyntexdeljunk" -src="%V"'
         },
         'tex2dds': {
             'desc': 'Ritoddstex: Convert To DDS',

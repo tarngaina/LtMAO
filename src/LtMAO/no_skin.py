@@ -231,7 +231,7 @@ def full_no_skin(champions_dir, output_dir):
         output_dir,
         f'{FANTOME_META["Name"]} V{FANTOME_META["Version"]} by {FANTOME_META["Author"]}.fantome'
     ).replace('\\', '/')
-    with zipfile.ZipFile(fantome_file, 'w') as z:
+    with zipfile.ZipFile(fantome_file, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
         z.write(info_file, 'META/info.json')
         z.write(wad_file, 'WAD/Annie.wad.client')
     delete_cache()

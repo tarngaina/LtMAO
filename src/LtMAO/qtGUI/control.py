@@ -2414,8 +2414,8 @@ def build_setting(widget: QWidget):
                         bytes_downloaded_log = 0
             print(f'update_ltmao: Finish: Download: {local_file}')
             # extract update
-            from zipfile import ZipFile
-            with ZipFile(local_file) as zip:
+            import zipfile
+            with zipfile.ZipFile(local_file, 'r') as zip:
                 for zipinfo in zip.infolist():
                     zipinfo.filename = zipinfo.filename.replace('LtMAO-hai/', '')
                     try:

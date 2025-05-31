@@ -1,4 +1,4 @@
-import os, os.path, traceback, json
+import os, os.path, json
 from . import hash_helper, pyRitoFile
 
 def parse_bin(bin, *, existing_files={}):
@@ -67,7 +67,7 @@ def parse_bin(bin, *, existing_files={}):
     return results
 
 
-def parse_dir(path):
+def parse_dir(path, delete_junk_files=False):
     res = {}
     # list all files
     full_files = []
@@ -92,16 +92,28 @@ def parse_dir(path):
                 res[short_files[full_file_index]] = result
                 print(f'pyntex: Finish: Parse {full_file}')
             existing_files[short_files[full_file_index]] = False
-    res['junk_files'] = [file for file in existing_files if existing_files[file]]
     hash_helper.Storage.free_bin_hashes()
-    # write json out
-    json_file = path + '.pyntex.json'
-    with open(json_file, 'w+', encoding='utf-8') as f:
-        json.dump(res, f, indent=4, ensure_ascii=False)
-    print(f'pyntex: Finish: Write {json_file}')
+    if 'hashed_files.json' in existing_files:
+        existing_files['hashed_files.json'] = False
+    res['junk_files'] = [file for file in existing_files if existing_files[file]]
+    if delete_junk_files:
+        for file in res['junk_files']:
+            full_file = os.path.join(path, file).replace('\\', '/')
+            os.remove(full_file)
+            print(f'pyntex: Finish: Remove {full_file}')
+        # remove empty dirs
+        for root, dirs, files in os.walk(path, topdown=False):
+            if len(os.listdir(root)) == 0:
+                os.rmdir(root)
+    else:
+        # write json out
+        json_file = path + '.pyntex.json'
+        with open(json_file, 'w+', encoding='utf-8') as f:
+            json.dump(res, f, indent=4, ensure_ascii=False)
+        print(f'pyntex: Finish: Write {json_file}')
 
 
-def parse_wad(path):
+def parse_wad(path, delete_junk_files=False):
     res = {}
     # read wad
     print(f'pyntex: Start:  Read wad hashes')
@@ -131,19 +143,46 @@ def parse_wad(path):
                     print(f'pyntex: Finish: Parse {chunk.hash}')
                 chunk_hashes[chunk.hash] = False
             chunk.free_data()
-    res['junk_files'] = [file for file in chunk_hashes if chunk_hashes[file]]
     hash_helper.Storage.free_bin_hashes()
-    # write json out
-    json_file = path + '.pyntex.json'
-    with open(json_file, 'w+', encoding='utf-8') as f:
-        json.dump(res, f, indent=4, ensure_ascii=False)
-    print(f'pyntex: Finish: Write {json_file}')
+    res['junk_files'] = [file for file in chunk_hashes if chunk_hashes[file]]
+    if delete_junk_files:
+        # write wad2 temp
+        chunks_to_write = [file for file in chunk_hashes if not chunk_hashes[file]]
+        wad2_path = path + '.temp'
+        wad2 = pyRitoFile.wad.WAD()
+        wad2.chunks = [pyRitoFile.wad.WADChunk.default()
+                    for id in range(len(chunks_to_write))]
+        wad2.write(wad2_path)
+        # write wad2 chunk
+        with wad2.stream(wad2_path, 'rb+') as bs2:
+            with wad.stream(path, 'rb') as bs:
+                for id, chunk2 in enumerate(wad2.chunks):
+                    chunk_hash_to_write = chunks_to_write[id]
+                    # find chunk data 
+                    for chunk in wad.chunks:
+                        if chunk.hash == chunk_hash_to_write:
+                            chunk.read_data(bs)
+                            chunk_data = chunk.data
+                            chunk.free_data()
+                            break
+                    chunk2.write_data(bs2, id, chunk_hash_to_write, chunk_data, previous_chunks=wad2.chunks[:id])
+                    chunk2.free_data()
+                    print(f'pyntex: Finish: Rebuild {chunk2.hash}')
+        # replace temp as new wad
+        os.remove(path)
+        os.rename(wad2_path, path)
+    else:
+        # write json out
+        json_file = path + '.pyntex.json'
+        with open(json_file, 'w+', encoding='utf-8') as f:
+            json.dump(res, f, indent=4, ensure_ascii=False)
+        print(f'pyntex: Finish: Write {json_file}')
 
 
-def parse(path):
+def parse(path, delete_junk_files=False):
     if os.path.isdir(path):
-        parse_dir(path)
+        parse_dir(path, delete_junk_files)
     else:
         if path.endswith('.wad.client'):
-            parse_wad(path)
+            parse_wad(path, delete_junk_files)
 

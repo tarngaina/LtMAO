@@ -97,9 +97,9 @@ class CLI:
             hash_helper.ExtractedHashes.extract(src)
 
     @staticmethod
-    def pyntex(src):
+    def pyntex(src, delete_junk_files=False):
         from LtMAO import pyntex
-        pyntex.parse(src)
+        pyntex.parse(src, delete_junk_files)
 
     @staticmethod
     def tex2dds(src):
@@ -217,9 +217,7 @@ class CLI:
         bnk_tool.dir2bnk(src, False)
 
     def zipfantome(src):
-        from zipfile import ZipFile
-        import os.path
-        import json
+        import os.path, json, zipfile
         info_file = src + '/META/info.json'
         if not os.path.exists(info_file):
             raise Exception(f'zipfantome: Error:  No META/info.json found inside {src}.')
@@ -230,7 +228,7 @@ class CLI:
 
         dst = os.path.dirname(src) + f'/{info["Name"]} V{info["Version"]} by {info["Author"]}.fantome'
         print(f'zipfantome: Running: Zip: {src} to {dst}')
-        with ZipFile(dst, 'w') as zip:
+        with zipfile.ZipFile(dst, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zip:
             for root, dirs, files in os.walk(src):
                 for file in files:
                     filename = os.path.join(root, file)
@@ -238,11 +236,11 @@ class CLI:
                     zip.write(filename, arcname)
 
     def unzipfantome(src):
-        from zipfile import ZipFile
+        import zipfile
 
         dst = src.replace('.fantome', '')
         print(f'unzipfantome: Running: Unzip: {src} to {dst}')
-        with ZipFile(src, 'r') as zip:
+        with zipfile.ZipFile(src, 'r') as zip:
             zip.extractall(dst)
 
     def geb(src):
@@ -274,6 +272,8 @@ def main():
         CLI.hashextract(args.source)
     elif args.tool == 'pyntex':
         CLI.pyntex(args.source)
+    elif args.tool == 'pyntexdeljunk':
+        CLI.pyntex(args.source, True)
     elif args.tool == 'tex2dds':
         CLI.tex2dds(args.source)
     elif args.tool == 'dds2tex':

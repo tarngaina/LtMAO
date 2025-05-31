@@ -7,10 +7,9 @@ def clean_type(bin_type):
     return bin_type.name.lower()
 
 def hash_or_raw(name, quote=True):
-    try:
-        int(name, 16)
+    if pyRitoFile.bin.BINHasher.is_hash(name):
         return f'0x{name}'
-    except:
+    else:
         return f'"{name}"' if quote else name
 
 class Reader:

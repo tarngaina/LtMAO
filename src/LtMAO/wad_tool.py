@@ -1,14 +1,6 @@
 from . import pyRitoFile
 import os, json
 
-def check_hashed_name(basename):
-    try:
-        int(basename, 16)
-        return True
-    except:
-        return False
-
-
 def unpack(wad_file, raw_dir, hashtables, filter=None):
     print(f'wad_tool: Start:  Unpack WAD: {wad_file}')
     # read wad
@@ -30,7 +22,7 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
             # output file path of this chunk
             file_path = os.path.join(raw_dir, chunk.hash)
             # add extension to hashed file if know
-            if check_hashed_name(chunk.hash) and chunk.extension != None:
+            if pyRitoFile.wad.WADHasher.is_hash(chunk.hash) and chunk.extension != None:
                 ext = f'.{chunk.extension}'
                 if not file_path.endswith(ext):
                     file_path += ext
@@ -79,7 +71,7 @@ def pack(raw_dir, wad_file):
             # and also be a valid hexadecimal int file name
             basename = os.path.basename(file)
             relative_path = os.path.relpath(file_path, raw_dir)
-            if check_hashed_name(basename.split('.')[0]) and relative_path == basename:
+            if pyRitoFile.wad.WADHasher.is_hash(basename.split('.')[0]) and relative_path == basename:
                 file_path = basename.split('.')[0]
                 chunk_hashes.append(file_path)
             else:
