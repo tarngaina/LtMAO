@@ -6,7 +6,7 @@ def dds2tex(dds_path, tex_path=None):
     if tex_path == None:
         tex_path = dds_path.replace('.dds', '.tex')
     # read dds header
-    with pyRitoFile.stream.BinStream(open(dds_path, 'rb')) as bs:
+    with pyRitoFile.stream.BytesStream.reader(dds_path) as bs:
         signature, = bs.read_u32()
         if signature != 0x20534444:
             raise Exception(
@@ -182,7 +182,7 @@ def tex2dds(tex_path, dds_path=None):
         dds_header['dwCaps'] |= 0x00400008
         dds_header['dwMipMapCount'] = len(tex.data)
     # write dds file
-    with pyRitoFile.stream.BinStream(open(dds_path, 'wb')) as bs:
+    with pyRitoFile.stream.BytesStream.writer(dds_path) as bs:
         # signature
         bs.write_u32(0x20534444)
         # header
