@@ -94,15 +94,15 @@ class Helper:
                     dst_wad = pyRitoFile.wad.WAD().read(dst_wad_path)
                     map_wad_src_dst[src_wad_path] = (dst_wad_path, [])
                     dst_bins = {}
-                    with dst_wad.stream(dst_wad_path, 'rb') as bs:
+                    with pyRitoFile.stream.BytesStream.reader(dst_wad_path) as bs:
                         for dst_chunk in dst_wad.chunks:
                             dst_chunk.read_data(bs)
                             if dst_chunk.extension == 'bin':
-                                dst_bins[dst_chunk.hash] = pyRitoFile.bin.BIN().read('', raw=dst_chunk.data)
+                                dst_bins[dst_chunk.hash] = pyRitoFile.bin.BIN().read(dst_chunk.data, raw=True)
                             dst_chunk.free_data()
                 else:
                      map_wad_src_dst[src_wad_path] = (None, [])
-                with src_wad.stream(src_wad_path, 'rb') as bs:
+                with pyRitoFile.stream.BytesStream.reader(src_wad_path) as bs:
                     for src_chunk in src_wad.chunks:
                         src_chunk.read_data(bs)
                         if src_chunk.extension == 'bin': 
@@ -110,13 +110,13 @@ class Helper:
                                 if src_chunk.hash in dst_bins:
                                     map_wad_src_dst[src_wad_path][1].append((
                                         src_chunk.hash,
-                                        pyRitoFile.bin.BIN().read('', raw=src_chunk.data), 
+                                        pyRitoFile.bin.BIN().read(src_chunk.data, raw=True), 
                                         dst_bins[src_chunk.hash]
                                     ))
                             else:
                                 map_wad_src_dst[src_wad_path][1].append((
                                     src_chunk.hash,
-                                    pyRitoFile.bin.BIN().read('', raw=src_chunk.data), 
+                                    pyRitoFile.bin.BIN().read(src_chunk.data, raw=True), 
                                     None,
                                 ))
                         src_chunk.free_data()
@@ -140,7 +140,7 @@ class Helper:
 
             wad_path = dst_wad_path if require_dst else src_wad_path
             wad = pyRitoFile.wad.WAD().read(wad_path)
-            with wad.stream(wad_path, 'rb+') as bs:
+            with pyRitoFile.stream.BytesStream.updater(wad_path) as bs:
                 for chunk in wad.chunks:
                     if chunk.hash in map_wad_datas:
                         chunk.write_data(bs, chunk.id, chunk.hash, map_wad_datas[chunk.hash].write('', raw=True))
@@ -303,7 +303,7 @@ def copy_vfx_colors(src_bin, dst_bin):
                     src_parameters = src_dynamicMaterial.get_items(
                         lambda field: field.hash == hash_helper.Storage.bin_hashes['parameters']
                     )
-                    if len(dst_dynamicMaterials) == 0 or len(src_dynamicMaterials) == 0:
+                    if len(dst_parameters) == 0 or len(src_parameters) == 0:
                         continue
                     # matching DynamicMaterialParameterDef.Fresnel_Color
                     dst_Fresnel_Color = None
@@ -383,9 +383,9 @@ def copy_vfx_colors(src_bin, dst_bin):
 )
 def copy_loadscreen_icon(src_bin, dst_bin):
     fields_to_copy = (
-        hash_helper.Storage.bin_hashes('loadscreen'), 
-        hash_helper.Storage.bin_hashes('iconCircle'), 
-        hash_helper.Storage.bin_hashes('iconSquare')
+        hash_helper.Storage.bin_hashes['loadscreen'], 
+        hash_helper.Storage.bin_hashes['iconCircle'], 
+        hash_helper.Storage.bin_hashes['iconSquare']
     )
     dst_SkinCharacterDataPropertiess =  dst_bin.get_items(
         lambda entry: entry.type == hash_helper.Storage.bin_hashes['SkinCharacterDataProperties']
@@ -396,7 +396,7 @@ def copy_loadscreen_icon(src_bin, dst_bin):
     if len(dst_SkinCharacterDataPropertiess) > 0 and len(src_SkinCharacterDataPropertiess) > 0:
         dst_SkinCharacterDataProperties = dst_SkinCharacterDataPropertiess[0]
         src_SkinCharacterDataProperties = src_SkinCharacterDataPropertiess[0]
-        for dst_field in dst_SkinCharacterDataProperties.fields:
+        for dst_field in dst_SkinCharacterDataProperties.data:
             if dst_field.hash in fields_to_copy:
                 src_fields = src_SkinCharacterDataProperties.get_items(
                     lambda field: field.hash == dst_field.hash

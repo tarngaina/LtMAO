@@ -1,5 +1,4 @@
-from io import BytesIO
-from .stream import BinStream
+from .stream import BytesStream
 from ..pyRitoFile.structs import Vector
 from enum import Enum, IntFlag
 
@@ -300,17 +299,9 @@ class MAPGEO:
 
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
-
-    def stream(self, path, mode, raw=None):
-        if raw != None:
-            if raw == True:  # the bool True value
-                return BinStream(BytesIO())
-            else:
-                return BinStream(BytesIO(raw))
-        return BinStream(open(path, mode))
     
-    def read(self, path, raw=None):
-        with self.stream(path, 'rb', raw) as bs:
+    def read(self, path, raw=False):
+        with BytesStream.reader(path, raw) as bs:
             self.signature, = bs.read_s(4)
             if self.signature != 'OEGM':
                 raise Exception(
@@ -559,13 +550,13 @@ class MAPGEO:
 
             return self
         
-    def write(self, path, version, float16=False, raw=None):
+    def write(self, path, version, float16=False, raw=False):
         if version not in (13, 17):
             raise Exception(
                 f'pyRitoFile: Error: Write MAPGEO {path}: Unsupported file version: {version}')
         self.version = version
 
-        with self.stream(path, 'wb', raw) as bs:
+        with BytesStream.writer(path, raw) as bs:
             # prepare stuffs
             self.vertex_descriptions = []
             vertex_buffers = []

@@ -66,7 +66,7 @@ def inspect(path, hashtables=None):
         obj = pyRitoFile.wad.WAD().read(path)
         obj.un_hash(hashtables)
         # read chunk data to guess extension (incase poor unhash)
-        with obj.stream(path, 'rb') as bs:
+        with pyRitoFile.stream.BytesStream.reader(path) as bs:
             for chunk in obj.chunks:
                 chunk.read_data(bs)
                 chunk.free_data()

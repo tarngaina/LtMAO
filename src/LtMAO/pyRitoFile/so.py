@@ -1,5 +1,4 @@
-from io import BytesIO, StringIO
-from .stream import BinStream
+from .stream import BytesStream, StringStream
 from ..pyRitoFile.structs import Vector
 from enum import Enum
 
@@ -36,32 +35,8 @@ class SO:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
 
-    def stream(self, path, mode, raw=None):
-        if raw != None:
-            if raw == True:  # the bool True value
-                return BinStream(BytesIO())
-            else:
-                return BinStream(BytesIO(raw))
-        return BinStream(open(path, mode))
-
-    def stream_sco(self, path, mode, raw=None):
-        if raw != None:
-            if raw == True:  # the bool True value
-                return StringIO()
-            else:
-                return StringIO(raw.decode('ascii'))
-        return open(path, mode)
-
-    def stream_scb(self, path, mode, raw=None):
-        if raw != None:
-            if raw == True:  # the bool True value
-                return BinStream(BytesIO())
-            else:
-                return BinStream(BytesIO(raw))
-        return BinStream(open(path, mode))
-
-    def read_sco(self, path, raw=None):
-        with self.stream_sco(path, 'r', raw) as f:
+    def read_sco(self, path, raw=False):
+        with StringStream.reader(path, raw) as f:
             lines = f.readlines()
             lines = [line[:-1] for line in lines]
 
@@ -128,8 +103,8 @@ class SO:
 
             return self
         
-    def write_sco(self, path, raw=None):
-        with self.stream_sco(path, 'w', raw) as f:
+    def write_sco(self, path, raw=False):
+        with StringStream.writer(path, raw) as f:
             f.write('[ObjectBegin]\n')  # magic
             f.write(f'Name= {self.name}\n') # name
             # central
@@ -161,8 +136,8 @@ class SO:
             f.write('[ObjectEnd]')
             return f.getvalue() if raw else None
 
-    def read_scb(self, path, raw=None):
-        with self.stream_scb(path, 'rb', raw) as bs:
+    def read_scb(self, path, raw=False):
+        with BytesStream.reader(path, raw) as bs:
             self.signature, = bs.read_s(8)
             if self.signature != 'r3d2Mesh':
                 raise Exception(
@@ -209,7 +184,7 @@ class SO:
             
             return self
 
-    def write_scb(self, path, raw=None):
+    def write_scb(self, path, raw=False):
         def get_bounding_box():
             min = Vector(float("inf"), float("inf"), float("inf"))
             max = Vector(float("-inf"), float("-inf"), float("-inf"))
@@ -228,7 +203,7 @@ class SO:
                     max.z = position.z
             return min, max
         
-        with self.stream_scb(path, 'wb', raw) as bs:
+        with BytesStream.writer(path, raw) as bs:
             # signature, version
             bs.write_s('r3d2Mesh')  
             bs.write_u16(3, 2)  

@@ -379,7 +379,7 @@ class Inspector:
             wem_file = os.path.join(tree_dir, f'{wem_id}.wem')
             map_wem_paths[wem_id].append(wem_file)
         # extract wems with map
-        with self.audio.stream(self.audio_path, 'rb') as bs:
+        with pyRitoFile.stream.BytesStream.reader(self.audio_path) as bs:
             for wem in self.wems:
                 bs.seek(self.get_wem_offset(wem))
                 wem_data = bs.read(wem.size)
@@ -391,7 +391,7 @@ class Inspector:
                     
     def unpack(self, output_dir):
         os.makedirs(output_dir, exist_ok=True)
-        with self.audio.stream(self.audio_path, 'rb') as bs:
+        with pyRitoFile.stream.BytesStream.reader(self.audio_path) as bs:
             for wem in self.wems:
                 bs.seek(self.get_wem_offset(wem))
                 wem_data = bs.read(wem.size)
@@ -401,7 +401,7 @@ class Inspector:
 
     def unpack_wem(self, output_dir, wem_id):
         os.makedirs(output_dir, exist_ok=True)
-        with self.audio.stream(self.audio_path, 'rb') as bs:
+        with pyRitoFile.stream.BytesStream.reader(self.audio_path) as bs:
             for wem in self.wems:
                 if wem.id == wem_id:
                     bs.seek(self.get_wem_offset(wem))

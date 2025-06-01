@@ -1,5 +1,4 @@
-from io import BytesIO
-from .stream import BinStream
+from .stream import BytesStream
 from enum import Enum
 
 class BNKHelper:
@@ -190,16 +189,8 @@ class BNK:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
 
-    def stream(self, path, mode, raw=None):
-        if raw != None:
-            if raw == True:  # the bool True value
-                return BinStream(BytesIO())
-            else:
-                return BinStream(BytesIO(raw))
-        return BinStream(open(path, mode))
-
-    def read(self, path, raw=None):
-        with self.stream(path, 'rb', raw) as bs:
+    def read(self, path, raw=False):
+        with BytesStream.reader(path, raw) as bs:
             self.unknown_sections = []
             while bs.tell() < bs.end():
                 section = BNKSection()
@@ -349,8 +340,8 @@ class BNK:
 
             return self
         
-    def write(self, path, wem_datas, raw=None):
-        with self.stream(path, 'wb', raw) as bs:
+    def write(self, path, wem_datas, raw=False):
+        with BytesStream.writer(path, raw) as bs:
             # write bkhd
             # signature, size, version, id, unknown 24 bytes
             bs.write_s('BKHD')

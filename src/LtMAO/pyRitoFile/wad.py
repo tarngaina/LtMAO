@@ -1,5 +1,4 @@
-from io import BytesIO
-from .stream import BinStream
+from .stream import BytesStream
 from enum import Enum
 import gzip
 
@@ -235,16 +234,8 @@ class WAD:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__ if key != 'IO'}
 
-    def stream(self, path, mode, raw=None):
-        if raw != None:
-            if raw == True:  # the bool True value
-                return BinStream(BytesIO())
-            else:
-                return BinStream(BytesIO(raw))
-        return BinStream(open(path, mode))
-
-    def read(self, path, raw=None):
-        with self.stream(path, 'rb', raw) as bs:
+    def read(self, path, raw=False):
+        with BytesStream.reader(path, raw) as bs:
             # read header
             self.signature, = bs.read_s(2)
             if self.signature != 'RW':
@@ -283,8 +274,8 @@ class WAD:
             
             return self
 
-    def write(self, path, raw=None):
-        with self.stream(path, 'wb', raw) as bs:
+    def write(self, path, raw=False):
+        with BytesStream.writer(path, raw) as bs:
             # write header
             bs.write_s('RW')  # signature
             bs.write_u8(3, 3)  # version
@@ -313,3 +304,10 @@ class WAD:
             if '.' in chunk.hash and chunk.extension == None:
                 chunk.extension = WADExtensioner.get_extension(chunk.hash)
         self.chunks = sorted(self.chunks, key=lambda chunk: chunk.hash)
+
+    def get_items(self, compare_func):
+        res = []
+        for item in self.chunks:
+            if compare_func(item):
+                res.append(item)
+        return res

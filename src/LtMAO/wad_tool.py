@@ -8,12 +8,12 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
     wad.un_hash(hashtables)
     hashed_files = {}
     # create dirs first
-    with wad.stream(wad_file, 'rb') as bs:
+    with pyRitoFile.stream.BytesStream.reader(wad_file) as bs:
         for chunk in wad.chunks:
             file_path = os.path.join(raw_dir, chunk.hash)
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
     # actual extract
-    with wad.stream(wad_file, 'rb') as bs:
+    with pyRitoFile.stream.BytesStream.reader(wad_file) as bs:
         for chunk in wad.chunks:
             if filter != None and chunk.hash not in filter:
                 continue
@@ -83,7 +83,7 @@ def pack(raw_dir, wad_file):
                   for id in range(len(chunk_hashes))]
     wad.write(wad_file)
     # write wad chunk
-    with wad.stream(wad_file, 'rb+') as bs:
+    with pyRitoFile.stream.BytesStream.updater(wad_file) as bs:
         for id, chunk in enumerate(wad.chunks):
             with open(chunk_datas[id], 'rb') as f:
                 chunk_data = f.read()

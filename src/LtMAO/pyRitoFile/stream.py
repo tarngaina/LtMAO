@@ -1,8 +1,33 @@
+from io import BytesIO, StringIO
 from struct import Struct
 from .structs import Vector, Quaternion, Matrix4
 
+class StringStream:
+    @staticmethod
+    def reader(path, raw=False):
+        return StringIO(path.decode('ascii')) if raw else open(path, 'r')
+        
+    @staticmethod
+    def writer(path, raw=False):
+        return StringIO() if raw else open(path, 'w')
+        
+    @staticmethod
+    def updater(path, raw=False):
+        return StringIO(path).decode('ascii') if raw else open(path, 'r+')
 
-class BinStream:
+class BytesStream:
+    @staticmethod
+    def reader(path, raw=False):
+        return BytesStream(BytesIO(path)) if raw else BytesStream(open(path, 'rb'))
+        
+    @staticmethod
+    def writer(path, raw=False):
+        return BytesStream(BytesIO()) if raw else BytesStream(open(path, 'wb'))
+        
+    @staticmethod
+    def updater(path, raw=False):
+        return BytesStream(BytesIO(path)) if raw else BytesStream(open(path, 'rb+'))
+        
     def __init__(self, f):
         self.stream = f
 

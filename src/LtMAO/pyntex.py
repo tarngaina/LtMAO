@@ -131,11 +131,11 @@ def parse_wad(path, delete_junk_files=False):
     # parsing
     print(f'pyntex: Start:  Read bin hashes')
     hash_helper.Storage.read_bin_hashes()
-    with wad.stream(path, 'rb') as bs:
+    with pyRitoFile.stream.BytesStream.reader(path) as bs:
         for chunk in wad.chunks:
             chunk.read_data(bs)
             if chunk.extension == 'bin':
-                bin = pyRitoFile.bin.BIN().read('', raw=chunk.data)
+                bin = pyRitoFile.bin.BIN().read(chunk.data, raw=True)
                 bin.un_hash(hash_helper.Storage.hashtables)
                 result = parse_bin(bin, existing_files=chunk_hashes)
                 if len(result) > 0:
@@ -146,31 +146,25 @@ def parse_wad(path, delete_junk_files=False):
     hash_helper.Storage.free_bin_hashes()
     res['junk_files'] = [file for file in chunk_hashes if chunk_hashes[file]]
     if delete_junk_files:
-        # write wad2 temp
-        chunks_to_write = [file for file in chunk_hashes if not chunk_hashes[file]]
-        wad2_path = path + '.temp'
-        wad2 = pyRitoFile.wad.WAD()
-        wad2.chunks = [pyRitoFile.wad.WADChunk.default()
-                    for id in range(len(chunks_to_write))]
-        wad2.write(wad2_path)
-        # write wad2 chunk
-        with wad2.stream(wad2_path, 'rb+') as bs2:
-            with wad.stream(path, 'rb') as bs:
-                for id, chunk2 in enumerate(wad2.chunks):
-                    chunk_hash_to_write = chunks_to_write[id]
-                    # find chunk data 
-                    for chunk in wad.chunks:
-                        if chunk.hash == chunk_hash_to_write:
-                            chunk.read_data(bs)
-                            chunk_data = chunk.data
-                            chunk.free_data()
-                            break
-                    chunk2.write_data(bs2, id, chunk_hash_to_write, chunk_data, previous_chunks=wad2.chunks[:id])
-                    chunk2.free_data()
-                    print(f'pyntex: Finish: Rebuild {chunk2.hash}')
+        # write temp wad
+        chunk_hashes_to_write = [file for file in chunk_hashes if not chunk_hashes[file]]
+        temp_path = path + '.pyntextemp'
+        temp = pyRitoFile.wad.WAD()
+        temp.chunks = [pyRitoFile.wad.WADChunk.default()
+                    for id in range(len(chunk_hashes_to_write))]
+        temp.write(temp_path)
+        # write temp chunk
+        with pyRitoFile.stream.BytesStream.reader(path) as bs, pyRitoFile.stream.BytesStream.updater(temp_path) as bs_temp:
+            for id, temp_chunk in enumerate(temp.chunks):
+                chunk = wad.get_items(lambda chunk: chunk.hash == chunk_hashes_to_write[id])[0]
+                chunk.read_data(bs)
+                temp_chunk.write_data(bs_temp, id, chunk.hash, chunk.data, previous_chunks=temp.chunks[:id])
+                chunk.free_data()
+                temp_chunk.free_data()
+                print(f'pyntex: Finish: Rebuild {temp_chunk.hash}')
         # replace temp as new wad
         os.remove(path)
-        os.rename(wad2_path, path)
+        os.rename(temp_path, path)
     else:
         # write json out
         json_file = path + '.pyntex.json'

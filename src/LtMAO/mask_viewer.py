@@ -6,10 +6,10 @@ def find_mMaskDataMap(bin):
         mMaskDataMaps = animationGraphData.get_items(lambda field: field.hash == hash_helper.Storage.bin_hashes['mMaskDataMap'])
         if len(mMaskDataMaps) == 0:
             raise Exception(
-                'animask_viewer: Error: No mMaskDataMap in this BIN.')
+                'mask_viewer: Error: No mMaskDataMap in this BIN.')
         else:
             return mMaskDataMaps[0]
-    raise Exception('animask_viewer: Error: Not Animation BIN.')
+    raise Exception('mask_viewer: Error: Not Animation BIN.')
 
 def get_weights(bin):
     mask_data = {}

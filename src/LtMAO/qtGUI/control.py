@@ -1347,6 +1347,7 @@ def build_wad_tool(widget: QWidget):
                             final_paths.append(os.path.join(root, file).replace('\\', '/'))
         if len(final_paths) > 0:
             def wad_thrd():
+                print('wad_tool: Start: Load WADs.')
                 hash_helper.Storage.read_wad_hashes()
                 for wad_path in final_paths:
                     try:
@@ -1358,7 +1359,6 @@ def build_wad_tool(widget: QWidget):
                     except:
                         pass
                 hash_helper.Storage.free_wad_hashes()
-                
                 print('wad_tool: Finish: Load WADs.')
                 wadchunk_text.setPlainText('\n'.join(qtwidgets.text_wad_paths), '\n'.join(qtwidgets.text_chunk_hashes))
 

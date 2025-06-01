@@ -137,7 +137,7 @@ def full_no_skin(champions_dir, output_dir):
         base_bin = {}  # base bin at character
         skin_bins = {}  # skin bins at character
         chunk_hashes = {}  # chunk hash of skins at character
-        with wad.stream(wad_file, 'rb') as bs:
+        with pyRitoFile.stream.BytesStream.reader(wad_file) as bs:
             # parse chunks in this wad -> out base_bin and skin_bins
             for chunk in wad.chunks:
                 # filter skins bin (only unhash skinx.bin)
@@ -152,7 +152,7 @@ def full_no_skin(champions_dir, output_dir):
                             continue
                     # read chunk
                     chunk.read_data(bs)
-                    bin = pyRitoFile.bin.BIN().read('', raw=chunk.data)
+                    bin = pyRitoFile.bin.BIN().read(chunk.data, raw=True)
                     chunk.free_data()
                     if 'skin0.bin' in chunk.hash:
                         # found base bin
@@ -216,7 +216,7 @@ def full_no_skin(champions_dir, output_dir):
     wad.chunks = [pyRitoFile.wad.WADChunk.default()
                   for id in range(len(swapped_chunks))]
     wad.write(wad_file)
-    with wad.stream(wad_file, 'rb+') as bs:
+    with pyRitoFile.stream.BytesStream.updater(wad_file) as bs:
         for id, chunk in enumerate(wad.chunks):
             chunk.write_data(
                 bs, id, swapped_chunks[id][0], swapped_chunks[id][1])

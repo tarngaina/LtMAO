@@ -1,5 +1,4 @@
-from io import BytesIO
-from .stream import BinStream
+from .stream import BytesStream
 from .helper import FNV1a
 from enum import Enum
 
@@ -123,7 +122,7 @@ class BINHasher:
 
 class BINReader:
     read_value_dict = {
-        BINType.NONE:      lambda: None,
+        BINType.NONE:       lambda: None,
         BINType.BOOL:       lambda bs: bs.read_b()[0],
         BINType.I8:         lambda bs: bs.read_i8()[0],
         BINType.U8:         lambda bs: bs.read_u8()[0],
@@ -137,11 +136,13 @@ class BINReader:
         BINType.VEC2:       lambda bs: bs.read_vec2()[0],
         BINType.VEC3:       lambda bs: bs.read_vec3()[0],
         BINType.VEC4:       lambda bs: bs.read_vec4()[0],
-        BINType.MTX44:       lambda bs: bs.read_mtx4()[0],
+        BINType.MTX44:      lambda bs: bs.read_mtx4()[0],
         BINType.RGBA:       lambda bs: bs.read_u8(4),
         BINType.STRING:     lambda bs: bs.read_s_sized16(encoding='utf-8')[0],
         BINType.HASH:       lambda bs: BINHasher.hash_to_hex(bs.read_u32()[0]),
         BINType.FILE:       lambda bs: bs.read_u64()[0],
+        BINType.LIST:       lambda bs: BINReader.read_list_or_list2(bs, BINField(type=BINType.LIST)),
+        BINType.LIST2:       lambda bs: BINReader.read_list_or_list2(bs, BINField(type=BINType.LIST2)),
         BINType.POINTER:    lambda bs: BINReader.read_pointer_or_embed(bs, BINField(type=BINType.POINTER)),
         BINType.EMBED:      lambda bs: BINReader.read_pointer_or_embed(bs, BINField(type=BINType.EMBED)),
         BINType.LINK:       lambda bs: BINHasher.hash_to_hex(bs.read_u32()[0]),
@@ -441,16 +442,8 @@ class BIN:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
 
-    def stream(self, path, mode, raw=None):
-        if raw != None:
-            if raw == True:  # the bool True value
-                return BinStream(BytesIO())
-            else:
-                return BinStream(BytesIO(raw))
-        return BinStream(open(path, mode))
-
-    def read(self, path, raw=None):
-        with self.stream(path, 'rb', raw) as bs:
+    def read(self, path, raw=False):
+        with BytesStream.reader(path, raw) as bs:
             # header
             self.signature, = bs.read_s(4, encoding='utf-8')
             if self.signature not in ('PROP', 'PTCH'):
@@ -514,8 +507,8 @@ class BIN:
 
             return self
         
-    def write(self, path, raw=None):
-        with self.stream(path, 'wb', raw) as bs:
+    def write(self, path, raw=False):
+        with BytesStream.writer(path, raw) as bs:
             # header
             if self.is_patch:
                 bs.write_s('PTCH', encoding='utf-8')

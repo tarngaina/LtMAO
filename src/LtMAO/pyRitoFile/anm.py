@@ -1,6 +1,5 @@
 from math import sqrt
-from io import BytesIO
-from .stream import BinStream
+from .stream import BytesStream
 from ..pyRitoFile.structs import Quaternion, Vector
 from .helper import Elf
 
@@ -216,16 +215,8 @@ class ANM:
     def __json__(self):
         return {key: getattr(self, key) for key in self.__slots__}
 
-    def stream(self, path, mode, raw=None):
-        if raw != None:
-            if raw == True:  # the bool True value
-                return BinStream(BytesIO())
-            else:
-                return BinStream(BytesIO(raw))
-        return BinStream(open(path, mode))
-
-    def read(self, path, raw=None):
-        with self.stream(path, 'rb', raw) as bs:
+    def read(self, path, raw=False):
+        with BytesStream.reader(path, raw) as bs:
             self.signature, = bs.read_s(8)
             self.version, = bs.read_u32()
 
@@ -466,8 +457,8 @@ class ANM:
             
             return self
         
-    def write(self, path, raw=None):
-        with self.stream(path, 'wb', raw) as bs:
+    def write(self, path, raw=False):
+        with BytesStream.writer(path, raw) as bs:
             self.duration = int(self.duration)
             ANMHepler.interpolate_integer_frames(self)
             vec_bank, quat_bank, frames = ANMHepler.build_frames(self)
