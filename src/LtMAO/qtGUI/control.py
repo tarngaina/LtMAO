@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
     QTreeWidget,
     QTreeWidgetItem,
 )
-from PySide6.QtGui import QColor, QStandardItem, QStandardItemModel, QPixmap, QMovie
+from PySide6.QtGui import QColor, QStandardItem, QStandardItemModel, QPixmap, QMovie, QShortcut, QKeySequence
 from PySide6.QtCore import Qt, QObject, Signal
 
 
@@ -1880,6 +1880,11 @@ def build_bnk_tool(widget: QWidget):
     treeview.setModel(model)
     treeview.setSelectionMode(treeview.SelectionMode.ExtendedSelection)
     layout2.addWidget(treeview, stretch=1)
+    # bind expand all, collapse all
+    shortcut = QShortcut(QKeySequence('/'), treeview)
+    shortcut.activated.connect(treeview.collapseAll)
+    shortcut2 = QShortcut(QKeySequence('*'), treeview)
+    shortcut2.activated.connect(treeview.expandAll)
     # actions
     layout3 = QVBoxLayout()
     

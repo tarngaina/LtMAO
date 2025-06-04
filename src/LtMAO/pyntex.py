@@ -49,6 +49,14 @@ def parse_bin(bin, *, existing_files={}):
             for file in mentioned_files:
                 if file in existing_files:
                     existing_files[file] = False
+                    if file.endswith('.dds'):
+                        splits = file.split('/')
+                        dds2x = '/'.join(splits[:-1] + ['2x_' + splits[-1]])
+                        dds4x = '/'.join(splits[:-1] + ['4x_' + splits[-1]])
+                        if dds2x in existing_files:
+                            existing_files[dds2x] = False
+                        if dds4x in existing_files:
+                            existing_files[dds4x] = False
                 else:
                     missing_files.append(file)     
 
