@@ -7,6 +7,9 @@ def block_and_stream_process_output(process, log_message_header=''):
             print(log_message_header + msg)
     process.wait()
 
+def block_and_stream_nothing(process):
+    process.wait()
+
 
 class CSLOL:
     local_file = './res/tools/mod-tools.exe'
@@ -166,17 +169,18 @@ class VGMStream:
 
     @staticmethod
     def to_wav(src):
+        dst = '.'.join(src.split('.')[:-1] + ['wav'])
         cmds = [
             os.path.abspath(VGMStream.local_file),
             '-o',
-            src.replace('.wem', '.wav'),
+            dst,
             src,
         ]
         p = subprocess.Popen(
             cmds, creationflags=subprocess.CREATE_NO_WINDOW,
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
-        p.wait()
+        block_and_stream_nothing(p)
         return p
     
 
@@ -200,3 +204,4 @@ class WWiseConsole:
             stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         block_and_stream_process_output(p, 'WwiseConsole: ')
+        return p

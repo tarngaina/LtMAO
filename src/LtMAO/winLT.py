@@ -23,6 +23,9 @@ class Context:
             'dds2texdir': True,
             'dir2bnk': True,
             'dir2wpk': True,
+            'wem2wavdir': True,
+            'wav2wemdir': True,
+            'ogg2wemdir': True
         },
         'wad': {
             'WadToRaw': True,
@@ -90,6 +93,9 @@ class Context:
         },
         'wav': {
             'wav2wem': True,
+        },
+        'ogg': {
+            'ogg2wem': True,
         },
         'fantome': {
             'UnzipFantome': True,
@@ -184,6 +190,22 @@ class Context:
         'wav2wem': {
             'desc': 'wiwawe: Convert To WEM',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wav2wem" -src="%V"'
+        },
+        'ogg2wem': {
+            'desc': 'wiwawe: Convert To WEM',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ogg2wem" -src="%V"'
+        },
+        'wem2wavdir': {
+            'desc': 'wiwawe: Convert All WEM To WAV',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wem2wavdir" -src="%V"'
+        },
+        'wav2wemdir': {
+            'desc': 'wiwawe: Convert All WAV To WEM',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="wav2wemdir" -src="%V"'
+        },
+        'ogg2wemdir': {
+            'desc': 'wiwawe: Convert All OGG To WEM',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ogg2wemdir" -src="%V"'
         },
         'ZipFantome': {
             'desc': 'cslmao: Zip Fantome',

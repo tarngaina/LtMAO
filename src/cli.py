@@ -199,6 +199,40 @@ class CLI:
     def wav2wem(src):
         from LtMAO import wiwawe
         wiwawe.wav2wem([src])
+    
+    def ogg2wem(src):
+        from LtMAO import wiwawe
+        wiwawe.ogg2wem([src])
+
+    def wem2wavdir(src):
+        import os, os.path
+        wem_files = []
+        for root, dirs, files in os.walk(src):
+            for file in files:  
+                if file.endswith('.wem'):
+                    wem_files.append(os.path.join(root, file).replace('\\', '/')) 
+        from LtMAO import wiwawe
+        wiwawe.wem2wav(wem_files)
+
+    def wav2wemdir(src):
+        import os, os.path
+        wav_files = []
+        for root, dirs, files in os.walk(src):
+            for file in files:  
+                if file.endswith('.wav'):
+                    wav_files.append(os.path.join(root, file).replace('\\', '/')) 
+        from LtMAO import wiwawe
+        wiwawe.wav2wem(wav_files)
+    
+    def ogg2wemdir(src):
+        import os, os.path
+        ogg_files = []
+        for root, dirs, files in os.walk(src):
+            for file in files:  
+                if file.endswith('.ogg'):
+                    ogg_files.append(os.path.join(root, file).replace('\\', '/')) 
+        from LtMAO import wiwawe
+        wiwawe.ogg2wem(ogg_files)
 
     def bnk2dir(src):
         from LtMAO import bnk_tool
@@ -250,65 +284,56 @@ class CLI:
         
 
 def main():
+    funcs = {
+        'wadpack':          lambda src, dst: CLI.wadpack(src, dst),
+        'wadunpack':        lambda src, dst: CLI.wadunpack(src, dst),
+        'wadunpack_all':    lambda src, dst: CLI.wadunpack_all(src, dst),
+
+        'ritobin':          lambda src, dst: CLI.ritobin(src, dst),
+        'ritobindir2py':    lambda src, dst: CLI.ritobindir(src, dst, True),
+        'ritobindir2bin':   lambda src, dst: CLI.ritobindir(src, dst, False),
+
+        'lfi':              lambda src, dst: CLI.lfi(src),
+
+        'uvee':             lambda src, dst: CLI.uvee(src),
+
+        'hashextract':      lambda src, dst: CLI.hashextract(src),
+
+        'pyntex':           lambda src, dst: CLI.pyntex(src),
+        'pyntexdeljunk':    lambda src, dst: CLI.pyntex(src, True),
+
+        'tex2dds':    lambda src, dst: CLI.tex2dds(src),
+        'dds2tex':    lambda src, dst: CLI.dds2tex(src),
+        'tex2ddsdir':    lambda src, dst: CLI.tex2ddsdir(src),
+        'dds2texdir':    lambda src, dst: CLI.dds2texdir(src),
+
+        'dds2png':    lambda src, dst: CLI.dds2png(src, dst),
+        'png2dds':    lambda src, dst: CLI.png2dds(src, dst),
+        'png2ddsmm':    lambda src, dst: CLI.png2ddsmm(src, dst),
+
+        'dds2x4x':    lambda src, dst: CLI.dds2x4x(src),
+
+        'wem2wav':    lambda src, dst: CLI.wem2wav(src),
+        'wav2wem':    lambda src, dst: CLI.wav2wem(src),
+        'ogg2wem':    lambda src, dst: CLI.ogg2wem(src),
+        'wem2wavdir':    lambda src, dst: CLI.wem2wavdir(src),
+        'wav2wemdir':    lambda src, dst: CLI.wav2wemdir(src),
+        'ogg2wemdir':    lambda src, dst: CLI.ogg2wemdir(src),
+
+        'dir2bnk':    lambda src, dst: CLI.dir2bnk(src),
+        'dir2wpk':    lambda src, dst: CLI.dir2wpk(src),
+        'bnk2dir':    lambda src, dst: CLI.bnk2dir(src),
+        'wpk2dir':    lambda src, dst: CLI.wpk2dir(src),
+
+        'geb':    lambda src, dst: CLI.geb(src),
+
+        'zipfantome': lambda src, dst: CLI.zipfantome(src),
+        'unzipfantome': lambda src, dst: CLI.unzipfantome(src),
+    }
+
     args = parse_arguments()
     ensure_curdir()
-    if args.tool == 'wadpack':
-        CLI.wadpack(args.source, args.destination)
-    elif args.tool == 'wadunpack':
-        CLI.wadunpack(args.source, args.destination)
-    elif args.tool == 'wadunpack_all':
-        CLI.wadunpack_all(args.source, args.destination)
-    elif args.tool == 'ritobin':
-        CLI.ritobin(args.source, args.destination)
-    elif args.tool == 'ritobindir2py':
-        CLI.ritobindir(args.source, args.destination, True)
-    elif args.tool == 'ritobindir2bin':
-        CLI.ritobindir(args.source, args.destination, False)
-    elif args.tool == 'lfi':
-        CLI.lfi(args.source)
-    elif args.tool == 'uvee':
-        CLI.uvee(args.source)
-    elif args.tool == 'hashextract':
-        CLI.hashextract(args.source)
-    elif args.tool == 'pyntex':
-        CLI.pyntex(args.source)
-    elif args.tool == 'pyntexdeljunk':
-        CLI.pyntex(args.source, True)
-    elif args.tool == 'tex2dds':
-        CLI.tex2dds(args.source)
-    elif args.tool == 'dds2tex':
-        CLI.dds2tex(args.source)
-    elif args.tool == 'tex2ddsdir':
-        CLI.tex2ddsdir(args.source)
-    elif args.tool == 'dds2texdir':
-        CLI.dds2texdir(args.source)
-    elif args.tool == 'dds2png':
-        CLI.dds2png(args.source, args.destination)
-    elif args.tool == 'png2dds':
-        CLI.png2dds(args.source, args.destination)
-    elif args.tool == 'png2ddsmm':
-        CLI.png2ddsmm(args.source, args.destination)
-    elif args.tool == 'dds2x4x':
-        CLI.dds2x4x(args.source)
-    elif args.tool == 'wem2wav':
-        CLI.wem2wav(args.source)
-    elif args.tool == 'wav2wem':
-        CLI.wav2wem(args.source)
-    elif args.tool == 'dir2bnk':
-        CLI.dir2bnk(args.source)
-    elif args.tool == 'dir2wpk':
-        CLI.dir2wpk(args.source)
-    elif args.tool == 'bnk2dir':
-        CLI.bnk2dir(args.source)
-    elif args.tool == 'wpk2dir':
-        CLI.wpk2dir(args.source)
-    elif args.tool == 'zipfantome':
-        CLI.zipfantome(args.source)
-    elif args.tool == 'unzipfantome':
-        CLI.unzipfantome(args.source)
-    elif args.tool == 'geb':
-        CLI.geb(args.source)
-
+    funcs[args.tool](args.source, args.destination)
 
 if __name__ == '__main__':
     try:

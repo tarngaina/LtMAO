@@ -63,6 +63,15 @@ def wem2wav(wem_files):
     for wem_file in wem_files:
         tools.VGMStream.to_wav(wem_file)
 
+def ogg2wem(ogg_files):
+    for ogg_file in ogg_files:
+        tools.VGMStream.to_wav(ogg_file)
+    wav_files = [ogg_file.replace('.ogg', '.wav') for ogg_file in ogg_files]
+    wav2wem(wav_files)
+    for wav_file in wav_files:
+        os.remove(wav_file)
+        
+
 def init():
     os.makedirs(wiwawe_dir, exist_ok=True)
     os.makedirs(input_dir, exist_ok=True)

@@ -2213,6 +2213,12 @@ def build_wiwawe(widget: QWidget):
             'input_type': 'WEM',
             'icon': '🎵',
             'func': lambda src: wiwawe.wem2wav(src)
+        },
+        { 
+            'title': 'OGG to WEM',
+            'input_type': 'OGG',
+            'icon': '📀',
+            'func': lambda src: wiwawe.ogg2wem(src)
         }
     ]
     for converter in converters:
@@ -2356,7 +2362,7 @@ def build_setting(widget: QWidget):
     # default folder
     layout2 = QHBoxLayout()
     button = QToolButton()
-    button.setText('🌳 Default folder: ')
+    button.setText('🌳 Default folder ')
     def default_dir_cmd():
         dialog = QFileDialog()
         dirpath = dialog.getExistingDirectory(

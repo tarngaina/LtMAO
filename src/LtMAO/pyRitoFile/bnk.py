@@ -110,6 +110,9 @@ class BNKObjectType(Enum):
     MotionFX = 17
     Effect = 18
     AuxiliaryBus = 19
+    Unknown20 = 20
+    Unknown21 = 21
+    Unknown22 = 22
 
     def __json__(self):
         return self.name

@@ -20,13 +20,6 @@
 
 2. Desktop shortcut: Can be created in setting tab.
 
-## File Explorer Context menu
-Can be added/removed in setting tab.
-
-**Note**: You can run `LtMAO` as Admin through shortcut if you encounter permission error. 
-
-![](https://i.imgur.com/f3XIP4M.png)
-
 ## Theme
 You can create your custom theme by making a new folder in `LtMAO-hai/res/themes`.
 
@@ -139,9 +132,16 @@ Copy of `bnk-extract-GUI`, but extract `.wav` instead of `.ogg`.
 ![](https://i.imgur.com/2oqujRZ.png)
 
 ## wiwawe
-Convert `wav` to `wem` and vice versa.
+Convert audio files.
 
 ![](https://i.imgur.com/OlflE55.png)
+
+## winLT
+Custom LtMAO explorer context menu.
+
+**Important**: You must run `LtMAO` as Admin through shortcut to bypass permission error. 
+
+![](https://i.imgur.com/f3XIP4M.png)
 
 # Extra:
 - [LeagueToolKit](https://github.com/LeagueToolkit/LeagueToolkit)
