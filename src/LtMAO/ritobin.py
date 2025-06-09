@@ -12,8 +12,204 @@ def hash_or_raw(name, quote=True):
     else:
         return f'"{name}"' if quote else name
 
+def make_type(bin_type_name):
+    return pyRitoFile.bin.BINType[bin_type_name.upper()]
+
 class Reader:
-    pass
+    @staticmethod
+    def pad_space(text):
+        while True:
+            char = text.read(1)
+            if char != ' ':
+                text.seek(text.tell()-1)
+                break
+
+    @staticmethod
+    def read_include(text, include_text):
+        res = ''
+        while text.tell() < text.end:
+            char = text.read(1)
+            if char == '\n': 
+                break
+            if char != ' ':
+                res += char
+            if include_text in res:
+                break
+        return res
+    
+    @staticmethod
+    def read_string(text):
+        quote = text.read(1)
+        if quote != '"':
+            raise Exception(f'ritobin: Error: Expect " but got {quote} instead at {text.tell()}')
+        res = ''
+        while text.tell() < text.end:
+            char = text.read(1)
+            if char == quote:
+                break
+            res += char
+        return res
+
+    
+    @staticmethod
+    def read_numnber(text):
+        res = ''
+        reach_num = False
+        while text.tell() < text.end:
+            num = text.read(1) # keep reading until reach num
+            if num.isnumeric():
+                res += num
+                reach_num = True # we reach num
+            else: 
+                if reach_num: # we reach num but suddenly read char is not num
+                    text.seek(text.tell()-1)
+                    break #stop because not num anymore
+        return res.strip(' ')
+
+    @staticmethod
+    def read_type(text):
+        return Reader.read_until(text, '=').strip(' ')
+    
+    @staticmethod
+    def read_hash_type(text):
+        hash_type = Reader.read_until(text, '{').strip(' ')
+        text.seek(text.tell()-1)
+        return hash_type
+
+    @staticmethod
+    def read_value(text, value_type):
+        if '[' in value_type:
+            value_types = value_type.split('[')
+            first_type = make_type(value_types[0])
+            second_type = value_types[1].strip(']')
+        else:
+            first_type = make_type(value_type)
+        res = None
+        if first_type == pyRitoFile.bin.BINType.STRING:
+            res = Reader.read_string(text)
+        elif first_type in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
+            res = []
+            Reader.read_include(text, '{\n') 
+            while True:
+                return_offset = text.tell()
+                check = Reader.read_include(text, '}')
+                if '}' in check:
+                    break
+                else:
+                    text.seek(return_offset)
+                    Reader.pad_space(text)
+                    value = Reader.read_value(text, second_type)
+                    res.append(value)
+                    Reader.read_include(text, '\n')
+        elif first_type in (pyRitoFile.bin.BINType.U8, pyRitoFile.bin.BINType.U16, pyRitoFile.bin.BINType.U32, pyRitoFile.bin.BINType.U64):
+            res = int(Reader.read_numnber(text))
+        return res
+    
+
+    @staticmethod
+    def read_field(text):
+        field = pyRitoFile.bin.BINField()
+        field.hash = Reader.read_hash(text)
+        type = Reader.read_type(text)
+        field.type = make_type(type)
+        field.data = Reader.read_value(text, type)
+        return field
+        
+    @staticmethod
+    def read_entry(text):
+        entry = pyRitoFile.bin.BINEntry()
+        entry.hash = Reader.read_include(text, '=').replace('=', '').strip(' ')
+        Reader.pad_space(text)
+        entry.type = Reader.read_include(text, '{\n').replace('{\n', '').strip(' ')
+        entry.data = []
+        return entry
+    
+    @staticmethod
+    def ignore_comment(text, bin):
+        # pointless because its just comment
+        comment = Reader.read_include(text, '\n')
+        print(f'Comment: {comment}')
+
+    @staticmethod
+    def read_header_type(text, bin):
+        # pointless because we hardcode writing header in pyRitoFile
+        Reader.read_include(text, '=')
+        Reader.pad_space(text)
+        bin.signature = Reader.read_value(text, 'string')
+        if bin.signature == 'PROP':
+            bin.is_patch = False
+        print(f'Type: {bin.signature}')
+
+    def read_header_version(text, bin):
+        # pointless because we hardcode writing header in pyRitoFile
+        Reader.read_include(text, '=')
+        Reader.pad_space(text)
+        bin.version = Reader.read_value(text, 'u32')
+        print(f'Version: {bin.version}')
+
+    def read_links(text, bin):
+        Reader.read_include(text, '=')
+        Reader.pad_space(text)
+        bin.links = Reader.read_value(text, 'list[string]')
+        print(f'Links: {bin.links}')
+
+    def read_entries(text, bin):
+        Reader.read_include(text, '=')
+        Reader.pad_space(text)
+        Reader.read_include(text, '{\n')
+        #while text.tell() < text.end:
+        entry = Reader.read_entry(text)
+        bin.entries.append(entry)
+        print('Finish entries')
+
+    @staticmethod
+    def read_and_decide_command(text):
+        block_to_commands = {
+            '#': Reader.ignore_comment,
+            'type': Reader.read_header_type,
+            'version': Reader.read_header_version,
+            'linked': Reader.read_links,
+            'entries': Reader.read_entries
+        }
+        Reader.pad_space(text)
+        res = ''
+        while text.tell() < text.end and res not in block_to_commands:
+            res += text.read(1)
+            if '\n' in res:
+                break
+        if res not in block_to_commands:
+            raise Exception(f'ritobin: Error: Unexpected block: {res} at {text.tell()}')
+        return block_to_commands[res]
+
+    @staticmethod
+    def read_text(text):
+        # init eof pos
+        text.seek(0, 2)
+        text.end = text.tell()
+        text.seek(0)
+        # init bin object
+        bin = pyRitoFile.bin.BIN()
+        bin.links = []
+        bin.entries = []
+
+        for i in range(4):
+            read_command = Reader.read_and_decide_command(text)
+            read_command(text, bin)
+            Reader.read_include(text, '\n')
+        
+
+        #while text.tell() < text.end:
+        #    read_command = Reader.read_and_decide_command(text)
+        #    read_command(text, bin)
+        #    Reader.read_until(text, '\n')
+        return bin
+
+
+def text_to_bin(text_path, bin_path=None):
+    if bin_path == None:
+        bin_path = '.'.join(text_path.split('.')[:-1] + ['.bin'])
+    with open(text_path, 'r', encoding='utf-8') as text:
+        Reader.read_text(text).write(bin_path)
 
 class Writer:   
     @staticmethod 

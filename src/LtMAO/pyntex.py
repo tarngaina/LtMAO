@@ -1,4 +1,4 @@
-import os, os.path, json
+import os, os.path, json, traceback
 from . import hash_helper, pyRitoFile
 
 def parse_bin(bin, *, existing_files={}):
@@ -93,13 +93,17 @@ def parse_dir(path, delete_junk_files=False):
     hash_helper.Storage.read_bin_hashes()
     for full_file_index, full_file in enumerate(full_files):
         if full_file.endswith('.bin'):
-            bin = pyRitoFile.bin.BIN().read(full_file)
-            bin.un_hash(hash_helper.Storage.hashtables)
-            result = parse_bin(bin, existing_files=existing_files)
-            if len(result) > 0:
-                res[short_files[full_file_index]] = result
-                print(f'pyntex: Finish: Parse {full_file}')
-            existing_files[short_files[full_file_index]] = False
+            try:
+                bin = pyRitoFile.bin.BIN().read(full_file)
+                bin.un_hash(hash_helper.Storage.hashtables)
+                result = parse_bin(bin, existing_files=existing_files)
+                if len(result) > 0:
+                    res[short_files[full_file_index]] = result
+                    print(f'pyntex: Finish: Parse {full_file}')
+                existing_files[short_files[full_file_index]] = False
+            except Exception as e:
+                print(f'pyntex: Error: {e}')
+                print(traceback.format_exc())
     hash_helper.Storage.free_bin_hashes()
     if 'hashed_files.json' in existing_files:
         existing_files['hashed_files.json'] = False
@@ -143,13 +147,17 @@ def parse_wad(path, delete_junk_files=False):
         for chunk in wad.chunks:
             chunk.read_data(bs)
             if chunk.extension == 'bin':
-                bin = pyRitoFile.bin.BIN().read(chunk.data, raw=True)
-                bin.un_hash(hash_helper.Storage.hashtables)
-                result = parse_bin(bin, existing_files=chunk_hashes)
-                if len(result) > 0:
-                    res[chunk.hash] = result
-                    print(f'pyntex: Finish: Parse {chunk.hash}')
-                chunk_hashes[chunk.hash] = False
+                try:
+                    bin = pyRitoFile.bin.BIN().read(chunk.data, raw=True)
+                    bin.un_hash(hash_helper.Storage.hashtables)
+                    result = parse_bin(bin, existing_files=chunk_hashes)
+                    if len(result) > 0:
+                        res[chunk.hash] = result
+                        print(f'pyntex: Finish: Parse {chunk.hash}')
+                    chunk_hashes[chunk.hash] = False
+                except Exception as e:
+                    print(f'pyntex: Error: {e}')
+                    print(traceback.format_exc())
             chunk.free_data()
     hash_helper.Storage.free_bin_hashes()
     res['junk_files'] = [file for file in chunk_hashes if chunk_hashes[file]]

@@ -152,18 +152,27 @@ class ExtractedHashes:
             'hashes.game.txt': {}
         }
         def extract_skn(path, raw=False):
-            # extract submesh hash <-> submesh name
-            skn = pyRitoFile.skn.SKN().read(path, raw)
-            for submesh in skn.submeshes:
-                hashtables['hashes.binhashes.txt'][submesh.bin_hash] = submesh.name
-                print(f'hash_helper: Finish: Extract: {submesh.name}')
+            try:
+                # extract submesh hash <-> submesh name
+                skn = pyRitoFile.skn.SKN().read(path, raw)
+                for submesh in skn.submeshes:
+                    hashtables['hashes.binhashes.txt'][submesh.bin_hash] = submesh.name
+                    print(f'hash_helper: Finish: Extract: {submesh.name}')
+            except Exception as e:
+                print(f'hash_helper: Error: {e}')
+                print(traceback.format_exc())
+                
 
         def extract_skl(path, raw=False):
-            # extract joint hash <-> joint name
-            skl = pyRitoFile.skl.SKL().read(path, raw)
-            for joint in skl.joints:
-                hashtables['hashes.binhashes.txt'][joint.bin_hash] = joint.name
-                print(f'hash_helper: Finish: Extract: {joint.name}')
+            try:
+                # extract joint hash <-> joint name
+                skl = pyRitoFile.skl.SKL().read(path, raw)
+                for joint in skl.joints:
+                    hashtables['hashes.binhashes.txt'][joint.bin_hash] = joint.name
+                    print(f'hash_helper: Finish: Extract: {joint.name}')
+            except Exception as e:
+                print(f'hash_helper: Error: {e}')
+                print(traceback.format_exc())
 
         def extract_bin(path, raw=False):
             def extract_file_value(value, value_type):
@@ -206,28 +215,32 @@ class ExtractedHashes:
                 else:
                     extract_file_value(field.data, field.type)
 
-            bin = pyRitoFile.bin.BIN().read(path, raw)
-            # extract VfxSystemDefinitionData <-> particlePath
-            VfxSystemDefinitionDatas = bin.get_items(lambda entry: entry.type == Storage.bin_hashes['VfxSystemDefinitionData'])
-            for VfxSystemDefinitionData in VfxSystemDefinitionDatas:
-                particlePaths = VfxSystemDefinitionData.get_items(lambda field: field.hash == Storage.bin_hashes['particlePath'])
-                if len(particlePaths) > 0:
-                    hashtables['hashes.binentries.txt'][VfxSystemDefinitionData.hash] = particlePaths[0].data
-                    print(f'hash_helper: Finish: Extract: {particlePaths[0].data}')
-            # extract StaticMaterialDef <-> name
-            StaticMaterialDefs = bin.get_items(lambda entry: entry.type == Storage.bin_hashes['StaticMaterialDef'])
-            for StaticMaterialDef in StaticMaterialDefs:
-                names = StaticMaterialDef.get_items(lambda field: field.hash == Storage.bin_hashes['name'])
-                if len(names) > 0:
-                    hashtables['hashes.binentries.txt'][StaticMaterialDef.hash] = names[0].data
-                    print(f'hash_helper: Finish: Extract: {names[0].data}')
-            # extract file hashes
-            for entry in bin.entries:
-                for field in entry.data:
-                    extract_file_field(field)
-            for link in bin.links:
-                extract_file_value(link, pyRitoFile.bin.BINType.STRING)
-
+            try:
+                bin = pyRitoFile.bin.BIN().read(path, raw)
+                # extract VfxSystemDefinitionData <-> particlePath
+                VfxSystemDefinitionDatas = bin.get_items(lambda entry: entry.type == Storage.bin_hashes['VfxSystemDefinitionData'])
+                for VfxSystemDefinitionData in VfxSystemDefinitionDatas:
+                    particlePaths = VfxSystemDefinitionData.get_items(lambda field: field.hash == Storage.bin_hashes['particlePath'])
+                    if len(particlePaths) > 0:
+                        hashtables['hashes.binentries.txt'][VfxSystemDefinitionData.hash] = particlePaths[0].data
+                        print(f'hash_helper: Finish: Extract: {particlePaths[0].data}')
+                # extract StaticMaterialDef <-> name
+                StaticMaterialDefs = bin.get_items(lambda entry: entry.type == Storage.bin_hashes['StaticMaterialDef'])
+                for StaticMaterialDef in StaticMaterialDefs:
+                    names = StaticMaterialDef.get_items(lambda field: field.hash == Storage.bin_hashes['name'])
+                    if len(names) > 0:
+                        hashtables['hashes.binentries.txt'][StaticMaterialDef.hash] = names[0].data
+                        print(f'hash_helper: Finish: Extract: {names[0].data}')
+                # extract file hashes
+                for entry in bin.entries:
+                    for field in entry.data:
+                        extract_file_field(field)
+                for link in bin.links:
+                    extract_file_value(link, pyRitoFile.bin.BINType.STRING)
+            except Exception as e:
+                print(f'hash_helper: Error: {e}')
+                print(traceback.format_exc())
+                
         def extract_wad(path):
             wad = pyRitoFile.wad.WAD().read(path)
             with pyRitoFile.stream.BytesStream.reader(path) as bs:
