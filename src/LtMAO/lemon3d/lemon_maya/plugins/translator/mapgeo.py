@@ -267,9 +267,8 @@ class MAPGEO:
                     layer_models[i].append(transform_name)
 
             # sets bush
-            if model.is_bush:
+            if pyRitoFile.mapgeo.MAPGEOVertexElementName.Texcoord5 in model.vertices[0].value:
                 bush_models.append(transform_name)
-
             # extra attributes
             # create bucket hash attribute
             if not cmds.attributeQuery(
@@ -306,7 +305,7 @@ class MAPGEO:
             group_transform.addChild(transform.object())
 
         group_transform.setName(group_name)
-        
+
         # clear select before create setss
         cmds.select(clear=True)
 
@@ -563,13 +562,13 @@ class MAPGEO:
                         vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Position] = position
 
                         # bush vertex animation 
-                        if version > 13 and model.is_bush:
-                            bush_vertex_animation = pyRitoFile.structs.Vector(
+                        if model.is_bush:
+                            bush_animated_vertex = pyRitoFile.structs.Vector(
                                 random.uniform(-0.005, 0.005) * position.x + position.x,
                                 random.uniform(-0.005, 0.005) * position.y + position.y,
                                 random.uniform(-0.005, 0.005) * position.z + position.z
                             )
-                            vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Texcoord5] = bush_vertex_animation
+                            vertex.value[pyRitoFile.mapgeo.MAPGEOVertexElementName.Texcoord5] = bush_animated_vertex
 
                         # average of normals of all faces connect to this vertex
                         iterator.getNormals(normals)

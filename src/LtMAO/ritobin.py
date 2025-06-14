@@ -11,37 +11,55 @@ def hash_or_raw(name, quote=True):
         return f'0x{name}'
     else:
         return f'"{name}"' if quote else name
-
-def make_type(bin_type_name):
-    return pyRitoFile.bin.BINType[bin_type_name.upper()]
+    
+def make_types(str_type):
+    if '[' in str_type:
+        split1 = str_type.split('[')
+        split2 = split1[1].split(',')
+        res = [split1[0]] + [t.strip(' ').strip(']') for t in split2]
+        return [pyRitoFile.bin.BINType[t.upper()] for t in res]
+    else:
+        return [pyRitoFile.bin.BINType[str_type.upper()]]
 
 class Reader:
     @staticmethod
-    def pad_space(text):
-        while True:
+    def read_space(text):
+        while text.tell() < text.end:
             char = text.read(1)
-            if char != ' ':
+            if not char.isspace():
                 text.seek(text.tell()-1)
                 break
 
     @staticmethod
-    def read_include(text, include_text):
+    def read_until(text, end_char):
         res = ''
         while text.tell() < text.end:
             char = text.read(1)
-            if char == '\n': 
+            if char == end_char:
                 break
-            if char != ' ':
-                res += char
-            if include_text in res:
-                break
+            res += char
         return res
     
     @staticmethod
-    def read_string(text):
-        quote = text.read(1)
-        if quote != '"':
-            raise Exception(f'ritobin: Error: Expect " but got {quote} instead at {text.tell()}')
+    def read_exact(text, exact_char):
+        char = text.read(1)
+        if char != exact_char:
+            raise Exception(f'ritobin: Error: Expect {exact_char} but got {char} at {text.tell()}')
+    
+    @staticmethod
+    def read_non_quote(text):
+        res = ''
+        while text.tell() < text.end:
+            char = text.read(1)
+            if char.isspace():
+                break
+            res += char
+        return res
+
+    @staticmethod
+    def read_quote(text):
+        quote = '"'
+        Reader.read_exact(text, quote)
         res = ''
         while text.tell() < text.end:
             char = text.read(1)
@@ -50,7 +68,6 @@ class Reader:
             res += char
         return res
 
-    
     @staticmethod
     def read_numnber(text):
         res = ''
@@ -67,119 +84,127 @@ class Reader:
         return res.strip(' ')
 
     @staticmethod
-    def read_type(text):
-        return Reader.read_until(text, '=').strip(' ')
-    
-    @staticmethod
-    def read_hash_type(text):
-        hash_type = Reader.read_until(text, '{').strip(' ')
+    def read_hash(text):
+        char = text.read(1)
         text.seek(text.tell()-1)
-        return hash_type
+        if char == '"':
+            return Reader.read_quote(text)
+        else:
+            return Reader.read_non_quote(text)
 
     @staticmethod
-    def read_value(text, value_type):
-        if '[' in value_type:
-            value_types = value_type.split('[')
-            first_type = make_type(value_types[0])
-            second_type = value_types[1].strip(']')
-        else:
-            first_type = make_type(value_type)
+    def read_value(text, value_types):
         res = None
-        if first_type == pyRitoFile.bin.BINType.STRING:
-            res = Reader.read_string(text)
-        elif first_type in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
+        if value_types[0] == pyRitoFile.bin.BINType.STRING:
+            res = Reader.read_quote(text)
+        elif value_types[0] in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
+            Reader.read_exact(text, '{')
             res = []
-            Reader.read_include(text, '{\n') 
-            while True:
-                return_offset = text.tell()
-                check = Reader.read_include(text, '}')
-                if '}' in check:
+            while text.tell() < text.end:
+                Reader.read_space(text)
+                if text.read(1) == '}':
                     break
                 else:
-                    text.seek(return_offset)
-                    Reader.pad_space(text)
-                    value = Reader.read_value(text, second_type)
+                    text.seek(text.tell()-1)
+                    value = Reader.read_value(text, [value_types[1]])
                     res.append(value)
-                    Reader.read_include(text, '\n')
-        elif first_type in (pyRitoFile.bin.BINType.U8, pyRitoFile.bin.BINType.U16, pyRitoFile.bin.BINType.U32, pyRitoFile.bin.BINType.U64):
+        elif value_types[0] in (pyRitoFile.bin.BINType.U8, pyRitoFile.bin.BINType.U16, pyRitoFile.bin.BINType.U32, pyRitoFile.bin.BINType.U64):
             res = int(Reader.read_numnber(text))
         return res
     
-
     @staticmethod
     def read_field(text):
         field = pyRitoFile.bin.BINField()
-        field.hash = Reader.read_hash(text)
-        type = Reader.read_type(text)
-        field.type = make_type(type)
-        field.data = Reader.read_value(text, type)
+        # read hash, type
+        field.hash = Reader.read_hash(text).strip(':')
+        Reader.read_space(text)
+        field_types = make_types(Reader.read_non_quote(text))
+        field.type = field_types[0]
+        Reader.read_space(text)
+        Reader.read_exact(text, '=')
+        Reader.read_space(text)
+        # read data
+        field.data = Reader.read_value(text, field_types)
         return field
         
     @staticmethod
     def read_entry(text):
         entry = pyRitoFile.bin.BINEntry()
-        entry.hash = Reader.read_include(text, '=').replace('=', '').strip(' ')
-        Reader.pad_space(text)
-        entry.type = Reader.read_include(text, '{\n').replace('{\n', '').strip(' ')
+        # read hash, type
+        entry.hash = Reader.read_hash(text)
+        Reader.read_space(text)
+        Reader.read_exact(text, '=')
+        Reader.read_space(text)
+        entry.type = Reader.read_hash(text)
+        # read data
         entry.data = []
+        Reader.read_exact(text, '{')
+        while text.tell() < text.end:
+            Reader.read_space(text)
+            if text.read(1) == '}':
+                break
+            else:
+                text.seek(text.tell()-1)
+                field = Reader.read_field(text)
+                entry.data.append(field)
+                print(field.hash, field.type, field.data)
         return entry
     
     @staticmethod
-    def ignore_comment(text, bin):
+    def read_comment(text, bin):
         # pointless because its just comment
-        comment = Reader.read_include(text, '\n')
+        comment = Reader.read_until(text, '\n')
         print(f'Comment: {comment}')
 
     @staticmethod
     def read_header_type(text, bin):
         # pointless because we hardcode writing header in pyRitoFile
-        Reader.read_include(text, '=')
-        Reader.pad_space(text)
-        bin.signature = Reader.read_value(text, 'string')
+        Reader.read_until(text, '=')
+        Reader.read_space(text)
+        bin.signature = Reader.read_value(text, make_types('string'))
         if bin.signature == 'PROP':
             bin.is_patch = False
         print(f'Type: {bin.signature}')
 
     def read_header_version(text, bin):
         # pointless because we hardcode writing header in pyRitoFile
-        Reader.read_include(text, '=')
-        Reader.pad_space(text)
-        bin.version = Reader.read_value(text, 'u32')
+        Reader.read_until(text, '=')
+        Reader.read_space(text)
+        bin.version = Reader.read_value(text, make_types('u32'))
         print(f'Version: {bin.version}')
 
     def read_links(text, bin):
-        Reader.read_include(text, '=')
-        Reader.pad_space(text)
-        bin.links = Reader.read_value(text, 'list[string]')
+        Reader.read_until(text, '=')
+        Reader.read_space(text)
+        bin.links = Reader.read_value(text, make_types('list[string]'))
         print(f'Links: {bin.links}')
 
     def read_entries(text, bin):
-        Reader.read_include(text, '=')
-        Reader.pad_space(text)
-        Reader.read_include(text, '{\n')
+        Reader.read_until(text, '=')
+        Reader.read_space(text)
+        Reader.read_exact(text, '{')
         #while text.tell() < text.end:
+        Reader.read_space(text)
         entry = Reader.read_entry(text)
         bin.entries.append(entry)
         print('Finish entries')
 
     @staticmethod
-    def read_and_decide_command(text):
-        block_to_commands = {
-            '#': Reader.ignore_comment,
+    def read_blocks(text):
+        blocks_to_commands = {
+            '#': Reader.read_comment,
             'type': Reader.read_header_type,
             'version': Reader.read_header_version,
             'linked': Reader.read_links,
             'entries': Reader.read_entries
         }
-        Reader.pad_space(text)
+        max_chars_to_read = max(len(key) for key in blocks_to_commands)
         res = ''
-        while text.tell() < text.end and res not in block_to_commands:
+        while text.tell() < text.end and len(res) < max_chars_to_read and res not in blocks_to_commands:
             res += text.read(1)
-            if '\n' in res:
-                break
-        if res not in block_to_commands:
+        if res not in blocks_to_commands:
             raise Exception(f'ritobin: Error: Unexpected block: {res} at {text.tell()}')
-        return block_to_commands[res]
+        return blocks_to_commands[res]
 
     @staticmethod
     def read_text(text):
@@ -192,10 +217,9 @@ class Reader:
         bin.links = []
         bin.entries = []
 
-        for i in range(4):
-            read_command = Reader.read_and_decide_command(text)
-            read_command(text, bin)
-            Reader.read_include(text, '\n')
+        for i in range(5):
+            Reader.read_space(text)
+            Reader.read_blocks(text)(text, bin)
         
 
         #while text.tell() < text.end:

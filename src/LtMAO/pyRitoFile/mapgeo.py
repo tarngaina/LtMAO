@@ -628,7 +628,7 @@ class MAPGEO:
                         vertex_description.elements.append(element)
                         vertex_formats += MAPGEOHelper.MGVertexFormatToPyValues[element.format][0]
                         vertex_size += MAPGEOHelper.MGVertexFormatToPyValues[element.format][1]
-                if self.version > 13 and model.is_bush:
+                if model.is_bush:
                     element = MAPGEOVertexElement()
                     element.name = MAPGEOVertexElementName.Texcoord5
                     element.format = MAPGEOVertexElementFormat.XYZ_Float32
