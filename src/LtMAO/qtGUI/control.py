@@ -2099,11 +2099,14 @@ def build_bnk_tool(widget: QWidget):
         while setting.get('bnk_tool.auto_play', True):
             if qtwidgets.inspector != None:
                 if qtwidgets.is_selecting:
-                    if qtwidgets.select_cd > 0.0:
+                    if qtwidgets.select_cd >= 0.0:
                         qtwidgets.select_cd -= fixed_delta_time
-                    else:
+                    if qtwidgets.select_cd < 0.0:
                         if qtwidgets.selected_wem_id != None:
-                            qtwidgets.inspector.play(qtwidgets.selected_wem_id, setting.get('bnk_tool.stop_previous', True))
+                            helper.SafeThread.start(
+                                f'{qtwidgets.selected_wem_id}{qtwidgets.select_cd}{time.time}',
+                                lambda: qtwidgets.inspector.play(qtwidgets.selected_wem_id, setting.get('bnk_tool.stop_previous', True))
+                            )
                         qtwidgets.select_cd = 0.0
                         qtwidgets.is_selecting = False
             time.sleep(fixed_delta_time)

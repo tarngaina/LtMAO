@@ -142,7 +142,7 @@ class BINReader:
         BINType.HASH:       lambda bs: BINHasher.hash_to_hex(bs.read_u32()[0]),
         BINType.FILE:       lambda bs: bs.read_u64()[0],
         BINType.LIST:       lambda bs: BINReader.read_list_or_list2(bs, BINField(type=BINType.LIST)),
-        BINType.LIST2:       lambda bs: BINReader.read_list_or_list2(bs, BINField(type=BINType.LIST2)),
+        BINType.LIST2:      lambda bs: BINReader.read_list_or_list2(bs, BINField(type=BINType.LIST2)),
         BINType.POINTER:    lambda bs: BINReader.read_pointer_or_embed(bs, BINField(type=BINType.POINTER)),
         BINType.EMBED:      lambda bs: BINReader.read_pointer_or_embed(bs, BINField(type=BINType.EMBED)),
         BINType.LINK:       lambda bs: BINHasher.hash_to_hex(bs.read_u32()[0]),

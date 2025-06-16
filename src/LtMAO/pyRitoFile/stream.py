@@ -5,15 +5,15 @@ from .structs import Vector, Quaternion, Matrix4
 class StringStream:
     @staticmethod
     def reader(path, raw=False):
-        return StringIO(path.decode('ascii')) if raw else open(path, 'r')
+        return StringIO(path.decode('utf-8')) if raw else open(path, 'r', encoding='utf-8')
         
     @staticmethod
     def writer(path, raw=False):
-        return StringIO() if raw else open(path, 'w')
+        return StringIO() if raw else open(path, 'w', encoding='utf-8')
         
     @staticmethod
     def updater(path, raw=False):
-        return StringIO(path).decode('ascii') if raw else open(path, 'r+')
+        return StringIO(path).decode('utf-8') if raw else open(path, 'r+', encoding='utf-8')
 
 class BytesStream:
     @staticmethod

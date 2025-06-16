@@ -36,8 +36,8 @@ class SO:
         return {key: getattr(self, key) for key in self.__slots__}
 
     def read_sco(self, path, raw=False):
-        with StringStream.reader(path, raw) as f:
-            lines = f.readlines()
+        with StringStream.reader(path, raw) as ss:
+            lines = ss.readlines()
             lines = [line[:-1] for line in lines]
 
             self.signature = lines[0]
@@ -104,37 +104,37 @@ class SO:
             return self
         
     def write_sco(self, path, raw=False):
-        with StringStream.writer(path, raw) as f:
-            f.write('[ObjectBegin]\n')  # magic
-            f.write(f'Name= {self.name}\n') # name
+        with StringStream.writer(path, raw) as ss:
+            ss.write('[ObjectBegin]\n')  # magic
+            ss.write(f'Name= {self.name}\n') # name
             # central
-            f.write(
+            ss.write(
                 f'CentralPoint= {self.central.x:.4g} {self.central.y:.4g} {self.central.z:.4g}\n') \
             # pivot
             if self.pivot != None:
-                f.write(
+                ss.write(
                     f'PivotPoint= {self.pivot.x:.4g} {self.pivot.y:.4g} {self.pivot.z:.4g}\n')
             # positions
-            f.write(f'Verts= {len(self.positions)}\n')
+            ss.write(f'Verts= {len(self.positions)}\n')
             for position in self.positions:
-                f.write(f'{position.x:.4g} {position.y:.4g} {position.z:.4g}\n')
+                ss.write(f'{position.x:.4g} {position.y:.4g} {position.z:.4g}\n')
             # faces
             face_count = len(self.indices) // 3
-            f.write(f'Faces= {face_count}\n')
+            ss.write(f'Faces= {face_count}\n')
             for i in range(face_count):
                 index = i * 3
-                f.write('3\t')
-                f.write(f' {self.indices[index]:>5}')
-                f.write(f' {self.indices[index+1]:>5}')
-                f.write(f' {self.indices[index+2]:>5}')
-                f.write(f'\t{self.material:>20}\t')
-                f.write(f'{self.uvs[index].x:.12f} {self.uvs[index].y:.12f} ')
-                f.write(
+                ss.write('3\t')
+                ss.write(f' {self.indices[index]:>5}')
+                ss.write(f' {self.indices[index+1]:>5}')
+                ss.write(f' {self.indices[index+2]:>5}')
+                ss.write(f'\t{self.material:>20}\t')
+                ss.write(f'{self.uvs[index].x:.12f} {self.uvs[index].y:.12f} ')
+                ss.write(
                     f'{self.uvs[index+1].x:.12f} {self.uvs[index+1].y:.12f} ')
-                f.write(
+                ss.write(
                     f'{self.uvs[index+2].x:.12f} {self.uvs[index+2].y:.12f}\n')
-            f.write('[ObjectEnd]')
-            return f.getvalue() if raw else None
+            ss.write('[ObjectEnd]')
+            return ss.getvalue() if raw else None
 
     def read_scb(self, path, raw=False):
         with BytesStream.reader(path, raw) as bs:

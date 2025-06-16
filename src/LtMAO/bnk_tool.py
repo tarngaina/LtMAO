@@ -130,24 +130,36 @@ class BankHelper:
                     if action.type != 4: # play 
                         continue
 
+                    # ranseq container sound ids could point to another ranseq container 
+                    # if sound id point to sound then list wem, otherwise keep dfs
+                    def list_ranseq_container_wems(ranseq_container_id):          
+                        if ranseq_container_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
+                            ranseq_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer][ranseq_container_id]
+                            for sound_id in ranseq_container.sound_ids:
+                                # sound id point to another ranseq container, dfs
+                                if sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
+                                    list_ranseq_container_wems(sound_id)
+                                # list wem if point to sound object
+                                elif sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]:
+                                    wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][sound_id].wem_id
+                                    if wem_id not in existed_wems:
+                                        continue
+                                    # create container if need
+                                    if ranseq_container_id not in bank_event.containers:
+                                        bank_event.containers[ranseq_container_id] = BankContainer(ranseq_container_id)
+                                    # add wem to container
+                                    bank_container = bank_event.containers[ranseq_container_id]
+                                    if wem_id not in bank_container.wems:
+                                        bank_container.wems[wem_id] = BankWem(wem_id)
+                                    # remove wem if they in non containers 
+                                    if wem_id in bank_event.wems:
+                                        bank_event.wems.pop(wem_id)
+                        
+
                     # if action link to ranseq container object
                     if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
-                        container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer][action.object_id]
-                        for sound_id in container.sound_ids: 
-                            # it not actually a sound object, can point to a blend container too
-                            # thats why we check if its in sounds
-                            if sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]: 
-                                wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][sound_id].wem_id
-                                if wem_id not in existed_wems:
-                                    continue
-                                # check if wem already in containers, if not add to non containers
-                                new_wem = True                 
-                                for bank_container_id, bank_container in bank_event.containers.items():
-                                    if wem_id in bank_container.wems:
-                                        new_wem = False
-                                        break
-                                if new_wem:
-                                    bank_event.wems[wem_id] = BankWem(wem_id)
+                        list_ranseq_container_wems(action.object_id)
+                                
                                 
                     # if action link to sound object
                     if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]:
@@ -165,32 +177,7 @@ class BankHelper:
 
                     # if action link to a switch container 
                     # switch container child point to ranseq container
-                    # ranseq container sound ids could point to another ranseq container 
-                    # if sound id point to sound then list wem, otherwise keep dfs
                     if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer]:
-                        def list_ranseq_container_wems(ranseq_container_id):
-                            if ranseq_container_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
-                                ranseq_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer][ranseq_container_id]
-                                for sound_id in ranseq_container.sound_ids:
-                                    # sound id point to another ranseq container, dfs
-                                    if sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
-                                        list_ranseq_container_wems(sound_id)
-                                    # list wem if point to sound object
-                                    elif sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]:
-                                        wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][sound_id].wem_id
-                                        if wem_id not in existed_wems:
-                                            continue
-                                        # create container if need
-                                        if ranseq_container_id not in bank_event.containers:
-                                            bank_event.containers[ranseq_container_id] = BankContainer(ranseq_container_id)
-                                        # add wem to container
-                                        bank_container = bank_event.containers[ranseq_container_id]
-                                        if wem_id not in bank_container.wems:
-                                            bank_container.wems[wem_id] = BankWem(wem_id)
-                                        # remove wem if they in non containers 
-                                        if wem_id in bank_event.wems:
-                                            bank_event.wems.pop(wem_id)
-                            
                         switch_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer][action.object_id]
                         for child_id in switch_container.child_ids:
                             list_ranseq_container_wems(child_id)

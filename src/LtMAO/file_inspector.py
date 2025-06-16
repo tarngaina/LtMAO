@@ -1,7 +1,7 @@
 from . import pyRitoFile
 import json
 
-class PRFEncoder(json.JSONEncoder):
+class FIEncoder(json.JSONEncoder):
     def default(self, obj):
         if hasattr(obj, '__json__'):
             return obj.__json__()
@@ -25,7 +25,7 @@ def write_json(path, obj):
     ):
         if isinstance(obj, good_type):
             with open(path, 'w+', encoding='utf-8') as f:
-                json.dump(obj, f, indent=4, ensure_ascii=False, cls=PRFEncoder)
+                json.dump(obj, f, indent=4, ensure_ascii=False, cls=FIEncoder)
 
 def inspect(path, hashtables=None):
     with open(path, 'rb') as f:
