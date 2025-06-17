@@ -363,7 +363,7 @@ def build_cslmao(widget: QWidget):
         
         display_image = QLabel()
         display_image.setPixmap(
-            QPixmap(image).scaled(192, 108, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation)
+            QPixmap(image).scaled(192, 108, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
             if image != None else display_image_empty
         )
         display_layout.addWidget(display_image)

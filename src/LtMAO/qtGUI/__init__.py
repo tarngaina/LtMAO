@@ -10,6 +10,8 @@ from PySide6.QtGui import (
     QMovie,
     QColor,
     QBrush,
+    QShortcut,
+    QKeySequence
 )
     
 from PySide6.QtWidgets import (
@@ -29,7 +31,7 @@ from PySide6.QtWidgets import (
 
 from . import control, helper, log
 from .. import setting, hash_helper, winLT, no_skin, bnk_tool, cslmao, wiwawe
-import requests
+import requests, os.path
 
 qtwidgets = helper.Keeper()
 
@@ -232,7 +234,6 @@ def sync_changelog(changelog):
             f.write(full_changelog_text)
 
     except Exception as e:
-        import os.path
         print(f'get_changelog: Error: {e}, switching to local file if exists.')
         if os.path.exists(local_file):
             # read offline
@@ -352,6 +353,25 @@ def build_main_window(window: QMainWindow):
                 qtwidgets.max_button.setVisible(True)
         event.accept()
     window.changeEvent = changeEvent
+    
+    # f12
+    def take_screenshot():
+        screen = window.screen()
+
+        fg = window.frameGeometry()
+        pixmap = screen.grabWindow(0, fg.left(), fg.top(), fg.width(), fg.height())
+        count = 0
+        while True:
+            png_file = f'screenshot_{count}.png'
+            if os.path.exists(png_file):
+                count += 1
+            else:
+                pixmap.save(png_file, 'png')
+                print(f'qtGUI: Finish: Saved {png_file}.')
+                break
+                
+    shortcut = QShortcut(QKeySequence('f12'), window)
+    shortcut.activated.connect(take_screenshot)
     
     print('qtGUI: Finish: Build main window.')
 

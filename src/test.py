@@ -9,6 +9,10 @@ def db(func):
     stats.sort_stats(pstats.SortKey.TIME)
     stats.print_stats(15)
 
+def test2():
+    ritobin.text_to_bin('D:/test/bloom.materials.py', 'D:/test/a.bin')
+    ritobin.bin_to_text('D:/test/a.bin', 'D:/test/a.py')
+
 def test():
     ss = ritobin.Reader.stream_from("""
     "Characters/Aatrox/Skins/Skin0/Particles/Aatrox_Base_E_Active_buff" = VfxSystemDefinitionData {
@@ -138,4 +142,4 @@ def test():
     import json
     print(json.dumps(entry, indent=4, ensure_ascii=False, cls=file_inspector.FIEncoder))
 
-db(test)
+db(test2)

@@ -1,6 +1,6 @@
 # LtMAO-hai
 `LtMAO-hai` is my toolpack to help League modding.
-![](https://i.imgur.com/SbEhMnk.png)
+![](https://i.postimg.cc/W4HnKJXs/screenshot-14.png)
 
 # Installation
 1. Download: [LtMAO-hai.zip](https://github.com/tarngaina/LtMAO/archive/refs/heads/hai.zip)
@@ -36,11 +36,11 @@ Just `cslol-manager`, but different UI.
 
 **Important**: To make cslmao work -> Click `Show settings` in the top right cornet -> Set `League of Legends/Game` folder.
 
-![](https://i.imgur.com/RfGXCio.png)
+![](https://i.postimg.cc/BZdzbR5J/screenshot-0.png)
 
 ## hash_helper
 
-![](https://i.imgur.com/vKwHUNl.png)
+![](https://i.postimg.cc/7Y0W2XX0/screenshot-1.png)
 
 **Important:** Please wait for all syncing/updating/loading hashes finished before process with any `LtMAO` functions.
 
@@ -63,45 +63,48 @@ Just `cslol-manager`, but different UI.
 ## mask_viewer
 Edit MaskData's weights inside animation BINs.
 
-![](https://i.imgur.com/k09Gmhj.png)
+![](https://i.postimg.cc/TPY7BxxJ/screenshot-2.png)
 
 ## hapiBin
 An app with multiple functions related to BIN file.
 
-![](https://i.imgur.com/YtLtHEM.png)
+![](https://i.postimg.cc/kgChF8hZ/screenshot-3.png)
 
 ## no_skin
 Create NO SKIN mod: Replace **almost** every League skins to default.
+
+![](https://i.imgur.com/AfQyzFN.png)
 
 `SKIPS.json`: Some skins cause League to crash when they get changed to base. This file tell the program to not change those skins to base.
 
 Has 2 modes:
 1. Full: make a full `NO SKIN.fantome` of all champions inside `League of Legends/Game/DATA/FINAL/Champions` folder.
+
+![](https://i.postimg.cc/ht0ZCjkG/screenshot-4.png)
+
 2. Lite: Make all selected `skinx.bin` become `skin0.bin`.
 
-![](https://i.imgur.com/vC1HJaL.png)
-
-![](https://i.imgur.com/AfQyzFN.png)
+![](https://i.postimg.cc/c18DpTp2/screenshot-7.png)
 
 ## wad_tool
 Simple tool to unpack, pack WAD files.
 
 Can bulk unpack multiple WADs into same output with filter. 
 
-![](https://i.imgur.com/JpUFNIp.png)
+![](https://i.postimg.cc/qRNmMGzt/screenshot-5.png)
 
 ## sborf
 Fix skin based on rito files: moonwalk animations, layering animations,...
 
 Can also adapt your custom animation bin MaskData base on riot original files.
 
-![](https://i.imgur.com/eBCUdGK.png)
+![](https://i.postimg.cc/KzC0KgM0/screenshot-6.png)
 
 ## lemon3d
 Tool to work with League 3d files.
 
 1. fbx:
-![](https://i.imgur.com/hyCLJmZ.png)
+![](https://i.postimg.cc/q7bbTFMV/screenshot-8.png)
 
 Convert League files to FBX and vice versa.
 
@@ -110,7 +113,7 @@ This tool mainly support `blender`, for maya please use the maya plugin.
 Support: SKN, SKL, ANM. Todo: SCO, SCB, MAPGEO
 
 2. maya:
-![](https://i.imgur.com/xe1UHVN.png)
+![](https://i.postimg.cc/L6Ky2LRX/screenshot-9.png)
 
 ![](https://i.imgur.com/BWuIm1y.png)
 
@@ -124,24 +127,26 @@ Support: SKN, SKL, ANM, SCO, SCB, MAPGEO.
 ## texsmart
 Convert League texture files.
 
-![](https://i.imgur.com/RI26D0T.png)
+![](https://i.postimg.cc/pXfsTrXB/screenshot-10.png)
 
 ## bnk_tool
 Copy of `bnk-extract-GUI`, but extract `.wav` instead of `.ogg`.
 
-![](https://i.imgur.com/2oqujRZ.png)
+![](https://i.postimg.cc/Dw55rNGJ/screenshot-11.png)
 
 ## wiwawe
 Convert audio files.
 
-![](https://i.imgur.com/OlflE55.png)
+![](https://i.postimg.cc/6Q3cYhVH/screenshot-12.png)
 
 ## winLT
 Custom LtMAO explorer context menu.
 
+![](https://i.imgur.com/f3XIP4M.png)
+
 **Important**: You must run `LtMAO` as Admin through shortcut to bypass permission error. 
 
-![](https://i.imgur.com/f3XIP4M.png)
+![](https://i.postimg.cc/W3qnPbHg/screenshot-13.png)
 
 # Extra:
 - [LeagueToolKit](https://github.com/LeagueToolkit/LeagueToolkit)
