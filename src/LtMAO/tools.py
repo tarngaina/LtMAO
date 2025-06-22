@@ -86,30 +86,6 @@ class CSLOL:
         return p
 
 
-class RITOBIN:
-    local_file = './res/tools/ritobin_cli.exe'
-
-    @staticmethod
-    def run(src, dst=None, *, dir_hashes=None, recursive=False, recursive_bin2py=True):
-        cmds = [os.path.abspath(RITOBIN.local_file), src]
-        if dst:
-            cmds.append(dst)
-        if dir_hashes:
-            cmds.extend(('--dir-hashes', dir_hashes))
-        if recursive:
-            cmds.append('--recursive')
-            if recursive_bin2py:
-                cmds.extend(('--input-format', 'bin', '--output-format', 'text'))
-            else:
-                cmds.extend(('--input-format', 'text', '--output-format', 'bin'))
-        p = subprocess.Popen(
-            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-        )
-        block_and_stream_process_output(p, 'ritobin: ')
-        return p
-
-
 class ImageMagick:
     local_file = './res/tools/magick.exe'
 

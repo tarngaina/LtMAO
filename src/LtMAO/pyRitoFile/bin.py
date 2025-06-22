@@ -1,7 +1,7 @@
 from .stream import BytesStream
 from .helper import FNV1a
+from .wad import WADHasher
 from enum import Enum
-
 
 class BINType(Enum):
     # basic
@@ -140,7 +140,7 @@ class BINReader:
         BINType.RGBA:       lambda bs: bs.read_u8(4),
         BINType.STRING:     lambda bs: bs.read_s_sized16(encoding='utf-8')[0],
         BINType.HASH:       lambda bs: BINHasher.hash_to_hex(bs.read_u32()[0]),
-        BINType.FILE:       lambda bs: bs.read_u64()[0],
+        BINType.FILE:       lambda bs: WADHasher.hash_to_hex(bs.read_u64()[0]),
         BINType.LIST:       lambda bs: BINReader.read_list_or_list2(bs, BINField(type=BINType.LIST)),
         BINType.LIST2:      lambda bs: BINReader.read_list_or_list2(bs, BINField(type=BINType.LIST2)),
         BINType.POINTER:    lambda bs: BINReader.read_pointer_or_embed(bs, BINField(type=BINType.POINTER)),
@@ -244,7 +244,7 @@ class BINWriter:
         BINType.RGBA:           lambda bs, value: (bs.write_u8(*value), 4),
         BINType.STRING:         lambda bs, value: (bs.write_s_sized16(value, encoding='utf-8'), len(value.encode('utf-8'))+2),
         BINType.HASH:           lambda bs, value: (bs.write_u32(BINHasher.raw_or_hex_to_hash(value)), 4),
-        BINType.FILE:           lambda bs, value: (bs.write_u64(value), 8),
+        BINType.FILE:           lambda bs, value: (bs.write_u64(WADHasher.raw_or_hex_to_hash(value)), 8),
         BINType.POINTER:        lambda bs, value: BINWriter.write_pointer_or_embed(bs, value),
         BINType.EMBED:          lambda bs, value: BINWriter.write_pointer_or_embed(bs, value),
         BINType.LINK:           lambda bs, value: (bs.write_u32(BINHasher.raw_or_hex_to_hash(value)), 4),

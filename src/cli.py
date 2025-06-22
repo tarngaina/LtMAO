@@ -61,14 +61,66 @@ class CLI:
 
     @staticmethod
     def ritobin(src, dst):
-        from LtMAO import hash_helper, tools
-        tools.RITOBIN.run(src, dst, dir_hashes=hash_helper.CustomHashes.local_dir)
+        from LtMAO import hash_helper, ritobin, pyRitoFile
+        if src.endswith('.py'):
+            dst = src.replace('.py', '.bin')
+            ritobin.text_to_bin(src, dst)
+        else:
+            is_bin = False
+            if src.endswith('.bin'):
+                is_bin = True
+            if not is_bin:
+                with pyRitoFile.stream.BytesStream.reader(src) as bs:
+                    is_bin = pyRitoFile.wad.WADExtensioner.guess_extension(bs.read(20)) == 'bin'
+            if is_bin:
+                hash_helper.Storage.read_all_hashes()
+                dst = src.replace('.bin', '.py') if '.bin' in src else src + '.py'
+                ritobin.bin_to_text(src, dst, hashtables=hash_helper.Storage.hashtables)
+                hash_helper.Storage.free_all_hashes()
 
+    @staticmethod
+    def ritobinnoext(src, dst):
+        from LtMAO import ritobin
+        dst = src.replace('.py', '')
+        ritobin.text_to_bin(src, dst)
 
     @staticmethod
     def ritobindir(src, dst, bin2py=True):
-        from LtMAO import hash_helper, tools
-        tools.RITOBIN.run(src, None, dir_hashes=hash_helper.CustomHashes.local_dir, recursive=True, recursive_bin2py=bin2py)
+        from LtMAO import hash_helper, ritobin, pyRitoFile
+        import os, os.path
+        if bin2py:
+            hash_helper.Storage.read_all_hashes()
+            for root, dirs, files in os.walk(src):
+                for file in files:
+                    bin_file = os.path.join(root, file).replace('\\', '/')
+                    py_file = bin_file.replace('.bin', '.py') if '.bin' in bin_file else bin_file + '.py'
+                    is_bin = False
+                    if file.endswith('.bin'):
+                        is_bin = True
+                    if not is_bin:
+                        with pyRitoFile.stream.BytesStream.reader(bin_file) as bs:
+                            is_bin = pyRitoFile.wad.WADExtensioner.guess_extension(bs.read(20)) == 'bin'
+                    if is_bin:
+                        ritobin.bin_to_text(bin_file, py_file,  hashtables=hash_helper.Storage.hashtables)
+            hash_helper.Storage.free_all_hashes()
+        else:
+            for root, dirs, files in os.walk(src):
+                for file in files:
+                    if file.endswith('.py'):
+                        py_file = os.path.join(root, file).replace('\\', '/')
+                        bin_file = py_file.replace('.py', '.bin')
+                        ritobin.text_to_bin(py_file, bin_file)
+        
+    @staticmethod
+    def ritobindirnoext(src, dst):
+        from LtMAO import ritobin
+        import os, os.path
+        for root, dirs, files in os.walk(src):
+            for file in files:
+                if file.endswith('.py'):
+                    py_file = os.path.join(root, file).replace('\\', '/')
+                    bin_file = py_file.replace('.py', '')
+                    ritobin.text_to_bin(py_file, bin_file)
 
     @staticmethod
     def lfi(src):
@@ -290,8 +342,10 @@ def main():
         'wadunpack_all':    lambda src, dst: CLI.wadunpack_all(src, dst),
 
         'ritobin':          lambda src, dst: CLI.ritobin(src, dst),
+        'ritobinnoext':     lambda src, dst: CLI.ritobinnoext(src, dst),
         'ritobindir2py':    lambda src, dst: CLI.ritobindir(src, dst, True),
         'ritobindir2bin':   lambda src, dst: CLI.ritobindir(src, dst, False),
+        'ritobindirnoext':  lambda src, dst: CLI.ritobindirnoext(src, dst),
 
         'lfi':              lambda src, dst: CLI.lfi(src),
 

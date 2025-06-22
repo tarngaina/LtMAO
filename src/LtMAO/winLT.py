@@ -19,6 +19,7 @@ class Context:
             'ZipFantome': True,
             'RitobinDirToPy': True,
             'RitobinDirToBin': True,
+            'RitobinDirToBinNoExt': True,
             'tex2ddsdir': True,
             'dds2texdir': True,
             'dir2bnk': True,
@@ -26,6 +27,9 @@ class Context:
             'wem2wavdir': True,
             'wav2wemdir': True,
             'ogg2wemdir': True
+        }, 
+        'No Extension': {
+            'RitobinToPy': True,
         },
         'wad': {
             'WadToRaw': True,
@@ -41,6 +45,7 @@ class Context:
         },
         'py': {
             'RitobinToBin': True,
+            'RitobinToBinNoExt': True,
         },
         'skl': {
             'hashextract': True,
@@ -123,6 +128,10 @@ class Context:
             'desc': 'ritobin: Convert To BIN',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin" -src="%V"'
         },
+        'RitobinToBinNoExt': {
+            'desc': 'ritobin: Convert To BIN Without Extension',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobinnoext" -src="%V"'
+        },
         'RitobinDirToPy': {
             'desc': 'ritobin: Convert All BIN To PY',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobindir2py" -src="%V"'
@@ -130,6 +139,10 @@ class Context:
         'RitobinDirToBin': {
             'desc': 'ritobin: Convert All PY To BIN',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobindir2bin" -src="%V"'
+        },
+        'RitobinDirToBinNoExt': {
+            'desc': 'ritobin: Convert All PY To BIN Without Extension',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobindirnoext" -src="%V"'
         },
         'LFI': {
             'desc': 'file_inspector: Print infos as JSON',
@@ -241,6 +254,8 @@ class Context:
     def get_shell(shell_id):
         if shell_id == 'Directory':
             return 'Directory\\shell'
+        elif shell_id == 'No Extension':
+            return 'SystemFileAssociations\\.\\shell'
         elif shell_id == 'wad':
             return 'SystemFileAssociations\\.client\\shell'
         else:

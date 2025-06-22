@@ -1,5 +1,26 @@
 from LtMAO import pyRitoFile
 
+
+SPACE_CHARS = ' \n\t\r'
+NUM_CHARS = '0123456789.-+e'
+ESCAPE_CHARS = {
+    '\n': '\\n',
+    '\t': '\\t',
+    '\r': '\\r',
+    "'": "\\'",
+    '"': '\\"',
+}
+
+def make_escapes(text):
+    for escape_char, made_escape_char in ESCAPE_CHARS.items():
+        text = text.replace(escape_char, made_escape_char)
+    return text
+
+def clean_escapes(text):
+    for escape_char, made_escape_char in ESCAPE_CHARS.items():
+        text = text.replace(made_escape_char, escape_char)
+    return text
+
 def add_indent(indent):
     return indent * 4 * ' '
 
@@ -39,9 +60,6 @@ def make_types(str_type):
             pyRitoFile.bin.BINType[str_type[start+1:sep].upper()], 
             pyRitoFile.bin.BINType[str_type[sep+1:end].upper()]
         ]
-
-SPACE_CHARS = ' \n\t\r'
-NUM_CHARS = '0123456789.-+e'
 
 class Reader:
     def __init__(self, text):
@@ -88,11 +106,11 @@ class Reader:
         quote = '"'
         self.read_exact(quote)
         start = self.cur
-        while self.cur < self.end and self.text[self.cur] != quote:
+        while self.cur < self.end and self.text[self.cur] != quote or (self.text[self.cur] == quote and self.text[self.cur-1] == '\\'):
             self.cur += 1
         end = self.cur
         self.cur += 1
-        return self.text[start:end]
+        return clean_escapes(self.text[start:end])
 
     def read_hash(self):
         if self.text[self.cur] == '"':
@@ -351,12 +369,6 @@ class Reader:
             self.read_space()
         return bin
 
-def text_to_bin(text_path, bin_path=None):
-    if bin_path == None:
-        bin_path = '.'.join(text_path.split('.')[:-1] + ['.bin'])
-    with pyRitoFile.stream.StringStream.reader(text_path) as ss:
-        Reader(ss.read()).read_text().write(bin_path)
-
 class Writer:  
     def __init__(self, bin):
         self.bin = bin
@@ -378,15 +390,15 @@ class Writer:
             text += '}\n'
         return text
     
-    def write_value(self, value, value_type, indent):
+    def write_value(self, value, value_type, indent, inline=True):
         # complex
         if value_type in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
             text = ''
             for v in value.data:
-                text += self.write_value(v, value_type, indent)
+                text += self.write_value(v, value_type, indent, inline=False)
             return text
         elif value_type in (pyRitoFile.bin.BINType.EMBED, pyRitoFile.bin.BINType.POINTER):
-            text = f'{add_indent(indent)}{hash_or_raw(value.hash_type, quote=False)} {{'
+            text = f'{add_indent(0 if inline else indent)}{hash_or_raw(value.hash_type, quote=False)} {{'
             if value.data != None and len(value.data) > 0:
                 text += '\n'
                 for f in value.data:
@@ -397,26 +409,29 @@ class Writer:
             return text
         # basic
         elif value_type == pyRitoFile.bin.BINType.STRING:
-            return f'{add_indent(indent)}"{value}"'
-        elif value_type in (pyRitoFile.bin.BINType.HASH, pyRitoFile.bin.BINType.LINK):
-            return f'{add_indent(indent)}{hash_or_raw(value)}'
+            return f'{add_indent(0 if inline else indent)}"{make_escapes(value)}"'
+        elif value_type in (pyRitoFile.bin.BINType.HASH, pyRitoFile.bin.BINType.LINK, pyRitoFile.bin.BINType.FILE):
+            return f'{add_indent(0 if inline else indent)}{hash_or_raw(value)}'
         elif value_type == pyRitoFile.bin.BINType.BOOL:
-            return f'{add_indent(indent)}{value}'.lower()
+            return f'{add_indent(0 if inline else indent)}{value}'.lower()
         elif value_type == pyRitoFile.bin.BINType.FLAG:
-            return f'{add_indent(indent)}{value != 0}'.lower()
+            return f'{add_indent(0 if inline else indent)}{value != 0}'.lower()
         elif value_type == pyRitoFile.bin.BINType.F32:
-            return f'{add_indent(indent)}{value:g}'
+            return f'{add_indent(0 if inline else indent)}{value:g}'
         elif value_type in (pyRitoFile.bin.BINType.VEC2, pyRitoFile.bin.BINType.VEC3, pyRitoFile.bin.BINType.VEC4, pyRitoFile.bin.BINType.RGBA):
-            values = ", ".join(f'{v:.9g}' for v in value)
-            return f'{add_indent(indent)}{{ {values} }}'
-        return f'{add_indent(indent)}{value}'
+            values = ', '.join(f'{v:.9g}' for v in value)
+            return f'{add_indent(0 if inline else indent)}{{ {values} }}'
+        elif value_type in (pyRitoFile.bin.BINType.I8, pyRitoFile.bin.BINType.U8,pyRitoFile.bin.BINType.I16,pyRitoFile.bin.BINType.U16,pyRitoFile.bin.BINType.I32,pyRitoFile.bin.BINType.U32,pyRitoFile.bin.BINType.I64,pyRitoFile.bin.BINType.U64):
+            return f'{add_indent(0 if inline else indent)}{value}'
+        else:
+            print(value_type + ' is not sp yet')
     
     def write_list_or_list2(self, field, indent):
         text = f'{add_indent(indent)}{hash_or_raw(field.hash, quote=False)}: {clean_type(field.type)}[{clean_type(field.value_type)}] = {{'
         if len(field.data) > 0:
             text += '\n'
             for value in field.data:
-                text += f'{self.write_value(value, field.value_type, indent+1)}\n'
+                text += f'{self.write_value(value, field.value_type, indent+1, inline=False)}\n'
             text += f'{add_indent(indent)}}}\n'
         else:
             text += '}\n'
@@ -437,7 +452,7 @@ class Writer:
         text = f'{add_indent(indent)}{hash_or_raw(field.hash, quote=False)}: {clean_type(field.type)}[{clean_type(field.value_type)}] = {{'
         if field.data != None:
             text += '\n'
-            text += f'{self.write_value(field.data, field.value_type, indent+1)}\n'
+            text += f'{self.write_value(field.data, field.value_type, indent+1, inline=False)}\n'
             text += f'{add_indent(indent)}}}\n'
         else:
             text += '}\n'
@@ -448,12 +463,26 @@ class Writer:
         if len(field.data) > 0:
             text += '\n'
             for key, value in field.data.items():
-                text += f'{self.write_value(key, field.key_type, indent+1)} = {self.write_value(value, field.value_type, 0)}\n'
+                text += f'{self.write_value(key, field.key_type, indent+1, inline=False)} = {self.write_value(value, field.value_type, indent+1, inline=True)}\n'
             text += f'{add_indent(indent)}}}\n'
         else:
             text += '}\n'
         return text
 
+    def write_matrix(self, field, indent):
+        values = [v for v in field.data]
+        text = f'{add_indent(indent)}{hash_or_raw(field.hash, quote=False)}: {clean_type(field.type)} = {{\n'
+        temp = ', '.join(f'{values[i]:.9g}' for i in range(0, 4, 1))
+        text += f'{add_indent(indent+1)}{temp}, \n'
+        temp = ', '.join(f'{values[i]:.9g}' for i in range(4, 8, 1))
+        text += f'{add_indent(indent+1)}{temp}, \n'
+        temp = ', '.join(f'{values[i]:.9g}' for i in range(8, 12, 1))
+        text += f'{add_indent(indent+1)}{temp}, \n'
+        temp = ', '.join(f'{values[i]:.9g}' for i in range(12, 16, 1))
+        text += f'{add_indent(indent+1)}{temp}, \n'
+        text += f'{add_indent(indent)}}}\n'
+        return text
+    
     def write_field(self, field, indent):
         if field.type in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
             text = self.write_list_or_list2(field, indent)
@@ -463,8 +492,10 @@ class Writer:
             text = self.write_option(field, indent)
         elif field.type == pyRitoFile.bin.BINType.MAP:
             text = self.write_map(field, indent)
+        elif field.type == pyRitoFile.bin.BINType.MTX44:
+            text = self.write_matrix(field, indent)
         else:
-            text = f'{add_indent(indent)}{hash_or_raw(field.hash, quote=False)}: {clean_type(field.type)} = {self.write_value(field.data, field.type, 0)}\n'
+            text = f'{add_indent(indent)}{hash_or_raw(field.hash, quote=False)}: {clean_type(field.type)} = {self.write_value(field.data, field.type, indent)}\n'
         return text
     
     def write_entry(self, entry, indent):
@@ -495,6 +526,13 @@ class Writer:
         text += self.write_entries(indent)
         return text
 
+
+def text_to_bin(text_path, bin_path=None):
+    if bin_path == None:
+        bin_path = '.'.join(text_path.split('.')[:-1] + ['.bin'])
+    with pyRitoFile.stream.StringStream.reader(text_path) as ss:
+        Reader(ss.read()).read_text().write(bin_path)
+    
 
 def bin_to_text(bin_path, text_path=None, hashtables=None):
     if text_path == None:

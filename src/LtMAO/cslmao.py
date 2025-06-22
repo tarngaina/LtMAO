@@ -1,5 +1,5 @@
 import os, os.path, json, datetime, shutil
-from . import tools, setting, Ritoddstex
+from . import setting, Ritoddstex, ritobin, tools
 
 block_and_stream_process_output = tools.block_and_stream_process_output
 
@@ -191,7 +191,10 @@ def convert_raw_files_before_run():
     # converts
     if setting.get('cslmao.auto_py2bin', False):
         for py_file, bin_file in py2bin_files:
-            tools.RITOBIN.run(py_file, bin_file)
+            try:
+                ritobin.text_to_bin(py_file, bin_file)
+            except Exception as e:
+                print(f'Ritoddstex: Error: {str(e)} on {py_file}')
         print(f'cslmao: Finish: Convert {len(py2bin_files)} files from PY to BIN.')
     if setting.get('cslmao.auto_dds2tex', False):
         for dds_file, tex_file in dds2tex_files:

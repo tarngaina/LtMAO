@@ -2263,6 +2263,8 @@ def build_winLT(widget: QWidget):
     # treewidget
     def set_context_data(shell_id, command_id, value):
         winLT.Context.submenus[shell_id][command_id] = value
+        setting.set(f'winLT.{shell_id}.{command_id}', value)
+        setting.save()
     layout2 = QHBoxLayout()
     treewidget = QTreeWidget()
     treewidget.setHeaderHidden(True)
@@ -2274,7 +2276,9 @@ def build_winLT(widget: QWidget):
             command_item = QTreeWidgetItem(shell_item)
             command_item.setText(0, '')
             checkbox = QCheckBox(f'🔧 {winLT.Context.commands[command_id]["desc"]}')
-            checkbox.setChecked(winLT.Context.submenus[shell_id][command_id])
+            checkbox_value = setting.get(f'winLT.{shell_id}.{command_id}', True)
+            checkbox.setChecked(checkbox_value)
+            winLT.Context.submenus[shell_id][command_id] = checkbox_value
             checkbox.clicked.connect(lambda value, shell_id=shell_id, command_id=command_id: set_context_data(shell_id, command_id, value))
             treewidget.setItemWidget(command_item, 0, checkbox)
     treewidget.expandAll()

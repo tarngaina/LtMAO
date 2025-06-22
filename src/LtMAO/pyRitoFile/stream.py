@@ -13,7 +13,7 @@ class StringStream:
         
     @staticmethod
     def updater(path, raw=False):
-        return StringIO(path).decode('utf-8') if raw else open(path, 'r+', encoding='utf-8')
+        return StringIO(path.decode('utf-8')) if raw else open(path, 'r+', encoding='utf-8')
 
 class BytesStream:
     @staticmethod
@@ -213,7 +213,6 @@ class BytesStream:
     def write_s_padded(self, value, length, encoding='ascii'):
         if len(value) > length:
             value = value[:length]
-        
         v = value.encode(encoding)
         self.stream.write(v + b'\x00'*(length-len(v)))
 

@@ -10,8 +10,7 @@ def db(func):
     stats.print_stats(15)
 
 def test2():
-    ritobin.text_to_bin('D:/test/bloom.materials.py', 'D:/test/a.bin')
-    ritobin.bin_to_text('D:/test/a.bin', 'D:/test/a.py')
+    print(pyRitoFile.bin.BINHasher.hash_to_hex(pyRitoFile.helper.FNV1a('fade')))
 
 def test():
     ss = ritobin.Reader.stream_from("""
