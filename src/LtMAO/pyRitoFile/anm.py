@@ -462,6 +462,16 @@ class ANM:
             self.duration = int(self.duration)
             ANMHepler.interpolate_integer_frames(self)
             vec_bank, quat_bank, frames = ANMHepler.build_frames(self)
+            vec_count = len(vec_bank)
+            if vec_count > 65535:
+                raise Exception(
+                    f'pyRitoFile: Error: Write ANM: Animation size is too big, vector bank size: {vec_count} exceed 65535.'
+                )
+            quat_count = len(quat_bank)
+            if quat_count > 65535:
+                raise Exception(
+                    f'pyRitoFile: Error: Write ANM: Animation size is too big, quaternion bank size: {quat_count} exceed 65535.'
+                )
             # start write anm
             bs.write_s('r3d2anmd') # signature
             bs.write_u32(

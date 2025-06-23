@@ -1,7 +1,7 @@
 from LtMAO import pyRitoFile
 
 
-SPACE_CHARS = ' \n\t\r'
+SPACE_CHARS = ' \n\t\r#'
 NUM_CHARS = '0123456789.-+e'
 ESCAPE_CHARS = {
     '\n': '\\n',
@@ -78,7 +78,10 @@ class Reader:
 
     def read_space(self):
         while self.cur < self.end and self.text[self.cur] in SPACE_CHARS:
-            self.cur += 1
+            if self.text[self.cur] == '#':
+                self.read_until('\n')
+            else:
+                self.cur += 1
 
     def read_until(self, end_char):
         start = self.cur
@@ -304,10 +307,6 @@ class Reader:
             else:
                 entry.data.append(self.read_field())
         return entry
-    
-    def read_comment(self, bin):
-        # pointless because its just comment
-        comment = self.read_until('\n')
 
     def read_header_type(self, bin):
         # pointless because we hardcode writing header in pyRitoFile
@@ -344,7 +343,6 @@ class Reader:
 
     def read_blocks(self):
         blocks_to_commands = {
-            '#': self.read_comment,
             'type': self.read_header_type,
             'version': self.read_header_version,
             'linked': self.read_links,

@@ -10,7 +10,7 @@ def db(func):
     stats.print_stats(15)
 
 def test2():
-    print(pyRitoFile.bin.BINHasher.hash_to_hex(pyRitoFile.helper.FNV1a('fade')))
+    ritobin.text_to_bin('D:/test/a.py', 'D:/test/a.bin')
 
 def test():
     ss = ritobin.Reader.stream_from("""

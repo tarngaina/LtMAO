@@ -356,33 +356,33 @@ def main():
         'pyntex':           lambda src, dst: CLI.pyntex(src),
         'pyntexdeljunk':    lambda src, dst: CLI.pyntex(src, True),
 
-        'tex2dds':    lambda src, dst: CLI.tex2dds(src),
-        'dds2tex':    lambda src, dst: CLI.dds2tex(src),
-        'tex2ddsdir':    lambda src, dst: CLI.tex2ddsdir(src),
-        'dds2texdir':    lambda src, dst: CLI.dds2texdir(src),
+        'tex2dds':          lambda src, dst: CLI.tex2dds(src),
+        'dds2tex':          lambda src, dst: CLI.dds2tex(src),
+        'tex2ddsdir':       lambda src, dst: CLI.tex2ddsdir(src),
+        'dds2texdir':       lambda src, dst: CLI.dds2texdir(src),
 
-        'dds2png':    lambda src, dst: CLI.dds2png(src, dst),
-        'png2dds':    lambda src, dst: CLI.png2dds(src, dst),
-        'png2ddsmm':    lambda src, dst: CLI.png2ddsmm(src, dst),
+        'dds2png':          lambda src, dst: CLI.dds2png(src, dst),
+        'png2dds':          lambda src, dst: CLI.png2dds(src, dst),
+        'png2ddsmm':        lambda src, dst: CLI.png2ddsmm(src, dst),
 
-        'dds2x4x':    lambda src, dst: CLI.dds2x4x(src),
+        'dds2x4x':          lambda src, dst: CLI.dds2x4x(src),
 
-        'wem2wav':    lambda src, dst: CLI.wem2wav(src),
-        'wav2wem':    lambda src, dst: CLI.wav2wem(src),
-        'ogg2wem':    lambda src, dst: CLI.ogg2wem(src),
-        'wem2wavdir':    lambda src, dst: CLI.wem2wavdir(src),
-        'wav2wemdir':    lambda src, dst: CLI.wav2wemdir(src),
-        'ogg2wemdir':    lambda src, dst: CLI.ogg2wemdir(src),
+        'wem2wav':          lambda src, dst: CLI.wem2wav(src),
+        'wav2wem':          lambda src, dst: CLI.wav2wem(src),
+        'ogg2wem':          lambda src, dst: CLI.ogg2wem(src),
+        'wem2wavdir':       lambda src, dst: CLI.wem2wavdir(src),
+        'wav2wemdir':       lambda src, dst: CLI.wav2wemdir(src),
+        'ogg2wemdir':       lambda src, dst: CLI.ogg2wemdir(src),
 
-        'dir2bnk':    lambda src, dst: CLI.dir2bnk(src),
-        'dir2wpk':    lambda src, dst: CLI.dir2wpk(src),
-        'bnk2dir':    lambda src, dst: CLI.bnk2dir(src),
-        'wpk2dir':    lambda src, dst: CLI.wpk2dir(src),
+        'dir2bnk':          lambda src, dst: CLI.dir2bnk(src),
+        'dir2wpk':          lambda src, dst: CLI.dir2wpk(src),
+        'bnk2dir':          lambda src, dst: CLI.bnk2dir(src),
+        'wpk2dir':          lambda src, dst: CLI.wpk2dir(src),
 
-        'geb':    lambda src, dst: CLI.geb(src),
+        'geb':              lambda src, dst: CLI.geb(src),
 
-        'zipfantome': lambda src, dst: CLI.zipfantome(src),
-        'unzipfantome': lambda src, dst: CLI.unzipfantome(src),
+        'zipfantome':       lambda src, dst: CLI.zipfantome(src),
+        'unzipfantome':     lambda src, dst: CLI.unzipfantome(src),
     }
 
     args = parse_arguments()
