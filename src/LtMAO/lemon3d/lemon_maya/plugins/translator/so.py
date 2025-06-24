@@ -244,6 +244,7 @@ class SO:
         material = MFnStandardSurfaceShader()
         material.create()
         material.setName(so.material)
+        material.setSpecular(0.0)
         material_name = material.name()
         # shading group
         # create renderable, independent shading group

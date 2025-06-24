@@ -325,6 +325,7 @@ class SKN:
             material = MFnStandardSurfaceShader()
             material.create()
             material.setName(submesh.name)
+            material.setSpecular(0.0)
             material_name = material.name()
             # create renderable, independent shading group
             cmds.sets(
