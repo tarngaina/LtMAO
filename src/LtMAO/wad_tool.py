@@ -1,6 +1,8 @@
 from . import pyRitoFile
 import os, json
 
+
+
 def unpack(wad_file, raw_dir, hashtables, filter=None):
     print(f'wad_tool: Start:  Unpack WAD: {wad_file}')
     # read wad
@@ -27,15 +29,20 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
                 if not file_path.endswith(ext):
                     file_path += ext
             file_path = file_path.replace('\\', '/')
-            # hash data vfx bin 
-            if os.path.dirname(file_path).endswith('data') and chunk.extension == 'bin':
-                hashed_bin = os.path.join(raw_dir, pyRitoFile.wad.WADHasher.raw_to_hex(chunk.hash)+'.bin')
-                hashed_files[os.path.basename(hashed_bin)] = chunk.hash
-                file_path = hashed_bin
+
+            should_be_hashed = False
+            # hash file with long basename
+            if len(os.path.basename(file_path)) > 255:
+                should_be_hashed = True
             # hash file same name with dir
             if os.path.exists(file_path) and os.path.isdir(file_path):
-                hashed_file =  os.path.join(raw_dir, pyRitoFile.wad.WADHasher.raw_to_hex(chunk.hash))
-                hashed_files[os.path.basename(hashed_file)] = chunk.hash
+                should_be_hashed = True
+            if should_be_hashed:
+                basename = pyRitoFile.wad.WADHasher.raw_to_hex(chunk.hash)
+                if chunk.extension != None:
+                    basename += f'.{chunk.extension}'
+                hashed_file =  os.path.join(raw_dir, basename)
+                hashed_files[basename] = chunk.hash
                 file_path = hashed_file
             # write out chunk data to file
             with open(file_path, 'wb') as fo:
