@@ -23,22 +23,25 @@ def parse_bin(bin, *, existing_files={}):
                 for v in value.data:
                     parse_value(v, value_type)
             elif value_type in (pyRitoFile.bin.BINType.EMBED, pyRitoFile.bin.BINType.POINTER):
-                for f in value.data:
-                    parse_field(f)
+                if value.data != None:
+                    for f in value.data:
+                        parse_field(f)
 
         def parse_field(field):
             if field.type in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
                 for v in field.data:
                     parse_value(v, field.value_type)
             elif field.type in (pyRitoFile.bin.BINType.EMBED, pyRitoFile.bin.BINType.POINTER):
-                for f in field.data:
-                    parse_field(f)
+                if field.data != None:
+                    for f in field.data:
+                        parse_field(f)
             elif field.type == pyRitoFile.bin.BINType.MAP:
                 for key, value in field.data.items():
                     parse_value(key, field.key_type)
                     parse_value(value, field.value_type)
             elif field.type == pyRitoFile.bin.BINType.OPTION and field.value_type == pyRitoFile.bin.BINType.STRING:
-                parse_value(field.data, field.value_type)
+                if field.data != None:
+                    parse_value(field.data, field.value_type)
             else:
                 parse_value(field.data, field.type)
 

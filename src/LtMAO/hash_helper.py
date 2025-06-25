@@ -196,22 +196,25 @@ class ExtractedHashes:
                     for v in value.data:
                         extract_file_value(v, value_type)
                 elif value_type in (pyRitoFile.bin.BINType.EMBED, pyRitoFile.bin.BINType.POINTER):
-                    for f in value.data:
-                        extract_file_field(f)
+                    if value.data != None:
+                        for f in value.data:
+                            extract_file_field(f)
 
             def extract_file_field(field):
                 if field.type in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
                     for v in field.data:
                         extract_file_value(v, field.value_type)
                 elif field.type in (pyRitoFile.bin.BINType.EMBED, pyRitoFile.bin.BINType.POINTER):
-                    for f in field.data:
-                        extract_file_field(f)
+                    if field.data != None:
+                        for f in field.data:
+                            extract_file_field(f)
                 elif field.type == pyRitoFile.bin.BINType.MAP:
                     for key, value in field.data.items():
                         extract_file_value(key, field.key_type)
                         extract_file_value(value, field.value_type)
                 elif field.type == pyRitoFile.bin.BINType.OPTION and field.value_type == pyRitoFile.bin.BINType.STRING:
-                    extract_file_value(field.data, field.value_type)
+                    if field.data != None:
+                        extract_file_value(field.data, field.value_type)
                 else:
                     extract_file_value(field.data, field.type)
 
