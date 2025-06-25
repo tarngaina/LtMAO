@@ -314,13 +314,13 @@ class Context:
 
     @staticmethod
     def remove_submenu(shell):
-        with winreg.OpenKeyEx(winreg.HKEY_CLASSES_ROOT, shell) as key:
-            try:
+        try:
+            with winreg.OpenKeyEx(winreg.HKEY_CLASSES_ROOT, shell) as key:
                 winreg.DeleteKeyEx(key, 'LtMAO')
-            except FileNotFoundError:
-                pass
-            except Exception as e:
-                raise e
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            raise e
 
     @staticmethod
     def remove_contexts():
