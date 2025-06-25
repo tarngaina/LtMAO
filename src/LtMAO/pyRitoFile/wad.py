@@ -64,11 +64,11 @@ class WADHasher:
         'hashes.lcu.txt',
     )
     @staticmethod
-    def hex_to_raw(hashtables, hash):
+    def hex_to_raw(hashtables, hex):
         for table_name in reversed(WADHasher.HASHTABLE_NAMES):
-            if table_name in hashtables and hash in hashtables[table_name]:
-                return hashtables[table_name][hash]
-        return hash
+            if table_name in hashtables and hex in hashtables[table_name]:
+                return hashtables[table_name][hex]
+        return hex
     
     @staticmethod
     def raw_to_hex(raw):

@@ -396,14 +396,17 @@ class Writer:
                 text += self.write_value(v, value_type, indent, inline=False)
             return text
         elif value_type in (pyRitoFile.bin.BINType.EMBED, pyRitoFile.bin.BINType.POINTER):
-            text = f'{add_indent(0 if inline else indent)}{hash_or_raw(value.hash_type, quote=False)} {{'
-            if value.data != None and len(value.data) > 0:
-                text += '\n'
-                for f in value.data:
-                    text += self.write_field(f, indent+1)
-                text += f'{add_indent(indent)}}}'
+            if value.hash_type == '00000000':
+                text = f'{add_indent(0 if inline else indent)}null'
             else:
-                text += '}'
+                text = f'{add_indent(0 if inline else indent)}{hash_or_raw(value.hash_type, quote=False)} {{'
+                if value.data != None and len(value.data) > 0:
+                    text += '\n'
+                    for f in value.data:
+                        text += self.write_field(f, indent+1)
+                    text += f'{add_indent(indent)}}}'
+                else:
+                    text += '}'
             return text
         # basic
         elif value_type == pyRitoFile.bin.BINType.STRING:
@@ -415,9 +418,9 @@ class Writer:
         elif value_type == pyRitoFile.bin.BINType.FLAG:
             return f'{add_indent(0 if inline else indent)}{value != 0}'.lower()
         elif value_type == pyRitoFile.bin.BINType.F32:
-            return f'{add_indent(0 if inline else indent)}{value:g}'
+            return f'{add_indent(0 if inline else indent)}{value:.4g}'
         elif value_type in (pyRitoFile.bin.BINType.VEC2, pyRitoFile.bin.BINType.VEC3, pyRitoFile.bin.BINType.VEC4, pyRitoFile.bin.BINType.RGBA):
-            values = ', '.join(f'{v:.9g}' for v in value)
+            values = ', '.join(f'{v:.4g}' for v in value)
             return f'{add_indent(0 if inline else indent)}{{ {values} }}'
         elif value_type in (pyRitoFile.bin.BINType.I8, pyRitoFile.bin.BINType.U8,pyRitoFile.bin.BINType.I16,pyRitoFile.bin.BINType.U16,pyRitoFile.bin.BINType.I32,pyRitoFile.bin.BINType.U32,pyRitoFile.bin.BINType.I64,pyRitoFile.bin.BINType.U64):
             return f'{add_indent(0 if inline else indent)}{value}'
@@ -436,14 +439,17 @@ class Writer:
         return text
     
     def write_pointer_or_embed(self, field, indent):
-        text = f'{add_indent(indent)}{hash_or_raw(field.hash, quote=False)}: {clean_type(field.type)} = {hash_or_raw(field.hash_type, quote=False)} {{'
-        if field.data != None and len(field.data) > 0:
-            text += '\n'
-            for field in field.data:
-                text += self.write_field(field, indent+1)
-            text += f'{add_indent(indent)}}}\n'
+        if field.hash_type == '00000000':
+            text = f'{add_indent(indent)}{hash_or_raw(field.hash, quote=False)}: {clean_type(field.type)} = null\n'
         else:
-            text += '}\n'
+            text = f'{add_indent(indent)}{hash_or_raw(field.hash, quote=False)}: {clean_type(field.type)} = {hash_or_raw(field.hash_type, quote=False)} {{'
+            if field.data != None and len(field.data) > 0:
+                text += '\n'
+                for field in field.data:
+                    text += self.write_field(field, indent+1)
+                text += f'{add_indent(indent)}}}\n'
+            else:
+                text += '}\n'
         return text
 
     def write_option(self, field, indent):
@@ -468,16 +474,12 @@ class Writer:
         return text
 
     def write_matrix(self, field, indent):
-        values = [v for v in field.data]
+        matrix = field.data
         text = f'{add_indent(indent)}{hash_or_raw(field.hash, quote=False)}: {clean_type(field.type)} = {{\n'
-        temp = ', '.join(f'{values[i]:.9g}' for i in range(0, 4, 1))
-        text += f'{add_indent(indent+1)}{temp}, \n'
-        temp = ', '.join(f'{values[i]:.9g}' for i in range(4, 8, 1))
-        text += f'{add_indent(indent+1)}{temp}, \n'
-        temp = ', '.join(f'{values[i]:.9g}' for i in range(8, 12, 1))
-        text += f'{add_indent(indent+1)}{temp}, \n'
-        temp = ', '.join(f'{values[i]:.9g}' for i in range(12, 16, 1))
-        text += f'{add_indent(indent+1)}{temp}, \n'
+        text += f'{add_indent(indent+1)}{matrix.a:.4g}, {matrix.b:.4g}, {matrix.c:.4g}, {matrix.d:.4g}\n'
+        text += f'{add_indent(indent+1)}{matrix.e:.4g}, {matrix.f:.4g}, {matrix.g:.4g}, {matrix.h:.4g}\n'
+        text += f'{add_indent(indent+1)}{matrix.i:.4g}, {matrix.j:.4g}, {matrix.k:.4g}, {matrix.l:.4g}\n'
+        text += f'{add_indent(indent+1)}{matrix.m:.4g}, {matrix.n:.4g}, {matrix.o:.4g}, {matrix.p:.4g}\n'
         text += f'{add_indent(indent)}}}\n'
         return text
     

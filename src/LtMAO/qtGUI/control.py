@@ -729,7 +729,7 @@ def build_hash_helper(widget: QWidget):
     layout2.addWidget(button)
     button = QToolButton()
     button.setText('❌ Clear Extract hash')
-    button.clicked.connect(lambda event: hash_helper.clear_extract_hashes(*hash_helper.ALL_HASHES))
+    button.clicked.connect(lambda event: hash_helper.ExtractedHashes.clear_extract_hashes(*hash_helper.ALL_HASHES))
     layout2.addWidget(button)
     layout2.addStretch()
     layout.addLayout(layout2)
