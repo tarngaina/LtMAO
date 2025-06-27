@@ -2396,7 +2396,7 @@ def build_setting(widget: QWidget):
     button = QToolButton()
     button.setText('♻️ Restart LtMAO')
     def restart_cmd():
-        print(f'Running: Restart LtMAO')
+        print(f'Start: Restart LtMAO')
         os.system(os.path.join(os.path.abspath(os.path.curdir),'start.bat'))
         qtwidgets.app.quit()
         

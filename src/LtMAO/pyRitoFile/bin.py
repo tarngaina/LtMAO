@@ -102,7 +102,6 @@ class BINHasher:
         field.hash = BINHasher.hex_to_raw(hashtables, field.hash)
         field.type = BINHasher.hex_to_raw(hashtables, field.type)
         if field.type in (BINType.LIST, BINType.LIST2):
-            field.value_type = BINHasher.hex_to_raw(hashtables, field.value_type)
             field.data = [BINHasher.un_hash_value(hashtables, v, field.value_type)
                             for v in field.data]
         elif field.type in (BINType.EMBED, BINType.POINTER):
@@ -111,13 +110,27 @@ class BINHasher:
                 for f in field.data:
                     BINHasher.un_hash_field(hashtables, f)
         elif field.type == BINType.MAP:
-            field.key_type = BINHasher.hex_to_raw(hashtables, field.key_type)
-            field.value_type = BINHasher.hex_to_raw(hashtables, field.value_type)
             field.data = {
                 BINHasher.un_hash_value(hashtables, key, field.key_type): BINHasher.un_hash_value(hashtables, value, field.value_type) for key, value in field.data.items()
             }
         else:
             field.data = BINHasher.un_hash_value(hashtables, field.data, field.type)
+
+    @staticmethod
+    def un_hash_patch(hashtables, patch):
+        patch.hash = BINHasher.hex_to_raw(hashtables, patch.hash)
+        if patch.type in (BINType.LIST, BINType.LIST2):
+            field = patch.data
+            field.data = [BINHasher.un_hash_value(hashtables, v, field.value_type)
+                            for v in field.data]
+        elif patch.type in (BINType.EMBED, BINType.POINTER):
+            field = patch.data
+            if field.hash_type != '00000000':
+                field.hash_type = BINHasher.hex_to_raw(hashtables, field.hash_type)
+                for f in field.data:
+                    BINHasher.un_hash_field(hashtables, f)
+        else:
+            patch.data = BINHasher.un_hash_value(hashtables, patch.data, patch.type)
 
 
 class BINReader:
@@ -245,6 +258,8 @@ class BINWriter:
         BINType.STRING:         lambda bs, value: (bs.write_s_sized16(value, encoding='utf-8'), len(value.encode('utf-8'))+2),
         BINType.HASH:           lambda bs, value: (bs.write_u32(BINHasher.raw_or_hex_to_hash(value)), 4),
         BINType.FILE:           lambda bs, value: (bs.write_u64(WADHasher.raw_or_hex_to_hash(value)), 8),
+        BINType.LIST:           lambda bs, value: BINWriter.write_list_or_list2(bs, value),
+        BINType.LIST2:          lambda bs, value: BINWriter.write_list_or_list2(bs, value),
         BINType.POINTER:        lambda bs, value: BINWriter.write_pointer_or_embed(bs, value),
         BINType.EMBED:          lambda bs, value: BINWriter.write_pointer_or_embed(bs, value),
         BINType.LINK:           lambda bs, value: (bs.write_u32(BINHasher.raw_or_hex_to_hash(value)), 4),
@@ -540,7 +555,7 @@ class BIN:
             if self.is_patch:
                 bs.write_u32(len(self.patches))
                 for patch in self.patches:
-                    bs.write_u32(BINHasher.raw_or_hex_to_hash(path.hash))
+                    bs.write_u32(BINHasher.raw_or_hex_to_hash(patch.hash))
 
                     return_offset = bs.tell()
                     bs.write_u32(0)  # size
@@ -549,7 +564,7 @@ class BIN:
                     bs.write_u8(patch.type.value)
                     bs.write_s_sized16(patch.path, encoding='utf-8')
                     patch_size += BINWriter.write_value(
-                        bs, patch.type, header_size=False)
+                        bs, patch.data, patch.type, header_size=False)
                     bs.size_offsets.append(
                         (return_offset, patch_size))
             # jump around and write size
@@ -566,6 +581,9 @@ class BIN:
             entry.type = BINHasher.hex_to_raw(hashtables, entry.type)
             for field in entry.data:
                 BINHasher.un_hash_field(hashtables, field)
+        if self.is_patch:
+            for patch in self.patches:
+                BINHasher.un_hash_patch(hashtables, patch)
 
     def get_items(self, compare_func):
         res = []

@@ -119,7 +119,7 @@ class Reader:
         if self.text[self.cur] == '"':
             return self.read_quote()
         else:
-            return self.read_non_quote().lstrip('0x')
+            return self.read_non_quote().removeprefix('0x')
 
     def read_num(self):
         start = self.cur
@@ -341,12 +341,66 @@ class Reader:
             else:
                 bin.entries.append(self.read_entry())
 
+    def read_patch(self):
+        self.read_space()
+        patch = pyRitoFile.bin.BINPatch()
+        # hash
+        patch.hash = self.read_hash()
+        self.read_space()
+        self.read_exact('=')
+        self.read_space()
+        self.read_non_quote()
+        self.read_space()
+        self.read_exact('{')
+        self.read_space()
+        # path
+        self.read_until('=')
+        self.read_space()
+        patch.path = self.read_quote()
+        self.read_space()
+        # type
+        self.read_non_quote()
+        self.read_space()
+        str_type = self.read_non_quote()
+        field_types = make_types(str_type)
+        patch.type = field_types[0]
+        self.read_space()
+        self.read_exact('=')
+        self.read_space()
+        # data
+        if field_types[0] in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
+            field = pyRitoFile.bin.BINField()
+            field.type = field_types[0]
+            field.value_type = field_types[1]
+            field.data = self.read_value(field_types)
+            patch.data = field
+        else:
+            patch.data = self.read_value(field_types)
+        self.read_space()
+        self.read_exact('}')
+        return patch
+
+    def read_patches(self, bin):
+        self.read_until('=')
+        self.read_space()
+
+        bin.patches = []
+        self.read_exact('{')
+        while self.cur < self.end:
+            self.read_space()
+            if self.text[self.cur] == '}':
+                self.cur += 1
+                break
+            else:
+                bin.patches.append(self.read_patch())
+
     def read_blocks(self):
         blocks_to_commands = {
             'type': self.read_header_type,
             'version': self.read_header_version,
             'linked': self.read_links,
-            'entries': self.read_entries
+            'entries': self.read_entries,
+            'patches': self.read_patches,
         }
         max_chars_to_read = max(len(block_header) for block_header in blocks_to_commands)
         res = ''
@@ -519,11 +573,64 @@ class Writer:
         else:
             text += '}\n'
         return text
+    
+    def write_patches(self, indent):
+        text = f'{add_indent(indent)}patches: map[hash,embed] = {{'
+        if len(self.bin.patches) > 0:
+            text += '\n'
+            for entry in self.bin.patches:
+                text += self.write_patch(entry, indent+1)
+            text += f'{add_indent(indent)}}}\n'
+        else:
+            text += '}\n'
+        return text
+    
+    def write_patch(self, patch, indent):
+        text = f'{add_indent(indent)}{hash_or_raw(patch.hash)} = patch {{\n'
+        text += f'{add_indent(indent+1)}path: string = "{patch.path}"\n'
+        text += f'{add_indent(indent+1)}value: '
+        if patch.type in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
+            field = patch.data
+            text += f'{add_indent(0)}{clean_type(field.type)}[{clean_type(field.value_type)}] = {{'
+            if len(field.data) > 0:
+                text += '\n'
+                for value in field.data:
+                    text += f'{self.write_value(value, field.value_type, indent+2, inline=False)}\n'
+                text += f'{add_indent(indent+1)}}}\n'
+            else:
+                text += '}\n'
+        elif patch.type in (pyRitoFile.bin.BINType.POINTER, pyRitoFile.bin.BINType.EMBED):
+            field = patch.data
+            if field.hash_type == '00000000':
+                text += f'{add_indent(0)}{clean_type(patch.type)} = null\n'
+            else:
+                text += f'{add_indent(0)}{clean_type(patch.type)} = {hash_or_raw(field.hash_type, quote=False)} {{'
+                if field.data != None and len(field.data) > 0:
+                    text += '\n'
+                    for f in field.data:
+                        text += self.write_field(f, indent+2)
+                    text += f'{add_indent(indent+1)}}}\n'
+                else:
+                    text += '}\n'
+        elif patch.type == pyRitoFile.bin.BINType.MTX44:
+            matrix = patch.data
+            text += f'{add_indent(0)}{clean_type(patch.type)} = {{\n'
+            text += f'{add_indent(indent+2)}{matrix.a:.4g}, {matrix.b:.4g}, {matrix.c:.4g}, {matrix.d:.4g}\n'
+            text += f'{add_indent(indent+2)}{matrix.e:.4g}, {matrix.f:.4g}, {matrix.g:.4g}, {matrix.h:.4g}\n'
+            text += f'{add_indent(indent+2)}{matrix.i:.4g}, {matrix.j:.4g}, {matrix.k:.4g}, {matrix.l:.4g}\n'
+            text += f'{add_indent(indent+2)}{matrix.m:.4g}, {matrix.n:.4g}, {matrix.o:.4g}, {matrix.p:.4g}\n'
+            text += f'{add_indent(indent+1)}}}\n'
+        else:
+            text += f'{clean_type(patch.type)} = {self.write_value(patch.data, patch.type, indent)}\n'
+        text += f'{add_indent(indent)}}}\n'
+        return text
 
     def write_bin(self, indent):
         text = self.write_header(indent)
         text += self.write_links(indent)
         text += self.write_entries(indent)
+        if self.bin.is_patch:
+            text += self.write_patches(indent)
         return text
 
 

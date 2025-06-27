@@ -62,27 +62,34 @@ class CLI:
     @staticmethod
     def ritobin(src, dst):
         from LtMAO import hash_helper, ritobin, pyRitoFile
+        # py to bin without ext
+        if src.endswith('.nx.py'):
+            dst = src.replace('.nx.py', '')
+            print(f'ritobin: Start: Read: {src}')
+            ritobin.text_to_bin(src, dst)
+            return
+        # py to bin
         if src.endswith('.py'):
             dst = src.replace('.py', '.bin')
+            print(f'ritobin: Start: Read: {src}')
             ritobin.text_to_bin(src, dst)
-        else:
-            is_bin = False
-            if src.endswith('.bin'):
-                is_bin = True
-            if not is_bin:
-                with pyRitoFile.stream.BytesStream.reader(src) as bs:
-                    is_bin = pyRitoFile.wad.WADExtensioner.guess_extension(bs.read(20)) == 'bin'
-            if is_bin:
+            return
+        # bin to py
+        if src.endswith('.bin'):
+            dst = src.replace('.bin', '.py')
+            hash_helper.Storage.read_all_hashes()
+            print(f'ritobin: Start: Write: {src}')
+            ritobin.bin_to_text(src, dst, hashtables=hash_helper.Storage.hashtables)
+            hash_helper.Storage.free_all_hashes()
+            return
+        # bin without ext to py
+        with pyRitoFile.stream.BytesStream.reader(src) as bs:
+            if pyRitoFile.wad.WADExtensioner.guess_extension(bs.read(20)) == 'bin':
                 hash_helper.Storage.read_all_hashes()
-                dst = src.replace('.bin', '.py') if '.bin' in src else src + '.py'
+                dst = src + '.nx.py'
+                print(f'ritobin: Start: Write: {src}')
                 ritobin.bin_to_text(src, dst, hashtables=hash_helper.Storage.hashtables)
                 hash_helper.Storage.free_all_hashes()
-
-    @staticmethod
-    def ritobinnoext(src, dst):
-        from LtMAO import ritobin
-        dst = src.replace('.py', '')
-        ritobin.text_to_bin(src, dst)
 
     @staticmethod
     def ritobindir(src, dst, bin2py=True):
@@ -92,35 +99,37 @@ class CLI:
             hash_helper.Storage.read_all_hashes()
             for root, dirs, files in os.walk(src):
                 for file in files:
-                    bin_file = os.path.join(root, file).replace('\\', '/')
-                    py_file = bin_file.replace('.bin', '.py') if '.bin' in bin_file else bin_file + '.py'
-                    is_bin = False
+                    # bin to py
                     if file.endswith('.bin'):
-                        is_bin = True
-                    if not is_bin:
-                        with pyRitoFile.stream.BytesStream.reader(bin_file) as bs:
-                            is_bin = pyRitoFile.wad.WADExtensioner.guess_extension(bs.read(20)) == 'bin'
-                    if is_bin:
+                        bin_file = os.path.join(root, file).replace('\\', '/')
+                        py_file = bin_file.replace('.bin', '.py')
+                        print(f'ritobin: Start: Write: {bin_file}')
                         ritobin.bin_to_text(bin_file, py_file,  hashtables=hash_helper.Storage.hashtables)
+                        continue
+                    # bin without ext to py
+                    bin_file = os.path.join(root, file).replace('\\', '/')
+                    py_file = bin_file + '.nx.py'
+                    with pyRitoFile.stream.BytesStream.reader(bin_file) as bs:
+                        if pyRitoFile.wad.WADExtensioner.guess_extension(bs.read(20)) == 'bin':
+                            print(f'ritobin: Start: Write: {bin_file}')
+                            ritobin.bin_to_text(bin_file, py_file,  hashtables=hash_helper.Storage.hashtables)
             hash_helper.Storage.free_all_hashes()
         else:
             for root, dirs, files in os.walk(src):
                 for file in files:
+                    # py to bin without ext
+                    if file.endswith('.nx.py'):
+                        py_file = os.path.join(root, file).replace('\\', '/')
+                        bin_file = py_file.replace('.nx.py', '')
+                        print(f'ritobin: Start: Read: {py_file}')
+                        ritobin.text_to_bin(py_file, bin_file)
+                        continue
+                    # py to bin
                     if file.endswith('.py'):
                         py_file = os.path.join(root, file).replace('\\', '/')
                         bin_file = py_file.replace('.py', '.bin')
+                        print(f'ritobin: Start: Read: {py_file}')
                         ritobin.text_to_bin(py_file, bin_file)
-        
-    @staticmethod
-    def ritobindirnoext(src, dst):
-        from LtMAO import ritobin
-        import os, os.path
-        for root, dirs, files in os.walk(src):
-            for file in files:
-                if file.endswith('.py'):
-                    py_file = os.path.join(root, file).replace('\\', '/')
-                    bin_file = py_file.replace('.py', '')
-                    ritobin.text_to_bin(py_file, bin_file)
 
     @staticmethod
     def lfi(src):
@@ -156,13 +165,15 @@ class CLI:
     @staticmethod
     def tex2dds(src):
         from LtMAO import Ritoddstex
+        print(f'Ritoddstex: Start: To DDS: {src}')
         Ritoddstex.tex2dds(src)
-
+        
     @staticmethod
     def dds2tex(src):
         from LtMAO import Ritoddstex
+        print(f'Ritoddstex: Start: To TEX: {src}')
         Ritoddstex.dds2tex(src)
-    
+        
     @staticmethod
     def tex2ddsdir(src):
         import os, os.path
@@ -171,6 +182,7 @@ class CLI:
             for file in files:  
                 if file.endswith('.tex'):
                     tex_file = os.path.join(root, file).replace('\\', '/')
+                    print(f'Ritoddstex: Start: To DDS: {tex_file}')
                     Ritoddstex.tex2dds(tex_file)
 
     @staticmethod
@@ -181,6 +193,7 @@ class CLI:
             for file in files:  
                 if file.endswith('.dds'):
                     dds_file = os.path.join(root, file).replace('\\', '/')
+                    print(f'Ritoddstex: Start: To TEX: {dds_file}')
                     Ritoddstex.dds2tex(dds_file)
 
     @staticmethod
@@ -233,12 +246,12 @@ class CLI:
             width_4x = img.width // 4
             height_4x = img.height // 4
             file_4x = os.path.join(dirname, '4x_'+basename).replace('\\', '/')
-        print(f'dds2x4x: Running: Create: {file_2x}')
+        print(f'dds2x4x: Start: Create: {file_2x}')
         tools.ImageMagick.resize_dds(
             src=src,
             dst=file_2x, width=width_2x, height=height_2x
         )
-        print(f'dds2x4x: Running: Create: {file_4x}')
+        print(f'dds2x4x: Start: Create: {file_4x}')
         tools.ImageMagick.resize_dds(
             src=src,
             dst=file_4x, width=width_4x, height=height_4x
@@ -313,7 +326,7 @@ class CLI:
             info = json.load(f)
 
         dst = os.path.dirname(src) + f'/{info["Name"]} V{info["Version"]} by {info["Author"]}.fantome'
-        print(f'zipfantome: Running: Zip: {src} to {dst}')
+        print(f'zipfantome: Start: Zip: {src} to {dst}')
         with zipfile.ZipFile(dst, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zip:
             for root, dirs, files in os.walk(src):
                 for file in files:
@@ -325,7 +338,7 @@ class CLI:
         import zipfile
 
         dst = src.replace('.fantome', '')
-        print(f'unzipfantome: Running: Unzip: {src} to {dst}')
+        print(f'unzipfantome: Start: Unzip: {src} to {dst}')
         with zipfile.ZipFile(src, 'r') as zip:
             zip.extractall(dst)
 
@@ -342,10 +355,8 @@ def main():
         'wadunpack_all':    lambda src, dst: CLI.wadunpack_all(src, dst),
 
         'ritobin':          lambda src, dst: CLI.ritobin(src, dst),
-        'ritobinnoext':     lambda src, dst: CLI.ritobinnoext(src, dst),
         'ritobindir2py':    lambda src, dst: CLI.ritobindir(src, dst, True),
         'ritobindir2bin':   lambda src, dst: CLI.ritobindir(src, dst, False),
-        'ritobindirnoext':  lambda src, dst: CLI.ritobindirnoext(src, dst),
 
         'lfi':              lambda src, dst: CLI.lfi(src),
 
