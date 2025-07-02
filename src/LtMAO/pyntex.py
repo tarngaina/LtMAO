@@ -1,9 +1,35 @@
 import os, os.path, json, traceback
 from . import hash_helper, pyRitoFile
 
+def unify_path(path):
+    # if the path is straight up hex
+    # ex: ec9584b0506c2abb -> ec9584b0506c2abb
+    if pyRitoFile.bin.WADHasher.is_hash(path):
+        return path
+    # if the path is hashed file 
+    # ex: ec9584b0506c2abb.bin -> ec9584b0506c2abb
+    basename = path.split('.')[0]
+    if pyRitoFile.bin.WADHasher.is_hash(basename):
+        return basename
+    # if the path is pure raw
+    # ex: data/effects.bin -> ec9584b0506c2abb
+    return pyRitoFile.bin.WADHasher.raw_to_hex(path)
+
+def check_if_path_in_there(path, there):
+    path = unify_path(path)
+    for f in there:
+        if path == unify_path(f):
+            return True
+    return False    
+
+def checK_if_path_is_same(path1, path2):
+    if unify_path(path1) == unify_path(path2):
+        return True
+    return False
+
 def parse_bin(bin, *, existing_files={}):
     bin_hash = pyRitoFile.bin.BINHasher.raw_to_hex
-    temp_hashes = [
+    entry_hashes_to_parse = [
         hash_helper.Storage.bin_hashes[text] for text in (
             'SkinCharacterDataProperties', 'StaticMaterialDef', 'GearSkinUpgrade', 'VfxSystemDefinitionData'
         )
@@ -50,7 +76,7 @@ def parse_bin(bin, *, existing_files={}):
 
         if len(existing_files) > 0:   
             for file in mentioned_files:
-                if file in existing_files:
+                if check_if_path_in_there(file, existing_files):
                     existing_files[file] = False
                     if file.endswith('.dds'):
                         splits = file.split('/')
@@ -73,7 +99,7 @@ def parse_bin(bin, *, existing_files={}):
 
     results = []
     for entry in bin.entries:
-        if bin_hash(entry.type) in temp_hashes:
+        if bin_hash(entry.type) in entry_hashes_to_parse:
             results.append(parse_entry(entry))
     return results
 
@@ -136,11 +162,6 @@ def parse_wad(path, delete_junk_files=False):
     wad = pyRitoFile.wad.WAD().read(path)
     wad.un_hash(hash_helper.Storage.hashtables)
     hash_helper.Storage.free_wad_hashes()
-    # rehash the data/ bins
-    for chunk in wad.chunks:
-        if chunk.extension == 'bin':
-            if os.path.dirname(chunk.hash) == 'data':
-                chunk.hash = pyRitoFile.wad.WADHasher.raw_to_hex(chunk.hash) + '.bin'
     # list all chunk hashes
     chunk_hashes = {chunk.hash: True for chunk in wad.chunks}
     # parsing
@@ -175,7 +196,7 @@ def parse_wad(path, delete_junk_files=False):
         # write temp chunk
         with pyRitoFile.stream.BytesStream.reader(path) as bs, pyRitoFile.stream.BytesStream.updater(temp_path) as bs_temp:
             for id, temp_chunk in enumerate(temp.chunks):
-                chunk = wad.get_items(lambda chunk: chunk.hash == chunk_hashes_to_write[id])[0]
+                chunk = wad.get_items(lambda chunk: checK_if_path_is_same(chunk.hash, chunk_hashes_to_write[id]))[0]
                 chunk.read_data(bs)
                 temp_chunk.write_data(bs_temp, id, chunk.hash, chunk.data, previous_chunks=temp.chunks[:id])
                 chunk.free_data()
