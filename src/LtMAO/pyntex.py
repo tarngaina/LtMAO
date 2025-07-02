@@ -31,7 +31,11 @@ def parse_bin(bin, *, existing_files={}):
     bin_hash = pyRitoFile.bin.BINHasher.raw_to_hex
     entry_hashes_to_parse = [
         hash_helper.Storage.bin_hashes[text] for text in (
-            'SkinCharacterDataProperties', 'StaticMaterialDef', 'GearSkinUpgrade', 'VfxSystemDefinitionData'
+            'SkinCharacterDataProperties', 
+            'StaticMaterialDef', 
+            'GearSkinUpgrade', 
+            'VfxSystemDefinitionData',
+            'animationGraphData'
         )
     ]
 
