@@ -1,5 +1,5 @@
 import json, os, os.path, zipfile, shutil, time
-from . import hash_helper, pyRitoFile
+from . import lepath, hash_helper, pyRitoFile
 
 def bin_hash(name):
     return f'{pyRitoFile.helper.FNV1a(name):08x}'
@@ -110,8 +110,8 @@ def full_no_skin(champions_dir, output_dir):
     wad_files = []
     for file in files:
         if file.endswith('.wad.client') and '_' not in file:
-            wad_files.append(os.path.join(
-                champions_dir, file).replace('\\', '/'))
+            wad_files.append(lepath.join(
+                champions_dir, file))
     if len(wad_files) == 0:
         raise Exception(
             'no_skin: Error: Create NO SKIN mod: Invalid Champions folder?')
@@ -222,15 +222,15 @@ def full_no_skin(champions_dir, output_dir):
                 bs, id, swapped_chunks[id][0], swapped_chunks[id][1])
             chunk.free_data()
     # create fantome
-    meta_dir = os.path.join(cache_dir, 'META')
+    meta_dir = lepath.join(cache_dir, 'META')
     os.makedirs(meta_dir, exist_ok=True)
-    info_file = os.path.join(meta_dir, 'info.json')
+    info_file = lepath.join(meta_dir, 'info.json')
     with open(info_file, 'w+', encoding='utf-8') as f:
         json.dump(FANTOME_META, f, indent=4, ensure_ascii=False)
-    fantome_file = os.path.join(
+    fantome_file = lepath.join(
         output_dir,
         f'{FANTOME_META["Name"]} V{FANTOME_META["Version"]} by {FANTOME_META["Author"]}.fantome'
-    ).replace('\\', '/')
+    )
     with zipfile.ZipFile(fantome_file, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
         z.write(info_file, 'META/info.json')
         z.write(wad_file, 'WAD/Annie.wad.client')

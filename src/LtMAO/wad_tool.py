@@ -1,4 +1,4 @@
-from . import pyRitoFile
+from . import lepath, pyRitoFile
 import os, json
 
 
@@ -12,7 +12,7 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
     # create dirs first
     with pyRitoFile.stream.BytesStream.reader(wad_file) as bs:
         for chunk in wad.chunks:
-            file_path = os.path.join(raw_dir, chunk.hash)
+            file_path = lepath.join(raw_dir, chunk.hash)
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
     # actual extract
     with pyRitoFile.stream.BytesStream.reader(wad_file) as bs:
@@ -22,13 +22,12 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
             # read chunk data first to get extension
             chunk.read_data(bs)
             # output file path of this chunk
-            file_path = os.path.join(raw_dir, chunk.hash)
+            file_path = lepath.join(raw_dir, chunk.hash)
             # add extension to hashed file if know
             if pyRitoFile.wad.WADHasher.is_hash(chunk.hash) and chunk.extension != None:
                 ext = f'.{chunk.extension}'
                 if not file_path.endswith(ext):
                     file_path += ext
-            file_path = file_path.replace('\\', '/')
 
             should_be_hashed = False
             # hash file with long basename
@@ -41,7 +40,7 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
                 basename = pyRitoFile.wad.WADHasher.raw_to_hex(chunk.hash)
                 if chunk.extension != None:
                     basename += f'.{chunk.extension}'
-                hashed_file =  os.path.join(raw_dir, basename)
+                hashed_file =  lepath.join(raw_dir, basename)
                 hashed_files[basename] = chunk.hash
                 file_path = hashed_file
             # write out chunk data to file
@@ -55,7 +54,7 @@ def unpack(wad_file, raw_dir, hashtables, filter=None):
             os.rmdir(root)
     # write hashed bins json
     if len(hashed_files) > 0:
-        with open(os.path.join(raw_dir, 'hashed_files.json'), 'w+', encoding='utf-8') as f:
+        with open(lepath.join(raw_dir, 'hashed_files.json'), 'w+', encoding='utf-8') as f:
             json.dump(hashed_files, f, indent=4, ensure_ascii=False)
 
 
@@ -70,7 +69,7 @@ def pack(raw_dir, wad_file):
             if file == 'hashed_files.json':
                 continue
             # prepare chunk datas
-            file_path = os.path.join(root, file).replace('\\', '/')
+            file_path = lepath.join(root, file)
             chunk_datas.append(file_path)
 
             # check hashed files

@@ -3,7 +3,7 @@ try:
 except: 
     print('Warning: hash_helper failed to import requests.')
 import os, os.path, json, traceback
-from . import pyRitoFile, setting
+from . import lepath, pyRitoFile, setting
 
 def get_hash_separator(filename):
     # space separator in hashes txt
@@ -63,7 +63,7 @@ class CDTBHashes:
         total_size = 0
         for root, dirs, files in os.walk(CDTBHashes.local_dir):
             for file in files:
-                total_size += os.path.getsize(os.path.join(root, file))
+                total_size += os.path.getsize(lepath.join(root, file))
         return to_human(total_size)
 
     etag_path = f'{local_dir}/etag.json'
@@ -131,7 +131,7 @@ class ExtractedHashes:
         total_size = 0
         for root, dirs, files in os.walk(ExtractedHashes.local_dir):
             for file in files:
-                total_size += os.path.getsize(os.path.join(root, file))
+                total_size += os.path.getsize(lepath.join(root, file))
         return to_human(total_size)
     
     @staticmethod
@@ -301,7 +301,7 @@ class CustomHashes:
         total_size = 0
         for root, dirs, files in os.walk(CustomHashes.local_dir):
             for file in files:
-                total_size += os.path.getsize(os.path.join(root, file))
+                total_size += os.path.getsize(lepath.join(root, file))
         return to_human(total_size)
 
     @staticmethod

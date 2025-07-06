@@ -1,5 +1,5 @@
 import os, os.path, shutil
-from . import tools
+from . import lepath, tools
 
 wiwawe_dir = './pref/wiwawe'
 wsources_file = f'{wiwawe_dir}/wiwawe.wsources'
@@ -9,10 +9,10 @@ ouput_dir = f'{wiwawe_dir}/output'
 def copy_wav_to_input(wav_files):
     map_sounds = {}
     for wav_file in wav_files:
-        basename = os.path.basename(wav_file).replace('.wav', '')
+        basename = lepath.ext(os.path.basename(wav_file), '.wav', '')
         if basename not in map_sounds:
             map_sounds[basename] = []
-            input_file = os.path.join(input_dir, f'{basename}.wav')
+            input_file = lepath.join(input_dir, f'{basename}.wav')
             shutil.copy2(wav_file, input_file)
         map_sounds[basename].append(wav_file)
     return map_sounds
@@ -35,13 +35,13 @@ def copy_output_to_wem(map_sounds):
     for root, dirs, files in os.walk(ouput_dir):
         for file in files:
             if file.endswith('.wem'):
-                basename = file.replace('.wem', '')
-                map_wems[basename] = os.path.join(root, file)
+                basename = lepath.ext(file, '.wem', '')
+                map_wems[basename] = lepath.join(root, file)
 
     for basename in map_sounds:
         if basename in map_wems:
             for wav_file in map_sounds[basename]:
-                wem_file = wav_file.replace('.wav', '.wem')
+                wem_file = lepath.ext(wav_file, '.wav', '.wem')
                 shutil.copy2(map_wems[basename], wem_file)
 
 def reset_cache():
@@ -66,7 +66,7 @@ def wem2wav(wem_files):
 def ogg2wem(ogg_files):
     for ogg_file in ogg_files:
         tools.VGMStream.to_wav(ogg_file)
-    wav_files = [ogg_file.replace('.ogg', '.wav') for ogg_file in ogg_files]
+    wav_files = [lepath.ext(ogg_file, '.ogg', '.wav') for ogg_file in ogg_files]
     wav2wem(wav_files)
     for wav_file in wav_files:
         os.remove(wav_file)

@@ -5,7 +5,7 @@ from maya import cmds
 
 import os.path
 from . import helper
-from ..... import pyRitoFile
+from ..... import lepath, pyRitoFile
 
 class SKNImporter(MPxFileTranslator):
     name = 'League of Legends: SKN'
@@ -45,7 +45,7 @@ class SKNImporter(MPxFileTranslator):
             group_transform.setName(f'group_{skn_name}')
             # load skeleton first if need
             skl = None
-            skl_path = skn_path.replace('.skn', '.skl')
+            skl_path = lepath.ext(skn_path, '.skn', '.skl')
             if os.path.exists(skl_path):
                 skl = pyRitoFile.skl.SKL().read(skl_path)
                 skl.joints = helper.convert_pyRitoFile_objects_to_Lemon(skl.joints, helper.LemonSKLJoint)
@@ -152,7 +152,7 @@ class SkinExporter(MPxFileTranslator):
             selected_group = MFnTransform(selected_dagpath)
             # export options
             skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-            skl_path = skn_path.replace('.skn', '.skl')
+            skl_path = lepath.ext(skn_path, '.skn', '.skl')
             #  dump skl
             riot_skl = None
             riot_skl_path = helper.get_riot_path(skl_path)
@@ -226,7 +226,7 @@ class SKLExporter(MPxFileTranslator):
             selected_group = MFnTransform(selected_dagpath)
             # export options
             skn_path = helper.ensure_path_extension(file.expandedFullName(), self.extension)
-            skl_path = skn_path.replace('.skn', '.skl')
+            skl_path = lepath.ext(skn_path, '.skn', '.skl')
             #  dump skl
             riot_skl = None
             riot_skl_path = helper.get_riot_path(skl_path)

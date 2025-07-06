@@ -31,8 +31,6 @@ from threading import Thread
 from . import helper
 from .. import (
     setting, 
-    tools, 
-    Ritoddstex,
     winLT, 
     hash_helper, 
     pyRitoFile, 
@@ -44,7 +42,8 @@ from .. import (
     bnk_tool,
     cslmao,
     texsmart,
-    wiwawe
+    wiwawe,
+    lepath
 )
 from ..lemon3d import lemon_fbx, lemon_maya
 
@@ -133,7 +132,7 @@ def build_cslmao(widget: QWidget):
         )
         if dirpath != '':
             final_path = dirpath.replace('\\', '/')
-            if not os.path.exists(os.path.join(final_path, 'League of Legends.exe')):
+            if not os.path.exists(lepath.join(final_path, 'League of Legends.exe')):
                 raise Exception(f'cslmao: Error:  Select game folder: No "League of Legends.exe" found in {final_path}')
             setting.set('game_folder', final_path)
             setting.save()
@@ -225,254 +224,246 @@ def build_cslmao(widget: QWidget):
     layout2.addWidget(all_button)
     search_line = QLineEdit()
     search_line.setPlaceholderText('🔎 Filter')
+    # rebuild layout if search changed
+    def search_text():
+        view_layout_smart.build_view_layout()
+    search_line.textChanged.connect(search_text)
     layout2.addWidget(search_line, stretch=1)
     layout2.addWidget(QLabel('📚 Profile: '))
     box = QComboBox()
     box.setMinimumWidth(100)
     box.addItems(['all', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
     box.setCurrentText(setting.get('cslmao.profile', 'all'))
+    # rebuild layout if profile changed
     def change_profile():
         profile = box.currentText()
         setting.set('cslmao.profile', profile)
         setting.save()
-        refresh_view()
+        view_layout_smart.build_view_layout()
     box.currentTextChanged.connect(change_profile)
     layout2.addWidget(box)
     layout.addLayout(layout2)
+    # empty image
+    image_empty = QPixmap(256, 144)
+    image_empty.fill(QColor(33, 33, 33))
     # view layout
     scrollarea = QScrollArea()
     scrollarea.setWidgetResizable(True)
     view_widget = QWidget()
-    view_layout = QVBoxLayout(scrollarea)
+    view_layout = QGridLayout(scrollarea)
     view_layout.setContentsMargins(0, 0, 0, 0)
-    view_layout.addStretch()
     view_widget.setLayout(view_layout)
     scrollarea.setWidget(view_widget)
     layout.addWidget(scrollarea, stretch=1)
     layout.addStretch()
     widget.setLayout(layout)
-
-    # simple empty pixmap
-    display_image_empty = QPixmap(192, 108)
-    display_image_empty.fill(QColor(33, 33, 33))
-
-    edit_image_empty = QPixmap(256, 144)
-    edit_image_empty.fill(QColor(33, 33, 33))
-
-    # main build function
+    # build view layout func
     view_layout.mod_widgets = {}
-    def build_mod_widget(mod):
-        mod_widget = QWidget()
-        info, image = cslmao.get_info(mod)
-
-        # edit
-        edit_layout = QHBoxLayout()
-        edit_layout.setContentsMargins(0, 0, 0, 0)
-        layout = QVBoxLayout()
-        name_line = QLineEdit()
-        layout.addWidget(name_line)
-        author_line = QLineEdit()
-        layout.addWidget(author_line)
-        version_line = QLineEdit()
-        layout.addWidget(version_line)
-        desc_line = QLineEdit()
-        layout.addWidget(desc_line)
-        edit_layout.addLayout(layout)
-
-        layout = QVBoxLayout()
-        profile_box = QComboBox()
-        profile_box.addItems(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
-        layout.addWidget(profile_box)
-        edit_image = QLabel()
-        def edit_image_cmd(event):
-            dialog = QFileDialog()
-            filepath = dialog.getOpenFileName(
-                widget, 
-                'Select PNG',
-                setting.get('qtGUI.default_folder', None),
-                f'PNG Files (*.png)'
-            )
-            if len(filepath[0]) > 0:
-                final_path = filepath[0]
-                mod_widget.edit_image_path = final_path
-                edit_image.setPixmap(QPixmap(final_path).scaled(256, 144, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation))
-            else:
-                mod_widget.edit_image_path = None
-                edit_image.setPixmap(edit_image_empty)
-
-        edit_image.mousePressEvent = edit_image_cmd
-        layout.addWidget(edit_image)
-        edit_layout.addLayout(layout)
-
-        layout = QVBoxLayout()
-        button = QToolButton()
-        button.setMinimumWidth(130)
-        button.setText('❌ Back')
-        def cancel_cmd():
-            display_widget.setVisible(True)
-            edit_widget.setVisible(False)
-        button.clicked.connect(cancel_cmd)
-        layout.addWidget(button)
-        button = QToolButton()
-        button.setMinimumWidth(130)
-        button.setText('✔️ Confirm')
-        def save_cmd():
-            info = {
-                'Name': name_line.text(),
-                'Author': author_line.text(),
-                'Version': version_line.text(),
-                'Description': desc_line.text()
-            }
-            # very complex behaviour here
-            image = None
-            if hasattr(mod_widget, 'edit_image_path'): # mean that user at least click the image one
-                image = mod_widget.edit_image_path  
-                if image == None: # user click and remove image
-                    cslmao.delete_info_image(mod)
-            cslmao.set_info(mod, info, image)
-            display_image.setPixmap(
-                QPixmap(image).scaled(192, 108, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation)
-                if image != None else display_image_empty
-            )
-            mod.profile = profile_box.currentText()
-            cslmao.save_mods()
-            display_label.setText(f'📚 {mod.profile}\n🆔 {info["Name"]}\n👤 {info["Author"]}\n🏷️ {info["Version"]}\n📃 {info["Description"]}')
-            refresh_view()
-            display_widget.setVisible(True)
-            edit_widget.setVisible(False)
-        button.clicked.connect(save_cmd)
-        layout.addWidget(button)
-        edit_layout.addLayout(layout)
-
-        # display
-        display_layout = QHBoxLayout()
-        display_layout.setContentsMargins(0, 0, 0, 0)
-        mod_widget.checkbox = checkbox = QCheckBox()
-        checkbox.setStyleSheet(':indicator { width: 30; height: 30; }')
-        checkbox.setChecked(mod.enable)
-        def enable_mod():
-            if is_overlay_running():
-                print('clsmao: Stop running mods to proceed.')
-                # reverse it bacc, big brain
-                checkbox.setChecked(not checkbox.isChecked())
-                return
-            mod.enable = checkbox.isChecked()
-            cslmao.save_mods()
-        checkbox.clicked.connect(enable_mod)
-        display_layout.addWidget(checkbox)
-        
-        display_image = QLabel()
-        display_image.setPixmap(
-            QPixmap(image).scaled(192, 108, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
-            if image != None else display_image_empty
-        )
-        display_layout.addWidget(display_image)
-
-        mod_widget.display_label = display_label = QLabel()
-        display_label.setText(f'📚 {mod.profile}\n🆔 {info["Name"]}\n👤 {info["Author"]}\n🏷️ {info["Version"]}\n📃 {info["Description"]}')
-        display_layout.addWidget(display_label, stretch=1)
-        
-        layout = QGridLayout()
-        button = QToolButton()
-        button.setMinimumWidth(130)
-        button.setText('📂 Locate')
-        def locate_cmd():
-            os.startfile(os.path.join(cslmao.raw_dir, mod.get_path()))
-        button.clicked.connect(locate_cmd)
-        layout.addWidget(button, 0, 0)
-        button = QToolButton()
-        button.setMinimumWidth(130)
-        button.setText('✏️ Edit')
-        def edit_cmd():
-            if is_overlay_running():
-                print('clsmao: Stop running mods to proceed.')
-                return
-            info, image = cslmao.get_info(mod)
-            name_line.setText(info['Name'])
-            author_line.setText(info['Author'])
-            version_line.setText(info['Version'])
-            desc_line.setText(info['Description'])
-            profile_box.setCurrentText(mod.profile)
-            edit_image.setPixmap(
-                QPixmap(image).scaled(256, 144, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation)
-                if image != None else edit_image_empty
-            )
-            display_widget.setVisible(False)
-            edit_widget.setVisible(True)
-        button.clicked.connect(edit_cmd)
-        layout.addWidget(button, 1, 0)
-        button = QToolButton()
-        button.setMinimumWidth(130)
-        button.setText('📤 Export')
-        def export_cmd():
-            if is_overlay_running():
-                print('clsmao: Stop running mods to proceed.')
-                return
-            dialog = QFileDialog()
-            info, image = cslmao.get_info(mod)
-            default_filename = f'{info["Name"]} V{info["Version"]} by {info["Author"]}.fantome'
-            filepath = dialog.getSaveFileName(
-                widget, 
-                'Export FANTOME',
-                os.path.join(setting.get('qtGUI.default_folder', ''), default_filename),
-                f'FANTOME File (*.fantome)'
-            )
-            if len(filepath[0]) > 0:
-                final_path = filepath[0]
-                def export_thrd():
-                    p = cslmao.export_fantome(
-                        mod_path=os.path.join(
-                            cslmao.raw_dir,
-                            mod.get_path()
-                        ),
-                        fantome_path=final_path
+    def build_view_layout():
+        mods = cslmao.MOD.mods
+        max_column = qtwidgets.max_column
+        search = search_line.text().lower()
+        profile = setting.get('cslmao.profile', 'all')
+        qtwidgets.view_mods = view_mods = [False] * len(mods)
+        # get view mods with search and profile
+        for mod_index, mod in enumerate(mods):
+            cslmao.get_info(mod)
+            mod_text = f'{mod.info["Name"]} {mod.info["Version"]} {mod.info["Author"]} {mod.info["Description"]}'.lower()
+            if search in mod_text and (mod.profile == profile or profile == 'all'):
+                view_mods[mod_index] = True   
+        view_index =   0
+        for mod_index in range(len(mods)):
+            mod = mods[mod_index]
+            if not view_mods[mod_index]:
+                if mod in view_layout.mod_widgets:
+                    mod_widget = view_layout.mod_widgets[mod]
+                    mod_widget.setParent(None)
+                continue
+            # build new mod_widget or get from cache
+            if mod not in view_layout.mod_widgets:
+                cslmao.get_info(mod)
+                # mod widget + layout
+                mod_widget = QWidget()
+                mod_layout = QHBoxLayout()
+                mod_layout.setContentsMargins(3, 3, 3, 3)
+                # display
+                display_layout = QVBoxLayout()
+                display_layout.setContentsMargins(0, 0, 0, 0)
+                mod_layout.addLayout(display_layout)
+                # mod image
+                mod_widget.mod_image = mod_image = QLabel()
+                mod_image.setPixmap(
+                    QPixmap(mod.image).scaled(256, 144, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                    if mod.image != None else image_empty
+                )
+                display_layout.addWidget(mod_image, alignment=Qt.AlignmentFlag.AlignCenter, stretch=1)
+                # mod info
+                mod_widget.mod_info = mod_info = QLabel()
+                #mod_info.setText(f'📚{mod.profile} 🆔{mod.info["Name"]}\n🏷️{mod.info["Version"]} 👤{mod.info["Author"]}\n{mod.info["Description"]}')
+                mod_info.setText(mod.info['Name'])
+                mod_info.setFixedWidth(256)
+                display_layout.addWidget(mod_info, stretch=0) 
+                # display enable state + mouse press event
+                def update_enable_state(mod_widget, enable):
+                    if enable:
+                        mod_widget.setObjectName('CslmaoModWidgetEnable')
+                        mod_widget.setStyleSheet(qtwidgets.mod_enable_stylesheet)
+                    else:
+                        mod_widget.setObjectName('CslmaoModWidgetDisable')
+                        mod_widget.setStyleSheet(qtwidgets.mod_disable_stylesheet)
+                update_enable_state(mod_widget, mod.enable)
+                def enable_cmd(mod, mod_widget):
+                    if is_overlay_running():
+                        print('clsmao: Stop running mods to proceed.')
+                        return
+                    mod.enable = not mod.enable
+                    cslmao.save_mods()
+                    update_enable_state(mod_widget, mod.enable)
+                mod_widget.mousePressEvent = lambda event, mod=mod, mod_widget=mod_widget: enable_cmd(mod, mod_widget)
+                # action left right layout
+                action_layout = QHBoxLayout()
+                action_layout.setContentsMargins(5, 5, 5, 5)
+                mod_image.setLayout(action_layout)
+                left_action_layout = QVBoxLayout()
+                right_action_layout = QVBoxLayout()
+                action_layout.addLayout(left_action_layout)
+                action_layout.addLayout(right_action_layout)
+                # locate
+                mod_widget.locate_button = locate_button = QToolButton()
+                locate_button.setText('📂')
+                def locate_cmd(mod):
+                    os.startfile(os.path.abspath(lepath.join(cslmao.raw_dir, mod.get_path())))
+                locate_button.clicked.connect(lambda event, mod=mod: locate_cmd(mod))
+                locate_button.setVisible(False)
+                left_action_layout.addWidget(locate_button, alignment=Qt.AlignmentFlag.AlignLeft)
+                # edit
+                mod_widget.edit_button = edit_button = QToolButton()
+                edit_button.setText('✏️')
+                def edit_cmd(mod):
+                    if is_overlay_running():
+                        print('clsmao: Stop running mods to proceed.')
+                        return
+                    set_edit(mod)
+                    edit_widget.setVisible(True)
+                edit_button.clicked.connect(lambda event, mod=mod: edit_cmd(mod))
+                edit_button.setVisible(False)
+                left_action_layout.addWidget(edit_button, alignment=Qt.AlignmentFlag.AlignLeft)
+                # export
+                mod_widget.export_button = export_button =QToolButton()
+                export_button.setText('📤')
+                def export_cmd(mod):
+                    if is_overlay_running():
+                        print('clsmao: Stop running mods to proceed.')
+                        return
+                    dialog = QFileDialog()
+                    cslmao.get_info(mod)
+                    default_filename = f'{mod.info["Name"]} V{mod.info["Version"]} by {mod.info["Author"]}.fantome'
+                    filepath = dialog.getSaveFileName(
+                        widget, 
+                        'Export FANTOME',
+                        lepath.join(setting.get('qtGUI.default_folder', ''), default_filename),
+                        f'FANTOME File (*.fantome)'
                     )
-                    if p.returncode == 0:
-                        print(f'cslmao: Exported: {final_path}')
-                helper.SafeThread.start('cslmao', export_thrd)
-
-        button.clicked.connect(export_cmd)
-        layout.addWidget(button, 0, 1)
-        button = QToolButton()
-        button.setMinimumWidth(130)
-        button.setText('❌ Remove')
-        def remove_cmd():
-            if is_overlay_running():
-                print('clsmao: Stop running mods to proceed.')
-                return
-            mod_widget.setParent(None)
-            view_layout.mod_widgets.pop(mod)
-            cslmao.delete_mod(mod)
-            cslmao.save_mods()
-        button.clicked.connect(remove_cmd)
-        layout.addWidget(button, 1, 1)
-        display_layout.addLayout(layout)
-
-        mod_layout = QVBoxLayout()
-        mod_layout.setContentsMargins(0, 0, 0, 0)
-        edit_widget = QWidget()
-        edit_widget.setLayout(edit_layout)
-        edit_widget.setVisible(False)
-        mod_layout.addWidget(edit_widget)
-        display_widget = QWidget()
-        display_widget.setLayout(display_layout)
-        mod_layout.addWidget(display_widget)
-        mod_widget.setLayout(mod_layout)
-
-        view_layout.insertWidget(view_layout.count()-1, mod_widget)
-        # save the value for profiles - cant do much
-        view_layout.mod_widgets[mod] = mod_widget
-
+                    if len(filepath[0]) > 0:
+                        final_path = filepath[0]
+                        def export_thrd():
+                            p = cslmao.export_fantome(
+                                mod_path=lepath.join(
+                                    cslmao.raw_dir,
+                                    mod.get_path()
+                                ),
+                                fantome_path=final_path
+                            )
+                            if p.returncode == 0:
+                                print(f'cslmao: Exported: {final_path}')
+                        helper.SafeThread.start('cslmao', export_thrd)
+                export_button.clicked.connect(lambda event, mod=mod: export_cmd(mod))
+                export_button.setVisible(False)
+                right_action_layout.addWidget(export_button, alignment=Qt.AlignmentFlag.AlignRight)
+                # remove
+                mod_widget.remove_button = remove_button = QToolButton()
+                remove_button.setText('❌')
+                def remove_cmd(mod):
+                    if is_overlay_running():
+                        print('clsmao: Stop running mods to proceed.')
+                        return
+                    mod_widget = view_layout.mod_widgets.pop(mod)
+                    mod_widget.setParent(None)
+                    cslmao.delete_mod(mod)
+                    view_layout_smart.build_view_layout()
+                    cslmao.save_mods()
+                remove_button.clicked.connect(lambda event, mod=mod: remove_cmd(mod))
+                remove_button.setVisible(False)
+                right_action_layout.addWidget(remove_button, alignment=Qt.AlignmentFlag.AlignRight)
+                # left
+                mod_widget.left_button = left_button = QToolButton()
+                left_button.setText('◀️')
+                def left_cmd(mod):
+                    if is_overlay_running():
+                        print('clsmao: Stop running mods to proceed.')
+                        return
+                    cslmao.move_left(mod)
+                    view_layout_smart.build_view_layout()
+                    cslmao.save_mods()
+                left_button.clicked.connect(lambda event, mod=mod: left_cmd(mod))
+                left_button.setVisible(False)
+                left_action_layout.addWidget(left_button, alignment=Qt.AlignmentFlag.AlignLeft)
+                # right
+                mod_widget.right_button = right_button = QToolButton()
+                right_button.setText('▶️')
+                def right_cmd(mod):
+                    if is_overlay_running():
+                        print('clsmao: Stop running mods to proceed.')
+                        return
+                    cslmao.move_right(mod)
+                    view_layout_smart.build_view_layout()
+                    cslmao.save_mods()
+                right_button.clicked.connect(lambda event, mod=mod: right_cmd(mod))
+                right_button.setVisible(False)
+                right_action_layout.addWidget(right_button, alignment=Qt.AlignmentFlag.AlignRight)
+                # mouse enter + leave event
+                def enter_cmd(mod):
+                    if mod in view_layout.mod_widgets:
+                        mod_widget = view_layout.mod_widgets[mod]
+                        mod_widget.locate_button.setVisible(True)
+                        mod_widget.edit_button.setVisible(True)
+                        mod_widget.export_button.setVisible(True)
+                        mod_widget.remove_button.setVisible(True)
+                        mod_widget.left_button.setVisible(True)
+                        mod_widget.right_button.setVisible(True)
+                mod_widget.enterEvent = lambda event, mod=mod: enter_cmd(mod)
+                def leave_cmd(mod):
+                    if mod in view_layout.mod_widgets:
+                        mod_widget = view_layout.mod_widgets[mod]
+                        mod_widget.locate_button.setVisible(False)
+                        mod_widget.edit_button.setVisible(False)
+                        mod_widget.export_button.setVisible(False)
+                        mod_widget.remove_button.setVisible(False)
+                        mod_widget.left_button.setVisible(False)
+                        mod_widget.right_button.setVisible(False)
+                mod_widget.leaveEvent = lambda event, mod=mod: leave_cmd(mod)
+                # store mod widget
+                mod_widget.setLayout(mod_layout)
+                view_layout.mod_widgets[mod] = mod_widget
+            else:
+                mod_widget = view_layout.mod_widgets[mod]
+            row_index = view_index // max_column
+            col_index = view_index % max_column
+            view_index += 1
+            view_layout.addWidget(mod_widget, row_index, col_index)
+            view_layout.setColumnStretch(col_index, 0)
+        view_layout.setRowStretch(view_layout.rowCount(), 1)
+        view_layout.setColumnStretch(view_layout.columnCount(), 1)
     # for thread safe
     class ViewLayoutSmart(QObject):
-        signal = Signal(object)
+        signal = Signal()
 
         def __init__(self, view_layout):
             QObject.__init__(self)
-            self.signal.connect(build_mod_widget)
+            self.signal.connect(build_view_layout)
         
-        def build_mod_widget(self, mod):
-            self.signal.emit(mod)
+        def build_view_layout(self):
+            self.signal.emit()
     qtwidgets.view_layout_smart = view_layout_smart = ViewLayoutSmart(view_layout)
     class RunButtonSmart(QObject):
         signal = Signal(str)
@@ -484,13 +475,133 @@ def build_cslmao(widget: QWidget):
         def setText(self, text):
             self.signal.emit(text)
     qtwidgets.RunButtonSmart = run_button_smart = RunButtonSmart(run_button)
+    # rebuild layout if size changed
+    qtwidgets.max_column = None
+    def rebuild_layout_resize():
+        max_column = view_widget.width() // 270
+        max_column = 1 if max_column < 1 else max_column
+        if max_column != qtwidgets.max_column:
+            qtwidgets.max_column = max_column
+            view_layout_smart.build_view_layout()
+    view_widget.resizeEvent = lambda event: rebuild_layout_resize()
 
+    # edit layout
+    edit_layout = QHBoxLayout()
+    edit_widget = QWidget()
+    edit_widget.setLayout(edit_layout)
+    edit_widget.setVisible(False)
+    layout.addWidget(edit_widget)
+    # info
+    label_layout = QVBoxLayout()
+    label_layout.addWidget(QLabel('🆔 Name:'))
+    label_layout.addWidget(QLabel('👤 Author:'))
+    label_layout.addWidget(QLabel('🏷️ Version:'))
+    label_layout.addWidget(QLabel('📃 Description:'))
+    edit_layout.addLayout(label_layout)
+    line_layout = QVBoxLayout()
+    edit_layout.name_line = name_line = QLineEdit()
+    edit_layout.author_line = author_line = QLineEdit()
+    edit_layout.version_line = version_line = QLineEdit()
+    edit_layout.desc_line = desc_line = QLineEdit()
+    line_layout.addWidget(name_line)
+    line_layout.addWidget(author_line)
+    line_layout.addWidget(version_line)
+    line_layout.addWidget(desc_line)
+    edit_layout.addLayout(line_layout)
+    # profile 
+    image_layout = QVBoxLayout()
+    profile_layout = QHBoxLayout()
+    profile_layout.addWidget(QLabel('📚 Profile:'))
+    edit_layout.profile_box = profile_box = QComboBox()
+    profile_box.addItems(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+    profile_layout.addWidget(profile_box)
+    image_layout.addLayout(profile_layout)
+    # image
+    image_layout.addWidget(QLabel('🌇 Image:'))
+    edit_layout.edit_image = edit_image = QLabel()
+    edit_image.setPixmap(image_empty)
+    edit_image.final_path = None
+    def edit_image_cmd():
+        dialog = QFileDialog()
+        filepath = dialog.getOpenFileName(
+            widget, 
+            'Select PNG',
+            setting.get('qtGUI.default_folder', None),
+            f'PNG Files (*.png)'
+        )
+        if len(filepath[0]) > 0:
+            final_path = filepath[0]
+            edit_image.final_path = final_path
+            edit_image.setPixmap(QPixmap(final_path).scaled(256, 144, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        else:
+            edit_image.final_path = None
+            edit_image.setPixmap(image_empty)
+    edit_image.mousePressEvent = lambda event: edit_image_cmd()
+    image_layout.addWidget(edit_image)
+    edit_layout.addLayout(image_layout)
+    # confirm
+    confirm_layout = QVBoxLayout()
+    # close
+    close_button = QToolButton()
+    close_button.setMinimumWidth(130)
+    close_button.setText('❌ Close')
+    def close_cmd():
+        edit_widget.setVisible(False)
+    close_button.clicked.connect(close_cmd)
+    confirm_layout.addWidget(close_button)
+    # save
+    save_button = QToolButton()
+    save_button.setMinimumWidth(130)
+    save_button.setText('💾 Save')
+    def save_cmd():
+        mod = edit_layout.mod
+        info = {
+            'Name': edit_layout.name_line.text(),
+            'Author': edit_layout.author_line.text(),
+            'Version': edit_layout.version_line.text(),
+            'Description': edit_layout.desc_line.text()
+        }
+        mod.info = info
+        mod.image = edit_layout.edit_image.final_path
+        if mod.image == None: 
+            cslmao.delete_info_image(mod)
+        cslmao.set_info(mod)
+        mod.profile = edit_layout.profile_box.currentText()
+        # update mod widget
+        mod_widget = view_layout.mod_widgets[mod]
+        mod_widget.mod_image.setPixmap(
+            QPixmap(mod.image).scaled(256, 144, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            if mod.image != None else image_empty
+        )
+        #mod_widget.mod_info.setText(f'📚{mod.profile} 🆔{mod.info["Name"]}\n🏷️{mod.info["Version"]} 👤{mod.info["Author"]}\n{mod.info["Description"]}')
+        mod_widget.mod_info.setText(mod.info['Name'])
+        edit_widget.setVisible(False)
+        cslmao.save_mods()
+        
+    save_button.clicked.connect(save_cmd)
+    confirm_layout.addWidget(save_button)
+    edit_layout.addLayout(confirm_layout)
+
+    # set edit
+    def set_edit(mod):
+        cslmao.get_info(mod)
+        edit_layout.name_line.setText(mod.info['Name'])
+        edit_layout.author_line.setText(mod.info['Author'])
+        edit_layout.version_line.setText(mod.info['Version'])
+        edit_layout.desc_line.setText(mod.info['Description'])
+        edit_layout.profile_box.setCurrentText(mod.profile)
+        edit_layout.edit_image.setPixmap(
+            QPixmap(mod.image).scaled(256, 144, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            if mod.image != None else image_empty
+        )
+        edit_layout.edit_image.final_path = mod.image
+        edit_layout.mod = mod
+
+
+    # run mods
     qtwidgets.make_overlay = None
     qtwidgets.run_overlay = None
     def run_mods():
-        if qtwidgets.is_loading_cslmao:
-            print('cslmao: Error: Loading mods, can not run yet.')
-            return
         if qtwidgets.make_overlay == None and qtwidgets.run_overlay == None:
             def run_thrd():
                 # convert files before we run
@@ -526,8 +637,8 @@ def build_cslmao(widget: QWidget):
             print('cslmao: Status: Stopped running overlay, idling.')
             qtwidgets.make_overlay = None
             qtwidgets.run_overlay = None
-
     run_button.clicked.connect(run_mods)
+    
     # new mod
     def new_mod():
         if is_overlay_running():
@@ -545,13 +656,11 @@ def build_cslmao(widget: QWidget):
             mod_profile = '0'
         mod = cslmao.create_mod(path=mod_path, enable=False, profile=mod_profile)
         cslmao.create_mod_folder(mod)
-        cslmao.set_info(
-            mod,
-            info=mod_info,
-            image_path=None
-        )
+        mod.info = mod_info
+        cslmao.set_info(mod)
+        cslmao.add_mod(mod)
+        view_layout_smart.build_view_layout()
         cslmao.save_mods()
-        view_layout_smart.build_mod_widget(mod)
     new_button.clicked.connect(new_mod)
 
     # import mod
@@ -579,82 +688,44 @@ def build_cslmao(widget: QWidget):
                     p = cslmao.import_fantome(final_path, mod.get_path())
                     if p.returncode == 0:
                         print(f'cslmao: Imported: {final_path}')
-                        info, image = cslmao.get_info(mod)
-                        view_layout_smart.build_mod_widget(mod)
+                        cslmao.add_mod(mod)
                     else:
                         cslmao.delete_mod(mod)
+                view_layout_smart.build_view_layout()
                 cslmao.save_mods()
 
             helper.SafeThread.start('cslmao', import_thrd)
     import_button.clicked.connect(import_mod)
-
-    # get view mod widget
-    def get_view_mod_widgets(profile, filter):
-        show_mod_widgets = {}
-        hide_mod_widgets = {}
-        filter = filter.lower()
-        if profile == 'all':
-            for mod, mod_widget in view_layout.mod_widgets.items():
-                mod_text = mod_widget.display_label.text().lower()
-                if filter in mod_text:
-                    show_mod_widgets[mod] = mod_widget
-                else:
-                    hide_mod_widgets[mod] = mod_widget
-        else:
-            for mod, mod_widget in view_layout.mod_widgets.items():
-                mod_text = mod_widget.display_label.text().lower()
-                if mod.profile == profile and filter in mod_text:
-                    show_mod_widgets[mod] = mod_widget
-                else:
-                    hide_mod_widgets[mod] = mod_widget
-        return show_mod_widgets, hide_mod_widgets
 
     # enable/disable all
     def all_mods():
         if is_overlay_running():
             print('clsmao: Stop running mods to proceed.')
             return
-        show_mod_widgets, hide_mod_widgets = get_view_mod_widgets(setting.get('cslmao.profile', 'all'), search_line.text())
-        for mod, mod_widget in show_mod_widgets.items():
-            mod_widget.checkbox.setChecked(qtwidgets.all_mod_enable)
-            mod.enable = qtwidgets.all_mod_enable
+        # get view mods with search and profile
+        for mod_index in range(len(qtwidgets.view_mods)):
+            mod = cslmao.MOD.mods[mod_index]
+            mod_widget = view_layout.mod_widgets[mod]
+            if qtwidgets.view_mods[mod_index]:
+                if qtwidgets.all_mod_enable:
+                    mod_widget.setObjectName('CslmaoModWidgetEnable')
+                    mod_widget.setStyleSheet(qtwidgets.mod_enable_stylesheet)
+                else:
+                    mod_widget.setObjectName('CslmaoModWidgetDisable')
+                    mod_widget.setStyleSheet(qtwidgets.mod_disable_stylesheet)
+                mod.enable = qtwidgets.all_mod_enable
         cslmao.save_mods()
         qtwidgets.all_mod_enable = not qtwidgets.all_mod_enable
     all_button.clicked.connect(all_mods)
-
-    # refresh view
-    def refresh_view():
-        show_mod_widgets, hide_mod_widgets = get_view_mod_widgets(setting.get('cslmao.profile', 'all'), search_line.text())
-        for mod, mod_widget in show_mod_widgets.items():
-            mod_widget.setVisible(True)
-        for mod, mod_widget in hide_mod_widgets.items():
-            mod_widget.setVisible(False)
-    search_line.textChanged.connect(refresh_view)
 
     # check overlay running
     def is_overlay_running():
         if qtwidgets.make_overlay != None or qtwidgets.run_overlay != None:
             return True
         return False
-    
-    # after finish build, load all mods
-    def load_after_build():
-        qtwidgets.is_loading_cslmao = True
-        print(f'cslmao: Status: Loading mods.')
-        for mod in cslmao.MOD.mods:
-            try:
-                view_layout_smart.build_mod_widget(mod)
-            except Exception as e:
-                cslmao.MOD.mods.remove(mod)
-                print(f'cslmao: Error: Load {mod.get_path()}: {e}')
-                import traceback
-                print(traceback.format_exc())
-        refresh_view()
-        print(f'cslmao: Status: Finished loading mods.')
-        qtwidgets.is_loading_cslmao = False
-    helper.SafeThread.start('cslmao', load_after_build)
 
 def build_hash_helper(widget: QWidget):
+
     layout = QVBoxLayout()
 
     # path hash + reset button
@@ -756,7 +827,7 @@ def build_hash_helper(widget: QWidget):
             if dirpath != '':
                 for root, dirs, files in os.walk(dirpath):
                     for file in files:
-                        final_paths.append(os.path.join(root, file).replace('\\', '/'))
+                        final_paths.append(lepath.join(root, file))
         final_path_count = len(final_paths)
         if  final_path_count > 0:
             def extract_thrd():
@@ -1239,7 +1310,7 @@ def build_wad_tool(widget: QWidget):
             def wad_thrd(): 
                 hash_helper.Storage.read_wad_hashes()
                 src = filepath[0]
-                dst = src.replace('.wad.client', '.wad')
+                dst = lepath.ext(src, '.wad.client', '.wad')
                 wad_tool.unpack(src, dst, hash_helper.Storage.hashtables)
                 print(f'wad_tool: Finish: Unpack {src}')
                 hash_helper.Storage.free_wad_hashes()
@@ -1344,7 +1415,7 @@ def build_wad_tool(widget: QWidget):
                 for root, dirs, files in os.walk(dirpath):
                     for file in files:
                         if file.endswith('.wad.client'):
-                            final_paths.append(os.path.join(root, file).replace('\\', '/'))
+                            final_paths.append(lepath.join(root, file))
         if len(final_paths) > 0:
             def wad_thrd():
                 print('wad_tool: Start: Load WADs.')
@@ -1634,7 +1705,7 @@ def build_lemon3d(widget: QWidget):
     button.setText('🚙 To FBX')
     layout3.addWidget(button)
     output_fbx = QLabel()
-    skn_line.textChanged.connect(lambda event: output_fbx.setText(event.replace('.skn', '.fbx')))
+    skn_line.textChanged.connect(lambda event: output_fbx.setText(lepath.ext(event, '.skn', '.fbx')))
     layout3.addWidget(output_fbx)
     layout2.addLayout(layout3)
     def to_fbx():
@@ -1667,16 +1738,16 @@ def build_lemon3d(widget: QWidget):
     button.setText('🚗 To SKN + SKL + ANMs')
     layout3.addWidget(button)
     output_skn = QLabel()
-    fbx_line.textChanged.connect(lambda event: output_skn.setText(event.replace('.fbx', '.skn')))
+    fbx_line.textChanged.connect(lambda event: output_skn.setText(lepath.ext(event, '.fbx', '.skn')))
     layout3.addWidget(output_skn)
     layout2.addLayout(layout3)
     def to_skin():
         def lemon_thrd():
             lemon_fbx.fbx_to_skin(
                 fbx_line.text(), 
-                output_skn.text().replace('.skn', '.skl'), 
+                lepath.ext(output_skn.text(), '.skn', '.skl'), 
                 output_skn.text(),
-                os.path.join(os.path.dirname(output_skn.text()), 'animations')
+                lepath.join(os.path.dirname(output_skn.text()), 'animations')
             )
         helper.SafeThread.start('lemon_fbx', lemon_thrd)
     button.clicked.connect(to_skin)
@@ -1741,7 +1812,7 @@ def build_texsmart(widget: QWidget):
                 for root, dirs, files in os.walk(dirpath):
                     for file in files:
                         if file.endswith(f'.{input_type.lower()}'):
-                            final_paths.append(os.path.join(root, file).replace('\\', '/'))
+                            final_paths.append(lepath.join(root, file))
         final_path_count = len(final_paths)
         if  final_path_count > 0:
             def convert_thrd():
@@ -2196,7 +2267,7 @@ def build_wiwawe(widget: QWidget):
                 for root, dirs, files in os.walk(dirpath):
                     for file in files:
                         if file.endswith(f'.{input_type.lower()}'):
-                            final_paths.append(os.path.join(root, file).replace('\\', '/'))
+                            final_paths.append(lepath.join(root, file))
         final_path_count = len(final_paths)
         if  final_path_count > 0:
             def convert_thrd():
@@ -2334,7 +2405,7 @@ def build_setting(widget: QWidget):
         qtwidgets.main_window.setStyleSheet(qtwidgets.window_stylesheet)
         for tab_widget in qtwidgets.tab_widgets:
             tab_widget.setStyleSheet(qtwidgets.tab_stylesheet)
-        qtwidgets.icon_label.setPixmap(QPixmap(qtwidgets.theme_paths['titlebaricon']).scaled(118, 40, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation))
+        qtwidgets.icon_label.setPixmap(QPixmap(qtwidgets.theme_paths['titlebaricon']).scaled(118, 40, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation))
         # set background gif
         if setting.get('qtGUI.animated_background', True):
             qtwidgets.background_widget.setMovie(QMovie(qtwidgets.theme_paths['background']))
@@ -2397,7 +2468,7 @@ def build_setting(widget: QWidget):
     button.setText('♻️ Restart LtMAO')
     def restart_cmd():
         print(f'Start: Restart LtMAO')
-        os.system(os.path.join(os.path.abspath(os.path.curdir),'start.bat'))
+        os.system(lepath.join(os.path.abspath(os.path.curdir),'start.bat'))
         qtwidgets.app.quit()
         
     button.clicked.connect(restart_cmd)

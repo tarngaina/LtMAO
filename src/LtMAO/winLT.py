@@ -323,7 +323,7 @@ class Shortcut:
     @staticmethod
     def create_desktop():
         import userpaths
-        desktop_file = f'{userpaths.get_desktop()}/LtMAO.lnk'.replace('\\','/')
+        desktop_file = f'{userpaths.get_desktop()}/LtMAO.lnk'.replace('\\', '/')
         from win32com.client import Dispatch
         shell = Dispatch('WScript.Shell')
         shortcut = shell.CreateShortCut(desktop_file)
@@ -337,7 +337,7 @@ class Shortcut:
 
     @staticmethod
     def create_launch():
-        launch_file = os.path.abspath('./LtMAO.lnk').replace('\\','/')
+        launch_file = os.path.abspath('./LtMAO.lnk').replace('\\', '/')
         if not os.path.exists(launch_file):
             from win32com.client import Dispatch
             shell = Dispatch('WScript.Shell')

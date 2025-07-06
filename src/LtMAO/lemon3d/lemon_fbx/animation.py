@@ -1,5 +1,4 @@
 import os.path
-from . import helper
 from ... import pyRitoFile
 from fbx import (
     FbxCriteria, FbxAnimStack, FbxAnimLayer, FbxAnimCurveDef, FbxTime, FbxTimeSpan, FbxGlobalSettings,

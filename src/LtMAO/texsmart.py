@@ -1,17 +1,17 @@
 import os.path
 from PIL import Image
-from . import tools, Ritoddstex
+from . import lepath, tools, Ritoddstex
 
 def dds2png(src):
     tools.ImageMagick.to_png(
         src=src,
-        png=src.replace('.dds', '.png')
+        png=lepath.ext(src, '.dds', '.png')
     )
 
 def png2dds(src):
     tools.ImageMagick.to_dds(
         src=src,
-        dds=src.replace('.png', '.dds')
+        dds=lepath.ext(src, '.png', '.dds')
     )
 
 def dds2tex(src):
@@ -26,10 +26,10 @@ def make2x4x(src):
         dirname = os.path.dirname(src)
         width_2x = img.width // 2
         height_2x = img.height // 2
-        file_2x = os.path.join(dirname, '2x_'+basename)
+        file_2x = lepath.join(dirname, '2x_'+basename)
         width_4x = img.width // 4
         height_4x = img.height // 4
-        file_4x = os.path.join(dirname, '4x_'+basename)
+        file_4x = lepath.join(dirname, '4x_'+basename)
     if not os.path.exists(file_2x):
         tools.ImageMagick.resize_dds(
             src=src,

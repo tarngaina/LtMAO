@@ -1,6 +1,6 @@
 import os, os.path
 from . import skin, animation, helper
-from ... import pyRitoFile
+from ... import lepath, pyRitoFile
 from fbx import (
     FbxManager, FbxImporter, FbxExporter, FbxIOSettings, FbxScene, FbxNode,
     FbxSkeleton, FbxMesh,
@@ -50,7 +50,7 @@ def fbx_to_skin(fbx_path, skl_path, skn_path, anm_path):
     os.makedirs(anm_path, exist_ok=True )
     for anm_name, anm in anms.items():
         helper.mirrorX(anm=anm)
-        anm_file = os.path.join(anm_path, anm_name).replace('\\', '/') + '.anm'
+        anm_file = lepath.join(anm_path, anm_name) + '.anm'
         anm.write(anm_file)
         print(f'lemon_fbx: Finish: Write ANM: {anm_file}')
 
@@ -83,7 +83,7 @@ def skin_to_fbx(skl_path, skn_path, anm_path, fbx_path):
     if os.path.isdir(anm_path):
         for file in os.listdir(anm_path):
             if file.endswith('.anm'):
-                anm_files.append(os.path.join(anm_path, file).replace('\\', '/'))
+                anm_files.append(lepath.join(anm_path, file))
     anms = {}
     for anm_file in anm_files:
         anm = pyRitoFile.anm.ANM().read(anm_file)

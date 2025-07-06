@@ -1,4 +1,4 @@
-from . import tools, pyRitoFile, hash_helper
+from . import lepath, tools, pyRitoFile, hash_helper
 
 import os, os.path, time, io, json
 from natsort import os_sorted
@@ -333,7 +333,7 @@ class Inspector:
                 cache_wem_file = self.get_cache_wem_file(wem_id)
                 with open(cache_wem_file, 'wb+') as f:
                     f.write(wem_data)
-                wav_file = cache_wem_file.replace('.wem', '.wav')
+                wav_file = lepath.ext(cache_wem_file, '.wem', '.wav')
                 if os.path.exists(wav_file):
                     os.remove(wav_file)
 
@@ -347,23 +347,23 @@ class Inspector:
         os.makedirs(tree_dir, exist_ok=True)
         for event_id in bank_tree.events:
             bank_event = bank_tree.events[event_id]
-            event_dir = os.path.join(output_dir, str(event_id))
+            event_dir = lepath.join(output_dir, str(event_id))
             os.makedirs(event_dir, exist_ok=True)
             for container_id in bank_event.containers:
                 bank_container = bank_event.containers[container_id]
-                container_dir = os.path.join(event_dir, str(container_id))
+                container_dir = lepath.join(event_dir, str(container_id))
                 os.makedirs(container_dir, exist_ok=True)
                 # map wems inside container
                 for wem_id in bank_container.wems:
-                    wem_file = os.path.join(container_dir, f'{wem_id}.wem')
+                    wem_file = lepath.join(container_dir, f'{wem_id}.wem')
                     map_wem_paths[wem_id].append(wem_file)
             # map wems inside event
             for wem_id in bank_event.wems:
-                wem_file = os.path.join(event_dir, f'{wem_id}.wem')
+                wem_file = lepath.join(event_dir, f'{wem_id}.wem')
                 map_wem_paths[wem_id].append(wem_file)
         # map wems inside tree
         for wem_id in bank_tree.wems:
-            wem_file = os.path.join(tree_dir, f'{wem_id}.wem')
+            wem_file = lepath.join(tree_dir, f'{wem_id}.wem')
             map_wem_paths[wem_id].append(wem_file)
         # extract wems with map
         with pyRitoFile.stream.BytesStream.reader(self.audio_path) as bs:
@@ -382,7 +382,7 @@ class Inspector:
             for wem in self.wems:
                 bs.seek(self.get_wem_offset(wem))
                 wem_data = bs.read(wem.size)
-                wem_file = os.path.join(output_dir, str(wem.id) + '.wem')
+                wem_file = lepath.join(output_dir, str(wem.id) + '.wem')
                 with open(wem_file, 'wb') as f:
                     f.write(wem_data)
 
@@ -393,7 +393,7 @@ class Inspector:
                 if wem.id == wem_id:
                     bs.seek(self.get_wem_offset(wem))
                     wem_data = bs.read(wem.size)
-                    wem_file = os.path.join(output_dir, str(wem.id) + '.wem')
+                    wem_file = lepath.join(output_dir, str(wem.id) + '.wem')
                     with open(wem_file, 'wb') as f:
                         f.write(wem_data)
                     break
@@ -407,17 +407,22 @@ class Inspector:
         self.audio.write(output_file, wem_datas)
 
     def get_cache_dir(self):
-        return os.path.join(Inspector.cache_dir, os.path.basename(self.audio_path).replace('.bnk', '') if self.is_bnk else os.path.basename(self.audio_path).replace('.wpk', ''))
+        return lepath.join(
+            Inspector.cache_dir, 
+            lepath.ext(os.path.basename(self.audio_path), '.bnk', '') 
+            if self.is_bnk 
+            else lepath.ext(os.path.basename(self.audio_path), '.wpk', '')
+    )
 
     def get_cache_wem_file(self, wem_id):
-        return os.path.join(self.get_cache_dir(), f'{wem_id}.wem')
+        return lepath.join(self.get_cache_dir(), f'{wem_id}.wem')
 
     # need to play in thread
     def play(self, wem_id, stop_previous=True):
         wem_file = self.get_cache_wem_file(wem_id)
         if not os.path.exists(wem_file):
             self.unpack_wem(self.get_cache_dir(), wem_id)
-        wav_file = wem_file.replace('.wem', '.wav')
+        wav_file = lepath.ext(wem_file, '.wem', '.wav')
         if not os.path.exists(wav_file):
             tools.VGMStream.to_wav(wem_file)
         if stop_previous:
@@ -446,7 +451,7 @@ class Inspector:
 
 def bnk2dir(audio_path):
     inspector = Inspector(audio_path)
-    dir_path = audio_path.replace('.bnk', '').replace('.wpk', '')
+    dir_path = lepath.ext(lepath.ext(audio_path, '.bnk', ''), '.wpk', '')
     inspector.unpack(dir_path)
     print(f'wad_tool: Finish: Unpack: {dir_path}')
 
@@ -455,7 +460,7 @@ def dir2bnk(dir_path, is_bnk):
     for root, dirs, files in os.walk(dir_path):
         for file in files:
             if file.endswith('.wem'):
-                wem_file = os.path.join(root, file).replace('\\', '/')
+                wem_file = lepath.join(root, file)
                 wem_files.append(wem_file)
     if is_bnk:
         audio_path = dir_path + '.bnk'
@@ -464,7 +469,7 @@ def dir2bnk(dir_path, is_bnk):
         audio.didx.wems = []
         wem_datas = []
         for wem_file in wem_files:
-            wem_id = os.path.basename(wem_file).replace('.wem', '')
+            wem_id = lepath.ext(os.path.basename(wem_file), '.wem', '')
             if wem_id.isnumeric():
                 wem_id = int(wem_id)
                 wem = pyRitoFile.bnk.BNKWem()
@@ -479,7 +484,7 @@ def dir2bnk(dir_path, is_bnk):
         audio.wems = []
         wem_datas = []
         for wem_file in wem_files:
-            wem_id = os.path.basename(wem_file).replace('.wem', '')
+            wem_id = lepath.ext(os.path.basename(wem_file), '.wem', '')
             if wem_id.isnumeric():
                 wem_id = int(wem_id)
                 wem = pyRitoFile.wpk.WPKWem()
@@ -587,11 +592,11 @@ def generate_events_bnk_json(events_bnks_dir, events_bnks_file):
     events_bnks = {}
     for lang in os.listdir(events_bnks_dir):
         events_bnks[lang] = {}
-        lang_path = os.path.join(events_bnks_dir, lang).replace('\\', '/')
+        lang_path = lepath.join(events_bnks_dir, lang)
         for root, dirs, files in os.walk(lang_path):
             for file in files:
                 if file.endswith('_events.bnk'):
-                    bnk_path = os.path.join(root, file)
+                    bnk_path = lepath.join(root, file)
                     events_bnks[lang][file] = list_wem_inside_bank(pyRitoFile.bnk.BNK().read(bnk_path))
         print(f'Finish: {lang_path}')
     # save to file

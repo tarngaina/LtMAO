@@ -10,14 +10,8 @@ def db(func):
     stats.print_stats(15)
 
 def test():
-    #hash_helper.Storage.read_all_hashes()
-    #ritobin.bin_to_text('D:/test/map11.bin', 'D:/test/map11.py', hash_helper.Storage.hashtables)
-    
-    ritobin.text_to_bin(
-        r'D:\Test\uiflip.nx.py', 
-        r'D:\Test\a.bin',
-    )
-    #ritobin.bin_to_text('D:/test/a.bin', 'D:/test/a.py', hash_helper.Storage.hashtables)
-    #hash_helper.Storage.free_all_hashes()
+    from LtMAO import lepath
+
+    print(lepath.ext('D:/test/a.wad.client', 'wad.client', 'wad'))
    
 test()

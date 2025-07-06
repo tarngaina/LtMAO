@@ -1,5 +1,5 @@
 import os, os.path
-from . import pyRitoFile
+from . import lepath, pyRitoFile
 from PIL import Image, ImageDraw
 
 TEXTURE_SIZE = 1024
@@ -38,11 +38,11 @@ def uvee_skn(path):
                       vertex1.uv.x, TEXTURE_SIZE * vertex1.uv.y), fill=UV_COLOR)
         # save pil image
         dir = os.path.dirname(path)
-        base = os.path.basename(path).replace('.skn', '')
+        base = lepath.ext(os.path.basename(path), '.skn', '')
         uvee_dir = dir+f'/uvee_{base}'
         os.makedirs(uvee_dir, exist_ok=True)
-        img_path = os.path.join(
-            uvee_dir, f'{submesh.name}.png').replace('\\', '/')
+        img_path = lepath.join(
+            uvee_dir, f'{submesh.name}.png')
         img.save(img_path)
         print(f'uvee: Finish: Extract UV: {img_path}')
         imgs.append((submesh.name, img))
@@ -72,8 +72,8 @@ def uvee_so(path):
                    uv1.x, TEXTURE_SIZE * uv1.y), fill=UV_COLOR)
     # save pil image
     dir = os.path.dirname(path)
-    base = os.path.basename(path).replace('.sco', '').replace('.scb', '')
-    img_path = os.path.join(dir, f'uvee_{base}.png').replace('\\', '/')
+    base = lepath.ext(lepath.ext(os.path.basename(path), '.sco', ''), '.scb', '')
+    img_path = lepath.join(dir, f'uvee_{base}.png')
     img.save(img_path)
     print(f'uvee: Finish: Extract UV: {img_path}')
 

@@ -39,44 +39,44 @@ class CLI:
 
     @staticmethod
     def wadunpack(src, dst):
-        from LtMAO import wad_tool, hash_helper
+        from LtMAO import lepath, wad_tool, hash_helper
         if dst == None:
-            dst = src.replace('.wad.client', '.wad')
+            dst = lepath.ext(src, '.wad.client', '.wad')
         hash_helper.Storage.read_wad_hashes()
         wad_tool.unpack(src, dst, hash_helper.Storage.hashtables)
         hash_helper.Storage.free_wad_hashes()
 
     @staticmethod
     def wadunpack_all(src, dst):
-        from LtMAO import wad_tool, hash_helper
-        import os, os.path
+        from LtMAO import lepath, wad_tool, hash_helper
+        import os
         hash_helper.Storage.read_wad_hashes()
         for root, dirs, files in os.walk(src):
             for file in files:
                 if file.endswith('.wad.client'):
-                    wad = os.path.join(root, file)
-                    dir = wad.replace('.wad.client', '.wad')
+                    wad = lepath.join(root, file)
+                    dir = lepath.ext(wad, '.wad.client', '.wad')
                     wad_tool.unpack(wad, dir, hash_helper.Storage.hashtables)
         hash_helper.Storage.free_wad_hashes()
 
     @staticmethod
     def ritobin(src, dst):
-        from LtMAO import hash_helper, ritobin, pyRitoFile
+        from LtMAO import lepath, hash_helper, ritobin, pyRitoFile
         # py to bin without ext
         if src.endswith('.nx.py'):
-            dst = src.replace('.nx.py', '')
+            dst = lepath.ext(src, '.nx.py', '')
             print(f'ritobin: Start: Read: {src}')
             ritobin.text_to_bin(src, dst)
             return
         # py to bin
         if src.endswith('.py'):
-            dst = src.replace('.py', '.bin')
+            dst = lepath.ext(src, '.py', '.bin')
             print(f'ritobin: Start: Read: {src}')
             ritobin.text_to_bin(src, dst)
             return
         # bin to py
         if src.endswith('.bin'):
-            dst = src.replace('.bin', '.py')
+            dst = lepath.ext(src, '.bin', '.py')
             hash_helper.Storage.read_all_hashes()
             print(f'ritobin: Start: Write: {src}')
             ritobin.bin_to_text(src, dst, hashtables=hash_helper.Storage.hashtables)
@@ -93,21 +93,21 @@ class CLI:
 
     @staticmethod
     def ritobindir(src, dst, bin2py=True):
-        from LtMAO import hash_helper, ritobin, pyRitoFile
-        import os, os.path
+        from LtMAO import lepath, hash_helper, ritobin, pyRitoFile
+        import os
         if bin2py:
             hash_helper.Storage.read_all_hashes()
             for root, dirs, files in os.walk(src):
                 for file in files:
                     # bin to py
                     if file.endswith('.bin'):
-                        bin_file = os.path.join(root, file).replace('\\', '/')
-                        py_file = bin_file.replace('.bin', '.py')
+                        bin_file = lepath.join(root, file)
+                        py_file = lepath.ext(bin_file, '.bin', '.py')
                         print(f'ritobin: Start: Write: {bin_file}')
                         ritobin.bin_to_text(bin_file, py_file,  hashtables=hash_helper.Storage.hashtables)
                         continue
                     # bin without ext to py
-                    bin_file = os.path.join(root, file).replace('\\', '/')
+                    bin_file = lepath.join(root, file)
                     py_file = bin_file + '.nx.py'
                     with pyRitoFile.stream.BytesStream.reader(bin_file) as bs:
                         if pyRitoFile.wad.WADExtensioner.guess_extension(bs.read(20)) == 'bin':
@@ -119,15 +119,15 @@ class CLI:
                 for file in files:
                     # py to bin without ext
                     if file.endswith('.nx.py'):
-                        py_file = os.path.join(root, file).replace('\\', '/')
-                        bin_file = py_file.replace('.nx.py', '')
+                        py_file = lepath.join(root, file)
+                        bin_file = lepath.ext(py_file, '.nx.py', '')
                         print(f'ritobin: Start: Read: {py_file}')
                         ritobin.text_to_bin(py_file, bin_file)
                         continue
                     # py to bin
                     if file.endswith('.py'):
-                        py_file = os.path.join(root, file).replace('\\', '/')
-                        bin_file = py_file.replace('.py', '.bin')
+                        py_file = lepath.join(root, file)
+                        bin_file = lepath.ext(py_file, '.py', '.bin')
                         print(f'ritobin: Start: Read: {py_file}')
                         ritobin.text_to_bin(py_file, bin_file)
 
@@ -145,14 +145,14 @@ class CLI:
 
     @staticmethod
     def hashextract(src):
-        from LtMAO import hash_helper
+        from LtMAO import lepath, hash_helper
         import os
         import os.path
         if os.path.isdir(src):
             file_paths = []
             for root, dirs, files in os.walk(src):
                 for file in files:
-                    file_paths.append(os.path.join(root, file))
+                    file_paths.append(lepath.join(root, file))
             hash_helper.ExtractedHashes.extract(*file_paths)
         else:
             hash_helper.ExtractedHashes.extract(src)
@@ -176,31 +176,31 @@ class CLI:
         
     @staticmethod
     def tex2ddsdir(src):
-        import os, os.path
-        from LtMAO import Ritoddstex
+        import os
+        from LtMAO import lepath, Ritoddstex
         for root, dirs, files in os.walk(src):
             for file in files:  
                 if file.endswith('.tex'):
-                    tex_file = os.path.join(root, file).replace('\\', '/')
+                    tex_file = lepath.join(root, file)
                     print(f'Ritoddstex: Start: To DDS: {tex_file}')
                     Ritoddstex.tex2dds(tex_file)
 
     @staticmethod
     def dds2texdir(src):
-        import os, os.path
-        from LtMAO import Ritoddstex
+        import os
+        from LtMAO import lepath, Ritoddstex
         for root, dirs, files in os.walk(src):
             for file in files:  
                 if file.endswith('.dds'):
-                    dds_file = os.path.join(root, file).replace('\\', '/')
+                    dds_file = lepath.join(root, file)
                     print(f'Ritoddstex: Start: To TEX: {dds_file}')
                     Ritoddstex.dds2tex(dds_file)
 
     @staticmethod
     def png2dds(src, dst):
-        from LtMAO import tools
+        from LtMAO import lepath, tools
         if dst == None:
-            dst = src.replace('.png', '.dds')
+            dst = lepath.ext(src, '.png', '.dds')
         tools.ImageMagick.to_dds(
             src=src,
             dds=dst,
@@ -210,9 +210,9 @@ class CLI:
 
     @staticmethod
     def png2ddsmm(src, dst):
-        from LtMAO import tools
+        from LtMAO import lepath, tools
         if dst == None:
-            dst = src.replace('.png', '.dds')
+            dst = lepath.ext(src, '.png', '.dds')
         tools.ImageMagick.to_dds(
             src=src,
             dds=dst,
@@ -223,9 +223,9 @@ class CLI:
 
     @staticmethod
     def dds2png(src, dst):
-        from LtMAO import tools
+        from LtMAO import lepath, tools
         if dst == None:
-            dst = src.replace('.dds', '.png')
+            dst = lepath.ext(src, '.dds', '.png')
         tools.ImageMagick.to_png(
             src=src,
             png=dst,
@@ -236,16 +236,16 @@ class CLI:
         import os
         import os.path
         from PIL import Image
-        from LtMAO import tools
+        from LtMAO import lepath, tools
         with Image.open(src) as img:
             basename = os.path.basename(src)
             dirname = os.path.dirname(src)
             width_2x = img.width // 2
             height_2x = img.height // 2
-            file_2x = os.path.join(dirname, '2x_'+basename).replace('\\', '/')
+            file_2x = lepath.join(dirname, '2x_'+basename)
             width_4x = img.width // 4
             height_4x = img.height // 4
-            file_4x = os.path.join(dirname, '4x_'+basename).replace('\\', '/')
+            file_4x = lepath.join(dirname, '4x_'+basename)
         print(f'dds2x4x: Start: Create: {file_2x}')
         tools.ImageMagick.resize_dds(
             src=src,
@@ -270,32 +270,35 @@ class CLI:
         wiwawe.ogg2wem([src])
 
     def wem2wavdir(src):
-        import os, os.path
+        import os
+        from LtMAO import lepath
         wem_files = []
         for root, dirs, files in os.walk(src):
             for file in files:  
                 if file.endswith('.wem'):
-                    wem_files.append(os.path.join(root, file).replace('\\', '/')) 
+                    wem_files.append(lepath.join(root, file)) 
         from LtMAO import wiwawe
         wiwawe.wem2wav(wem_files)
 
     def wav2wemdir(src):
-        import os, os.path
+        import os
+        from LtMAO import lepath
         wav_files = []
         for root, dirs, files in os.walk(src):
             for file in files:  
                 if file.endswith('.wav'):
-                    wav_files.append(os.path.join(root, file).replace('\\', '/')) 
+                    wav_files.append(lepath.join(root, file)) 
         from LtMAO import wiwawe
         wiwawe.wav2wem(wav_files)
     
     def ogg2wemdir(src):
-        import os, os.path
+        import os
+        from LtMAO import lepath
         ogg_files = []
         for root, dirs, files in os.walk(src):
             for file in files:  
                 if file.endswith('.ogg'):
-                    ogg_files.append(os.path.join(root, file).replace('\\', '/')) 
+                    ogg_files.append(lepath.join(root, file)) 
         from LtMAO import wiwawe
         wiwawe.ogg2wem(ogg_files)
 
@@ -317,6 +320,7 @@ class CLI:
 
     def zipfantome(src):
         import os.path, json, zipfile
+        from LtMAO import lepath
         info_file = src + '/META/info.json'
         if not os.path.exists(info_file):
             raise Exception(f'zipfantome: Error:  No META/info.json found inside {src}.')
@@ -330,14 +334,15 @@ class CLI:
         with zipfile.ZipFile(dst, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zip:
             for root, dirs, files in os.walk(src):
                 for file in files:
-                    filename = os.path.join(root, file)
+                    filename = lepath.join(root, file)
                     arcname = os.path.relpath(filename, src)
                     zip.write(filename, arcname)
 
     def unzipfantome(src):
         import zipfile
+        from LtMAO import lepath
 
-        dst = src.replace('.fantome', '')
+        dst = lepath.ext(src, '.fantome', '')
         print(f'unzipfantome: Start: Unzip: {src} to {dst}')
         with zipfile.ZipFile(src, 'r') as zip:
             zip.extractall(dst)

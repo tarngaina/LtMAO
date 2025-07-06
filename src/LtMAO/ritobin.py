@@ -1,4 +1,4 @@
-from LtMAO import pyRitoFile
+from LtMAO import lepath, pyRitoFile
 
 
 SPACE_CHARS = ' \n\t\r#'
@@ -643,7 +643,7 @@ def text_to_bin(text_path, bin_path=None):
 
 def bin_to_text(bin_path, text_path=None, hashtables=None):
     if text_path == None:
-        text_path = bin_path.replace('.bin', '.py')
+        text_path = lepath.ext(bin_path, '.bin', '.py')
     bin = pyRitoFile.bin.BIN().read(bin_path)
     if hashtables != None:
         bin.un_hash(hashtables)

@@ -1,4 +1,4 @@
-from . import pyRitoFile, mask_viewer
+from . import lepath, pyRitoFile, mask_viewer
 import shutil, os.path
 
 def skin_fix(skl_path, skn_path, riotskl_path, riotskn_path='', backup=True, dont_add_joint_back=False):
@@ -111,12 +111,12 @@ def skin_fix(skl_path, skn_path, riotskl_path, riotskn_path='', backup=True, don
     # backup skin
     if backup:
         print(f'sborf: Start:  Backup SKIN.')
-        backup_skl_path = os.path.join(
+        backup_skl_path = lepath.join(
             os.path.dirname(skl_path),
             'sborf_backup_' + os.path.basename(skl_path)
         )
         shutil.copy(skl_path, backup_skl_path)
-        backup_skn_path = os.path.join(
+        backup_skn_path = lepath.join(
             os.path.dirname(skn_path),
             'sborf_backup_' + os.path.basename(skn_path)
         )
@@ -167,7 +167,7 @@ def maskdata_adapt(skl_path, bin_path, riotskl_path, riotbin_path, backup=True):
     # backup skin
     if backup:
         print(f'sborf: Start:  Backup Animation BIN.')
-        backup_bin_path = os.path.join(
+        backup_bin_path = lepath.join(
             os.path.dirname(bin_path),
             'sborf_backup_' + os.path.basename(bin_path)
         )

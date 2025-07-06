@@ -1,18 +1,20 @@
 import os, os.path, json, datetime, shutil
-from . import setting, Ritoddstex, ritobin, tools
+from . import lepath, setting, Ritoddstex, ritobin, tools
 
 block_and_stream_process_output = tools.block_and_stream_process_output
 
 class MOD:
     __slots__ = (
-        'id', 'path', 'enable', 'profile'
+        'id', 'path', 'enable', 'profile', 'info', 'image'
     )
 
-    def __init__(self, id=None, path=None, enable=False, profile='0'):
+    def __init__(self, id=None, path=None, enable=False, profile='0', info=None, image=None):
         self.id = id
         self.path = path
         self.enable = enable
         self.profile = profile
+        self.info = info 
+        self.image = image
 
     def get_path(self):
         return self.path + f' {self.id}'
@@ -31,6 +33,9 @@ config_file = f'{local_dir}/config.txt'
 
 profiles = []
 
+def add_mod(mod):
+    MOD.mods.append(mod)
+
 def create_mod(path, enable, profile):
     m = MOD(MOD.generate_id(), path, enable, profile)
     check_path = m.get_path()
@@ -38,13 +43,12 @@ def create_mod(path, enable, profile):
         if mod.get_path() == check_path:
             raise Exception(
                 f'cslmao: Error: Create mod: A mod with path: {check_path} already existed in profile {mod.profile}.')
-    MOD.mods.append(m)
     return m
 
 def create_mod_folder(mod):
-    mod_folder = os.path.join(raw_dir, mod.get_path())
-    meta_folder = os.path.join(mod_folder, 'META')
-    wad_folder = os.path.join(mod_folder, 'WAD')
+    mod_folder = lepath.join(raw_dir, mod.get_path())
+    meta_folder = lepath.join(mod_folder, 'META')
+    wad_folder = lepath.join(mod_folder, 'WAD')
     os.makedirs(mod_folder, exist_ok=True)
     os.makedirs(meta_folder, exist_ok=True)
     os.makedirs(wad_folder, exist_ok=True)
@@ -52,36 +56,55 @@ def create_mod_folder(mod):
 def delete_mod(mod):
     if mod in MOD.mods:
        MOD.mods.remove(mod)
-    shutil.rmtree(os.path.join(raw_dir, mod.get_path()), ignore_errors=True)
+    shutil.rmtree(lepath.join(raw_dir, mod.get_path()), ignore_errors=True)
+
+def move_left(mod):
+    if mod == MOD.mods[0]:
+        return
+    for i, m in enumerate(MOD.mods):
+        if m == mod:
+            MOD.mods[i], MOD.mods[i-1] = MOD.mods[i-1], MOD.mods[i]
+            break
+    
+def move_right(mod):
+    if mod == MOD.mods[-1]:
+        return
+    for i, m in enumerate(MOD.mods):
+        if m == mod:
+            MOD.mods[i], MOD.mods[i+1] = MOD.mods[i+1], MOD.mods[i]
+            break
+
 
 def get_info(mod):
-    info_file = os.path.join(raw_dir, mod.get_path(), 'META', 'info.json')
+    info_file = lepath.join(raw_dir, mod.get_path(), 'META', 'info.json')
     with open(info_file, 'r', encoding='utf-8') as f:
-        info = json.load(f)
-    image_path = None
-    image_file = os.path.join(raw_dir, mod.get_path(), 'META', 'image.png')
+        mod.info = json.load(f)
+    image_file = lepath.join(raw_dir, mod.get_path(), 'META', 'image.png')
     if os.path.exists(image_file):
-        image_path = image_file
-    return info, image_path
+        mod.image = image_file
 
-def set_info(mod, info=None, image_path=None):
+def set_info(mod):
     old_path = mod.get_path()
-    mod.path = f'{info["Name"]}'
+    mod.path = f'{mod.info["Name"]}'
     mod.id = MOD.generate_id()
     os.rename(
-        os.path.abspath(os.path.join(raw_dir, old_path)),
-        os.path.abspath(os.path.join(raw_dir, mod.get_path()))
+        os.path.abspath(lepath.join(raw_dir, old_path)),
+        os.path.abspath(lepath.join(raw_dir, mod.get_path()))
     )
-    if info != None:
-        info_file = os.path.join(raw_dir, mod.get_path(), 'META', 'info.json')
+    if mod.info != None:
+        info_file = lepath.join(raw_dir, mod.get_path(), 'META', 'info.json')
         with open(info_file, 'w+', encoding='utf-8') as f:
-            json.dump(info, f, indent=4, ensure_ascii=False)
-    if image_path != None:
-        image_file = os.path.join(raw_dir, mod.get_path(), 'META', 'image.png')
-        shutil.copy(image_path, image_file)
+            json.dump(mod.info, f, indent=4, ensure_ascii=False)
+    if mod.image != None:
+        image_file = lepath.join(raw_dir, mod.get_path(), 'META', 'image.png')
+        if os.path.exists(mod.image):
+            shutil.copy(mod.image, image_file)
+        if os.path.exists(image_file):
+            mod.image = image_file
+
 
 def delete_info_image(mod):
-    image_file = os.path.join(raw_dir, mod.get_path(), 'META', 'image.png')
+    image_file = lepath.join(raw_dir, mod.get_path(), 'META', 'image.png')
     if os.path.exists(image_file):
         os.remove(image_file)
         
@@ -103,7 +126,7 @@ def load_mods():
     # load outside mod file
     existed_mod_path = [mod.get_path() for mod in MOD.mods]
     for dirname in os.listdir(raw_dir):
-        info_file = os.path.join(raw_dir, dirname, 'META', 'info.json')
+        info_file = lepath.join(raw_dir, dirname, 'META', 'info.json')
         if not os.path.exists(info_file):
             continue
         if dirname in existed_mod_path:
@@ -113,8 +136,8 @@ def load_mods():
             mod_path = dirname
             mod = MOD(id=mod_id, path=mod_path, enable=False, profile='0')
             os.rename(
-                os.path.join(raw_dir, mod_path),
-                os.path.join(raw_dir, mod.get_path())
+                lepath.join(raw_dir, mod_path),
+                lepath.join(raw_dir, mod.get_path())
             )
             MOD.mods.append(mod)
         except Exception as e:
@@ -130,7 +153,7 @@ def save_mods():
 def import_fantome(fantome_path, mod_path):
     p = tools.CSLOL.import_fantome(
         src=fantome_path,
-        dst=os.path.abspath(os.path.join(raw_dir, mod_path)),
+        dst=os.path.abspath(lepath.join(raw_dir, mod_path)),
         game=setting.get('game_folder', '')
     )
     tools.block_and_stream_process_output(p, 'cslmao: ')
@@ -178,15 +201,15 @@ def convert_raw_files_before_run():
     dds2tex_files = []
     for mod in MOD.mods:
         if mod.enable:
-            for root, dirs, files in os.walk(os.path.join(raw_dir, mod.get_path())):
+            for root, dirs, files in os.walk(lepath.join(raw_dir, mod.get_path())):
                 for file in files:
                     if file.endswith('.py'):
-                        py_file = os.path.join(root, file)
-                        bin_file = py_file.replace('.py', '.bin')
+                        py_file = lepath.join(root, file)
+                        bin_file = lepath.ext(py_file, '.py', '.bin')
                         py2bin_files.append((py_file, bin_file))
                     elif file.endswith('.dds'):
-                        dds_file = os.path.join(root, file)
-                        tex_file = dds_file.replace('.dds', '.tex')
+                        dds_file = lepath.join(root, file)
+                        tex_file = lepath.ext(dds_file, '.dds', '.tex')
                         dds2tex_files.append((dds_file, tex_file))
     # converts
     if setting.get('cslmao.auto_py2bin', False):

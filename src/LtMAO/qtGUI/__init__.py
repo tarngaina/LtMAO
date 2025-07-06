@@ -113,7 +113,10 @@ def init_theme(theme_name):
         QPlainTextEdit:focus {{
             border-color: {qtwidgets.accent_color};  
         }}
-        QComboBox {{
+        QComboBox:hover, QComboBox:selected, QComboBox:on {{
+            border-color: {qtwidgets.accent_color};
+        }}
+        QComboBox QAbstractItemView {{
             border-color: {qtwidgets.accent_color};
         }}
         QComboBox QAbstractItemView:item:hover, QComboBox QAbstractItemView:item:selected {{
@@ -195,6 +198,8 @@ def init_theme(theme_name):
             background-color: rgba(0, 0, 0, 127);
         }}
     """
+    qtwidgets.mod_enable_stylesheet = f'QWidget#CslmaoModWidgetEnable {{ border: 2px solid {qtwidgets.accent_color}; }}'
+    qtwidgets.mod_disable_stylesheet = f'QWidget#CslmaoModWidgetDisable {{ border: 2px solid rgb(0, 0, 0); }}'
     return theme_paths
 
 def check_version(label):
@@ -302,7 +307,7 @@ def build_app():
 
 def build_splash_screen(splash: QSplashScreen):
     splash.setWindowFlags(splash.windowFlags() | Qt.WindowStaysOnTopHint)
-    pixmap = QPixmap(qtwidgets.theme_paths['splash']).scaled(400, 400, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation)
+    pixmap = QPixmap(qtwidgets.theme_paths['splash']).scaled(400, 400, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
     splash.setPixmap(pixmap)
     layout = QVBoxLayout()
     label = QLabel()
@@ -409,13 +414,14 @@ def build_grips(window: QMainWindow):
 
     def build_corner_grip():
         corner_grip = QSizeGrip(window)
+        corner_grip.setFixedSize(grip_size, grip_size)
         corner_grip.setStyleSheet('background-color: transparent')
         return corner_grip
 
+    grip_size = 6
     right_edge_grip = build_edge_grip(Qt.Edge.RightEdge)
     bot_edge_grip = build_edge_grip(Qt.Edge.BottomEdge)
     bot_right_corner_grip = build_corner_grip()
-    grip_size = 6
     def resizeEvent(event):
         out_rect = window.rect()
         in_rect = out_rect.adjusted(grip_size, grip_size,-grip_size, -grip_size)
@@ -465,7 +471,7 @@ def build_title_bar(widget: QWidget, layout: QBoxLayout):
     layout.setSpacing(0)
 
     # icon
-    pixmap = QPixmap(qtwidgets.theme_paths['titlebaricon']).scaled(118, 40, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation)
+    pixmap = QPixmap(qtwidgets.theme_paths['titlebaricon']).scaled(118, 40, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
     qtwidgets.icon_label = icon_label = QLabel(pixmap=pixmap)
     layout.addWidget(icon_label, stretch=3)
 

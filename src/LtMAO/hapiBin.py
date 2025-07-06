@@ -1,5 +1,5 @@
 import os.path, shutil
-from . import pyRitoFile, hash_helper
+from . import lepath, pyRitoFile, hash_helper
 
 class Helper:
     qt_datas = [] 
@@ -75,13 +75,13 @@ class Helper:
             for root, dirs, files in os.walk(src):
                 for file in files:
                     if file.endswith('.bin'):
-                        src_bin_paths.append(os.path.join(root, file).replace('\\','/'))
+                        src_bin_paths.append(lepath.join(root, file))
                     elif file.endswith('.wad.client'):
-                        src_wad_paths.append(os.path.join(root, file).replace('\\','/'))
+                        src_wad_paths.append(lepath.join(root, file))
             # match bin in subfolders
             for src_bin_path in src_bin_paths:
                 if require_dst:
-                    dst_bin_path = os.path.join(dst, os.path.relpath(src_bin_path, src)).replace('\\','/')
+                    dst_bin_path = lepath.join(dst, os.path.relpath(src_bin_path, src))
                     if os.path.exists(dst_bin_path):
                         map_bin_src_dst[src_bin_path] = (dst_bin_path, pyRitoFile.bin.BIN().read(src_bin_path), pyRitoFile.bin.BIN().read(dst_bin_path))
                 else:
@@ -90,7 +90,7 @@ class Helper:
             for src_wad_path in src_wad_paths:
                 src_wad = pyRitoFile.wad.WAD().read(src_wad_path)
                 if require_dst:
-                    dst_wad_path = os.path.join(dst, os.path.relpath(src_wad_path, src)).replace('\\','/')
+                    dst_wad_path = lepath.join(dst, os.path.relpath(src_wad_path, src))
                     dst_wad = pyRitoFile.wad.WAD().read(dst_wad_path)
                     map_wad_src_dst[src_wad_path] = (dst_wad_path, [])
                     dst_bins = {}
@@ -149,7 +149,7 @@ class Helper:
 
     @staticmethod
     def backup(path):
-        backup_path = os.path.join(
+        backup_path = lepath.join(
             os.path.dirname(path),
             'hp_backup_' + os.path.basename(path)
         )

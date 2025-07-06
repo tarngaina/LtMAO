@@ -1,19 +1,19 @@
 import os, os.path, json, traceback
-from . import hash_helper, pyRitoFile
+from . import lepath, hash_helper, pyRitoFile
 
 def unify_path(path):
     # if the path is straight up hex
     # ex: ec9584b0506c2abb -> ec9584b0506c2abb
-    if pyRitoFile.bin.WADHasher.is_hash(path):
+    if pyRitoFile.wad.WADHasher.is_hash(path):
         return path
     # if the path is hashed file 
     # ex: ec9584b0506c2abb.bin -> ec9584b0506c2abb
     basename = path.split('.')[0]
-    if pyRitoFile.bin.WADHasher.is_hash(basename):
+    if pyRitoFile.wad.WADHasher.is_hash(basename):
         return basename
     # if the path is pure raw
     # ex: data/effects.bin -> ec9584b0506c2abb
-    return pyRitoFile.bin.WADHasher.raw_to_hex(path)
+    return pyRitoFile.wad.WADHasher.raw_to_hex(path)
 
 def check_if_path_in_there(path, there):
     path = unify_path(path)
@@ -23,9 +23,7 @@ def check_if_path_in_there(path, there):
     return False    
 
 def checK_if_path_is_same(path1, path2):
-    if unify_path(path1) == unify_path(path2):
-        return True
-    return False
+    return unify_path(path1) == unify_path(path2)
 
 def parse_bin(bin, *, existing_files={}):
     bin_hash = pyRitoFile.bin.BINHasher.raw_to_hex
@@ -114,10 +112,10 @@ def parse_dir(path, delete_junk_files=False):
     full_files = []
     for root, dirs, files in os.walk(path):
         for file in files:
-            full_files.append(os.path.join(root, file).replace('\\', '/'))
+            full_files.append(lepath.join(root, file))
     full_files.sort()
     existing_files = {
-        os.path.relpath(file_path, path).replace('\\', '/'): True 
+        os.path.relpath(file_path, path): True 
         for file_path in full_files
     }
     short_files = list(existing_files.keys())
@@ -143,7 +141,7 @@ def parse_dir(path, delete_junk_files=False):
     res['junk_files'] = [file for file in existing_files if existing_files[file]]
     if delete_junk_files:
         for file in res['junk_files']:
-            full_file = os.path.join(path, file).replace('\\', '/')
+            full_file = lepath.join(path, file)
             os.remove(full_file)
             print(f'pyntex: Finish: Remove {full_file}')
         # remove empty dirs

@@ -1,10 +1,10 @@
-from . import pyRitoFile
+from . import lepath, pyRitoFile
 import struct
 
 def dds2tex(dds_path, tex_path=None):
     # prepare path
     if tex_path == None:
-        tex_path = dds_path.replace('.dds', '.tex')
+        tex_path = lepath.ext(dds_path, '.dds', '.tex')
     # read dds header
     with pyRitoFile.stream.BytesStream.reader(dds_path) as bs:
         signature, = bs.read_u32()
