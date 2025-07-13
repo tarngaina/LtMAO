@@ -472,9 +472,9 @@ class Writer:
         elif value_type == pyRitoFile.bin.BINType.FLAG:
             return f'{add_indent(0 if inline else indent)}{value != 0}'.lower()
         elif value_type == pyRitoFile.bin.BINType.F32:
-            return f'{add_indent(0 if inline else indent)}{value:.4g}'
+            return f'{add_indent(0 if inline else indent)}{value:.9g}'
         elif value_type in (pyRitoFile.bin.BINType.VEC2, pyRitoFile.bin.BINType.VEC3, pyRitoFile.bin.BINType.VEC4, pyRitoFile.bin.BINType.RGBA):
-            values = ', '.join(f'{v:.4g}' for v in value)
+            values = ', '.join(f'{v:.9g}' for v in value)
             return f'{add_indent(0 if inline else indent)}{{ {values} }}'
         elif value_type in (pyRitoFile.bin.BINType.I8, pyRitoFile.bin.BINType.U8,pyRitoFile.bin.BINType.I16,pyRitoFile.bin.BINType.U16,pyRitoFile.bin.BINType.I32,pyRitoFile.bin.BINType.U32,pyRitoFile.bin.BINType.I64,pyRitoFile.bin.BINType.U64):
             return f'{add_indent(0 if inline else indent)}{value}'
@@ -530,10 +530,10 @@ class Writer:
     def write_matrix(self, field, indent):
         matrix = field.data
         text = f'{add_indent(indent)}{hash_or_raw(field.hash, quote=False)}: {clean_type(field.type)} = {{\n'
-        text += f'{add_indent(indent+1)}{matrix.a:.4g}, {matrix.b:.4g}, {matrix.c:.4g}, {matrix.d:.4g}\n'
-        text += f'{add_indent(indent+1)}{matrix.e:.4g}, {matrix.f:.4g}, {matrix.g:.4g}, {matrix.h:.4g}\n'
-        text += f'{add_indent(indent+1)}{matrix.i:.4g}, {matrix.j:.4g}, {matrix.k:.4g}, {matrix.l:.4g}\n'
-        text += f'{add_indent(indent+1)}{matrix.m:.4g}, {matrix.n:.4g}, {matrix.o:.4g}, {matrix.p:.4g}\n'
+        text += f'{add_indent(indent+1)}{matrix.a:.9g}, {matrix.b:.9g}, {matrix.c:.9g}, {matrix.d:.9g}\n'
+        text += f'{add_indent(indent+1)}{matrix.e:.9g}, {matrix.f:.9g}, {matrix.g:.9g}, {matrix.h:.9g}\n'
+        text += f'{add_indent(indent+1)}{matrix.i:.9g}, {matrix.j:.9g}, {matrix.k:.9g}, {matrix.l:.9g}\n'
+        text += f'{add_indent(indent+1)}{matrix.m:.9g}, {matrix.n:.9g}, {matrix.o:.9g}, {matrix.p:.9g}\n'
         text += f'{add_indent(indent)}}}\n'
         return text
     
@@ -615,10 +615,10 @@ class Writer:
         elif patch.type == pyRitoFile.bin.BINType.MTX44:
             matrix = patch.data
             text += f'{add_indent(0)}{clean_type(patch.type)} = {{\n'
-            text += f'{add_indent(indent+2)}{matrix.a:.4g}, {matrix.b:.4g}, {matrix.c:.4g}, {matrix.d:.4g}\n'
-            text += f'{add_indent(indent+2)}{matrix.e:.4g}, {matrix.f:.4g}, {matrix.g:.4g}, {matrix.h:.4g}\n'
-            text += f'{add_indent(indent+2)}{matrix.i:.4g}, {matrix.j:.4g}, {matrix.k:.4g}, {matrix.l:.4g}\n'
-            text += f'{add_indent(indent+2)}{matrix.m:.4g}, {matrix.n:.4g}, {matrix.o:.4g}, {matrix.p:.4g}\n'
+            text += f'{add_indent(indent+2)}{matrix.a:.9g}, {matrix.b:.9g}, {matrix.c:.9g}, {matrix.d:.9g}\n'
+            text += f'{add_indent(indent+2)}{matrix.e:.9g}, {matrix.f:.9g}, {matrix.g:.9g}, {matrix.h:.9g}\n'
+            text += f'{add_indent(indent+2)}{matrix.i:.9g}, {matrix.j:.9g}, {matrix.k:.9g}, {matrix.l:.9g}\n'
+            text += f'{add_indent(indent+2)}{matrix.m:.9g}, {matrix.n:.9g}, {matrix.o:.9g}, {matrix.p:.9g}\n'
             text += f'{add_indent(indent+1)}}}\n'
         else:
             text += f'{clean_type(patch.type)} = {self.write_value(patch.data, patch.type, indent)}\n'

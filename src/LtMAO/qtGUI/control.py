@@ -289,6 +289,7 @@ def build_cslmao(widget: QWidget):
                 # display
                 display_layout = QVBoxLayout()
                 display_layout.setContentsMargins(0, 0, 0, 0)
+                display_layout.setSpacing(0)
                 mod_layout.addLayout(display_layout)
                 # mod image
                 mod_widget.mod_image = mod_image = QLabel()
@@ -302,15 +303,19 @@ def build_cslmao(widget: QWidget):
                 #mod_info.setText(f'📚{mod.profile} 🆔{mod.info["Name"]}\n🏷️{mod.info["Version"]} 👤{mod.info["Author"]}\n{mod.info["Description"]}')
                 mod_info.setText(mod.info['Name'])
                 mod_info.setFixedWidth(256)
-                display_layout.addWidget(mod_info, stretch=0) 
+                display_layout.addWidget(mod_info, alignment=Qt.AlignmentFlag.AlignHCenter, stretch=0) 
                 # display enable state + mouse press event
                 def update_enable_state(mod_widget, enable):
                     if enable:
                         mod_widget.setObjectName('CslmaoModWidgetEnable')
                         mod_widget.setStyleSheet(qtwidgets.mod_enable_stylesheet)
+                        mod_widget.mod_info.setObjectName('CslmaoModWidgetEnable')
+                        mod_widget.mod_info.setStyleSheet(qtwidgets.mod_enable_stylesheet)
                     else:
                         mod_widget.setObjectName('CslmaoModWidgetDisable')
                         mod_widget.setStyleSheet(qtwidgets.mod_disable_stylesheet)
+                        mod_widget.mod_info.setObjectName('CslmaoModWidgetDisable')
+                        mod_widget.mod_info.setStyleSheet(qtwidgets.mod_disable_stylesheet)
                 update_enable_state(mod_widget, mod.enable)
                 def enable_cmd(mod, mod_widget):
                     if is_overlay_running():
@@ -710,9 +715,13 @@ def build_cslmao(widget: QWidget):
                 if qtwidgets.all_mod_enable:
                     mod_widget.setObjectName('CslmaoModWidgetEnable')
                     mod_widget.setStyleSheet(qtwidgets.mod_enable_stylesheet)
+                    mod_widget.mod_info.setObjectName('CslmaoModWidgetEnable')
+                    mod_widget.mod_info.setStyleSheet(qtwidgets.mod_enable_stylesheet)
                 else:
                     mod_widget.setObjectName('CslmaoModWidgetDisable')
                     mod_widget.setStyleSheet(qtwidgets.mod_disable_stylesheet)
+                    mod_widget.mod_info.setObjectName('CslmaoModWidgetDisable')
+                    mod_widget.mod_info.setStyleSheet(qtwidgets.mod_disable_stylesheet)
                 mod.enable = qtwidgets.all_mod_enable
         cslmao.save_mods()
         qtwidgets.all_mod_enable = not qtwidgets.all_mod_enable

@@ -198,8 +198,8 @@ def init_theme(theme_name):
             background-color: rgba(0, 0, 0, 127);
         }}
     """
-    qtwidgets.mod_enable_stylesheet = f'QWidget#CslmaoModWidgetEnable {{ border: 2px solid {qtwidgets.accent_color}; }}'
-    qtwidgets.mod_disable_stylesheet = f'QWidget#CslmaoModWidgetDisable {{ border: 2px solid rgb(0, 0, 0); }}'
+    qtwidgets.mod_enable_stylesheet = f'QWidget#CslmaoModWidgetEnable {{ border: 2px solid {qtwidgets.accent_color}; }} QLabel#CslmaoModWidgetEnable {{ background-color: {qtwidgets.accent_color}; }}'
+    qtwidgets.mod_disable_stylesheet = f'QWidget#CslmaoModWidgetDisable {{ border: 2px solid rgb(0, 0, 0); }} QLabel#CslmaoModWidgetDisable {{ background-color: rgb(0, 0, 0); }}'
     return theme_paths
 
 def check_version(label):

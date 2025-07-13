@@ -10,8 +10,8 @@ def db(func):
     stats.print_stats(15)
 
 def test():
-    from LtMAO import lepath
+    from LtMAO import ritobin
 
-    print(lepath.ext('D:/test/a.wad.client', 'wad.client', 'wad'))
+    ritobin.bin_to_text('D:/test/skin0.bin', 'D:/test/skin0.py')
    
 test()
