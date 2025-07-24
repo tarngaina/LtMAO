@@ -20,7 +20,7 @@ def copy_wav_to_input(wav_files):
 def generate_wsources(map_sounds):
     lines = []
     lines.append('<?xml version="1.0" encoding="UTF-8"?>\n')
-    lines.append(f'<ExternalSourcesList SchemaVersion="1" Root="{os.path.abspath(input_dir)}">\n')
+    lines.append(f'<ExternalSourcesList SchemaVersion="1" Root="{lepath.abs(input_dir)}">\n')
     for basename in map_sounds:
         lines.append(f'\t<Source Path="{basename}.wav" Conversion="Vorbis Quality High" />\n')
     lines.append('</ExternalSourcesList>')
@@ -28,7 +28,7 @@ def generate_wsources(map_sounds):
         f.writelines(lines)
 
 def convert_inputs():
-    tools.WWiseConsole.to_wem(os.path.abspath(wsources_file), os.path.abspath(ouput_dir))
+    tools.WWiseConsole.to_wem(lepath.abs(wsources_file), lepath.abs(ouput_dir))
 
 def copy_output_to_wem(map_sounds):
     map_wems = {}

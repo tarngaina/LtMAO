@@ -89,7 +89,7 @@ def parse_bin(bin, *, existing_files={}):
                         if dds4x in existing_files:
                             existing_files[dds4x] = False
                 else:
-                    missing_files.append(file)     
+                    missing_files.append(file)   
 
         dic = {}
         dic['hash'] = entry.hash
@@ -115,7 +115,7 @@ def parse_dir(path, delete_junk_files=False):
             full_files.append(lepath.join(root, file))
     full_files.sort()
     existing_files = {
-        os.path.relpath(file_path, path): True 
+        lepath.rel(file_path, path): True 
         for file_path in full_files
     }
     short_files = list(existing_files.keys())

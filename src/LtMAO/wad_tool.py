@@ -76,13 +76,12 @@ def pack(raw_dir, wad_file):
             # hashed files are in root of the directory
             # and also be a valid hexadecimal int file name
             basename = os.path.basename(file)
-            relative_path = os.path.relpath(file_path, raw_dir)
+            relative_path = lepath.rel(file_path, raw_dir)
             if pyRitoFile.wad.WADHasher.is_hash(basename.split('.')[0]) and relative_path == basename:
                 file_path = basename.split('.')[0]
                 chunk_hashes.append(file_path)
             else:
-                chunk_hashes.append(os.path.relpath(
-                    file_path, raw_dir).replace('\\', '/'))
+                chunk_hashes.append(lepath.rel(file_path, raw_dir))
     # write wad
     wad = pyRitoFile.wad.WAD()
     wad.chunks = [pyRitoFile.wad.WADChunk.default()

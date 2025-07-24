@@ -81,7 +81,7 @@ class Helper:
             # match bin in subfolders
             for src_bin_path in src_bin_paths:
                 if require_dst:
-                    dst_bin_path = lepath.join(dst, os.path.relpath(src_bin_path, src))
+                    dst_bin_path = lepath.join(dst, lepath.rel(src_bin_path, src))
                     if os.path.exists(dst_bin_path):
                         map_bin_src_dst[src_bin_path] = (dst_bin_path, pyRitoFile.bin.BIN().read(src_bin_path), pyRitoFile.bin.BIN().read(dst_bin_path))
                 else:
@@ -90,7 +90,7 @@ class Helper:
             for src_wad_path in src_wad_paths:
                 src_wad = pyRitoFile.wad.WAD().read(src_wad_path)
                 if require_dst:
-                    dst_wad_path = lepath.join(dst, os.path.relpath(src_wad_path, src))
+                    dst_wad_path = lepath.join(dst, lepath.rel(src_wad_path, src))
                     dst_wad = pyRitoFile.wad.WAD().read(dst_wad_path)
                     map_wad_src_dst[src_wad_path] = (dst_wad_path, [])
                     dst_bins = {}

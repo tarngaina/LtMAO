@@ -1,4 +1,5 @@
-import os, os.path, subprocess
+import subprocess
+from LtMAO import lepath
 
 def block_and_stream_process_output(process, log_message_header=''):
     for line in process.stdout:
@@ -17,7 +18,7 @@ class CSLOL:
 
     @staticmethod
     def import_fantome(src, dst, game=None, noTFT=True):
-        local_file = os.path.abspath(CSLOL.local_file)
+        local_file = lepath.abs(CSLOL.local_file)
         cmds = [local_file, 'import', src, dst]
         if game:
             cmds.append('--game:' + game)
@@ -31,7 +32,7 @@ class CSLOL:
 
     @staticmethod
     def export_fantome(src, dst, game=None, noTFT=True):
-        local_file = os.path.abspath(CSLOL.local_file)
+        local_file = lepath.abs(CSLOL.local_file)
         cmds = [local_file, 'export', src, dst]
         if game:
             cmds.append('--game:' + game)
@@ -45,7 +46,7 @@ class CSLOL:
 
     @staticmethod
     def make_overlay(src, overlay, game=None, mods=None, noTFT=True, ignore_conflict=True):
-        local_file = os.path.abspath(CSLOL.local_file)
+        local_file = lepath.abs(CSLOL.local_file)
         cmds = [local_file, 'mkoverlay', src, overlay]
         if game:
             cmds.append('--game:' + game)
@@ -63,7 +64,7 @@ class CSLOL:
 
     @staticmethod
     def run_overlay(overlay, config, game=None):
-        local_file = os.path.abspath(CSLOL.local_file)
+        local_file = lepath.abs(CSLOL.local_file)
         cmds = [local_file, 'runoverlay', overlay, config]
         if game:
             cmds.append(game)
@@ -76,7 +77,7 @@ class CSLOL:
     
     @staticmethod
     def diagnose():
-        diag_file = os.path.abspath(CSLOL.diag_file)
+        diag_file = lepath.abs(CSLOL.diag_file)
         cmds = [diag_file]
         p = subprocess.Popen(
             cmds, creationflags=subprocess.CREATE_NO_WINDOW,
@@ -92,7 +93,7 @@ class ImageMagick:
     @staticmethod
     def to_png(src, png):
         cmds = [
-            os.path.abspath(ImageMagick.local_file),
+            lepath.abs(ImageMagick.local_file),
             src,
             png
         ]
@@ -108,7 +109,7 @@ class ImageMagick:
         if format not in ('dxt1', 'dxt5'):
             format = 'dxt5'
         cmds = [
-            os.path.abspath(ImageMagick.local_file),
+            lepath.abs(ImageMagick.local_file),
             src,
             '-define',
             f'dds:compression={format}',
@@ -126,7 +127,7 @@ class ImageMagick:
     @staticmethod
     def resize_dds(src, dst, width, height):
         cmds = [
-            os.path.abspath(ImageMagick.local_file),
+            lepath.abs(ImageMagick.local_file),
             src,
             '-resize',
             f'{width}x{height}',
@@ -147,7 +148,7 @@ class VGMStream:
     def to_wav(src):
         dst = '.'.join(src.split('.')[:-1] + ['wav'])
         cmds = [
-            os.path.abspath(VGMStream.local_file),
+            lepath.abs(VGMStream.local_file),
             '-o',
             dst,
             src,
@@ -169,11 +170,11 @@ class WWiseConsole:
         cmds = [
             WWiseConsole.local_file,
             'convert-external-source',
-            os.path.abspath(WWiseConsole.wproj_file),
+            lepath.abs(WWiseConsole.wproj_file),
             '--source-file',
-            os.path.abspath(wsources_file),
+            lepath.abs(wsources_file),
             '--output',
-            os.path.abspath(output_dir)
+            lepath.abs(output_dir)
         ]
         p = subprocess.Popen(
             cmds, creationflags=subprocess.CREATE_NO_WINDOW,

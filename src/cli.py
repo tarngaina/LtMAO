@@ -19,9 +19,8 @@ def parse_arguments():
 
 
 def ensure_curdir():
-    import os
-    import os.path
-    os.chdir(os.path.dirname(os.path.dirname(sys.argv[0])))
+    import os, os.path
+    os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 
 
 class CLI:
@@ -335,7 +334,7 @@ class CLI:
             for root, dirs, files in os.walk(src):
                 for file in files:
                     filename = lepath.join(root, file)
-                    arcname = os.path.relpath(filename, src)
+                    arcname = lepath.rel(filename, src)
                     zip.write(filename, arcname)
 
     def unzipfantome(src):
@@ -351,6 +350,11 @@ class CLI:
         from LtMAO import bnk_tool
         bnk_tool.guess_events_bnk(src)
         input('Press enter to exit')
+
+    def sync():
+        from LtMAO import hash_helper
+        hash_helper.init()
+        hash_helper.CDTBHashes.sync_all()
         
 
 def main():
@@ -399,6 +403,8 @@ def main():
 
         'zipfantome':       lambda src, dst: CLI.zipfantome(src),
         'unzipfantome':     lambda src, dst: CLI.unzipfantome(src),
+
+        'sync':             lambda src, dst: CLI.sync(),
     }
 
     args = parse_arguments()

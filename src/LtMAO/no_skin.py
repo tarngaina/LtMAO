@@ -5,8 +5,8 @@ def bin_hash(name):
     return f'{pyRitoFile.helper.FNV1a(name):08x}'
 
 
-cache_dir = './pref/no_skin/_cache'
-local_dir = './res/no_skin'
+local_dir = './pref/no_skin'
+cache_dir = f'{local_dir}/_cache'
 skips_file = f'{local_dir}/SKIPS.json'
 SKIPS = {}
 FANTOME_META = {
@@ -22,8 +22,38 @@ def delete_cache():
 
 def load_skips():
     global SKIPS
-    with open(skips_file, 'r', encoding='utf-8') as f:
-        SKIPS = json.load(f)
+    if os.path.exists(skips_file):
+        with open(skips_file, 'r', encoding='utf-8') as f:
+            SKIPS = json.load(f)
+    else:
+        SKIPS = {
+            "_comment_general": [
+                "Key starts with _ mean comment. What you put in here determine which characters and skins wont become skin0.bin (get skipped).",
+                "example: azirsoldier: all mean all skinx.bin of azisoldier wont become skin0.bin."
+            ],
+            "_azirsoldier": "crash some game for no reason",
+            "azirsoldier": "all",
+            "_mel": "invisible particles",
+            "mel": "all",
+            "_aniviaiceblock": "some, but not all walls are invisible",
+            "aniviaiceblock": "all",
+            "_ekko": "true damage ekko become transparent",
+            "ekko": [
+                "skin19.bin",
+                "skin20.bin",
+                "skin21.bin",
+                "skin22.bin",
+                "skin23.bin",
+                "skin24.bin",
+                "skin25.bin",
+                "skin26.bin",
+                "skin27.bin"
+            ],
+            "_threshlantern": "crash some game for no reason",
+            "threshlantern": [
+                "skin11.bin"
+            ]
+        }
 
 
 def save_skips():

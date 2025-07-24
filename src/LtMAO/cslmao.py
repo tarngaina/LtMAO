@@ -88,8 +88,8 @@ def set_info(mod):
     mod.path = f'{mod.info["Name"]}'
     mod.id = MOD.generate_id()
     os.rename(
-        os.path.abspath(lepath.join(raw_dir, old_path)),
-        os.path.abspath(lepath.join(raw_dir, mod.get_path()))
+        lepath.abs(lepath.join(raw_dir, old_path)),
+        lepath.abs(lepath.join(raw_dir, mod.get_path()))
     )
     if mod.info != None:
         info_file = lepath.join(raw_dir, mod.get_path(), 'META', 'info.json')
@@ -153,7 +153,7 @@ def save_mods():
 def import_fantome(fantome_path, mod_path):
     p = tools.CSLOL.import_fantome(
         src=fantome_path,
-        dst=os.path.abspath(lepath.join(raw_dir, mod_path)),
+        dst=lepath.abs(lepath.join(raw_dir, mod_path)),
         game=setting.get('game_folder', '')
     )
     tools.block_and_stream_process_output(p, 'cslmao: ')
@@ -177,8 +177,8 @@ def make_overlay(profile):
     overlay = f'{profile_dir}/{profile}'
     os.makedirs(overlay, exist_ok=True)
     return tools.CSLOL.make_overlay(
-        src=os.path.abspath(raw_dir),
-        overlay=os.path.abspath(overlay),
+        src=lepath.abs(raw_dir),
+        overlay=lepath.abs(overlay),
         game=setting.get('game_folder', ''),
         mods=paths,
         noTFT=not setting.get('cslmao.tft', False)

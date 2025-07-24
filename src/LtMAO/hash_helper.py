@@ -139,7 +139,7 @@ class ExtractedHashes:
         for filename in filenames:
             eh_file = ExtractedHashes.local_file(filename)
             if os.path.exists(eh_file):
-                os.remove(os.path.abspath(eh_file))
+                os.remove(lepath.abs(eh_file))
         print('hash_helper: Finish: Clear Extract Hashes.')
     
     @staticmethod

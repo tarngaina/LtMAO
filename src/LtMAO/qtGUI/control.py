@@ -337,7 +337,7 @@ def build_cslmao(widget: QWidget):
                 mod_widget.locate_button = locate_button = QToolButton()
                 locate_button.setText('📂')
                 def locate_cmd(mod):
-                    os.startfile(os.path.abspath(lepath.join(cslmao.raw_dir, mod.get_path())))
+                    os.startfile(lepath.abs(lepath.join(cslmao.raw_dir, mod.get_path())))
                 locate_button.clicked.connect(lambda event, mod=mod: locate_cmd(mod))
                 locate_button.setVisible(False)
                 left_action_layout.addWidget(locate_button, alignment=Qt.AlignmentFlag.AlignLeft)
@@ -732,6 +732,37 @@ def build_cslmao(widget: QWidget):
         if qtwidgets.make_overlay != None or qtwidgets.run_overlay != None:
             return True
         return False
+    
+    # drag and drop 
+    def dnd_cmd(paths):
+        if is_overlay_running():
+            print('clsmao: Stop running mods to proceed.')
+            return
+        fantome_files = []
+        for path in paths:
+            if os.path.isdir(path):
+                fantome_files += lepath.walk(path, lambda f: f.endswith('.fantome') or f.endswith('.zip'))
+            else:
+                if path.endswith('.fantome') or path.endswith('.zip'):
+                    fantome_files.append(path)  
+        def import_thrd():
+            for fantome_file in fantome_files:
+                mod_path = '.'.join(os.path.basename(fantome_file).split('.')[:-1])
+                mod_profile = setting.get('cslmao.profile', 'all')
+                if mod_profile == 'all':
+                    mod_profile = '0'
+                mod = cslmao.create_mod(
+                    path=mod_path, enable=False, profile=mod_profile)
+                p = cslmao.import_fantome(fantome_file, mod.get_path())
+                if p.returncode == 0:
+                    print(f'cslmao: Imported: {fantome_file}')
+                    cslmao.add_mod(mod)
+                else:
+                    cslmao.delete_mod(mod)
+            view_layout_smart.build_view_layout()
+            cslmao.save_mods()
+        helper.SafeThread.start('cslmao', import_thrd)
+    helper.link_dnd_cmd(widget, dnd_cmd)
 
 def build_hash_helper(widget: QWidget):
 
@@ -758,10 +789,10 @@ def build_hash_helper(widget: QWidget):
         dialog = QFileDialog()
         dirpath = dialog.getExistingDirectory(widget, 'Select hash folder', setting.get('qtGUI.default_folder', None))
         if dirpath != '':
-            abspath = os.path.abspath(dirpath).replace('\\', '/')
-            abspath_cdtb = os.path.abspath(hash_helper.CDTBHashes.local_dir).replace('\\', '/')
-            abspath_extracted = os.path.abspath(hash_helper.ExtractedHashes.local_dir).replace('\\', '/')
-            abspath_custom = os.path.abspath(hash_helper.CustomHashes.local_dir).replace('\\', '/')
+            abspath = lepath.abs(dirpath)
+            abspath_cdtb = lepath.abs(hash_helper.CDTBHashes.local_dir)
+            abspath_extracted = lepath.abs(hash_helper.ExtractedHashes.local_dir)
+            abspath_custom = lepath.abs(hash_helper.CustomHashes.local_dir)
             if hash_id == 0:
                 if abspath in (abspath_extracted, abspath_custom):
                     raise Exception(f'hash_helper: Error: Set hash path: {abspath} is already selected as another hash path. All hash paths must be different.')
@@ -782,11 +813,11 @@ def build_hash_helper(widget: QWidget):
 
     def open_hash_path(hash_id):
         if hash_id == 0:
-            os.startfile(os.path.abspath(hash_helper.CDTBHashes.local_dir))
+            os.startfile(lepath.abs(hash_helper.CDTBHashes.local_dir))
         elif hash_id == 1:
-            os.startfile(os.path.abspath(hash_helper.ExtractedHashes.local_dir))
+            os.startfile(lepath.abs(hash_helper.ExtractedHashes.local_dir))
         else:
-            os.startfile(os.path.abspath(hash_helper.CustomHashes.local_dir))
+            os.startfile(lepath.abs(hash_helper.CustomHashes.local_dir))
     
     for hash_id, hash_name in enumerate(['CDTB', 'Extracted', 'Custom']):
         layout2 = QHBoxLayout()
@@ -941,6 +972,21 @@ def build_hash_helper(widget: QWidget):
     layout.addStretch()
     widget.setLayout(layout)
 
+    # drag and drop 
+    def dnd_cmd(paths):
+        files = [] 
+        for path in paths:
+            if os.path.isdir(path):
+                files += lepath.walk(path, lambda f: True)
+            else:
+                files.append(path)
+        def extract_thrd():
+            print(f'hash_helper: Start: Extract hashes with {len(files)} items.')
+            hash_helper.ExtractedHashes.extract(*files)
+            print('hash_helper: Finish: Extract hashes.')
+        helper.SafeThread.start('hash_helper', extract_thrd) 
+    helper.link_dnd_cmd(widget, dnd_cmd)
+
 def build_mask_viewer(widget: QWidget):
     layout = QVBoxLayout()
     
@@ -1059,6 +1105,16 @@ def build_mask_viewer(widget: QWidget):
 
     layout.addStretch()
     widget.setLayout(layout)
+
+    # drag and drop 
+    def dnd_cmd(paths):
+        for path in paths:
+            if path.endswith('.skl'):
+                skl_line.setText(path)
+            elif path.endswith('.bin'):
+                anm_bin_line.setText(path)
+    helper.link_dnd_cmd(widget, dnd_cmd)
+
 
 def build_hapiBin(widget: QWidget):
     layout = QVBoxLayout()
@@ -1290,14 +1346,41 @@ def build_no_skin(widget: QWidget):
     mini_button.clicked.connect(lambda event: no_skin_lite(skin0_line, skinx_text))
     layout2.addWidget(mini_button)
     
-    #layout2.addStretch()
     tab2.setLayout(layout2)
     tab_widget.addTab(tab2, '⭕ Lite')
 
-    
     layout.addWidget(tab_widget, stretch=1)
     widget.setLayout(layout)
 
+    # drag and drop 
+    def dnd_tab1_cmd(paths):
+        for path in paths:
+            if os.path.isdir(path):
+                champs_line.setText(path)
+                break
+    helper.link_dnd_cmd(tab1, dnd_tab1_cmd)
+
+    def dnd_tab2_cmd(paths):
+        bin_files = []
+        for path in paths:
+            if os.path.isdir(path):
+                bin_files = lepath.walk(path, lambda f: f.endswith('.bin'))
+            else:
+                if path.endswith('.bin'):
+                    bin_files.append(path)
+        skinx_files = []
+        for bin_file in bin_files:
+            if bin_file.endswith('skin0.bin'):
+                skin0_line.setText(bin_file)
+            else:
+                if not bin_file.endswith('root.bin'):
+                    skinx_files.append(bin_file)
+        if len(skinx_files) > 0:
+            skinx_text.setPlainText('\n'.join(skinx_files))
+    helper.link_dnd_cmd(tab2, dnd_tab2_cmd)
+
+
+    
 def build_wad_tool(widget: QWidget):
     layout = QVBoxLayout()
 
@@ -1506,6 +1589,42 @@ def build_wad_tool(widget: QWidget):
     unpack_button.clicked.connect(bulk_unpack)
 
     widget.setLayout(layout)
+
+    # drag and drop
+    def dnd_cmd(paths):
+        wad_files = []
+        wad_dirs = []
+        for path in paths:
+            if os.path.isdir(path):
+                wad_dirs.append(path)
+            else:
+                if path.endswith('.wad.client'):
+                    wad_files.append(path)
+        
+        def wad_thrd(): 
+            # wad to dir
+            if len(wad_files) > 0:
+                hash_helper.Storage.read_wad_hashes()
+                for wad_file in wad_files:
+                    src = wad_file
+                    dst = lepath.ext(src, '.wad.client', '.wad')
+                    wad_tool.unpack(src, dst, hash_helper.Storage.hashtables)
+                    print(f'wad_tool: Finish: Unpack {src}')
+                hash_helper.Storage.free_wad_hashes()
+            # dir to wad
+            if len(wad_dirs) > 0:
+                for wad_dir in wad_dirs:
+                    src = wad_dir
+                    dst = src
+                    if dst.endswith('.wad'):
+                        dst += '.client'
+                    else:
+                        if not dst.endswith('.wad.client'):
+                            dst += '.wad.client'
+                    wad_tool.pack(src, dst)
+                    print(f'wad_tool: Finish: Pack {src}')
+        helper.SafeThread.start('wad_tool', wad_thrd)
+    helper.link_dnd_cmd(widget, dnd_cmd)
 
 def build_sborf(widget: QWidget):
     layout = QVBoxLayout()
@@ -1798,6 +1917,19 @@ Note: lemon3d is part of LtMAO so do not delete/move LtMAO,
     layout.addWidget(tab_widget, stretch=1)
     widget.setLayout(layout)
 
+    # drag and drop 
+    def dnd_tab1_cmd(paths):
+        for path in paths:
+            if path.endswith('.fbx'):
+                fbx_line.setText(path)
+            elif path.endswith('.skl'):
+                skl_line.setText(path)
+            elif path.endswith('.skn'):
+                skn_line.setText(path)
+            elif os.path.isdir(path):
+                anm_line.setText(path)
+    helper.link_dnd_cmd(tab1, dnd_tab1_cmd)
+
 def build_texsmart(widget: QWidget): 
     def convert(isfile, title, input_type, func):
         dialog = QFileDialog()
@@ -1831,7 +1963,6 @@ def build_texsmart(widget: QWidget):
                 print(f'texsmart: Finish: {title}: {final_path_count} items.')
             helper.SafeThread.start('texsmart', convert_thrd)
         
-
     converters = [
         { 
             'title': 'DDS to PNG',
@@ -1884,6 +2015,40 @@ def build_texsmart(widget: QWidget):
 
     layout.addStretch()
     widget.setLayout(layout)
+
+    # drag and drop
+    def dnd_cmd(paths):
+        dds_files = []
+        tex_files = []
+        for path in paths:
+            if os.path.isdir(path):
+                dds_files += lepath.walk(path, lambda f: f.endswith('.dds'))
+                tex_files += lepath.walk(path, lambda f: f.endswith('.tex'))
+            else:
+                if path.endswith('.dds'):
+                    dds_files.append(path)
+                elif path.endswith('.tex'):
+                    tex_files.append(path)
+        def convert_thrd():
+            # dds to tex
+            dds_count = len(dds_files)
+            if dds_count > 0:
+                title, func = converters[2]['title'], converters[2]['func']
+                print(f'texsmart: Start: {title}: {dds_count} items.')
+                for dds_file in dds_files:
+                    func(dds_file)
+                print(f'texsmart: Finish: {title}: {dds_count} items.')
+            # tex to dds
+            tex_count = len(tex_files)
+            if tex_count > 0:
+                title, func = converters[3]['title'], converters[3]['func']
+                print(f'texsmart: Start: {title}: {tex_count} items.')
+                for tex_file in tex_files:
+                    func(tex_file)
+                print(f'texsmart: Finish: {title}: {tex_count} items.')
+        helper.SafeThread.start('texsmart', convert_thrd)
+    helper.link_dnd_cmd(widget, dnd_cmd)
+
 
 def build_bnk_tool(widget: QWidget):
     layout = QVBoxLayout()
@@ -2250,6 +2415,16 @@ def build_bnk_tool(widget: QWidget):
     layout.addLayout(layout2, stretch=1)
     widget.setLayout(layout)
 
+    # drag and drop 
+    def dnd_cmd(paths):
+        for path in paths:
+            if path.endswith('.bin'):
+                bin_line.setText(path)
+            elif path.endswith('_events.bnk'):
+                event_line.setText(path)
+            elif path.endswith('.wpk') or path.endswith('_audio.bnk'):
+                audio_line.setText(path)
+    helper.link_dnd_cmd(widget, dnd_cmd)
 
 def build_wiwawe(widget: QWidget):
     layout = QVBoxLayout()
@@ -2321,6 +2496,37 @@ def build_wiwawe(widget: QWidget):
     layout.addStretch()
     widget.setLayout(layout)
 
+    # drag and drop
+    def dnd_cmd(paths):
+        wav_files = []
+        wem_files = []
+        for path in paths:
+            if os.path.isdir(path):
+                wav_files += lepath.walk(path, lambda f: f.endswith('.wav'))
+                wem_files += lepath.walk(path, lambda f: f.endswith('.wem'))
+            else:
+                if path.endswith('.wav'):
+                    wav_files.append(path)
+                elif path.endswith('.wem'):
+                    wem_files.append(path)
+        def convert_thrd():
+            # wav to wem
+            wav_count = len(wav_files)
+            if wav_count > 0:
+                title, func = converters[0]['title'], converters[0]['func']
+                print(f'wiwawe: Start: {title}: {wav_count} items.')
+                func(wav_files)
+                print(f'wiwawe: Finish: {title}: {wav_count} items.')
+            # wem to wav
+            wem_count = len(wem_files)
+            if wem_count > 0:
+                title, func = converters[1]['title'], converters[1]['func']
+                print(f'wiwawe: Start: {title}: {wem_count} items.')
+                func(wem_files)
+                print(f'wiwawe: Finish: {title}: {wem_count} items.')
+        helper.SafeThread.start('wiwawe', convert_thrd)
+    helper.link_dnd_cmd(widget, dnd_cmd)
+
 def build_winLT(widget: QWidget):
     layout = QVBoxLayout()
 
@@ -2328,11 +2534,11 @@ def build_winLT(widget: QWidget):
     layout2 = QHBoxLayout()
     desktop_button = QToolButton()
     desktop_button.setText('🖥️ Create desktop shortcut')
-    desktop_button.clicked.connect(winLT.Shortcut.create_desktop)
+    desktop_button.clicked.connect(lambda: winLT.Shortcut.create_desktop(qtwidgets.theme_paths['appicon']))
     layout2.addWidget(desktop_button)
     launch_button = QToolButton()
     launch_button.setText('🚀 Create launch shortcut')
-    launch_button.clicked.connect(winLT.Shortcut.create_launch)
+    launch_button.clicked.connect(lambda: winLT.Shortcut.create_launch(qtwidgets.theme_paths['appicon']))
     layout2.addWidget(launch_button)
     layout2.addStretch()
     layout.addLayout(layout2)
@@ -2369,7 +2575,7 @@ def build_winLT(widget: QWidget):
     layout2 = QHBoxLayout()
     set_button = QToolButton()
     set_button.setText('💬 Set explorer context')
-    set_button.clicked.connect(winLT.Context.create_contexts)
+    set_button.clicked.connect(lambda: winLT.Context.create_contexts(qtwidgets.theme_paths['appicon']))
     layout2.addWidget(set_button)
     remove_button = QToolButton()
     remove_button.setText('❌ Remove explorer context')
@@ -2423,6 +2629,12 @@ def build_setting(widget: QWidget):
         else:
             qtwidgets.background_widget.setPixmap(QPixmap(qtwidgets.theme_paths['background']))
             qtwidgets.background_widget.setScaledContents(True)
+        # update icon
+        qtwidgets.main_window.setWindowIcon(QPixmap(qtwidgets.theme_paths['appicon']))
+        qtwidgets.tray_icon.setIcon(QPixmap(qtwidgets.theme_paths['appicon']))
+        # update shortcut
+        winLT.Shortcut.update_shortcuts(qtwidgets.theme_paths['appicon'])
+        # save theme
         setting.set('qtGUI.theme_name', theme_name)
         setting.save()
     theme_box.currentTextChanged.connect(change_theme)
@@ -2477,7 +2689,7 @@ def build_setting(widget: QWidget):
     button.setText('♻️ Restart LtMAO')
     def restart_cmd():
         print(f'Start: Restart LtMAO')
-        os.system(lepath.join(os.path.abspath(os.path.curdir),'start.bat'))
+        os.system(lepath.join(lepath.abs(os.path.curdir),'start.bat'))
         qtwidgets.app.quit()
         
     button.clicked.connect(restart_cmd)

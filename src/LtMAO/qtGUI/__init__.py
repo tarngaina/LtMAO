@@ -50,6 +50,7 @@ def init_theme(theme_name):
         'splash': f'./res/themes/{theme_name}/splash.png',
         'background': f'./res/themes/{theme_name}/background.gif',
         'titlebaricon': f'./res/themes/{theme_name}/titlebaricon.png',
+        'appicon': f'./res/themes/{theme_name}/appicon.ico'
     }
     # get the background accent color 
     import colorthief
@@ -271,7 +272,7 @@ def after_main_window():
     control.on_page_id_changed(True, setting.get('qtGUI.page_id', 0))
     hash_helper.init()
     helper.SafeThread.start('sync_ctdb_hashes', hash_helper.CDTBHashes.sync_all)
-    winLT.init()
+    winLT.Shortcut.create_launch(qtwidgets.theme_paths['appicon'])
     bnk_tool.init()
     wiwawe.init()
 
@@ -319,7 +320,7 @@ def build_splash_screen(splash: QSplashScreen):
 
 def build_main_window(window: QMainWindow):
     window.setGeometry(0, 0, 1280, 720)
-    window.setWindowIcon(QPixmap('./res/appicon.ico'))
+    window.setWindowIcon(QPixmap(qtwidgets.theme_paths['appicon']))
     window.setWindowFlags(Qt.Window|Qt.FramelessWindowHint|Qt.WindowMinMaxButtonsHint)
     window.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
     window.setContentsMargins(0, 0, 0, 0)
@@ -482,8 +483,8 @@ def build_title_bar(widget: QWidget, layout: QBoxLayout):
 
     # buttons
     # tray
-    tray_icon = QSystemTrayIcon()
-    tray_icon.setIcon(QPixmap('./res/appicon.ico'))
+    qtwidgets.tray_icon = tray_icon = QSystemTrayIcon()
+    tray_icon.setIcon(QPixmap(qtwidgets.theme_paths['appicon']))
     tray_button = QToolButton()
     tray_button.setText('🟣 Tray')
     tray_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)

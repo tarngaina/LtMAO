@@ -1,7 +1,6 @@
+from LtMAO import setting
+import os, winreg
 
-import os, os.path, winreg
-
-icon_file = './res/appicon.ico'
 pythonw_file = './cpy/pythonw.exe'
 python_file = './cpy/python.exe'
 gui_file = './src/gui.py'
@@ -252,7 +251,7 @@ class Context:
             return f'SystemFileAssociations\\.{shell_id}\\shell'
 
     @staticmethod
-    def create_submenu(shell, sub_commands):
+    def create_submenu(shell, sub_commands, icon_file):
         with winreg.CreateKeyEx(winreg.HKEY_CLASSES_ROOT, shell) as key:
             shell_key = winreg.CreateKeyEx(key, 'LtMAO')
             winreg.SetValueEx(shell_key, 'MUIVerb', 0, winreg.REG_SZ, 'LtMAO')
@@ -268,7 +267,7 @@ class Context:
             )
 
     @staticmethod
-    def create_command(root, cmd_name, cmd_desc, cmd_value):
+    def create_command(root, cmd_name, cmd_desc, cmd_value, icon_file):
         subkey = winreg.CreateKeyEx(root, cmd_name)
         winreg.SetValue(subkey, None, winreg.REG_SZ, cmd_name)
         winreg.SetValueEx(subkey, 'MUIVerb', 0,
@@ -279,14 +278,15 @@ class Context:
         winreg.SetValue(command, None, winreg.REG_SZ, cmd_value)
 
     @staticmethod
-    def create_contexts():
+    def create_contexts(icon_file):
         # create submenus
         for shell_id in Context.submenus:
             commands = [f'LtMAO.{command_id}' for command_id in Context.submenus[shell_id] if Context.submenus[shell_id][command_id]]
             if len(commands) > 0:
                 Context.create_submenu(
                     shell=Context.get_shell(shell_id),
-                    sub_commands=';'.join(commands)
+                    sub_commands=';'.join(commands),
+                    icon_file=icon_file
                 )
             else:
                 Context.remove_submenu(Context.get_shell(shell_id))
@@ -298,7 +298,8 @@ class Context:
                     root=key,
                     cmd_name=f'LtMAO.{command_id}',
                     cmd_desc=Context.commands[command_id]['desc'],
-                    cmd_value=Context.commands[command_id]['value']
+                    cmd_value=Context.commands[command_id]['value'],
+                    icon_file=icon_file
                 )
         print('winLT: Finish: Set Explorer Contexts')
 
@@ -321,35 +322,37 @@ class Context:
 
 class Shortcut:
     @staticmethod
-    def create_desktop():
-        import userpaths
-        desktop_file = f'{userpaths.get_desktop()}/LtMAO.lnk'.replace('\\', '/')
+    def create_shortcut(path, icon_file):
         from win32com.client import Dispatch
         shell = Dispatch('WScript.Shell')
-        shortcut = shell.CreateShortCut(desktop_file)
+        shortcut = shell.CreateShortCut(path)
         shortcut.Targetpath = os.path.abspath(pythonw_file)
         shortcut.WorkingDirectory = os.path.abspath('.')
         shortcut.Arguments = f'"{os.path.abspath(gui_file)}"'
         shortcut.IconLocation = os.path.abspath(icon_file)
         shortcut.Description = 'Run LtMAO'
         shortcut.save()
+
+    @staticmethod
+    def create_desktop(icon_file):
+        import userpaths
+        desktop_file = f'{userpaths.get_desktop()}/LtMAO.lnk'.replace('\\', '/')
+        Shortcut.create_shortcut(desktop_file, icon_file)
         print(f'winLT: Finish: Create Desktop Shortcut: {desktop_file}')
 
     @staticmethod
-    def create_launch():
-        launch_file = os.path.abspath('./LtMAO.lnk').replace('\\', '/')
+    def create_launch(icon_file):
+        launch_file = os.path.abspath('./LtMAO.lnk')
         if not os.path.exists(launch_file):
-            from win32com.client import Dispatch
-            shell = Dispatch('WScript.Shell')
-            shortcut = shell.CreateShortCut(launch_file)
-            shortcut.Targetpath = os.path.abspath(pythonw_file)
-            shortcut.WorkingDirectory = os.path.abspath('.')
-            shortcut.Arguments = f'"{os.path.abspath(gui_file)}"'
-            shortcut.IconLocation = os.path.abspath(icon_file)
-            shortcut.Description = 'Run LtMAO'
-            shortcut.save()
+            Shortcut.create_shortcut(launch_file, icon_file)
             print(f'winLT: Finish: Create Launch Shortcut: {launch_file}')
 
-
-def init():
-    Shortcut.create_launch()
+    @staticmethod
+    def update_shortcuts(icon_file):
+        import userpaths
+        desktop_file = f'{userpaths.get_desktop()}/LtMAO.lnk'.replace('\\', '/')
+        if os.path.exists(desktop_file):
+            Shortcut.create_shortcut(desktop_file, icon_file)
+        launch_file = os.path.abspath('./LtMAO.lnk')
+        if os.path.exists(launch_file):
+            Shortcut.create_shortcut(launch_file, icon_file)

@@ -29,3 +29,23 @@ class SafeThread:
             SafeThread.cached[thread_name].start()
         else:
             print(f'{thread_name}: Error: Thread is already running, wait for it to end.')
+
+
+def link_dnd_cmd(widget, dnd_cmd):
+    def dragEvent(e):
+        if e.mimeData().hasUrls:
+            e.accept()
+        else:
+            e.ignore()
+
+    def dropEvent(e):
+        if e.mimeData().hasUrls:
+            dnd_cmd([url.toLocalFile() for url in e.mimeData().urls()])
+            e.accept()
+        else:
+            e.ignore()
+
+    widget.setAcceptDrops(True)
+    widget.dragEnterEvent = dragEvent
+    widget.dragMoveEvent = dragEvent
+    widget.dropEvent = dropEvent
