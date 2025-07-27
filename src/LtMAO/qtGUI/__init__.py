@@ -319,7 +319,8 @@ def build_splash_screen(splash: QSplashScreen):
     print('qtGUI: Finish: Build splash screen.')
 
 def build_main_window(window: QMainWindow):
-    window.setGeometry(0, 0, 1280, 720)
+    geometry = setting.get('qtGUI.geometry', [0, 0, 1280, 720])
+    window.setGeometry(*geometry)
     window.setWindowIcon(QPixmap(qtwidgets.theme_paths['appicon']))
     window.setWindowFlags(Qt.Window|Qt.FramelessWindowHint|Qt.WindowMinMaxButtonsHint)
     window.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
@@ -407,6 +408,9 @@ def build_grips(window: QMainWindow):
             event.accept()
         def mouseReleaseEvent(event):
             edge_grip.mousePos = None
+            geometry = window.geometry()
+            setting.set('qtGUI.geometry', [geometry.x(), geometry.y(), geometry.width(), geometry.height()])
+            setting.save()
             event.accept()
         edge_grip.mousePressEvent = mousePressEvent
         edge_grip.mouseMoveEvent = mouseMoveEvent
@@ -417,6 +421,12 @@ def build_grips(window: QMainWindow):
         corner_grip = QSizeGrip(window)
         corner_grip.setFixedSize(grip_size, grip_size)
         corner_grip.setStyleSheet('background-color: transparent')
+        def mouseReleaseEvent(event):
+            geometry = window.geometry()
+            setting.set('qtGUI.geometry', [geometry.x(), geometry.y(), geometry.width(), geometry.height()])
+            setting.save()
+            event.accept()
+        corner_grip.mouseReleaseEvent = mouseReleaseEvent
         return corner_grip
 
     grip_size = 6
@@ -433,6 +443,7 @@ def build_grips(window: QMainWindow):
         bot_edge_grip.raise_()
         bot_right_corner_grip.raise_()
         event.accept()
+    window.event
     window.resizeEvent = resizeEvent
 
     print('qtGUI: Finish: Build scale grips.')
@@ -549,6 +560,9 @@ def build_title_bar(widget: QWidget, layout: QBoxLayout):
 
     def mouseReleaseEvent(event):
         widget.initial_pos = None
+        geometry = qtwidgets.main_window.geometry()
+        setting.set('qtGUI.geometry', [geometry.x(), geometry.y(), geometry.width(), geometry.height()])
+        setting.save()
         event.accept()
     widget.mouseReleaseEvent = mouseReleaseEvent
 

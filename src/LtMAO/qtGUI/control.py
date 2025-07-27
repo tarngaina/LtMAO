@@ -128,7 +128,7 @@ def build_cslmao(widget: QWidget):
         dirpath = dialog.getExistingDirectory(
             widget,
             'Select League of Legends/Game folder',
-            setting.get('qtGUI.default_folder', None)
+            setting.get('qtGUI.default_folder', '')
         )
         if dirpath != '':
             final_path = dirpath.replace('\\', '/')
@@ -531,7 +531,7 @@ def build_cslmao(widget: QWidget):
         filepath = dialog.getOpenFileName(
             widget, 
             'Select PNG',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
             f'PNG Files (*.png)'
         )
         if len(filepath[0]) > 0:
@@ -677,7 +677,7 @@ def build_cslmao(widget: QWidget):
         filepaths = dialog.getOpenFileNames(
             widget, 
             f'Select MOD',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
             f'MOD Files (*.fantome *.zip)'
         )
         if len(filepaths[0]) > 0:
@@ -787,7 +787,7 @@ def build_hash_helper(widget: QWidget):
 
     def set_hash_path(hash_id, label):
         dialog = QFileDialog()
-        dirpath = dialog.getExistingDirectory(widget, 'Select hash folder', setting.get('qtGUI.default_folder', None))
+        dirpath = dialog.getExistingDirectory(widget, 'Select hash folder', setting.get('qtGUI.default_folder', ''))
         if dirpath != '':
             abspath = lepath.abs(dirpath)
             abspath_cdtb = lepath.abs(hash_helper.CDTBHashes.local_dir)
@@ -853,7 +853,7 @@ def build_hash_helper(widget: QWidget):
             filepaths = dialog.getOpenFileNames(
                 widget, 
                 f'Select WADs',
-                setting.get('qtGUI.default_folder', None),
+                setting.get('qtGUI.default_folder', ''),
                 f'WAD Files (*.wad.client)'
             )
             if len(filepaths[0]) > 0:
@@ -862,7 +862,7 @@ def build_hash_helper(widget: QWidget):
             dirpath = dialog.getExistingDirectory(
                 widget,
                 f'Select Folder',
-                setting.get('qtGUI.default_folder', None),
+                setting.get('qtGUI.default_folder', ''),
             )
             if dirpath != '':
                 for root, dirs, files in os.walk(dirpath):
@@ -997,7 +997,7 @@ def build_mask_viewer(widget: QWidget):
         filepath = dialog.getOpenFileName(
             widget, 
             title,
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
             f'{file_type} Files (*.{file_type.lower()})'
         )
         if len(filepath[0]) > 0:
@@ -1082,7 +1082,7 @@ def build_mask_viewer(widget: QWidget):
         filepath = dialog.getSaveFileName(
             widget, 
             'Save Animation BIN as',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
             f'BIN Files (*.bin)'
         )
         if len(filepath[0]) > 0:
@@ -1145,7 +1145,7 @@ Hover mouse on button to see functions description.
             filepaths = dialog.getOpenFileName(
                 widget, 
                 f'Select BINs',
-                setting.get('qtGUI.default_folder', None),
+                setting.get('qtGUI.default_folder', ''),
                 f'BIN Files (*.bin)'
             )
             if len(filepaths[0]) > 0:
@@ -1154,7 +1154,7 @@ Hover mouse on button to see functions description.
             dirpath = dialog.getExistingDirectory(
                 widget,
                 f'Select Folder',
-                setting.get('qtGUI.default_folder', None),
+                setting.get('qtGUI.default_folder', ''),
             )
             if dirpath != '':
                 final_path = dirpath
@@ -1239,7 +1239,7 @@ def build_no_skin(widget: QWidget):
         dirpath = dialog.getExistingDirectory(
             widget,
             f'Select Champions Folder',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
         )
         if dirpath != '':
             final_path = dirpath
@@ -1261,7 +1261,7 @@ def build_no_skin(widget: QWidget):
         dirpath = dialog.getExistingDirectory(
             widget,
             f'Select Output Fantome Folder',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
         )
         if dirpath != '':
             def no_skin_thrd():
@@ -1301,7 +1301,7 @@ def build_no_skin(widget: QWidget):
         filepaths = dialog.getOpenFileName(
             widget, 
             f'Select Skin0 BIN',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
             f'BIN Files (*.bin)'
         )
         if len(filepaths[0]) > 0:
@@ -1323,7 +1323,7 @@ def build_no_skin(widget: QWidget):
         filepaths = dialog.getOpenFileNames(
             widget, 
             f'Select SkinX BINs',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
             f'BIN Files (*.bin)'
         )
         if len(filepaths[0]) > 0:
@@ -1395,7 +1395,7 @@ def build_wad_tool(widget: QWidget):
         filepath = dialog.getOpenFileName(
             widget, 
             'Select WAD',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
             f'WAD Files (*.wad.client)'
         )
         if len(filepath[0]) > 0:
@@ -1416,7 +1416,7 @@ def build_wad_tool(widget: QWidget):
         dirpath = dialog.getExistingDirectory(
             widget, 
             'Select Folder',
-            setting.get('qtGUI.default_folder', None)
+            setting.get('qtGUI.default_folder', '')
         )
         if dirpath != '':
             def wad_thrd(): 
@@ -1492,7 +1492,7 @@ def build_wad_tool(widget: QWidget):
             filepaths = dialog.getOpenFileNames(
                 widget, 
                 f'Select WADs',
-                setting.get('qtGUI.default_folder', None),
+                setting.get('qtGUI.default_folder', ''),
                 f'WAD Files (*.wad.client)'
             )
             if len(filepaths[0]) > 0:
@@ -1501,7 +1501,7 @@ def build_wad_tool(widget: QWidget):
             dirpath = dialog.getExistingDirectory(
                 widget,
                 f'Select Folder',
-                setting.get('qtGUI.default_folder', None),
+                setting.get('qtGUI.default_folder', ''),
             )
             if dirpath != '':
                 for root, dirs, files in os.walk(dirpath):
@@ -1571,7 +1571,7 @@ def build_wad_tool(widget: QWidget):
         dirpath = dialog.getExistingDirectory(
             widget,
             f'Select Output Folder',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
         )
         if dirpath != '':
             wad_paths = wad_text.toPlainText().split('\n')
@@ -1649,7 +1649,7 @@ def build_sborf(widget: QWidget):
         filepath = dialog.getOpenFileName(
             widget, 
             title,
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
             f'{file_type} Files (*.{file_type.lower()})'
         )
         if len(filepath[0]) > 0:
@@ -1785,7 +1785,7 @@ def build_lemon3d(widget: QWidget):
         filepath = dialog.getOpenFileName(
             widget, 
             title,
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
             f'{file_type} Files (*.{file_type.lower()})'
         )
         if len(filepath[0]) > 0:
@@ -1797,7 +1797,7 @@ def build_lemon3d(widget: QWidget):
         dirpath = dialog.getExistingDirectory(
             widget, 
             title,
-            setting.get('qtGUI.default_folder', None)
+            setting.get('qtGUI.default_folder', '')
         )
         if dirpath != '':
             final_path = dirpath
@@ -1905,7 +1905,7 @@ Note: lemon3d is part of LtMAO so do not delete/move LtMAO,
         dirpath = dialog.getExistingDirectory(
             widget,
             f'Select Documents/maya/<version> Folder',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
         )
         if dirpath != '':
             lemon_maya.install_plugin(dirpath.replace('\\', '/'))
@@ -1938,7 +1938,7 @@ def build_texsmart(widget: QWidget):
             filepaths = dialog.getOpenFileNames(
                 widget, 
                 f'Select {input_type}s',
-                setting.get('qtGUI.default_folder', None),
+                setting.get('qtGUI.default_folder', ''),
                 f'{input_type} Files (*.{input_type})'
             )
             if len(filepaths[0]) > 0:
@@ -1947,7 +1947,7 @@ def build_texsmart(widget: QWidget):
             dirpath = dialog.getExistingDirectory(
                 widget,
                 f'Select Folder',
-                setting.get('qtGUI.default_folder', None),
+                setting.get('qtGUI.default_folder', ''),
             )
             if dirpath != '':
                 for root, dirs, files in os.walk(dirpath):
@@ -2067,7 +2067,7 @@ def build_bnk_tool(widget: QWidget):
         filepath = dialog.getOpenFileName(
             widget, 
             'Select Audio BNK/WPK',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
             f'BNK/WPK Files (*.bnk *.wpk)'
         )
         if len(filepath[0]) > 0:
@@ -2087,7 +2087,7 @@ def build_bnk_tool(widget: QWidget):
         filepath = dialog.getOpenFileName(
             widget, 
             'Select Event BNK',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
             f'BNK Files (*.bnk)'
         )
         if len(filepath[0]) > 0:
@@ -2106,7 +2106,7 @@ def build_bnk_tool(widget: QWidget):
         filepath = dialog.getOpenFileName(
             widget, 
             'Select BIN',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
             f'BIN Files (*.bin)'
         )
         if len(filepath[0]) > 0:
@@ -2200,7 +2200,7 @@ def build_bnk_tool(widget: QWidget):
             filepath = dialog.getSaveFileName(
                 widget, 
                 'Save Audio BNK as',
-                setting.get('qtGUI.default_folder', None),
+                setting.get('qtGUI.default_folder', ''),
                 f'BNK (*.bnk)'
             )
             if len(filepath[0]) > 0:
@@ -2209,7 +2209,7 @@ def build_bnk_tool(widget: QWidget):
             filepath = dialog.getSaveFileName(
                 widget, 
                 'Save Audio WPK as',
-                setting.get('qtGUI.default_folder', None),
+                setting.get('qtGUI.default_folder', ''),
                 f'WPK (*.wpk)'
             )
             if len(filepath[0]) > 0:
@@ -2247,7 +2247,7 @@ def build_bnk_tool(widget: QWidget):
         dirpath = dialog.getExistingDirectory(
             widget,
             f'Select Output Fantome Folder',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
         )
         if dirpath != '':
             def extract_thrd():
@@ -2281,7 +2281,7 @@ def build_bnk_tool(widget: QWidget):
             filepath = dialog.getOpenFileNames(
                 widget, 
                 'Select WEM',
-                setting.get('qtGUI.default_folder', None),
+                setting.get('qtGUI.default_folder', ''),
                 f'WEM Files (*.wem)'
             )
             if len(filepath[0]) > 0:
@@ -2436,7 +2436,7 @@ def build_wiwawe(widget: QWidget):
             filepaths = dialog.getOpenFileNames(
                 widget, 
                 f'Select {input_type}s',
-                setting.get('qtGUI.default_folder', None),
+                setting.get('qtGUI.default_folder', ''),
                 f'{input_type} Files (*.{input_type})'
             )
             if len(filepaths[0]) > 0:
@@ -2445,7 +2445,7 @@ def build_wiwawe(widget: QWidget):
             dirpath = dialog.getExistingDirectory(
                 widget,
                 f'Select Folder',
-                setting.get('qtGUI.default_folder', None),
+                setting.get('qtGUI.default_folder', ''),
             )
             if dirpath != '':
                 for root, dirs, files in os.walk(dirpath):
@@ -2667,10 +2667,9 @@ def build_setting(widget: QWidget):
         dirpath = dialog.getExistingDirectory(
             widget,
             f'Select Folder',
-            setting.get('qtGUI.default_folder', None),
+            setting.get('qtGUI.default_folder', ''),
         )
         if dirpath == '':
-            dirpath = None
             qtwidgets.default_dir_label.setText('Default path for all file/dir dialog.')
         else:
             qtwidgets.default_dir_label.setText(dirpath)
