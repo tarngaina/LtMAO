@@ -112,7 +112,7 @@ def parse_dir(path, delete_junk_files=False):
     full_files = []
     for root, dirs, files in os.walk(path):
         for file in files:
-            full_files.append(lepath.join(root, file))
+            full_files.append(lepath.join(root, file).lower())
     full_files.sort()
     existing_files = {
         lepath.rel(file_path, path): True 
