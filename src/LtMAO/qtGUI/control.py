@@ -1349,6 +1349,13 @@ def build_no_skin(widget: QWidget):
     tab2.setLayout(layout2)
     tab_widget.addTab(tab2, '⭕ Lite')
 
+    # save load tab_index
+    tab_widget.setCurrentIndex(setting.get('qtGUI.no_skin.tab_index', 0))
+    def currentChanged(tab_index):
+        setting.set('qtGUI.no_skin.tab_index', tab_index)
+        setting.save()
+    tab_widget.currentChanged.connect(currentChanged)
+
     layout.addWidget(tab_widget, stretch=1)
     widget.setLayout(layout)
 
@@ -1373,7 +1380,7 @@ def build_no_skin(widget: QWidget):
             if bin_file.endswith('skin0.bin'):
                 skin0_line.setText(bin_file)
             else:
-                if not bin_file.endswith('root.bin'):
+                if os.path.basename(bin_file).replace('skin', '').replace('.bin', '').isnumeric():
                     skinx_files.append(bin_file)
         if len(skinx_files) > 0:
             skinx_text.setPlainText('\n'.join(skinx_files))
@@ -1914,6 +1921,14 @@ Note: lemon3d is part of LtMAO so do not delete/move LtMAO,
     layout2.addStretch()
     tab2.setLayout(layout2)
     tab_widget.addTab(tab2, '🔥 maya')
+
+    # save load tab_index
+    tab_widget.setCurrentIndex(setting.get('qtGUI.lemon3d.tab_index', 0))
+    def currentChanged(tab_index):
+        setting.set('qtGUI.lemon3d.tab_index', tab_index)
+        setting.save()
+    tab_widget.currentChanged.connect(currentChanged)
+
     layout.addWidget(tab_widget, stretch=1)
     widget.setLayout(layout)
 
@@ -2422,7 +2437,11 @@ def build_bnk_tool(widget: QWidget):
                 bin_line.setText(path)
             elif path.endswith('_events.bnk'):
                 event_line.setText(path)
-            elif path.endswith('.wpk') or path.endswith('_audio.bnk'):
+            elif path.endswith('_audio.bnk'):
+                audio_line.setText(path)
+        # force wpk on audio even if there is already audio bnk
+        for path in paths:
+            if path.endswith('.wpk'):
                 audio_line.setText(path)
     helper.link_dnd_cmd(widget, dnd_cmd)
 
