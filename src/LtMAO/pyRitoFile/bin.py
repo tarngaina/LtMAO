@@ -54,6 +54,7 @@ class BINHasher:
         'hashes.game.txt',
         'hashes.lcu.txt'
     )
+
     @staticmethod
     def hex_to_raw(hashtables, hex):
         for table_name in reversed(BINHasher.HASHTABLE_NAMES):

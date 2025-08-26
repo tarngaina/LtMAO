@@ -43,7 +43,8 @@ from .. import (
     cslmao,
     texsmart,
     wiwawe,
-    lepath
+    lepath,
+    bumpath
 )
 from ..lemon3d import lemon_fbx, lemon_maya
 
@@ -81,13 +82,14 @@ all = [
     Control('🎬\nmask_viewer', 2, lambda widget: build_mask_viewer(widget)),
     Control('🐱\nhapiBin', 3, lambda widget: build_hapiBin(widget)),
     Control('🚫\nno_skin', 4, lambda widget: build_no_skin(widget)),
-    Control('📦\nwad_tool', 5, lambda widget: build_wad_tool(widget)),
-    Control('🛠️\nsborf', 6, lambda widget: build_sborf(widget)),
-    Control('🍋\nlemon3d', 7, lambda widget: build_lemon3d(widget)),
-    Control('🛣️\ntexsmart', 8, lambda widget: build_texsmart(widget)),
-    Control('🔊\nbnk_tool', 9, lambda widget: build_bnk_tool(widget)),
-    Control('📼\nwiwawe', 10, lambda widget: build_wiwawe(widget)),
-    Control('🪟\nwinLT', 11, lambda widget: build_winLT(widget)),
+    Control('🍑\nbumpath', 5, lambda widget: build_bumpath(widget)),
+    Control('📦\nwad_tool', 6, lambda widget: build_wad_tool(widget)),
+    Control('🛠️\nsborf', 7, lambda widget: build_sborf(widget)),
+    Control('🍋\nlemon3d', 8, lambda widget: build_lemon3d(widget)),
+    Control('🛣️\ntexsmart', 9, lambda widget: build_texsmart(widget)),
+    Control('🔊\nbnk_tool', 10, lambda widget: build_bnk_tool(widget)),
+    Control('📼\nwiwawe', 11, lambda widget: build_wiwawe(widget)),
+    Control('🪟\nwinLT', 12, lambda widget: build_winLT(widget)),
 ]
 
 def build_cslmao(widget: QWidget):
@@ -1387,6 +1389,298 @@ def build_no_skin(widget: QWidget):
     helper.link_dnd_cmd(tab2, dnd_tab2_cmd)
 
 
+def build_bumpath(widget: QWidget):
+    layout = QVBoxLayout()
+    
+    # main layout
+    layout2 = QHBoxLayout()
+    layout.addLayout(layout2, stretch=99)
+
+    # left layout
+    layout3 = QVBoxLayout()
+    layout2.addLayout(layout3, stretch=3)
+
+    # top left layout
+    layout4 = QVBoxLayout()
+    layout3.addLayout(layout4, stretch=5)
+    # source dirs
+    dir_button = QToolButton()
+    dir_button.setText('📁 Add Source Folders')
+    layout4.addWidget(dir_button)
+    # dir layout
+    dir_widget = QWidget()
+    dir_scrollarea = QScrollArea()
+    dir_scrollarea.setWidget(dir_widget)
+    dir_scrollarea.setWidgetResizable(True)
+    dir_layout = QVBoxLayout()
+    dir_layout.widgets = []
+    dir_layout.addStretch()
+    dir_widget.setLayout(dir_layout)
+    layout4.addWidget(dir_scrollarea, stretch=1)
+
+    # bot left layout
+    layout5 = QVBoxLayout()
+    layout3.addLayout(layout5, stretch=5)
+    # source bins
+    layout8 = QHBoxLayout()
+    layout8.addWidget(QLabel('📝 Source BINs: '))
+    search_line = QLineEdit()
+    search_line.setPlaceholderText('🔎 Filter')
+    def filter_cmd(text):
+        for bin_widget in bin_layout.widgets:
+            if text in bin_widget.text():
+                bin_widget.setVisible(True)
+            else:
+                bin_widget.setVisible(False)
+    search_line.textChanged.connect(filter_cmd)
+    layout8.addWidget(search_line)
+    layout5.addLayout(layout8)
+    # bin layout
+    bin_widget = QWidget()
+    bin_scrollarea = QScrollArea()
+    bin_scrollarea.setWidget(bin_widget)
+    bin_scrollarea.setWidgetResizable(True)
+    bin_layout = QVBoxLayout()
+    bin_layout.widgets = []
+    bin_layout.addStretch()
+    bin_widget.setLayout(bin_layout)
+    layout5.addWidget(bin_scrollarea, stretch=1)
+    # right layout
+    layout6 = QVBoxLayout()
+    layout2.addLayout(layout6, stretch=7)
+    # toggle
+    layout9 = QHBoxLayout()
+    layout9.addWidget(QLabel('🌳 Scanned Tree:'))
+    layout9.addStretch()
+    missing_checkbox = QCheckBox()
+    missing_checkbox.setText('🔴 Show Missing Files Only')
+    layout9.addWidget(missing_checkbox)
+    layout6.addLayout(layout9)
+    # scan tree
+    treeview = QTreeView()
+    treeview.setHeaderHidden(True)
+    treeview.setSelectionMode(treeview.SelectionMode.ExtendedSelection)
+    model = QStandardItemModel()
+    treeview.setModel(model)
+    layout6.addWidget(treeview, stretch=1)
+    # bind expand all, collapse all
+    shortcut = QShortcut(QKeySequence('/'), treeview)
+    shortcut.activated.connect(treeview.collapseAll)
+    shortcut2 = QShortcut(QKeySequence('*'), treeview)
+    shortcut2.activated.connect(treeview.expandAll)
+
+    # action layout
+    layout7 = QHBoxLayout()
+    reset_button = QToolButton()
+    reset_button.setText('❌ Reset')
+    reset_button.setMinimumWidth(130)
+    layout7.addWidget(reset_button)
+    ignore_checkbox = QCheckBox()
+    ignore_checkbox.setText('🚫 Ignore Missing Files')
+    ignore_checkbox.setChecked(setting.get('bumpath.ignore_missing', False))
+    def ignore_cmd():
+        setting.set('bumpath.ignore_missing', ignore_checkbox.isChecked())
+        setting.save()
+    ignore_checkbox.clicked.connect(ignore_cmd)
+    layout7.addWidget(ignore_checkbox)
+    combine_checkbox = QCheckBox()
+    combine_checkbox.setText('🧬 Combine Linked BINs to Source BINs')
+    combine_checkbox.setChecked(setting.get('bumpath.combine_linked', False))
+    def combine_cmd():
+        setting.set('bumpath.combine_linked', combine_checkbox.isChecked())
+        setting.save()
+    combine_checkbox.clicked.connect(combine_cmd)
+    layout7.addWidget(combine_checkbox)
+    layout7.addStretch()
+    edit_line = QLineEdit()
+    edit_line.setText('bum')
+    layout7.addWidget(edit_line)
+    edit_button = QToolButton()
+    edit_button.setText('🔗 Apply Prefix')
+    edit_button.setMinimumWidth(130)
+    layout7.addWidget(edit_button)
+    bum_button = QToolButton()
+    bum_button.setText('🍑 Bum')
+    bum_button.setMinimumWidth(130)
+    layout7.addWidget(bum_button)
+    layout.addLayout(layout7, stretch=1)
+
+    # init
+    qtwidgets.bum = bum = bumpath.Bum()
+
+    # add source dir
+    def select_source_dir():
+        dialog = QFileDialog()
+        dirpath = dialog.getExistingDirectory(
+            widget, 
+            'Select Source Folder',
+            setting.get('qtGUI.default_folder', '')
+        )
+        if dirpath != '':
+            bum.add_source_dirs([dirpath])
+            update_dir_layout()
+            update_bin_layout()   
+            update_scan_layout()
+    dir_button.clicked.connect(lambda event: select_source_dir())
+
+    def build_source_dir_widget(source_dir):
+        source_dir_widget = QWidget()
+        source_dir_layout = QHBoxLayout()
+        up_button = QToolButton()
+        up_button.setText('🔼')
+        def up_cmd():
+            cloned_source_dirs = list(bum.source_dirs)
+            source_dir_id = cloned_source_dirs.index(source_dir)
+            if source_dir_id > 0:
+                cloned_source_dirs[source_dir_id], cloned_source_dirs[source_dir_id-1] = cloned_source_dirs[source_dir_id-1], cloned_source_dirs[source_dir_id] 
+            reset_cmd()
+            bum.add_source_dirs(cloned_source_dirs)
+            update_dir_layout()
+            update_bin_layout()   
+            update_scan_layout()
+        up_button.clicked.connect(up_cmd)
+        source_dir_layout.addWidget(up_button)
+        down_button = QToolButton()
+        down_button.setText('🔽')
+        def down_cmd():
+            cloned_source_dirs = list(bum.source_dirs)
+            source_dir_id = cloned_source_dirs.index(source_dir)
+            if source_dir_id < len(cloned_source_dirs)-1:
+                cloned_source_dirs[source_dir_id], cloned_source_dirs[source_dir_id+1] = cloned_source_dirs[source_dir_id+1], cloned_source_dirs[source_dir_id] 
+            reset_cmd()
+            bum.add_source_dirs(cloned_source_dirs)
+            update_dir_layout()
+            update_bin_layout()   
+            update_scan_layout()
+        down_button.clicked.connect(down_cmd)
+        source_dir_layout.addWidget(down_button)
+        source_dir_layout.addWidget(QLabel(source_dir))
+        source_dir_widget.setLayout(source_dir_layout)
+        dir_layout.insertWidget(dir_layout.count()-1, source_dir_widget)
+        dir_layout.widgets.append(source_dir_widget)
+
+    # update dir layout
+    def update_dir_layout():
+        for dir_layout_widget in dir_layout.widgets:
+            dir_layout_widget.setParent(None)
+        dir_layout.widgets = []
+        for source_dir in bum.source_dirs:
+            build_source_dir_widget(source_dir)
+
+    def build_source_bin_widget(unify_path):
+        def checkbox_cmd(unify_path, source_bin_widget):
+            bum.source_bins[unify_path] = source_bin_widget.isChecked()
+            update_scan_layout()
+        source_bin_widget = QCheckBox()
+        source_bin_widget.setText(bum.source_files[unify_path][1])
+        source_bin_widget.setChecked(bum.source_bins[unify_path])
+        source_bin_widget.clicked.connect(lambda event: checkbox_cmd(unify_path, source_bin_widget))
+        bin_layout.insertWidget(bin_layout.count()-1, source_bin_widget)
+        bin_layout.widgets.append(source_bin_widget)
+
+    # update bin layout
+    def update_bin_layout():
+        for bin_layout_widget in bin_layout.widgets:
+            bin_layout_widget.setParent(None)
+        bin_layout.widgets = []
+        for unify_path in bum.source_bins:
+            build_source_bin_widget(unify_path)
+
+        # apply filter
+        filter_cmd(search_line.text())
+
+    # update scan layout
+    def update_scan_layout():
+        model.clear()
+        if any(bum.source_bins.values()):
+            bum.scan()
+            for entry_hash in bum.scanned_tree:
+                if len(bum.scanned_tree[entry_hash]) > 0:
+                    entry_name = bum.entry_name[entry_hash]
+                    entry_item = QStandardItem(f'🎟️ {entry_hash} 🎫 {entry_name}: 🔗 {bum.entry_prefix[entry_hash]}')
+                    entry_item.setEditable(False)
+                    for unify_file in bum.scanned_tree[entry_hash]:
+                        existed, path = bum.scanned_tree[entry_hash][unify_file]
+                        path_item = QStandardItem(f'{"🟢" if existed else "🔴"} {path}')
+                        path_item.setEditable(False)
+                        entry_item.appendRow(path_item)
+                    model.appendRow(entry_item)
+                    treeview.setExpanded(model.indexFromItem(entry_item), True)
+    
+    # missing checkbox
+    def missing_checkbox_cmd():
+        if missing_checkbox.isChecked():
+            for i in range(model.rowCount()):
+                entry = model.item(i)
+                for j in range(entry.rowCount()):
+                    path = entry.child(j)
+                    if '🔴' not in path.text():
+                        treeview.setRowHidden(j, model.indexFromItem(entry), True)
+        else:
+            for i in range(model.rowCount()):
+                entry = model.item(i)
+                for j in range(entry.rowCount()):
+                    treeview.setRowHidden(j, model.indexFromItem(entry), False)
+    missing_checkbox.clicked.connect(missing_checkbox_cmd)
+
+    # reset
+    def reset_cmd():
+        qtwidgets.bum.reset()
+        for dir_layout_widget in dir_layout.widgets:
+            dir_layout_widget.setParent(None)
+        dir_layout.widgets = []
+        for bin_layout_widget in bin_layout.widgets:
+            bin_layout_widget.setParent(None)
+        bin_layout.widgets = []
+        model.clear()
+    reset_button.clicked.connect(reset_cmd)
+
+    # edit
+    def edit_cmd():
+        prefix = edit_line.text()
+        if prefix == '':
+            raise Exception(f'bumpath: Error: Set prefix: Prefix can not be empty.')
+        select_model = treeview.selectionModel()
+        if select_model != None:
+            select_index = select_model.selectedIndexes()
+            if len(select_index) > 0:
+                for index in select_index:
+                    text = index.data()
+                    if text.startswith('🎟️'):
+                        entry_hash = text.split(' 🎫 ')[0].replace('🎟️ ', '')
+                        if bum.entry_prefix[entry_hash] == 'Uneditable':
+                            continue
+                        entry_name = bum.entry_name[entry_hash]
+                        bum.entry_prefix[entry_hash] = prefix
+                        entry_item = model.itemFromIndex(index)
+                        entry_item.setText(f'🎟️ {entry_hash} 🎫 {entry_name}: 🔗 {bum.entry_prefix[entry_hash]}')
+    edit_button.clicked.connect(edit_cmd)
+
+    # bum
+    def bum_cmd():
+        dialog = QFileDialog()
+        dirpath = dialog.getExistingDirectory(
+            widget, 
+            'Select Output Folder',
+            setting.get('qtGUI.default_folder', '')
+        )
+        if dirpath != '':
+            def bum_thrd(): 
+                bum.bum(dirpath, setting.get('bumpath.ignore_missing', False), setting.get('bumpath.combine_linked', False))
+            helper.SafeThread.start('bumpath', bum_thrd)
+            
+    bum_button.clicked.connect(bum_cmd)
+
+    widget.setLayout(layout)
+
+    # drag and drop 
+    def dnd_cmd(paths):
+        dir_paths = [path for path in paths if os.path.isdir(path)]
+        bum.add_source_dirs(dir_paths)
+        update_dir_layout()
+        update_bin_layout()   
+        update_scan_layout()
+    helper.link_dnd_cmd(widget, dnd_cmd)
     
 def build_wad_tool(widget: QWidget):
     layout = QVBoxLayout()

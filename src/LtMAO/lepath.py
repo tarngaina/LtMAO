@@ -13,9 +13,9 @@ def rel(path, start):
 def ext(path, old, new):
     return path.removesuffix(old) + new
 
-def walk(path, fitler_func):
+def walk(path, fitler_func, topdown=True):
     res = []
-    for root, dirs, files in os.walk(path):
+    for root, dirs, files in os.walk(path, topdown):
         for file in files:
             if fitler_func(file):
                 res.append(join(root, file))

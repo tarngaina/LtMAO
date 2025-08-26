@@ -26,17 +26,6 @@ def checK_if_path_is_same(path1, path2):
     return unify_path(path1) == unify_path(path2)
 
 def parse_bin(bin, *, existing_files={}):
-    bin_hash = pyRitoFile.bin.BINHasher.raw_to_hex
-    entry_hashes_to_parse = [
-        hash_helper.Storage.bin_hashes[text] for text in (
-            'SkinCharacterDataProperties', 
-            'StaticMaterialDef', 
-            'GearSkinUpgrade', 
-            'VfxSystemDefinitionData',
-            'animationGraphData'
-        )
-    ]
-
     def parse_entry(entry):
         mentioned_files = []
         missing_files = []
@@ -101,8 +90,9 @@ def parse_bin(bin, *, existing_files={}):
 
     results = []
     for entry in bin.entries:
-        if bin_hash(entry.type) in entry_hashes_to_parse:
-            results.append(parse_entry(entry))
+        dic = parse_entry(entry)
+        if len(dic['mentioned_files']) > 0:
+            results.append(dic)
     return results
 
 

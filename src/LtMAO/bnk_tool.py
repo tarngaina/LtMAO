@@ -139,6 +139,11 @@ class BankHelper:
                                 # sound id point to another ranseq container, dfs
                                 if sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
                                     list_ranseq_container_wems(sound_id)
+                                # sound id point to a switch container instead
+                                elif sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer]:
+                                    switch_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer][sound_id]
+                                    for child_id in switch_container.child_ids:
+                                        list_ranseq_container_wems(child_id)
                                 # list wem if point to sound object
                                 elif sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]:
                                     wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][sound_id].wem_id
@@ -155,11 +160,9 @@ class BankHelper:
                                     if wem_id in bank_event.wems:
                                         bank_event.wems.pop(wem_id)
                         
-
                     # if action link to ranseq container object
                     if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
                         list_ranseq_container_wems(action.object_id)
-                                
                                 
                     # if action link to sound object
                     if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]:
@@ -527,17 +530,42 @@ def list_wem_inside_bank(bank_file, is_bnk):
                     if hasattr(action, 'object_id'):
                         if action.type != 4: # play 
                             continue
+                        # ranseq container sound ids could point to another ranseq container 
+                        # if sound id point to sound then list wem, otherwise keep dfs
+                        def list_ranseq_container_wems(ranseq_container_id):          
+                            if ranseq_container_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
+                                ranseq_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer][ranseq_container_id]
+                                for sound_id in ranseq_container.sound_ids:
+                                    # sound id point to another ranseq container, dfs
+                                    if sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
+                                        list_ranseq_container_wems(sound_id)
+                                    # sound id point to a switch container instead
+                                    elif sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer]:
+                                        switch_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer][sound_id]
+                                        for child_id in switch_container.child_ids:
+                                            list_ranseq_container_wems(child_id)
+                                    # list wem if point to sound object
+                                    elif sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]:
+                                        wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][sound_id].wem_id
+                                        if wem_id not in listed_wems:
+                                            listed_wems.append(wem_id)
+                        # if action link to ranseq container object
                         if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
-                            container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer][action.object_id]
-                            for sound_id in container.sound_ids: 
-                                if sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]: 
-                                    wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][sound_id].wem_id
-                                    if wem_id not in listed_wems:
-                                        listed_wems.append(wem_id)
+                            list_ranseq_container_wems(action.object_id)
+                        # if action link to sound object
                         if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]:
                             wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][action.object_id].wem_id
                             if wem_id not in listed_wems:
                                 listed_wems.append(wem_id)
+                        # if action link to a switch container 
+                        # switch container child point to ranseq container
+                        if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer]:
+                            switch_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer][action.object_id]
+                            for child_id in switch_container.child_ids:
+                                list_ranseq_container_wems(child_id)
+                        # if action link to a music playlist container
+                        # music tracks of music playlist container could point to music segment 
+                        # list wem inside those segments 
                         if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer]:
                             for music_track_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer][action.object_id].music_track_ids:
                                 if music_track_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSegment]:
@@ -546,26 +574,18 @@ def list_wem_inside_bank(bank_file, is_bnk):
                                         for wem_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
                                             if wem_id not in listed_wems:
                                                 listed_wems.append(wem_id)
-                        if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer]:
-                            def list_ranseq_container_wems(ranseq_container_id):
-                                if ranseq_container_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
-                                    ranseq_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer][ranseq_container_id]
-                                    for sound_id in ranseq_container.sound_ids:
-                                        if sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.RandomOrSequenceContainer]:
-                                            list_ranseq_container_wems(sound_id)
-                                        elif sound_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound]:
-                                            wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][sound_id].wem_id
-                                            if wem_id not in listed_wems:
-                                                listed_wems.append(wem_id)
-                            switch_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.SwitchContainer][action.object_id]
-                            for child_id in switch_container.child_ids:
-                                list_ranseq_container_wems(child_id)
+                        # if action link to a music switch container  
+                        # music switch container can have another music switch container as child
+                        # keep dfs the child until the child appear as music playlist container
+                        # list all wems inside music play list container same method as above
                         if action.object_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSwitchContainer]:
                             def find_music_playlist_container_child(switch_container_id):
                                 switch_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSwitchContainer][switch_container_id]
                                 for child_id in switch_container.child_ids:
+                                    # child id point to another music switch container, keep dfs
                                     if child_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSwitchContainer]:
                                         find_music_playlist_container_child(child_id)
+                                    # point to music playlist container, list wems
                                     elif child_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer]:
                                         music_playlist_container = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicPlaylistContainer][child_id]
                                         for music_track_id in music_playlist_container.music_track_ids:
@@ -574,13 +594,12 @@ def list_wem_inside_bank(bank_file, is_bnk):
                                                 for real_music_track_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicSegment][music_segment_id].music_track_ids:
                                                     for wem_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
                                                         if wem_id not in listed_wems:
-                                                            listed_wems.append(wem_id)  
+                                                            listed_wems.append(wem_id)
                             find_music_playlist_container_child(action.object_id)
-            for music_track_id, music_track in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicTrack].items():
-                for wem_id in music_track.wem_ids:
-                    if wem_id not in listed_wems:
-                        listed_wems.append(wem_id)  
-                
+                for music_track_id, music_track in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicTrack].items():
+                    for wem_id in music_track.wem_ids:
+                        if wem_id not in listed_wems:
+                            listed_wems.append(wem_id)  
             return sorted(listed_wems)
         if bank.didx != None:
             return sorted(wem.id for wem in bank.didx.wems)
