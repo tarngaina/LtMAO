@@ -146,9 +146,6 @@ class Bum:
         hash_helper.Storage.free_all_hashes()
         self.scanned_tree = dict(sorted(self.scanned_tree.items(), key=lambda item: self.entry_name[item[0]]))
 
-
-
-    
     def bum(self, output_dir, ignore_missing=False, combine_linked=False):
         def bum_value(value, value_type, entry_hash):
             if value_type == pyRitoFile.bin.BINType.STRING:
@@ -236,14 +233,24 @@ class Bum:
         if combine_linked:
             for unify_file in self.source_bins:
                 if self.source_bins[unify_file]:
-                    bin = pyRitoFile.bin.BIN().read(bum_files[unify_file])
+                    # read source bin
+                    source_bin = pyRitoFile.bin.BIN().read(bum_files[unify_file])
+                    # get all linked bin in flat 
                     linked_unify_files = flat_list_linked_bins(unify_file, self.linked_bins)
+                    # remove scanned linked bin in source bin links
+                    new_links = []
+                    for link in source_bin.links:
+                        if not unify_path(link) in linked_unify_files:
+                            new_links.append(link)
+                    source_bin.links = new_links
+                    # append linked bin entries to source bin entries
+                    # and delete linked bin file
                     for linked_unify_file in linked_unify_files:
                         bum_file = bum_files[linked_unify_file]
-                        bin.entries += pyRitoFile.bin.BIN().read(bum_file).entries
+                        source_bin.entries += pyRitoFile.bin.BIN().read(bum_file).entries
                         os.remove(bum_file)
-                    bin.links = []
-                    bin.write(bum_files[unify_file])
+                    # write source bin
+                    source_bin.write(bum_files[unify_file])
                     print(f'bumpath: Finish: Combine all linked BINs to {bum_files[unify_file]}.')
         # remove empty dirs
         for root, dirs, files in os.walk(output_dir, topdown=False):
