@@ -1,0 +1,25 @@
+{
+  "description" : "Draco support (version 1.5.7)",
+  "name" : "draco",
+  "readers" : 
+  [
+    {
+      "description" : "Draco",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "drc" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.drc" ],
+      "name" : "Draco"
+    },
+    {
+      "description" : "GL Transmission Format",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "gltf", "glb" ],
+      "full_scene" : true,
+      "mimetypes" : [ "model/gltf-binary", "model/gltf+json" ],
+      "name" : "GLTFDraco"
+    }
+  ],
+  "type" : "STATIC",
+  "version" : "1.0"
+}

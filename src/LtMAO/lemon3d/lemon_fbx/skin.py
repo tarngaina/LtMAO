@@ -152,31 +152,32 @@ class SKN:
             for vertex in submesh_vertices:
                 normals.Add(FbxVector4(vertex.normal.x, vertex.normal.y, vertex.normal.z))  
             
-            # set weights 
-            # -> create skin 
-            # -> create cluster 
-            # -> set cluster weights, and transform link matrix (why?)
-            fbx_skin = FbxSkin.Create(fbx_scene, 'skinned_mesh')
-            fbx_skin.SetSkinningType(FbxSkin.EType.eBlend)
-            fbx_mesh.AddDeformer(fbx_skin)
-            weight_vertices = {influence: [] for influence in skl.influences}
-            weight_values =  {influence: [] for influence in skl.influences}
-            for vertex_id, vertex in enumerate(submesh_vertices):
-                for i in range(4):
-                    influence_id = vertex.influences[i]
-                    weight = vertex.weights[i]
-                    if weight > 0.0:
-                        weight_vertices[skl.influences[influence_id]].append(vertex_id)
-                        weight_values[skl.influences[influence_id]].append(weight)
-            for influence in skl.influences:
-                fbx_cluster = FbxCluster.Create(fbx_scene, f'cluster_{influence}')
-                fbx_cluster.SetLink(fbx_joint_nodes[influence])
-                fbx_cluster.SetLinkMode(FbxCluster.ELinkMode.eTotalOne)
-                weight_vertex_value_count = len(weight_vertices[influence]) 
-                for i in range(weight_vertex_value_count):
-                    fbx_cluster.AddControlPointIndex(weight_vertices[influence][i], weight_values[influence][i])
-                fbx_cluster.SetTransformLinkMatrix(fbx_joint_nodes[influence].EvaluateGlobalTransform())
-                fbx_skin.AddCluster(fbx_cluster)
+            if skl != None:
+                # set weights 
+                # -> create skin 
+                # -> create cluster 
+                # -> set cluster weights, and transform link matrix (why?)
+                fbx_skin = FbxSkin.Create(fbx_scene, 'skinned_mesh')
+                fbx_skin.SetSkinningType(FbxSkin.EType.eBlend)
+                fbx_mesh.AddDeformer(fbx_skin)
+                weight_vertices = {influence: [] for influence in skl.influences}
+                weight_values =  {influence: [] for influence in skl.influences}
+                for vertex_id, vertex in enumerate(submesh_vertices):
+                    for i in range(4):
+                        influence_id = vertex.influences[i]
+                        weight = vertex.weights[i]
+                        if weight > 0.0:
+                            weight_vertices[skl.influences[influence_id]].append(vertex_id)
+                            weight_values[skl.influences[influence_id]].append(weight)
+                for influence in skl.influences:
+                    fbx_cluster = FbxCluster.Create(fbx_scene, f'cluster_{influence}')
+                    fbx_cluster.SetLink(fbx_joint_nodes[influence])
+                    fbx_cluster.SetLinkMode(FbxCluster.ELinkMode.eTotalOne)
+                    weight_vertex_value_count = len(weight_vertices[influence]) 
+                    for i in range(weight_vertex_value_count):
+                        fbx_cluster.AddControlPointIndex(weight_vertices[influence][i], weight_values[influence][i])
+                    fbx_cluster.SetTransformLinkMatrix(fbx_joint_nodes[influence].EvaluateGlobalTransform())
+                    fbx_skin.AddCluster(fbx_cluster)
             
             print(f'lemon_fbx: Finish: Load submesh: {submesh.name}, Indices: {len(submesh_indices)}, Vertices: {len(submesh_vertices)}')
         print(f'lemon_fbx: Finish: Load SKN.')

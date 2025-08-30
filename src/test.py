@@ -10,11 +10,8 @@ def db(func):
     stats.print_stats(15)
 
 def test():
-    from LtMAO import bumpath
-    bum = bumpath.Bum()
-    bum.add_source_dirs(['C:/test/aatrox.wad'])
-    bum.source_bins[bumpath.unify_path('data/characters/aatrox/skins/skin0.bin')] = True
-    bum.scan()
-    bum.bum('C:/test/new folder', ignore_missing=True, combine_linked=True)
+    pass
+
+    
 
 test()

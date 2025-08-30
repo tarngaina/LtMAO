@@ -51,6 +51,7 @@ class Context:
         'skn': {
             'UVEE': True,
             'hashextract': True,
+            'infinityQT': True,
             'LFI': True,
         },
         'sco': {
@@ -69,6 +70,7 @@ class Context:
         },
         'tex': {
             'tex2dds': True,
+            'infinityQT': True,
             'LFI': True,
         },
         'dds': {
@@ -236,6 +238,10 @@ class Context:
         'geb': {
             'desc': 'bnk_tool: Guess name of Voice Events BNK',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="geb" -src="%V"'
+        },
+        'infinityQT': {
+            'desc': 'infinityQT: Preview this file',
+            'value': f'"{os.path.abspath(pythonw_file)}" "{os.path.abspath(cli_file)}" -t="infinityQT" -src="%V"'
         },
     }
 

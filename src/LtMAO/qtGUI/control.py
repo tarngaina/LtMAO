@@ -44,7 +44,8 @@ from .. import (
     texsmart,
     wiwawe,
     lepath,
-    bumpath
+    bumpath,
+    infinityQT
 )
 from ..lemon3d import lemon_fbx, lemon_maya
 
@@ -89,7 +90,8 @@ all = [
     Control('🛣️\ntexsmart', 9, lambda widget: build_texsmart(widget)),
     Control('🔊\nbnk_tool', 10, lambda widget: build_bnk_tool(widget)),
     Control('📼\nwiwawe', 11, lambda widget: build_wiwawe(widget)),
-    Control('🪟\nwinLT', 12, lambda widget: build_winLT(widget)),
+    Control('♾️\ninfinityQT', 12, lambda widget: build_infinityQT(widget)),
+    Control('🪟\nwinLT', 13, lambda widget: build_winLT(widget)),
 ]
 
 def build_cslmao(widget: QWidget):
@@ -2900,6 +2902,32 @@ def build_winLT(widget: QWidget):
     layout.addStretch()
     widget.setLayout(layout)
     
+def build_infinityQT(widget: QWidget):
+    layout = QVBoxLayout()
+
+    # main tab widget
+    tab_widget = QTabWidget()
+    tab_widget.setStyleSheet(qtwidgets.tab_stylesheet)
+    qtwidgets.tab_widgets.append(tab_widget)
+    tab_widget.setTabsClosable(True)
+    layout.addWidget(tab_widget)
+    
+    # first tab, cant be closed
+    tab_widget.addTab(QLabel('Drag and drop files in here.\n(you can not close this page).', alignment=Qt.AlignmentFlag.AlignLeading), 'Main')
+    def remove_cmd(index):
+        if index != 0:
+            tab_widget.removeTab(index)
+    tab_widget.tabCloseRequested.connect(remove_cmd)
+    # drag and drop 
+    def dnd_cmd(paths):
+        tabs = infinityQT.build_tabs(paths)
+        for title, twidget in tabs:
+            if twidget != None:
+                tab_widget.addTab(twidget, title)    
+                tab_widget.setCurrentWidget(twidget)
+    helper.link_dnd_cmd(widget, dnd_cmd)
+    widget.setLayout(layout)
+
 def build_logbox(widget: QWidget):
     layout = QVBoxLayout()
     qtwidgets.logbox = logbox = QPlainTextEdit()

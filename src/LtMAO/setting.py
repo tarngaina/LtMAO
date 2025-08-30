@@ -5,33 +5,21 @@ class SETTINGS:
     local_dir = './pref'
     local_file = f'{local_dir}/settings.json'
 
-    @staticmethod
-    def get(key, default):
-        if key in SETTINGS.__settings__:
-            return SETTINGS.__settings__[key]
-        return default
+def get(key, default):
+    if key in SETTINGS.__settings__:
+        return SETTINGS.__settings__[key]
+    return default
 
-    @staticmethod
-    def set(key, value):
-        SETTINGS.__settings__[key] = value
+def set(key, value):
+    SETTINGS.__settings__[key] = value
 
-    @staticmethod
-    def load():
-        with open(SETTINGS.local_file, 'r', encoding='utf-8') as f:
-            SETTINGS.__settings__ = json.load(f)
+def load():
+    with open(SETTINGS.local_file, 'r', encoding='utf-8') as f:
+        SETTINGS.__settings__ = json.load(f)
 
-    @staticmethod
-    def save():
-        with open(SETTINGS.local_file, 'w+', encoding='utf-8') as f:
-            json.dump(SETTINGS.__settings__, f, indent=4, ensure_ascii=False)
-
-
-def get(key, default): return SETTINGS.get(key, default)
-def set(key, value): SETTINGS.set(key, value)
-
-
-load = SETTINGS.load
-save = SETTINGS.save
+def save():
+    with open(SETTINGS.local_file, 'w+', encoding='utf-8') as f:
+        json.dump(SETTINGS.__settings__, f, indent=4, ensure_ascii=False)
 
 def init():
     # ensure folder

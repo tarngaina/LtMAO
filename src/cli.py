@@ -301,21 +301,29 @@ class CLI:
         from LtMAO import wiwawe
         wiwawe.ogg2wem(ogg_files)
 
-    def bnk2dir(src):
-        from LtMAO import bnk_tool
-        bnk_tool.bnk2dir(src)
+    def bnk2dir(src, dst):
+        from LtMAO import bnk_tool, lepath
+        if dst == None:
+            dst = lepath.ext(src, '.bnk', '')
+        bnk_tool.bnk2dir(src, dst)
     
-    def wpk2dir(src):
-        from LtMAO import bnk_tool
-        bnk_tool.bnk2dir(src)
+    def wpk2dir(src, dst):
+        from LtMAO import bnk_tool, lepath
+        if dst == None:
+            dst = lepath.ext(src, '.wpk', '')
+        bnk_tool.bnk2dir(src, dst)
 
-    def dir2bnk(src):
+    def dir2bnk(src, dst):
         from LtMAO import bnk_tool
-        bnk_tool.dir2bnk(src, True)
+        if dst == None:
+            dst = src + '.bnk'
+        bnk_tool.dir2bnk(src, dst, True)
     
-    def dir2wpk(src):
+    def dir2wpk(src, dst):
         from LtMAO import bnk_tool
-        bnk_tool.dir2bnk(src, False)
+        if dst == None:
+            dst = src + '.wpk'
+        bnk_tool.dir2bnk(src, dst, False)
 
     def zipfantome(src):
         import os.path, json, zipfile
@@ -355,6 +363,13 @@ class CLI:
         from LtMAO import hash_helper
         hash_helper.init()
         hash_helper.CDTBHashes.sync_all()
+
+    def infinityQT(src):
+        from LtMAO import infinityQT
+        
+        preview = infinityQT.PreviewGUI()
+        preview.set_central_widget(*infinityQT.build_tabs([src])[0])
+        preview.show()
         
 
 def main():
@@ -394,10 +409,10 @@ def main():
         'wav2wemdir':       lambda src, dst: CLI.wav2wemdir(src),
         'ogg2wemdir':       lambda src, dst: CLI.ogg2wemdir(src),
 
-        'dir2bnk':          lambda src, dst: CLI.dir2bnk(src),
-        'dir2wpk':          lambda src, dst: CLI.dir2wpk(src),
-        'bnk2dir':          lambda src, dst: CLI.bnk2dir(src),
-        'wpk2dir':          lambda src, dst: CLI.wpk2dir(src),
+        'dir2bnk':          lambda src, dst: CLI.dir2bnk(src, dst),
+        'dir2wpk':          lambda src, dst: CLI.dir2wpk(src, dst),
+        'bnk2dir':          lambda src, dst: CLI.bnk2dir(src, dst),
+        'wpk2dir':          lambda src, dst: CLI.wpk2dir(src, dst),
 
         'geb':              lambda src, dst: CLI.geb(src),
 
@@ -405,6 +420,8 @@ def main():
         'unzipfantome':     lambda src, dst: CLI.unzipfantome(src),
 
         'sync':             lambda src, dst: CLI.sync(),
+
+        'infinityQT':         lambda src, dst: CLI.infinityQT(src),
     }
 
     args = parse_arguments()

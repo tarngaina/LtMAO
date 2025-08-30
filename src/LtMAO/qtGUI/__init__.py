@@ -30,7 +30,7 @@ from PySide6.QtWidgets import (
 )
 
 from . import control, helper, log
-from .. import setting, hash_helper, winLT, no_skin, bnk_tool, cslmao, wiwawe
+from .. import setting, hash_helper, winLT, no_skin, bnk_tool, cslmao, wiwawe, infinityQT
 import requests, os.path
 
 qtwidgets = helper.Keeper()
@@ -138,6 +138,9 @@ def init_theme(theme_name):
             color: #ffffff;
             border-bottom-color: {qtwidgets.accent_color};
             background-color: {qtwidgets.accent_color};
+        }}
+        QTabBar:scroller {{
+            width: 50px; 
         }}
         QTableView {{
             selection-background-color: {qtwidgets.accent_color};
@@ -275,6 +278,7 @@ def after_main_window():
     winLT.Shortcut.create_launch(qtwidgets.theme_paths['appicon'])
     bnk_tool.init()
     wiwawe.init()
+    infinityQT.init()
 
 # builds
 def build_app():
@@ -323,7 +327,7 @@ def build_main_window(window: QMainWindow):
     window.setGeometry(*geometry)
     window.setWindowIcon(QPixmap(qtwidgets.theme_paths['appicon']))
     window.setWindowFlags(Qt.Window|Qt.FramelessWindowHint|Qt.WindowMinMaxButtonsHint)
-    window.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+    #window.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground) this fuck up f3d for some reason
     window.setContentsMargins(0, 0, 0, 0)
     window.setStyleSheet(qtwidgets.window_stylesheet)
     build_grips(window)

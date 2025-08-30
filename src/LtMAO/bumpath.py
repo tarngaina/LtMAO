@@ -62,11 +62,13 @@ class Bum:
 
     def add_source_dirs(self, source_dirs):
         self.source_dirs += source_dirs
+        # scan to get path in source dirs
         for source_dir in self.source_dirs:
             full_files = lepath.walk(source_dir, lambda f: True, topdown=False)
             for full_file in full_files:
                 short_file = lepath.rel(full_file, source_dir)
                 unify_file = unify_path(short_file)
+                # we dont overwrite new path, because priority is topdown
                 if unify_file not in self.source_files:
                     self.source_files[unify_file] = (full_file, short_file)
                     if short_file.endswith('.bin'):
@@ -74,15 +76,18 @@ class Bum:
 
     def scan(self):
         self.scanned_tree = {}
+        # setting for bin entry, just a display
         self.scanned_tree['All_BINs'] = {} 
         self.entry_prefix['All_BINs'] = 'Uneditable'
         self.entry_name['All_BINs'] = 'All_BINs'
 
+        # scan functions
         def scan_value(value, value_type, entry_hash):
             if value_type == pyRitoFile.bin.BINType.STRING:
                 value_lower = value.lower()
                 if 'assets/' in value_lower or 'data/' in value_lower:
                     unify_file = unify_path(value)
+                    # set the scanned file exist state
                     if unify_file in self.source_files:
                         self.scanned_tree[entry_hash][unify_file] = (True, value)
                     else:
@@ -120,9 +125,12 @@ class Bum:
                 if is_character_bin(link):
                     continue
                 unify_link = unify_path(link)
+                # set the scanned bin exist state
                 if unify_link in self.source_files:
                     self.scanned_tree['All_BINs'][unify_link] = (True, link)
+                    # scan inside the linked bin
                     scan_bin(self.source_files[unify_link][0], unify_link)
+                    # this is for easier combine bin, not that important
                     self.linked_bins[unify_file].append(unify_link)
                 else:
                     self.scanned_tree['All_BINs'][unify_link] = (False, link)
@@ -132,16 +140,16 @@ class Bum:
                 self.entry_prefix[entry_hash] = 'bum'
                 for field in entry.data:
                     scan_field(field, entry_hash)
+                # unhash entry to another dict for ui display
                 if entry_hash not in self.entry_name:
                     self.entry_name[entry_hash] = pyRitoFile.bin.BINHasher.hex_to_raw(hash_helper.Storage.hashtables, entry_hash)
-
 
         hash_helper.Storage.read_all_hashes()
         for unify_file in self.source_bins:
             if self.source_bins[unify_file]:
                 full, rel = self.source_files[unify_file]
-                if unify_file not in self.scanned_tree['All_BINs']:
-                    self.scanned_tree['All_BINs'][unify_file] = (True, rel)
+                # source bin is obviously existed
+                self.scanned_tree['All_BINs'][unify_file] = (True, rel)
                 scan_bin(full, unify_file)
         hash_helper.Storage.free_all_hashes()
         self.scanned_tree = dict(sorted(self.scanned_tree.items(), key=lambda item: self.entry_name[item[0]]))
@@ -154,6 +162,7 @@ class Bum:
                     unify_file = unify_path(value_lower)
                     if unify_file in self.scanned_tree[entry_hash]:
                         existed, path = self.scanned_tree[entry_hash][unify_file]
+                        # only bum if the file is exsisted
                         if existed:
                             return bum_path(value, self.entry_prefix[entry_hash])
             elif value_type in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
@@ -189,7 +198,6 @@ class Bum:
                 for field in entry.data:
                     bum_field(field, entry_hash)
             bin.write(bin_path)
-
 
         # error checks
         if len(self.scanned_tree) == 0:

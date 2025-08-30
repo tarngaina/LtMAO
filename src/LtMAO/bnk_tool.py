@@ -452,21 +452,19 @@ class Inspector:
         for stream in self.streams:
             stream.stop_stream()
 
-def bnk2dir(audio_path):
-    inspector = Inspector(audio_path)
-    dir_path = lepath.ext(lepath.ext(audio_path, '.bnk', ''), '.wpk', '')
-    inspector.unpack(dir_path)
-    print(f'wad_tool: Finish: Unpack: {dir_path}')
+def bnk2dir(input_file, output_dir):
+    inspector = Inspector(input_file)
+    inspector.unpack(output_dir)
+    print(f'wad_tool: Finish: Unpack: {output_dir}')
 
-def dir2bnk(dir_path, is_bnk):
+def dir2bnk(input_dir, output_file, is_bnk):
     wem_files = []
-    for root, dirs, files in os.walk(dir_path):
+    for root, dirs, files in os.walk(input_dir):
         for file in files:
             if file.endswith('.wem'):
                 wem_file = lepath.join(root, file)
                 wem_files.append(wem_file)
     if is_bnk:
-        audio_path = dir_path + '.bnk'
         audio = pyRitoFile.bnk.BNK()
         audio.didx = pyRitoFile.bnk.BNKSectionData()
         audio.didx.wems = []
@@ -480,9 +478,8 @@ def dir2bnk(dir_path, is_bnk):
                 with open(wem_file, 'rb') as f:
                     wem_datas.append(f.read())
                 audio.didx.wems.append(wem)
-        audio.write(audio_path, wem_datas) 
+        audio.write(output_file, wem_datas) 
     else:
-        audio_path = dir_path + '.wpk'
         audio = pyRitoFile.wpk.WPK()
         audio.wems = []
         wem_datas = []
@@ -495,8 +492,8 @@ def dir2bnk(dir_path, is_bnk):
                 with open(wem_file, 'rb') as f:
                     wem_datas.append(f.read())
                 audio.wems.append(wem)
-        audio.write(audio_path, wem_datas)
-    print(f'wad_tool: Finish: Pack: {audio_path}')
+        audio.write(output_file, wem_datas)
+    print(f'wad_tool: Finish: Pack: {output_file}')
     
 # event bnk stuffs
 def list_wem_inside_bank(bank_file, is_bnk):

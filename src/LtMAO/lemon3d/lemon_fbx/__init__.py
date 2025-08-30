@@ -65,11 +65,15 @@ def skin_to_fbx(skl_path, skn_path, anm_path, fbx_path):
     fbx_root_node = fbx_scene.GetRootNode()
     
     # build skl
-    skl = pyRitoFile.skl.SKL().read(skl_path)
-    print(f'lemon_fbx: Finish: Read SKL: {skl_path}, Version: {skl.version}')
-    helper.mirrorX(skl=skl)
-    print(f'lemon_fbx: Joints: {len(skl.joints)}, Influences: {len(skl.influences)}')
-    fbx_joint_nodes = skin.SKL.load_skl(fbx_root_node, fbx_scene, skl)
+    if skl_path != None and skl_path != '':
+        skl = pyRitoFile.skl.SKL().read(skl_path)
+        print(f'lemon_fbx: Finish: Read SKL: {skl_path}, Version: {skl.version}')
+        helper.mirrorX(skl=skl)
+        print(f'lemon_fbx: Joints: {len(skl.joints)}, Influences: {len(skl.influences)}')
+        fbx_joint_nodes = skin.SKL.load_skl(fbx_root_node, fbx_scene, skl)
+    else:
+        skl = None
+        fbx_joint_nodes = None
 
     # build skn
     skn = pyRitoFile.skn.SKN().read(skn_path)
@@ -79,19 +83,20 @@ def skin_to_fbx(skl_path, skn_path, anm_path, fbx_path):
     skin.SKN.load_skn(fbx_root_node, fbx_scene, skn, skl, fbx_joint_nodes)
 
     # build anms
-    anm_files = []
-    if os.path.isdir(anm_path):
-        for file in os.listdir(anm_path):
-            if file.endswith('.anm'):
-                anm_files.append(lepath.join(anm_path, file))
-    anms = {}
-    for anm_file in anm_files:
-        anm = pyRitoFile.anm.ANM().read(anm_file)
-        print(f'lemon_fbx: Finish: Read ANM: {anm_file}, Version: {anm.version}')
-        helper.mirrorX(anm=anm)
-        anms[anm_file] = anm
-    print(f'lemon_fbx: Animations: {len(anms)}')
-    animation.ANM.load_anm(fbx_scene, anms, fbx_joint_nodes)
+    if skl_path != None and skl_path != '':
+        anm_files = []
+        if os.path.isdir(anm_path):
+            for file in os.listdir(anm_path):
+                if file.endswith('.anm'):
+                    anm_files.append(lepath.join(anm_path, file))
+        anms = {}
+        for anm_file in anm_files:
+            anm = pyRitoFile.anm.ANM().read(anm_file)
+            print(f'lemon_fbx: Finish: Read ANM: {anm_file}, Version: {anm.version}')
+            helper.mirrorX(anm=anm)
+            anms[anm_file] = anm
+        print(f'lemon_fbx: Animations: {len(anms)}')
+        animation.ANM.load_anm(fbx_scene, anms, fbx_joint_nodes)
     
     # io & save scene
     fbx_ios = FbxIOSettings.Create(fbx_manager, 'ios')

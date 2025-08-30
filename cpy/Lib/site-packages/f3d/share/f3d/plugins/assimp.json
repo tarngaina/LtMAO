@@ -1,0 +1,57 @@
+{
+  "description" : "Assimp support (version 5.4.3)",
+  "name" : "assimp",
+  "readers" : 
+  [
+    {
+      "description" : "Filmbox",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "fbx" ],
+      "full_scene" : true,
+      "mimetypes" : [ "application/vnd.fbx" ],
+      "name" : "FBX"
+    },
+    {
+      "description" : "COLLADA",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "dae" ],
+      "full_scene" : true,
+      "mimetypes" : [ "application/vnd.dae" ],
+      "name" : "COLLADA"
+    },
+    {
+      "description" : "AutoCAD DXF",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "dxf" ],
+      "full_scene" : true,
+      "mimetypes" : [ "image/vnd.dxf" ],
+      "name" : "DXF"
+    },
+    {
+      "description" : "Object File Format",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "off" ],
+      "full_scene" : true,
+      "mimetypes" : [ "application/vnd.off" ],
+      "name" : "OFF"
+    },
+    {
+      "description" : "DirectX File Format",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "x" ],
+      "full_scene" : true,
+      "mimetypes" : [ "application/vnd.x" ],
+      "name" : "DirectX"
+    },
+    {
+      "description" : "3D Manufacturing Format",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "3mf" ],
+      "full_scene" : true,
+      "mimetypes" : [ "model/3mf" ],
+      "name" : "3MF"
+    }
+  ],
+  "type" : "STATIC",
+  "version" : "1.0"
+}

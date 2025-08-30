@@ -1,0 +1,185 @@
+{
+  "description" : "Native VTK I/O support",
+  "name" : "native",
+  "readers" : 
+  [
+    {
+      "description" : "Autodesk 3D Studio",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "3ds" ],
+      "full_scene" : true,
+      "mimetypes" : [ "application/vnd.3ds" ],
+      "name" : "3DS"
+    },
+    {
+      "description" : "CityGML",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "gml" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/gml+xml" ],
+      "name" : "CityGML"
+    },
+    {
+      "description" : "DICOM",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "dcm" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/dicom" ],
+      "name" : "DICOM"
+    },
+    {
+      "description" : "GL Transmission Format",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "gltf", "glb" ],
+      "full_scene" : true,
+      "mimetypes" : [ "model/gltf-binary", "model/gltf+json" ],
+      "name" : "GLTF"
+    },
+    {
+      "description" : "MetaImage",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "mha", "mhd" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.mhd" ],
+      "name" : "MetaImage"
+    },
+    {
+      "description" : "Nearly Raw Raster Data",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "nrrd", "nhdr" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.nrrd" ],
+      "name" : "Nrrd"
+    },
+    {
+      "description" : "Wavefront OBJ",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "obj" ],
+      "full_scene" : true,
+      "mimetypes" : [ "model/obj" ],
+      "name" : "OBJ"
+    },
+    {
+      "description" : "Point Cloud",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "pts" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.pts" ],
+      "name" : "PTS"
+    },
+    {
+      "description" : "Standard Triangle Language",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "stl" ],
+      "full_scene" : false,
+      "mimetypes" : [ "model/stl" ],
+      "name" : "STL"
+    },
+    {
+      "description" : "TIFF",
+      "exclude_thumbnailer" : true,
+      "extensions" : [ "tiff", "tif" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/x-tgif" ],
+      "name" : "TIFF"
+    },
+    {
+      "description" : "VRML",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "wrl", "vrml" ],
+      "full_scene" : true,
+      "mimetypes" : [ "model/vrml" ],
+      "name" : "VRMLReader"
+    },
+    {
+      "description" : "VTK Legacy",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "vtk" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.vtk" ],
+      "name" : "VTKLegacy"
+    },
+    {
+      "description" : "VTK XML UnstructuredGrid",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "vtu" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.vtu" ],
+      "name" : "VTKXMLVTU"
+    },
+    {
+      "description" : "VTK XML PolyData",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "vtp" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.vtp" ],
+      "name" : "VTKXMLVTP"
+    },
+    {
+      "description" : "VTK XML ImageData",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "vti" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.vti" ],
+      "name" : "VTKXMLVTI"
+    },
+    {
+      "description" : "VTK XML RectangularGrid",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "vtr" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.vtr" ],
+      "name" : "VTKXMLVTR"
+    },
+    {
+      "description" : "VTK XML StructuredGrid",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "vts" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.vts" ],
+      "name" : "VTKXMLVTS"
+    },
+    {
+      "description" : "VTK XML MultiBlock",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "vtm" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.vtm" ],
+      "name" : "VTKXMLVTM"
+    },
+    {
+      "description" : "Quake 1 MDL model",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "mdl" ],
+      "full_scene" : true,
+      "mimetypes" : [ "application/vnd.mdl" ],
+      "name" : "QuakeMDL"
+    },
+    {
+      "description" : "Compressed 3D gaussian splats",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "spz" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.spz" ],
+      "name" : "SPZ"
+    },
+    {
+      "description" : "3D Gaussian splats",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "splat" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.splat" ],
+      "name" : "Splat"
+    },
+    {
+      "description" : "Polygon",
+      "exclude_thumbnailer" : false,
+      "extensions" : [ "ply" ],
+      "full_scene" : false,
+      "mimetypes" : [ "application/vnd.ply" ],
+      "name" : "PLYReader"
+    }
+  ],
+  "type" : "STATIC",
+  "version" : "1.0"
+}
