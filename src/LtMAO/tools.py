@@ -145,8 +145,9 @@ class VGMStream:
     local_file = './res/tools/vgmstream/vgmstream-cli.exe'
 
     @staticmethod
-    def to_wav(src):
-        dst = '.'.join(src.split('.')[:-1] + ['wav'])
+    def to_wav(src, dst=None):
+        if dst == None:
+            dst = '.'.join(src.split('.')[:-1] + ['wav']) 
         cmds = [
             lepath.abs(VGMStream.local_file),
             '-o',

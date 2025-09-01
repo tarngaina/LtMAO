@@ -94,6 +94,7 @@ class Context:
         },
         'wem': {
             'wem2wav': True,
+            'infinityQT': True,
         },
         'wav': {
             'wav2wem': True,
