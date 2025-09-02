@@ -1,5 +1,4 @@
 from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QToolButton, QSlider
-from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 
 import os.path, wave, pyaudio, threading

@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QPixmap
 
-from . import skn, tex, wem
+from . import skn, tex, wem, bin
 
 infinityQT_dir = './pref/infinityQT'
 
@@ -22,6 +22,8 @@ def build_tabs(paths):
             tabs.append((title, tex.create_widget(path)))
         elif path.endswith('.wem'):
             tabs.append((title, wem.create_widget(path)))
+        elif path.endswith('.bin'):
+            tabs.append((title, bin.create_widget(path)))
         else:
             tabs.append((title, None))
 
