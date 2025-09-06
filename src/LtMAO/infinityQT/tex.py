@@ -32,7 +32,6 @@ def create_widget(tex_path):
     layout.addWidget(slider)
     # to scale img
     def scale_img(value):
-        print(value)
         exp = value * 0.01
         scale = pow(10.0, exp)
         graphic_group.setTransform(QTransform().scale(scale, scale))

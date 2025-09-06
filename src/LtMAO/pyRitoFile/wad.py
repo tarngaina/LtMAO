@@ -12,8 +12,8 @@ except:
 class WADExtensioner:
     signature_to_extension = {
         b'OggS': 'ogg',
-        bytes.fromhex('00010000'): 'ttf',
-        bytes.fromhex('1a45dfa3'): 'webm',
+        bytes.fromhex('00 01 00 00'): 'ttf',
+        bytes.fromhex('1A 45 DF A3'): 'webm',
         b'true': 'ttf',
         b'OTTO\0': 'otf',
         b'"use strict";': 'min.js',
@@ -29,15 +29,22 @@ class WADExtensioner:
         b'r3d2canm': 'anm',
         b'r3d2sklt': 'skl',
         b'r3d2': 'wpk',
-        bytes.fromhex('33221100'): 'skn',
+        bytes.fromhex('33 22 11 00'): 'skn',
         b'PreLoadBuildingBlocks = {': 'preload',
         b'\x1bLuaQ\x00\x01\x04\x04': 'luabin',
         b'\x1bLuaQ\x00\x01\x04\x08': 'luabin64',
-        bytes.fromhex('023d0028'): 'troybin',
+        bytes.fromhex('02 3D 00 28'): 'troybin',
         b'[ObjectBegin]': 'sco',
         b'OEGM': 'mapgeo',
         b'TEX\0': 'tex',
-        b'RW': 'wad'
+        b'RW': 'wad',
+        bytes.fromhex('89 50 4E 47 0D 0A 1A 0A'): 'png',
+        bytes.fromhex('FF D8 FF'): 'jpg',
+        b'gimp xcf': 'xcf',
+        b'8BPS': 'psd',
+        b'BLENDER': 'blend',
+        b'Kaydara FBX Binary  \x00': 'fbx', 
+        b'FOR4': 'mb',
     }
 
     @staticmethod

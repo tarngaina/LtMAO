@@ -54,9 +54,9 @@ def build_pointer_or_embed(treewidget, parent_item, field):
     widget = QWidget()
     layout = QHBoxLayout()
     layout.setContentsMargins(0, 0, 0, 0)
-    layout.addWidget(hash_line)
+    layout.addWidget(hash_line, stretch=4)
     layout.addWidget(type_box)
-    layout.addWidget(hash_type_line)
+    layout.addWidget(hash_type_line, stretch=6)
     layout.addStretch()
     widget.setLayout(layout)
     treewidget.setItemWidget(field_item, 0, widget)
@@ -128,13 +128,7 @@ def build_value(treewidget, parent_item, value, value_type, inline=True):
         else:
             hash_type_line = QLineEdit('null')
         # set widget
-        value_widget = QWidget()
-        layout = QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(hash_type_line)
-        layout.addStretch()
-        value_widget.setLayout(layout)
-        treewidget.setItemWidget(value_item, 0, value_widget)
+        treewidget.setItemWidget(value_item, 0, hash_type_line)
         return value_item
     else:
         value_widget = QLineEdit(str(value))
@@ -169,10 +163,9 @@ def build_field(treewidget: QTreeWidget, parent_item, field):
         widget = QWidget()
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(hash_line)
+        layout.addWidget(hash_line, stretch=4)
         layout.addWidget(type_box)
-        layout.addWidget(value_widget)
-        layout.addStretch()
+        layout.addWidget(value_widget, stretch=6)
         widget.setLayout(layout)
         treewidget.setItemWidget(field_item, 0, widget)
 
@@ -190,9 +183,8 @@ def build_entries(treewidget: QTreeWidget, entries):
         widget = QWidget()
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(hash_line)
-        layout.addWidget(type_line)
-        layout.addStretch()
+        layout.addWidget(hash_line, stretch=6)
+        layout.addWidget(type_line, stretch=4)
         widget.setLayout(layout)
         treewidget.setItemWidget(entry_item, 0, widget)
         for field in entry.data:

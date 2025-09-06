@@ -145,6 +145,15 @@ class ExtractedHashes:
     @staticmethod
     def extract(*file_paths):
         wad_hash = pyRitoFile.wad.WADHasher.raw_to_hex
+        start_game_path = [
+            'assets/', 
+            'clientstates/',
+            'data/',
+            'levels/',
+            'maps/',
+            'uiautoatlas/',
+            'ux/'
+        ]
 
         hashtables = {
             'hashes.binentries.txt': {},
@@ -178,7 +187,7 @@ class ExtractedHashes:
             def extract_file_value(value, value_type):
                 if value_type == pyRitoFile.bin.BINType.STRING:
                     value = value.lower()
-                    if '/' in value:
+                    if any(value.startswith(prefix) for prefix in start_game_path):
                         hashtables['hashes.game.txt'][wad_hash(
                             value)] = value
                         print(f'hash_helper: Finish: Extract: {value}')
@@ -192,6 +201,9 @@ class ExtractedHashes:
                                 value2x)] = value2x
                             hashtables['hashes.game.txt'][wad_hash(
                                 value4x)] = value4x
+                        elif value.endswith('.bin'):
+                            valuepy = lepath.ext(value, '.bin', '.py')
+                            hashtables['hashes.game.txt'][wad_hash(valuepy)] = valuepy
                 elif value_type in (pyRitoFile.bin.BINType.LIST, pyRitoFile.bin.BINType.LIST2):
                     for v in value.data:
                         extract_file_value(v, value_type)
