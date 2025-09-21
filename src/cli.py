@@ -302,16 +302,52 @@ class CLI:
         wiwawe.ogg2wem(ogg_files)
 
     def bnk2dir(src, dst):
+        import os, os.path
         from LtMAO import bnk_tool, lepath
         if dst == None:
             dst = lepath.ext(src, '.bnk', '')
-        bnk_tool.bnk2dir(src, dst)
+        events_file = src.replace('_audio', '_events')
+        bin_file = None
+        if os.path.exists(events_file):
+            dirname = os.path.dirname(events_file)
+            bin_files = [lepath.join(dirname, f) for f in os.listdir(dirname) if f.endswith('.bin')]
+            if len(bin_files) > 0:
+                print(f'Found {len(bin_files)} bin files:')
+                for id, bin_file in enumerate(bin_files):
+                    print(id, bin_file)
+                bin_file_id = input('To select bin, enter its index: ')
+                try:
+                    bin_file = bin_files[int(bin_file_id)]
+                except:
+                    pass
+        if bin_file == None:
+            bin_file = ''
+            events_file = ''
+        bnk_tool.bnk2dir(src, dst, events_file, bin_file)
     
     def wpk2dir(src, dst):
+        import os, os.path
         from LtMAO import bnk_tool, lepath
         if dst == None:
             dst = lepath.ext(src, '.wpk', '')
-        bnk_tool.bnk2dir(src, dst)
+        events_file = lepath.ext(src, '.wpk', '.bnk').replace('_audio', '_events')
+        bin_file = None
+        if os.path.exists(events_file):
+            dirname = os.path.dirname(events_file)
+            bin_files = [lepath.join(dirname, f) for f in os.listdir(dirname) if f.endswith('.bin')]
+            if len(bin_files) > 0:
+                print(f'Found {len(bin_files)} bin files:')
+                for id, bin_file in enumerate(bin_files):
+                    print(id, bin_file)
+                bin_file_id = input('To select bin, enter its index: ')
+                try:
+                    bin_file = bin_files[int(bin_file_id)]
+                except:
+                    pass
+        if bin_file == None:
+            bin_file = ''
+            events_file = ''
+        bnk_tool.bnk2dir(src, dst, events_file, bin_file)
 
     def dir2bnk(src, dst):
         from LtMAO import bnk_tool

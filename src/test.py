@@ -10,7 +10,9 @@ def db(func):
     stats.print_stats(15)
 
 def test():
-    pass
+    from LtMAO.lemon3d import lemon_blender
+
+    lemon_blender.set_startup_py(r'C:\Program Files\Blender Foundation\Blender 4.5\4.5', r'C:\LtMAO')
 
     
 

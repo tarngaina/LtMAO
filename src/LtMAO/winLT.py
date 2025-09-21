@@ -79,8 +79,8 @@ class Context:
             'dds2x4x': True,
         },
         'png': {
-            'png2dds': True,
             'png2ddsmm': True,
+            'png2dds': True,
         },
         'bnk': {
             'bnk2dir': True,
@@ -181,7 +181,7 @@ class Context:
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="png2dds" -src="%V"'
         },
         'png2ddsmm': {
-            'desc': 'ImageMagick: Convert To DDS (With Mipmap 10)',
+            'desc': 'ImageMagick: Convert To DDS',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="png2ddsmm" -src="%V"'
         },
         'dds2x4x': {

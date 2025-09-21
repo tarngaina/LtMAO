@@ -43,13 +43,18 @@ class WADExtensioner:
         b'gimp xcf': 'xcf',
         b'8BPS': 'psd',
         b'BLENDER': 'blend',
-        b'Kaydara FBX Binary  \x00': 'fbx', 
+        b'Kaydara FBX Binary': 'fbx', 
         b'FOR4': 'mb',
+        b'FOR8': 'mb',
+        b'#MayaIcons': 'swatches',
+        b'#PROP_text': 'py',
+        bytes.fromhex('5B 0A 20 20'): 'json',
+        bytes.fromhex('7B 0A 20 20'): 'json',
     }
 
     @staticmethod
     def guess_extension(data):
-        if data[4:8] == bytes.fromhex('c34ffd22'):
+        if data[4:8] == bytes.fromhex('C3 4F FD 22'):
             return 'skl'
         else:
             for signature, extension in WADExtensioner.signature_to_extension.items():

@@ -122,6 +122,7 @@ class BankHelper:
                 bank_tree.wems[wem_id] = BankWem(wem_id)
             return bank_tree
         # parse if events file
+        wem_founds = {wem_id: False for wem_id in existed_wems}
         for event_id, event in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Event].items():
             bank_tree.events[event_id] = bank_event = BankEvent(event_id)
             for action_id in event.action_ids:
@@ -149,6 +150,7 @@ class BankHelper:
                                     wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][sound_id].wem_id
                                     if wem_id not in existed_wems:
                                         continue
+                                    wem_founds[wem_id] = True
                                     # create container if need
                                     if ranseq_container_id not in bank_event.containers:
                                         bank_event.containers[ranseq_container_id] = BankContainer(ranseq_container_id)
@@ -169,6 +171,7 @@ class BankHelper:
                         wem_id = map_bnk_objects[pyRitoFile.bnk.BNKObjectType.Sound][action.object_id].wem_id
                         if wem_id not in existed_wems:
                             continue
+                        wem_founds[wem_id] = True
                         # check if wem already in containers, if not add to non containers
                         new_wem = True                 
                         for bank_container_id, bank_container in bank_event.containers.items():
@@ -196,6 +199,7 @@ class BankHelper:
                                     for wem_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
                                         if wem_id not in existed_wems:
                                             continue
+                                        wem_founds[wem_id] = True
                                         # create container if need
                                         if music_segment_id not in bank_event.containers:
                                             bank_event.containers[music_segment_id] = BankContainer(music_segment_id)
@@ -228,6 +232,7 @@ class BankHelper:
                                                 for wem_id in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicTrack][real_music_track_id].wem_ids:
                                                     if wem_id not in existed_wems:
                                                         continue
+                                                    wem_founds[wem_id] = True
                                                     # create container if need
                                                     if child_id not in bank_event.containers:
                                                         bank_event.containers[child_id] = BankContainer(child_id)
@@ -241,20 +246,10 @@ class BankHelper:
 
                         find_music_playlist_container_child(action.object_id)
 
-        # list music track wems that dont link to anything????
-        for music_track_id, music_track in map_bnk_objects[pyRitoFile.bnk.BNKObjectType.MusicTrack].items():
-            for wem_id in music_track.wem_ids:
-                if wem_id not in existed_wems:
-                    continue
-                new_wem = True
-                for event_id in bank_tree.events:
-                    bank_event = bank_tree.events[event_id]
-                    for container_id in bank_event.containers:
-                        bank_container = bank_event.containers[container_id]
-                        if wem_id in bank_container.wems:
-                            new_wem = False
-                if new_wem and wem_id not in bank_tree.wems:
-                    bank_tree.wems[wem_id] = BankWem(wem_id)
+        # list wem that not found
+        for wem_id, wem_found in wem_founds.items():
+            if not wem_found and wem_id not in bank_tree.wems:
+                bank_tree.wems[wem_id] = BankWem(wem_id)
         # clean up empty event           
         empty_event_ids = []                 
         for event_id in bank_tree.events:
@@ -340,7 +335,7 @@ class Inspector:
                 if os.path.exists(wav_file):
                     os.remove(wav_file)
 
-    def extract(self, output_dir):
+    def extract(self, output_dir, convert_wavs=True):
         map_wem_paths = {}
         for wem in self.wems:
             map_wem_paths[wem.id] = []
@@ -376,7 +371,8 @@ class Inspector:
                 for wem_file in map_wem_paths[wem.id]:
                     with open(wem_file, 'wb') as f:
                         f.write(wem_data)
-                    tools.VGMStream.to_wav(wem_file)
+                    if convert_wavs:
+                        tools.VGMStream.to_wav(wem_file)
                 print(f'bnk_tool: Finish: Extracted [{BankHelper.to_human(wem.size)}] {wem.id}.wem')
                     
     def unpack(self, output_dir):
@@ -452,18 +448,13 @@ class Inspector:
         for stream in self.streams:
             stream.stop_stream()
 
-def bnk2dir(input_file, output_dir):
-    inspector = Inspector(input_file)
-    inspector.unpack(output_dir)
+def bnk2dir(input_file, output_dir, events_file = '', bin_file = ''):
+    inspector = Inspector(input_file, events_file, bin_file) 
+    inspector.extract(output_dir, convert_wavs=False)
     print(f'wad_tool: Finish: Unpack: {output_dir}')
 
 def dir2bnk(input_dir, output_file, is_bnk):
-    wem_files = []
-    for root, dirs, files in os.walk(input_dir):
-        for file in files:
-            if file.endswith('.wem'):
-                wem_file = lepath.join(root, file)
-                wem_files.append(wem_file)
+    wem_files = {os.path.basename(wem): wem for wem in lepath.walk(input_dir, lambda f: f.endswith('.wem'))}.values()
     if is_bnk:
         audio = pyRitoFile.bnk.BNK()
         audio.didx = pyRitoFile.bnk.BNKSectionData()

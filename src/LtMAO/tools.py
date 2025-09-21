@@ -1,5 +1,6 @@
-import subprocess
+import subprocess, math
 from LtMAO import lepath
+from PIL import Image
 
 def block_and_stream_process_output(process, log_message_header=''):
     for line in process.stdout:
@@ -108,13 +109,16 @@ class ImageMagick:
     def to_dds(src, dds, format='dxt5', mipmap=False):
         if format not in ('dxt1', 'dxt5'):
             format = 'dxt5'
+        if mipmap:
+            with Image.open(src) as img:
+                mipmap_count = math.floor(math.log2(max(img.width, img.height))) + 1
         cmds = [
             lepath.abs(ImageMagick.local_file),
             src,
             '-define',
             f'dds:compression={format}',
             '-define',
-            f'dds:mipmaps={10 if mipmap else 0}',
+            f'dds:mipmaps={mipmap_count if mipmap else 0}',
             dds
         ]
         p = subprocess.Popen(

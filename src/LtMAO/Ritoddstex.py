@@ -1,5 +1,5 @@
 from . import lepath, pyRitoFile
-import struct
+import struct, math
 
 def dds2tex(dds_path, tex_path=None):
     # prepare path
@@ -73,9 +73,7 @@ def dds2tex(dds_path, tex_path=None):
         raise Exception(f'Ritoddstex: Error: dds2tex: {dds_path}: Unsupported DDS format: {dds_pixel_format["dwFourCC"]}')
     # mipmaps
     if dds_header['dwMipMapCount'] > 1:
-        expected_dwMipMapCount = 32 - \
-            len(f'{max(dds_header["dwWidth"], dds_header["dwHeight"]):032b}'.split(
-                '1', 1)[0])
+        expected_dwMipMapCount = math.floor(math.log2(max(dds_header["dwWidth"], dds_header["dwHeight"]))) + 1
         if dds_header['dwMipMapCount'] != expected_dwMipMapCount:
             raise Exception(f'Ritoddstex: Error: dds2tex: {dds_path}: Wrong DDS mipmap count: {dds_header["dwMipMapCount"]}, expected: {expected_dwMipMapCount}')
         tex.mipmaps = True
