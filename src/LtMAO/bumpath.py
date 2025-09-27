@@ -208,8 +208,6 @@ class Bum:
                     existed, short_file = self.scanned_tree[entry_hash][unify_file]
                     if not existed:
                         raise Exception(f'bumpath: Error: {entry_hash}/{short_file} is missing/not found in Source Folders.')
-        # clean up output
-        shutil.rmtree(output_dir, ignore_errors=True)
         # actual bum
         bum_files = {}
         for entry_hash in self.scanned_tree:
