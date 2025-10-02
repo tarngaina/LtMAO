@@ -3049,7 +3049,7 @@ def build_setting(widget: QWidget):
             get.raise_for_status()
             # download update
             bytes_downloaded = 0
-            chunk_size = 1024**2*5
+            chunk_size = 1024**2
             bytes_downloaded_log = 0
             bytes_downloaded_log_limit = 1024**2
             with open(local_file, 'wb') as f:

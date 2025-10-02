@@ -10,10 +10,8 @@ def db(func):
     stats.print_stats(15)
 
 def test():
-    from LtMAO.lemon3d import lemon_blender
-
-    lemon_blender.set_startup_py(r'C:\Program Files\Blender Foundation\Blender 4.5\4.5', r'C:\LtMAO')
-
+    #ritobin.bin_to_text('C:/test/bloom.materials.bin', 'C:/test/bloom.materials.py')
+    ritobin.text_to_bin( 'C:/test/bloom.materials.py', 'C:/test/a.bin')
     
 
-test()
+db(test)

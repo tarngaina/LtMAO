@@ -2,7 +2,7 @@ try:
     import requests
 except: 
     print('Warning: hash_helper failed to import requests.')
-import os, os.path, json, traceback
+import os, os.path, json, traceback, threading
 from . import lepath, pyRitoFile, setting
 
 def get_hash_separator(filename):
@@ -71,7 +71,7 @@ class CDTBHashes:
 
     @staticmethod
     def sync_hashes(*filenames):
-        for filename in filenames:
+        def sync_hash(filename):
             try:
                 local_file = CDTBHashes.local_file(filename)
                 remote_file = CDTBHashes.remote_file(filename)
@@ -86,7 +86,7 @@ class CDTBHashes:
                     CDTBHashes.ETAG[filename] = etag_remote
                     # download file
                     bytes_downloaded = 0
-                    chunk_size = 1024**2*5
+                    chunk_size = 1024**2
                     bytes_downloaded_log = 0
                     bytes_downloaded_log_limit = 1024**2
                     with open(local_file, 'wb') as f:
@@ -96,14 +96,25 @@ class CDTBHashes:
                             f.write(chunk)
                             bytes_downloaded_log += chunk_length
                             if bytes_downloaded_log > bytes_downloaded_log_limit:
-                                print(
-                                    f'hash_helper: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
+                                print(f'hash_helper: Downloading: {remote_file}: {to_human(bytes_downloaded)}')
                                 bytes_downloaded_log = 0
                 print(f'hash_helper: Finish: Sync hash: {local_file}')
             except Exception as e:
                 print(f'hash_helper: Error: Sync hash: {filename}: {e}')
                 print(traceback.format_exc())
             CustomHashes.combine_custom_hashes(filename)
+            
+        threads = [
+            threading.Thread(
+                target = lambda f=filename: sync_hash(f),
+                daemon = True
+            )
+            for filename in filenames
+        ]                   
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
         print(f'hash_helper: Finish: Sync all hashes.')
 
     @staticmethod
@@ -401,7 +412,7 @@ class CustomHashes:
                         hashtable.items(), key=lambda item: item[1]
                     )
                 )
-            print(f'hash_helper: Finish: Update: {ch_file}')
+            print(f'hash_helper: Finish: Combine: {ch_file}')
 
     @staticmethod
     def reset_custom_hashes(*filenames):

@@ -1,7 +1,7 @@
 from LtMAO import lepath, pyRitoFile
 
 
-SPACE_CHARS = ' \n\t\r#'
+SPACE_CHARS = ' \n\t\r'
 NUM_CHARS = '0123456789.-+e'
 ESCAPE_CHARS = {
     '\n': '\\n',
@@ -80,16 +80,22 @@ class Reader:
         return f'Ln: {line}, Col: {column}'
 
     def read_space(self):
-        while self.cur < self.end and self.text[self.cur] in SPACE_CHARS:
-            if self.text[self.cur] == '#':
-                self.read_until('\n')
-            else:
+        while self.cur < self.end:
+            if self.text[self.cur] in SPACE_CHARS:
                 self.cur += 1
-
+                continue
+            break
+        if self.cur < self.end and self.text[self.cur] == '#':
+            self.read_until('\n')
+            self.read_space()
+                   
     def read_until(self, end_char):
         start = self.cur
-        while self.cur < self.end and self.text[self.cur] != end_char:
-            self.cur += 1
+        while self.cur < self.end:
+            if self.text[self.cur] != end_char:
+                self.cur += 1
+                continue
+            break
         end = self.cur
         self.cur += 1
         return self.text[start:end]
@@ -102,8 +108,11 @@ class Reader:
     
     def read_non_quote(self):
         start = self.cur
-        while self.cur < self.end and self.text[self.cur] not in SPACE_CHARS:
-            self.cur += 1
+        while self.cur < self.end:
+            if self.text[self.cur] not in SPACE_CHARS:
+                self.cur += 1
+                continue
+            break
         end = self.cur
         self.cur += 1
         return self.text[start:end]

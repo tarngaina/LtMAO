@@ -67,6 +67,11 @@ class CLI:
             print(f'ritobin: Start: Read: {src}')
             ritobin.text_to_bin(src, dst)
             return
+        if src.endswith('.cdtb.py'):
+            dst = lepath.ext(src, '.cdtb.py', '')
+            print(f'ritobin: Start: Read: {src}')
+            ritobin.text_to_bin(src, dst)
+            return
         # py to bin
         if src.endswith('.py'):
             dst = lepath.ext(src, '.py', '.bin')
@@ -120,6 +125,12 @@ class CLI:
                     if file.endswith('.nx.py'):
                         py_file = lepath.join(root, file)
                         bin_file = lepath.ext(py_file, '.nx.py', '')
+                        print(f'ritobin: Start: Read: {py_file}')
+                        ritobin.text_to_bin(py_file, bin_file)
+                        continue
+                    if file.endswith('.cdtb.py'):
+                        py_file = lepath.join(root, file)
+                        bin_file = lepath.ext(py_file, '.cdtb.py', '')
                         print(f'ritobin: Start: Read: {py_file}')
                         ritobin.text_to_bin(py_file, bin_file)
                         continue
