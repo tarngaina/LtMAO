@@ -512,7 +512,7 @@ class MAPGEO:
             current = bs.tell()
             end = bs.end()
             if current == end:
-                return
+                return self
 
             # bucket grids
             # version 15: multi bucket grids, below version 15 only store one

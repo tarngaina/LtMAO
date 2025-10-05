@@ -1,26 +1,31 @@
 from LtMAO import lepath, pyRitoFile
 
 
-SPACE_CHARS = ' \n\t\r'
-NUM_CHARS = '0123456789.-+e'
-ESCAPE_CHARS = {
-    '\n': '\\n',
-    '\t': '\\t',
-    '\r': '\\r',
-    "'": "\\'",
-    '"': '\\"',
-}
 
 def f32_str(num):
     return f'{num:.4f}'.rstrip('0').rstrip('.')
 
 def make_escapes(text):
-    for escape_char, made_escape_char in ESCAPE_CHARS.items():
+    escape_chars = {
+        '\n': '\\n',
+        '\t': '\\t',
+        '\r': '\\r',
+        "'": "\\'",
+        '"': '\\"',
+    }
+    for escape_char, made_escape_char in escape_chars.items():
         text = text.replace(escape_char, made_escape_char)
     return text
 
 def clean_escapes(text):
-    for escape_char, made_escape_char in ESCAPE_CHARS.items():
+    escape_chars = {
+        '\n': '\\n',
+        '\t': '\\t',
+        '\r': '\\r',
+        "'": "\\'",
+        '"': '\\"',
+    }
+    for escape_char, made_escape_char in escape_chars.items():
         text = text.replace(made_escape_char, escape_char)
     return text
 
@@ -80,25 +85,23 @@ class Reader:
         return f'Ln: {line}, Col: {column}'
 
     def read_space(self):
-        while self.cur < self.end:
-            if self.text[self.cur] in SPACE_CHARS:
-                self.cur += 1
-                continue
-            break
-        if self.cur < self.end and self.text[self.cur] == '#':
+        text, cur, end = self.text, self.cur, self.end
+        while cur < end and text[cur] in ' \n\t\r':
+            cur += 1
+        self.cur = cur
+        if cur < end and text[cur] == '#':
             self.read_until('\n')
             self.read_space()
                    
     def read_until(self, end_char):
-        start = self.cur
-        while self.cur < self.end:
-            if self.text[self.cur] != end_char:
-                self.cur += 1
-                continue
-            break
-        end = self.cur
-        self.cur += 1
-        return self.text[start:end]
+        text, cur, end = self.text, self.cur, self.end
+        left = cur
+        while cur < end and text[cur] != end_char:
+            cur += 1
+        right = cur
+        cur += 1
+        self.cur = cur
+        return text[left:right]
     
     def read_exact(self, expect_char):
         char = self.text[self.cur]
@@ -107,69 +110,60 @@ class Reader:
             raise Exception(f'ritobin: Error: Expect "{expect_char}" but got "{char}" instead at {self.human_cur()}')
     
     def read_non_quote(self):
-        start = self.cur
-        while self.cur < self.end:
-            if self.text[self.cur] not in SPACE_CHARS:
-                self.cur += 1
-                continue
-            break
-        end = self.cur
-        self.cur += 1
-        return self.text[start:end]
+        text, cur, end = self.text, self.cur, self.end
+        left = cur
+        while cur < end and text[cur] not in ' \n\t\r':
+            cur += 1
+        right = cur
+        cur += 1
+        self.cur = cur
+        return text[left:right]
 
     def read_quote(self):
         quote = '"'
         self.read_exact(quote)
-        start = self.cur
-        while self.cur < self.end and self.text[self.cur] != quote or (self.text[self.cur] == quote and self.text[self.cur-1] == '\\'):
-            self.cur += 1
-        end = self.cur
-        self.cur += 1
-        return clean_escapes(self.text[start:end])
+        text, cur, end = self.text, self.cur, self.end
+        left = cur
+        while cur < end and text[cur] != quote or (text[cur] == quote and text[cur-1] == '\\'):
+            cur += 1
+        right = cur
+        cur += 1
+        self.cur = cur
+        return clean_escapes(text[left:right])
 
     def read_hash(self):
-        if self.text[self.cur] == '"':
-            return self.read_quote()
-        else:
-            return self.read_non_quote().removeprefix('0x')
+        return self.read_quote() if self.text[self.cur] == '"' else self.read_non_quote().removeprefix('0x')
 
     def read_num(self):
-        start = self.cur
-        while self.cur < self.end and self.text[self.cur] in NUM_CHARS:
-            self.cur += 1
-        end = self.cur
-        self.cur += 1
-        return self.text[start:end]
+        text, cur, end = self.text, self.cur, self.end
+        left = cur
+        while cur < end and text[cur] in '0123456789.-+e':
+            cur += 1
+        right = cur
+        cur += 1
+        self.cur = cur
+        return text[left:right]
     
     def read_bool(self):
-        return False if self.read_non_quote().lower() == 'false' else True
+        return self.read_non_quote().lower() == 'true'
     
     def read_vector(self, vec_size):
-        floats = []
         self.read_exact('{')
-        for i in range(vec_size):
-            self.read_space()
-            floats.append(float(self.read_num()))
+        floats = [(self.read_space(), float(self.read_num()))[1] for i in range(vec_size)]
         self.read_space()
         self.read_exact('}')
         return pyRitoFile.structs.Vector(*floats)
     
     def read_matrix(self):
-        floats = []
         self.read_exact('{')
-        for i in range(16):
-            self.read_space()
-            floats.append(float(self.read_num()))
+        floats = [(self.read_space(), float(self.read_num()))[1] for i in range(16)]
         self.read_space()
         self.read_exact('}')
         return pyRitoFile.structs.Matrix4(*floats)
     
     def read_rgba(self):
-        colors = []
         self.read_exact('{')
-        for i in range(4):
-            self.read_space()
-            colors.append(int(self.read_num()))
+        colors = [(self.read_space(), int(self.read_num()))[1] for i in range(4)]
         self.read_space()
         self.read_exact('}')
         return colors

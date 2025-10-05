@@ -1,17 +1,16 @@
-from LtMAO import ritobin, pyRitoFile, file_inspector, hash_helper, tools
+import cProfile, pstats
+from LtMAO import pyRitoFile, file_inspector
 
 
 def db(func):
-    import cProfile, pstats
-    with cProfile.Profile() as profiler:
+    with cProfile.Profile() as profile:
         func()
-    stats = pstats.Stats(profiler)
+    stats = pstats.Stats(profile)
     stats.sort_stats(pstats.SortKey.TIME)
-    stats.print_stats(15)
+    stats.print_stats(20)
 
-def test():
-    #ritobin.bin_to_text('C:/test/bloom.materials.bin', 'C:/test/bloom.materials.py')
-    ritobin.text_to_bin( 'C:/test/bloom.materials.py', 'C:/test/a.bin')
+def test3():
+    b = pyRitoFile.mapgeo.MAPGEO().read('D:/a.mapgeo')
+    file_inspector.write_json('D:/test/a.json', b)
     
-
-db(test)
+db(test3)
