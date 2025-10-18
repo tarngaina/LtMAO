@@ -60,86 +60,60 @@ class CLI:
 
     @staticmethod
     def ritobin(src, dst):
-        from LtMAO import lepath, hash_helper, ritobin, pyRitoFile
-        # py to bin without ext
-        if src.endswith('.nx.py'):
-            dst = lepath.ext(src, '.nx.py', '')
-            print(f'ritobin: Start: Read: {src}')
-            ritobin.text_to_bin(src, dst)
-            return
-        if src.endswith('.cdtb.py'):
-            dst = lepath.ext(src, '.cdtb.py', '')
-            print(f'ritobin: Start: Read: {src}')
-            ritobin.text_to_bin(src, dst)
-            return
+        from LtMAO import lepath, hash_helper, pyRitoFile, tools
+        dst = None
         # py to bin
         if src.endswith('.py'):
-            dst = lepath.ext(src, '.py', '.bin')
-            print(f'ritobin: Start: Read: {src}')
-            ritobin.text_to_bin(src, dst)
+            if src.endswith('.cdtb.py'):
+                dst = lepath.ext(src, '.cdtb.py', '')
+            else:
+                dst = lepath.ext(src, '.py', '.bin')
+            tools.RITOBIN.run((src, dst))
             return
         # bin to py
-        if src.endswith('.bin'):
+        elif src.endswith('.bin'):
             dst = lepath.ext(src, '.bin', '.py')
-            hash_helper.Storage.read_all_hashes()
-            print(f'ritobin: Start: Write: {src}')
-            ritobin.bin_to_text(src, dst, hashtables=hash_helper.Storage.hashtables)
-            hash_helper.Storage.free_all_hashes()
-            return
-        # bin without ext to py
-        with pyRitoFile.stream.BytesStream.reader(src) as bs:
-            if pyRitoFile.wad.WADExtensioner.guess_extension(bs.read(20)) == 'bin':
-                hash_helper.Storage.read_all_hashes()
-                dst = src + '.nx.py'
-                print(f'ritobin: Start: Write: {src}')
-                ritobin.bin_to_text(src, dst, hashtables=hash_helper.Storage.hashtables)
-                hash_helper.Storage.free_all_hashes()
-
+        else:
+            with pyRitoFile.stream.BytesStream.reader(src) as bs:
+                if pyRitoFile.wad.WADExtensioner.guess_extension(bs.read(20)) == 'bin':
+                    dst = src + '.cdtb.py'
+        tools.RITOBIN.run((src, dst), dir_hashes=hash_helper.CustomHashes.local_dir)
+        
     @staticmethod
     def ritobindir(src, dst, bin2py=True):
-        from LtMAO import lepath, hash_helper, ritobin, pyRitoFile
+        from LtMAO import lepath, hash_helper, pyRitoFile, tools
         import os
         if bin2py:
-            hash_helper.Storage.read_all_hashes()
+            file_pairs = []
             for root, dirs, files in os.walk(src):
                 for file in files:
-                    # bin to py
                     if file.endswith('.bin'):
                         bin_file = lepath.join(root, file)
                         py_file = lepath.ext(bin_file, '.bin', '.py')
-                        print(f'ritobin: Start: Write: {bin_file}')
-                        ritobin.bin_to_text(bin_file, py_file,  hashtables=hash_helper.Storage.hashtables)
-                        continue
-                    # bin without ext to py
-                    bin_file = lepath.join(root, file)
-                    py_file = bin_file + '.nx.py'
-                    with pyRitoFile.stream.BytesStream.reader(bin_file) as bs:
-                        if pyRitoFile.wad.WADExtensioner.guess_extension(bs.read(20)) == 'bin':
-                            print(f'ritobin: Start: Write: {bin_file}')
-                            ritobin.bin_to_text(bin_file, py_file,  hashtables=hash_helper.Storage.hashtables)
-            hash_helper.Storage.free_all_hashes()
+                        file_pairs.extend((bin_file, py_file))
+                    else:
+                        bin_file = lepath.join(root, file)
+                        with pyRitoFile.stream.BytesStream.reader(bin_file) as bs:
+                            if pyRitoFile.wad.WADExtensioner.guess_extension(bs.read(20)) == 'bin':
+                                py_file = bin_file + '.cdtb.py'
+                                file_pairs.extend((bin_file, py_file))
+            tools.RITOBIN.run(file_pairs, dir_hashes=hash_helper.CustomHashes.local_dir)
         else:
+            file_pairs = []
             for root, dirs, files in os.walk(src):
                 for file in files:
-                    # py to bin without ext
-                    if file.endswith('.nx.py'):
-                        py_file = lepath.join(root, file)
-                        bin_file = lepath.ext(py_file, '.nx.py', '')
-                        print(f'ritobin: Start: Read: {py_file}')
-                        ritobin.text_to_bin(py_file, bin_file)
-                        continue
-                    if file.endswith('.cdtb.py'):
-                        py_file = lepath.join(root, file)
-                        bin_file = lepath.ext(py_file, '.cdtb.py', '')
-                        print(f'ritobin: Start: Read: {py_file}')
-                        ritobin.text_to_bin(py_file, bin_file)
-                        continue
                     # py to bin
                     if file.endswith('.py'):
-                        py_file = lepath.join(root, file)
-                        bin_file = lepath.ext(py_file, '.py', '.bin')
-                        print(f'ritobin: Start: Read: {py_file}')
-                        ritobin.text_to_bin(py_file, bin_file)
+                        if file.endswith('.cdtb.py'):
+                            py_file = lepath.join(root, file)
+                            bin_file = lepath.ext(py_file, '.cdtb.py', '')
+                            file_pairs.extend((py_file, bin_file))
+                        else:
+                            py_file = lepath.join(root, file)
+                            bin_file = lepath.ext(py_file, '.py', '.bin')
+                            file_pairs.extend((py_file, bin_file))
+            tools.RITOBIN.run(file_pairs)
+            
 
     @staticmethod
     def lfi(src):

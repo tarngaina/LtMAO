@@ -187,3 +187,19 @@ class WWiseConsole:
         )
         block_and_stream_process_output(p, 'WwiseConsole: ')
         return p
+    
+class RITOBIN:
+    local_file = './res/tools/ritobin_cli.exe'
+
+    @staticmethod
+    def run(file_pairs, dir_hashes=None):
+        cmds = [lepath.abs(RITOBIN.local_file)]
+        cmds.extend(('--file-pairs', ';'.join(file_pairs)))
+        if dir_hashes:
+            cmds.extend(('--dir-hashes', dir_hashes))
+        p = subprocess.Popen(
+            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
+        block_and_stream_process_output(p, 'ritobin: ')
+        return p
