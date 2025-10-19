@@ -193,13 +193,44 @@ class RITOBIN:
 
     @staticmethod
     def run(file_pairs, dir_hashes=None):
-        cmds = [lepath.abs(RITOBIN.local_file)]
-        cmds.extend(('--file-pairs', ';'.join(file_pairs)))
-        if dir_hashes:
-            cmds.extend(('--dir-hashes', dir_hashes))
-        p = subprocess.Popen(
-            cmds, creationflags=subprocess.CREATE_NO_WINDOW,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-        )
-        block_and_stream_process_output(p, 'ritobin: ')
-        return p
+        sub_len = 0
+        len_pair = len(file_pairs)
+        cur = 0
+        left = 0
+        right = 0
+        while cur < len_pair:
+            inp = file_pairs[cur]
+            out = file_pairs[cur+1]
+            sub_len += len(inp) + len(out)
+            if sub_len > 30000:
+                right = cur+2
+
+                sub_pairs = file_pairs[left:right]
+                print(f'ritobin: Start: Process {len(sub_pairs) // 2} files.')
+                cmds = [lepath.abs(RITOBIN.local_file)]
+                cmds.append('--file-pairs')
+                cmds.extend(file_pairs[left:right])
+                if dir_hashes:
+                    cmds.extend(('--dir-hashes', dir_hashes))
+                p = subprocess.Popen(
+                    cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+                )
+                block_and_stream_process_output(p, 'ritobin: ')
+
+                sub_len = 0
+                left = right
+            cur += 2
+        if right < len_pair:
+            sub_pairs = file_pairs[right:len_pair]
+            print(f'ritobin: Start: Process {len(sub_pairs) // 2} files.')
+            cmds = [lepath.abs(RITOBIN.local_file)]
+            cmds.append('--file-pairs')
+            cmds.extend(sub_pairs)
+            if dir_hashes:
+                cmds.extend(('--dir-hashes', dir_hashes))
+            p = subprocess.Popen(
+                cmds, creationflags=subprocess.CREATE_NO_WINDOW,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
+            block_and_stream_process_output(p, 'ritobin: ')
