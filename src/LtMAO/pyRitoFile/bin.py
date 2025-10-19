@@ -72,6 +72,7 @@ class BINHasher:
     
     @staticmethod
     def is_hash(raw):
+        if len(raw) != 8: return False
         try: 
             int(raw, 16)
             return True
@@ -80,6 +81,7 @@ class BINHasher:
 
     @staticmethod
     def raw_or_hex_to_hash(raw_or_hex):
+        if len(raw_or_hex) != 8: return FNV1a(raw_or_hex)
         try:
             return int(raw_or_hex, 16)
         except:

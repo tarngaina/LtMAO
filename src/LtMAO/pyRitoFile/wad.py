@@ -92,6 +92,7 @@ class WADHasher:
     
     @staticmethod
     def is_hash(raw):
+        if len(raw) != 16: return False
         try: 
             int(raw, 16)
             return True
@@ -100,6 +101,7 @@ class WADHasher:
 
     @staticmethod
     def raw_or_hex_to_hash(raw_or_hex):
+        if len(raw_or_hex) != 16: return xxh64(raw_or_hex.lower()).intdigest()
         try:
             return int(raw_or_hex, 16)
         except:
