@@ -198,6 +198,7 @@ class RITOBIN:
         cur = 0
         left = 0
         right = 0
+        ps = []
         while cur < len_pair:
             inp = file_pairs[cur]
             out = file_pairs[cur+1]
@@ -212,11 +213,11 @@ class RITOBIN:
                 cmds.extend(file_pairs[left:right])
                 if dir_hashes:
                     cmds.extend(('--dir-hashes', dir_hashes))
-                p = subprocess.Popen(
+                ps.append(subprocess.Popen(
                     cmds, creationflags=subprocess.CREATE_NO_WINDOW,
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-                )
-                block_and_stream_process_output(p, 'ritobin: ')
+                ))
+                #block_and_stream_process_output(p, 'ritobin: ')
 
                 sub_len = 0
                 left = right
@@ -229,8 +230,9 @@ class RITOBIN:
             cmds.extend(sub_pairs)
             if dir_hashes:
                 cmds.extend(('--dir-hashes', dir_hashes))
-            p = subprocess.Popen(
+            ps.append(subprocess.Popen(
                 cmds, creationflags=subprocess.CREATE_NO_WINDOW,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-            )
-            block_and_stream_process_output(p, 'ritobin: ')
+            ))
+        for p in ps:
+            p.wait()
