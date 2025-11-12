@@ -213,7 +213,7 @@ def convert_raw_files_before_run():
                         dds2tex_files.append((dds_file, tex_file))
     # converts
     if setting.get('cslmao.auto_py2bin', False):
-        tools.RITOBIN.run((path for pair in py2bin_files for path in pair))
+        tools.RITOBIN.run([path for pair in py2bin_files for path in pair])
         print(f'cslmao: Finish: Convert {len(py2bin_files)} files from PY to BIN.')
     if setting.get('cslmao.auto_dds2tex', False):
         for dds_file, tex_file in dds2tex_files:

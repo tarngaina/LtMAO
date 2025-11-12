@@ -119,6 +119,8 @@ class ImageMagick:
             f'dds:compression={format}',
             '-define',
             f'dds:mipmaps={mipmap_count if mipmap else 0}',
+            '-alpha',
+            'set',
             dds
         ]
         p = subprocess.Popen(
@@ -217,8 +219,7 @@ class RITOBIN:
                     cmds, creationflags=subprocess.CREATE_NO_WINDOW,
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT
                 ))
-                #block_and_stream_process_output(p, 'ritobin: ')
-
+                
                 sub_len = 0
                 left = right
             cur += 2
