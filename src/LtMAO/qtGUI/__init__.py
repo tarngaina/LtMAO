@@ -169,6 +169,22 @@ def init_theme(theme_name):
         QSlider:sub-page {{
             background-color: {qtwidgets.accent_color};
         }}
+        QMessageBox {{
+            background-color: black;
+            border: 2px solid {qtwidgets.accent_color};
+        }}
+        QDialogButtonBox > QPushButton[text="&Yes"] {{
+            min-height: 30;
+            color: white;
+            background-color: rgb(0, 255, 0);
+            border-bottom: 2px solid {qtwidgets.accent_color};
+        }}
+        QDialogButtonBox > QPushButton[text="&No"] {{
+            min-height: 30;
+            color: white;
+            background-color: rgb(255, 0, 0);
+            border-bottom: 2px solid {qtwidgets.accent_color};
+        }}
     """
     qtwidgets.tab_stylesheet = f"""
         QWidget {{
