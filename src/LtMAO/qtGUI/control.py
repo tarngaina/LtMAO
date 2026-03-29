@@ -2062,7 +2062,7 @@ Copy MaskData weight values from riot animation BIN to your custom animation BIN
 New custom joints will have weight set to 0.0.
     """), alignment=Qt.AlignmentFlag.AlignLeft) 
     button.clicked.connect(
-        lambda event: sborf.skin_fix(
+        lambda event: sborf.maskdata_adapt(
             skl_line.text(),
             anm_bin_line.text(),
             riot_skl_line.text(),
