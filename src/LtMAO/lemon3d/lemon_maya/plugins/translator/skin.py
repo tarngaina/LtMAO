@@ -608,8 +608,10 @@ class SKN:
                     if weight > 0.001:
                         vertex_influences_weights.append((mask_influence[influence], weight))
                 # prune 4+ influences 
-                vertex_influences_weights.sort(key=lambda x: x[1])
-                vertex_influences_weights = vertex_influences_weights[:4]
+                if len(vertex_influences_weights) > 4:
+                    vertex_influences_weights.sort(key=lambda x: x[1], reverse=True)
+                    vertex_influences_weights = vertex_influences_weights[:4]
+                    
                 for i in range(len(vertex_influences_weights)):
                     influences[i], vertex_weights[i] = vertex_influences_weights[i]
                 # normalize weight

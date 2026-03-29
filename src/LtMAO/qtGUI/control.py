@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
     QSlider, 
     QTreeWidget,
     QTreeWidgetItem,
+    QMessageBox,
 )
 from PySide6.QtGui import QColor, QStandardItem, QStandardItemModel, QPixmap, QMovie, QShortcut, QKeySequence
 from PySide6.QtCore import Qt, QObject, Signal
@@ -1042,15 +1043,15 @@ def build_mask_viewer(widget: QWidget):
     button.setText('🗿 Load')
     button.clicked.connect(lambda event: load_table(skl_line, anm_bin_line, table))
     layout2.addWidget(button)
-
-    button = QToolButton()
-    button.setText('💾 Save as')
-    button.clicked.connect(lambda event: save_table(table))
-    layout2.addWidget(button)
     
     button = QToolButton()
     button.setText('❌ Clear')
     button.clicked.connect(lambda event: clear_table(table))
+    layout2.addWidget(button)
+
+    button = QToolButton()
+    button.setText('💾 Save as')
+    button.clicked.connect(lambda event: save_table(table))
     layout2.addWidget(button)
 
     layout2.addWidget(QLabel('💡 Correct weight value range: [0.000-1.000]'))
@@ -2062,7 +2063,7 @@ Copy MaskData weight values from riot animation BIN to your custom animation BIN
 New custom joints will have weight set to 0.0.
     """), alignment=Qt.AlignmentFlag.AlignLeft) 
     button.clicked.connect(
-        lambda event: sborf.skin_fix(
+        lambda event: sborf.maskdata_adapt(
             skl_line.text(),
             anm_bin_line.text(),
             riot_skl_line.text(),
@@ -2448,6 +2449,13 @@ def build_bnk_tool(widget: QWidget):
     button.setText('📻 Load')
     button.setMinimumWidth(230)
     def load_bnk():
+        reply = QMessageBox.question(widget, 'U serious uwu?',
+            "Loading new BNK will clear the loaded wem files.", QMessageBox.Yes | 
+            QMessageBox.No, QMessageBox.No)
+
+        if reply != QMessageBox.Yes:
+            return
+            
         # clear cache
         model.clear()
         if qtwidgets.inspector != None:
@@ -2498,6 +2506,27 @@ def build_bnk_tool(widget: QWidget):
     
     button.clicked.connect(load_bnk)
     layout3.addWidget(button)
+    
+    button = QToolButton()
+    button.setText('❌ Clear')
+    button.setMinimumWidth(230)
+    def clear_bnk():
+        reply = QMessageBox.question(widget, 'U serious uwu?',
+            "U REALLY want to CLEAR the WEMS?!!!", QMessageBox.Yes | 
+            QMessageBox.No, QMessageBox.No)
+
+        if reply != QMessageBox.Yes:
+            return
+    
+        model.clear()
+        if qtwidgets.inspector != None:
+            qtwidgets.inspector.stop()
+            qtwidgets.inspector.port.terminate()
+        bnk_tool.Inspector.reset_cache()
+        qtwidgets.inspector = None
+        reset_autoplay_values()
+    button.clicked.connect(clear_bnk)
+    layout3.addWidget(button)
 
     button = QToolButton()
     button.setText('💾 Save as')
@@ -2532,20 +2561,6 @@ def build_bnk_tool(widget: QWidget):
 
             helper.SafeThread.start('bnk_tool', save_thrd)
     button.clicked.connect(save_as)
-    layout3.addWidget(button)
-
-    button = QToolButton()
-    button.setText('❌ Clear')
-    button.setMinimumWidth(230)
-    def clear_bnk():
-        model.clear()
-        if qtwidgets.inspector != None:
-            qtwidgets.inspector.stop()
-            qtwidgets.inspector.port.terminate()
-        bnk_tool.Inspector.reset_cache()
-        qtwidgets.inspector = None
-        reset_autoplay_values()
-    button.clicked.connect(clear_bnk)
     layout3.addWidget(button)
 
     button = QToolButton()
