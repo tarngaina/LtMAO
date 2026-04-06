@@ -1054,6 +1054,29 @@ def build_mask_viewer(widget: QWidget):
     button.clicked.connect(lambda event: save_table(table))
     layout2.addWidget(button)
 
+    batch_line = QLineEdit()
+    batch_line.setPlaceholderText('0.0')
+    batch_line.setMaximumWidth(80)
+    layout2.addWidget(batch_line)
+
+    batch_button = QToolButton()
+    batch_button.setText('⚡ Batch Change')
+    def batch_change_cmd():
+        try:
+            val_str = batch_line.text()
+            if not val_str:
+                return
+            float(val_str)
+            for j in range(table.columnCount()):
+                for i in range(table.rowCount()):
+                    item = table.item(i, j)
+                    if item:
+                        item.setText(val_str)
+        except Exception:
+            pass
+    batch_button.clicked.connect(batch_change_cmd)
+    layout2.addWidget(batch_button)
+
     layout2.addWidget(QLabel('💡 Correct weight value range: [0.000-1.000]'))
     layout2.addStretch()
     layout.addLayout(layout2)

@@ -61,7 +61,7 @@ Just `cslol-manager`, but different UI.
 `hash_helper` also has generate wad & bin hash tool. Those generated hashes can be added to Custom Hashes with buttons.
 
 ## mask_viewer
-Edit MaskData's weights inside animation BINs.
+Edit MaskData's weights inside animation BINs. Can also batch change all weights to a specific value.
 
 ![](https://i.postimg.cc/TPY7BxxJ/screenshot-2.png)
 
