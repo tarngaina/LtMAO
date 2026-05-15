@@ -66,6 +66,8 @@ class CLI:
         if src.endswith('.py'):
             if src.endswith('.cdtb.py'):
                 dst = lepath.ext(src, '.cdtb.py', '')
+            elif src.endswith('.ltk.py'):
+                dst = lepath.ext(src, '.ltk.py', '')
             else:
                 dst = lepath.ext(src, '.py', '.bin')
             tools.RITOBIN.run((src, dst))
@@ -107,6 +109,10 @@ class CLI:
                         if file.endswith('.cdtb.py'):
                             py_file = lepath.join(root, file)
                             bin_file = lepath.ext(py_file, '.cdtb.py', '')
+                            file_pairs.extend((py_file, bin_file))
+                        elif file.endswith('.ltk.py'):
+                            py_file = lepath.join(root, file)
+                            bin_file = lepath.ext(py_file, '.ltk.py', '')
                             file_pairs.extend((py_file, bin_file))
                         else:
                             py_file = lepath.join(root, file)
