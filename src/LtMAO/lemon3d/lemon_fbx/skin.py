@@ -36,9 +36,11 @@ class SKL:
     @staticmethod
     def dump_skl(fbx_joints):
         # prepare
+        # only weighted joints are limited to 256 (checked on skn dump),
+        # the skeleton itself can hold up to 65535 joints
         joint_count = len(fbx_joints)
-        if joint_count > 256:
-            raise Exception(f'lemon_fbx: Error: Too many joints found: {joint_count}, max: 256')
+        if joint_count > 65535:
+            raise Exception(f'lemon_fbx: Error: Too many joints found: {joint_count}, max: 65535')
         skl = pyRitoFile.skl.SKL()
         skl.joints = [pyRitoFile.skl.SKLJoint() for i in range(joint_count)]
         # dump joint infos
@@ -407,6 +409,14 @@ class SKN:
         
         if len(skn.vertices) > 65535:
             raise Exception(f'lemon_fbx: Error: Too many vertices found: {len(skn.vertices)}, max allowed: 65535 vertices. (base on UVs)')
+
+        # build skl influences out of the weighted joints and
+        # remap vertex joint ids -> influence slot bytes
+        try:
+            skl.influences = pyRitoFile.skn.build_influences(skn.vertices, skl.joints)
+        except ValueError as e:
+            raise Exception(f'lemon_fbx: Error: {e}')
+
         print(f'lemon_fbx: Finish: Dump SKN.')
         return skn
 
