@@ -35,12 +35,16 @@ def fbx_to_skin(fbx_path, skl_path, skn_path, anm_path):
 
     # dump skl
     skl, blender_armature_node_name, blender_armature_node_local_matrix = skin.SKL.dump_skl(fbx_joints)
+
+    # dump skn
+    # this also builds skl.influences out of the weighted joints,
+    # so skl must be written after the skn dump
+    skn = skin.SKN.dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_local_matrix)
+
+    # write skl + skn
     helper.mirrorX(skl=skl)
     skl.write(skl_path)
     print(f'lemon_fbx: Finish: Write SKL: {skl_path}')
-
-    # dump skn
-    skn = skin.SKN.dump_skn(fbx_meshes, skl, blender_armature_node_name, blender_armature_node_local_matrix)
     helper.mirrorX(skn=skn)
     skn.write(skn_path)
     print(f'lemon_fbx: Finish: Write SKN: {skn_path}')

@@ -13,6 +13,8 @@ def skin_fix(skl_path, skn_path, riotskl_path, riotskn_path='', backup=True, don
     print(f'sborf: Finish: Read SKIN.')
 
     # sort joint
+    old_influences = skl.influences if skl.influences != None else list(
+        range(len(skl.joints)))
     new_joint_id_by_old_joint_id = {}
     new_joint_id_by_old_joint_id[-1] = -1  # for parent
     print(f'sborf: Start:  Sort joints.')
@@ -66,16 +68,17 @@ def skin_fix(skl_path, skn_path, riotskl_path, riotskn_path='', backup=True, don
     # sort parent
     for joint in skl.joints:
         joint.parent = new_joint_id_by_old_joint_id[joint.parent]
-    if len(skl.joints) > 256:
+    if len(skl.joints) > 65535:
         raise Exception(
-            f'sborf: Error: Sort joints: Too many joints after sort: {len(skn.joints)}(>256), please check if Riot SKL is correct.')
+            f'sborf: Error: Sort joints: Too many joints after sort: {len(skl.joints)}(>65535), please check if Riot SKL is correct.')
     print(f'sborf: Finish: Sort joints.')
 
     # update influences
+    # skn vertex blend indices index the skl influence table, not the joints,
+    # so remap the joint ids inside the table and the vertices stay untouched
     print(f'sborf: Start:  Update influences.')
-    for vertex in skn.vertices:
-        vertex.influences = [new_joint_id_by_old_joint_id[inf]
-                             for inf in vertex.influences]
+    skl.influences = [new_joint_id_by_old_joint_id[inf]
+                      for inf in old_influences]
     print(f'sborf: Finish: Update influences.')
 
     # sort materials
