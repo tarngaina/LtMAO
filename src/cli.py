@@ -102,12 +102,20 @@ class CLI:
             file_pairs = []
             for root, dirs, files in os.walk(src):
                 for file in files:
-                    # py to bin
-                    if file.endswith('.py'):
+                    # py to bin OR ritobin to bin OR rito to bin
+                    if file.endswith('.py') or file.endswith('.ritobin') or file.endswith('.rito'):
                         if file.endswith('.cdtb.py'):
                             py_file = lepath.join(root, file)
                             bin_file = lepath.ext(py_file, '.cdtb.py', '')
                             file_pairs.extend((py_file, bin_file))
+                        elif file.endswith('.ritobin'):
+                            ritobin_file = lepath.join(root, file)
+                            bin_file = lepath.ext(ritobin_file, '.ritobin', '.bin')
+                            file_pairs.extend((ritobin_file, bin_file))
+                        elif file.endswith('.rito'):
+                            rito_file = lepath.join(root, file)
+                            bin_file = lepath.ext(rito_file, '.rito', '.bin')
+                            file_pairs.extend((rito_file, bin_file))
                         else:
                             py_file = lepath.join(root, file)
                             bin_file = lepath.ext(py_file, '.py', '.bin')

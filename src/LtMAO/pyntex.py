@@ -31,7 +31,10 @@ def parse_bin(bin, *, existing_files={}):
         missing_files = []
 
         def parse_value(value, value_type):
-            if value_type == pyRitoFile.bin.BINType.STRING:
+            if value_type in (
+                pyRitoFile.bin.BINType.STRING,
+                pyRitoFile.bin.BINType.FILE,
+            ):
                 value = value.lower()
                 if 'assets/' in value or 'data/' in value:
                     if value not in mentioned_files:
@@ -56,7 +59,18 @@ def parse_bin(bin, *, existing_files={}):
                 for key, value in field.data.items():
                     parse_value(key, field.key_type)
                     parse_value(value, field.value_type)
-            elif field.type == pyRitoFile.bin.BINType.OPTION and field.value_type == pyRitoFile.bin.BINType.STRING:
+            elif field.type == pyRitoFile.bin.BINType.OPTION and field.value_type in (
+                pyRitoFile.bin.BINType.STRING,
+                pyRitoFile.bin.BINType.FILE,
+            ):
+                if field.data != None:
+                    value = field.data
+                    if field.value_type == pyRitoFile.bin.BINType.FILE:
+                        value = pyRitoFile.bin.BINHasher.hex_to_raw(
+                            hash_helper.Storage.hashtables,
+                            value
+                        )
+                    parse_value(value, field.value_type)
                 if field.data != None:
                     parse_value(field.data, field.value_type)
             else:
@@ -112,6 +126,8 @@ def parse_dir(path, delete_junk_files=False):
     # parsing
     print(f'pyntex: Start:  Read bin hashes')
     hash_helper.Storage.read_bin_hashes()
+    print(f'pyntex: Start:  Read wad hashes')
+    hash_helper.Storage.read_wad_hashes()
     for full_file_index, full_file in enumerate(full_files):
         if full_file.endswith('.bin'):
             try:

@@ -44,6 +44,12 @@ class Context:
         'py': {
             'RitobinToBin': True,
         },
+        'rito': {
+            'RitobinToBin': True,
+        },
+        'ritobin': {
+            'RitobinToBin': True,
+        },
         'skl': {
             'hashextract': True,
             'LFI': True,
