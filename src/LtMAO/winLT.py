@@ -19,6 +19,7 @@ class Context:
             'RitobinDirToPy': True,
             'RitobinDirToBin': True,
             'PyToRitobinDir': True,
+            'RitobinToPyDir': True,
             'tex2ddsdir': True,
             'dds2texdir': True,
             'dir2bnk': True,
@@ -48,9 +49,11 @@ class Context:
         },
         'rito': {
             'RitobinToBin': True,
+            'RitobinToPy': True,
         },
         'ritobin': {
             'RitobinToBin': True,
+            'RitobinToPy': True,
         },
         'skl': {
             'hashextract': True,
@@ -151,6 +154,14 @@ class Context:
         'PyToRitobin': {
             'desc': 'ritobin: Rename To RITOBIN',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="py2ritobin" -src="%V"'
+        },
+        'RitobinToPyDir': {
+            'desc': 'ritobin: Rename All RITOBIN To PY',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin2py" -src="%V"'
+        },
+        'RitobinToPy': {
+            'desc': 'ritobin: Rename To PY',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin2py" -src="%V"'
         },
         'LFI': {
             'desc': 'file_inspector: Print infos as JSON',

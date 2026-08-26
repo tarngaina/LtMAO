@@ -145,6 +145,25 @@ class CLI:
                         os.rename(old_path, new_path)
 
     @staticmethod
+    def ritobin2py(src, dst):
+        from LtMAO import lepath
+        import os
+
+        if os.path.isfile(src):
+            if src.lower().endswith(('.rito', '.ritobin')):
+                os.rename(src, lepath.ext(src, os.path.splitext(src)[1], '.py'))
+            return
+
+        if os.path.isdir(src):
+            for root, dirs, files in os.walk(src):
+                for file in files:
+                    if file.lower().endswith(('.rito', '.ritobin')):
+                        old_path = os.path.join(root, file)
+                        ext = os.path.splitext(file)[1]
+                        new_path = lepath.ext(old_path, ext, '.py')
+                        os.rename(old_path, new_path)
+
+    @staticmethod
     def lfi(src):
         from LtMAO import hash_helper, file_inspector
         hash_helper.Storage.read_all_hashes()
@@ -432,6 +451,7 @@ def main():
         'ritobindir2py':    lambda src, dst: CLI.ritobindir(src, dst, True),
         'ritobindir2bin':   lambda src, dst: CLI.ritobindir(src, dst, False),
         'py2ritobin':       lambda src, dst: CLI.py2ritobin(src, dst),
+        'ritobin2py':       lambda src, dst: CLI.ritobin2py(src, dst),
 
         'lfi':              lambda src, dst: CLI.lfi(src),
 
