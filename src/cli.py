@@ -126,6 +126,23 @@ class CLI:
                             file_pairs.extend((py_file, bin_file))
             tools.RITOBIN.run(file_pairs)
             
+    @staticmethod
+    def py2ritobin(src, dst):
+        from LtMAO import lepath
+        import os
+
+        if os.path.isfile(src):
+            if src.lower().endswith('.py'):
+                os.rename(src, lepath.ext(src, '.py', '.ritobin'))
+            return
+
+        if os.path.isdir(src):
+            for root, dirs, files in os.walk(src):
+                for file in files:
+                    if file.lower().endswith('.py'):
+                        old_path = os.path.join(root, file)
+                        new_path = lepath.ext(old_path, '.py', '.ritobin')
+                        os.rename(old_path, new_path)
 
     @staticmethod
     def lfi(src):
@@ -414,6 +431,7 @@ def main():
         'ritobin':          lambda src, dst: CLI.ritobin(src, dst),
         'ritobindir2py':    lambda src, dst: CLI.ritobindir(src, dst, True),
         'ritobindir2bin':   lambda src, dst: CLI.ritobindir(src, dst, False),
+        'py2ritobin':       lambda src, dst: CLI.py2ritobin(src, dst),
 
         'lfi':              lambda src, dst: CLI.lfi(src),
 
