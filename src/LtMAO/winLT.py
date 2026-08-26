@@ -49,11 +49,11 @@ class Context:
         },
         'rito': {
             'RitobinToBin': True,
-            'RitobinToPy': True,
+            'Ritobin2Py': True,
         },
         'ritobin': {
             'RitobinToBin': True,
-            'RitobinToPy': True,
+            'Ritobin2Py': True,
         },
         'skl': {
             'hashextract': True,
@@ -159,7 +159,7 @@ class Context:
             'desc': 'ritobin: Rename All RITOBIN To PY',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin2py" -src="%V"'
         },
-        'RitobinToPy': {
+        'Ritobin2Py': {
             'desc': 'ritobin: Rename To PY',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin2py" -src="%V"'
         },
