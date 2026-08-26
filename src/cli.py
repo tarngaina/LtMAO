@@ -61,22 +61,26 @@ class CLI:
     @staticmethod
     def ritobin(src, dst):
         from LtMAO import lepath, hash_helper, pyRitoFile, tools
-        dst = None
-        # py to bin
-        if src.endswith('.py'):
-            if src.endswith('.cdtb.py'):
-                dst = lepath.ext(src, '.cdtb.py', '')
-            else:
-                dst = lepath.ext(src, '.py', '.bin')
-            tools.RITOBIN.run((src, dst))
-            return
-        # bin to py
-        elif src.endswith('.bin'):
+
+        src_lower = src.lower()
+
+        if src_lower.endswith('.cdtb.py'):
+            dst = lepath.ext(src, '.cdtb.py', '')
+        elif src_lower.endswith('.py'):
+            dst = lepath.ext(src, '.py', '.bin')
+        elif src_lower.endswith(('.ritobin', '.rito')):
+            ext = '.ritobin' if src_lower.endswith('.ritobin') else '.rito'
+            dst = lepath.ext(src, ext, '.bin')
+        elif src_lower.endswith('.bin'):
             dst = lepath.ext(src, '.bin', '.py')
         else:
             with pyRitoFile.stream.BytesStream.reader(src) as bs:
                 if pyRitoFile.wad.WADExtensioner.guess_extension(bs.read(20)) == 'bin':
                     dst = src + '.cdtb.py'
+
+        if dst is None:
+            raise ValueError(f'Could not determine output filename for: {src}')
+
         tools.RITOBIN.run((src, dst), dir_hashes=hash_helper.CustomHashes.local_dir)
         
     @staticmethod
