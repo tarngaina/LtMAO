@@ -167,14 +167,33 @@ class SKL:
             bs.write_u32(0, 0x22FD4FC3, 0)
 
             joint_count = len(self.joints)
+            if joint_count > 65535:
+                raise Exception(
+                    f'pyRitoFile: Error: Write SKL {path}: Too many joints: {joint_count}, max allowed: 65535 joints.')
+            
+            # SKN vertex blend indices are bytes that index the influence table,
+            # the table then maps each slot (max 256) to a joint id (max 65535)
+            influences = self.influences
+            if influences == None:
+                # no influences set -> identity table over all joints (old behavior)
+                if joint_count > 256:
+                    raise Exception(
+                        f'pyRitoFile: Error: Write SKL {path}: {joint_count} joints (>256) but no influences set: set SKL.influences to the list of weighted joint ids (max 256).')
+                influences = list(range(joint_count))
+            
+            influence_count = len(influences)
+            if influence_count > 256:
+                raise Exception(
+                    f'pyRitoFile: Error: Write SKL {path}: Too many influences: {influence_count}, max allowed: 256 influences.')
+            
             bs.write_u16(0)  # flags
             bs.write_u16(joint_count)
-            bs.write_u32(joint_count)
+            bs.write_u32(influence_count)
 
             joints_offset = 64
             joint_indices_offset = joints_offset + joint_count * 100
             influences_offset = joint_indices_offset + joint_count * 8
-            joint_names_offset = influences_offset + joint_count * 2
+            joint_names_offset = influences_offset + influence_count * 2
 
             bs.write_i32(
                 joints_offset,
@@ -217,12 +236,13 @@ class SKL:
 
             # influences
             bs.seek(influences_offset)
-            bs.write_u16(*[i for i in range(joint_count)])
+            if influence_count > 0:
+                bs.write_u16(*influences)
 
-            # joint indices
+            # joint indices, sorted by hash ascending
             bs.seek(joint_indices_offset)
-            for i in range(joint_count):
-                bs.write_u16(i)
+            for joint_id, joint in sorted(enumerate(self.joints), key=lambda x: x[1].hash):
+                bs.write_u16(joint_id)
                 bs.write_u16(0)  # pad
                 bs.write_u32(joint.hash)
 

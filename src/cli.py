@@ -61,22 +61,26 @@ class CLI:
     @staticmethod
     def ritobin(src, dst):
         from LtMAO import lepath, hash_helper, pyRitoFile, tools
-        dst = None
-        # py to bin
-        if src.endswith('.py'):
-            if src.endswith('.cdtb.py'):
-                dst = lepath.ext(src, '.cdtb.py', '')
-            else:
-                dst = lepath.ext(src, '.py', '.bin')
-            tools.RITOBIN.run((src, dst))
-            return
-        # bin to py
-        elif src.endswith('.bin'):
+
+        src_lower = src.lower()
+
+        if src_lower.endswith('.cdtb.py'):
+            dst = lepath.ext(src, '.cdtb.py', '')
+        elif src_lower.endswith('.py'):
+            dst = lepath.ext(src, '.py', '.bin')
+        elif src_lower.endswith(('.ritobin', '.rito')):
+            ext = '.ritobin' if src_lower.endswith('.ritobin') else '.rito'
+            dst = lepath.ext(src, ext, '.bin')
+        elif src_lower.endswith('.bin'):
             dst = lepath.ext(src, '.bin', '.py')
         else:
             with pyRitoFile.stream.BytesStream.reader(src) as bs:
                 if pyRitoFile.wad.WADExtensioner.guess_extension(bs.read(20)) == 'bin':
                     dst = src + '.cdtb.py'
+
+        if dst is None:
+            raise ValueError(f'Could not determine output filename for: {src}')
+
         tools.RITOBIN.run((src, dst), dir_hashes=hash_helper.CustomHashes.local_dir)
         
     @staticmethod
@@ -102,18 +106,62 @@ class CLI:
             file_pairs = []
             for root, dirs, files in os.walk(src):
                 for file in files:
-                    # py to bin
-                    if file.endswith('.py'):
+                    # py to bin OR ritobin to bin OR rito to bin
+                    if file.endswith('.py') or file.endswith('.ritobin') or file.endswith('.rito'):
                         if file.endswith('.cdtb.py'):
                             py_file = lepath.join(root, file)
                             bin_file = lepath.ext(py_file, '.cdtb.py', '')
                             file_pairs.extend((py_file, bin_file))
+                        elif file.endswith('.ritobin'):
+                            ritobin_file = lepath.join(root, file)
+                            bin_file = lepath.ext(ritobin_file, '.ritobin', '.bin')
+                            file_pairs.extend((ritobin_file, bin_file))
+                        elif file.endswith('.rito'):
+                            rito_file = lepath.join(root, file)
+                            bin_file = lepath.ext(rito_file, '.rito', '.bin')
+                            file_pairs.extend((rito_file, bin_file))
                         else:
                             py_file = lepath.join(root, file)
                             bin_file = lepath.ext(py_file, '.py', '.bin')
                             file_pairs.extend((py_file, bin_file))
             tools.RITOBIN.run(file_pairs)
             
+    @staticmethod
+    def py2ritobin(src, dst):
+        from LtMAO import lepath
+        import os
+
+        if os.path.isfile(src):
+            if src.lower().endswith('.py'):
+                os.rename(src, lepath.ext(src, '.py', '.ritobin'))
+            return
+
+        if os.path.isdir(src):
+            for root, dirs, files in os.walk(src):
+                for file in files:
+                    if file.lower().endswith('.py'):
+                        old_path = os.path.join(root, file)
+                        new_path = lepath.ext(old_path, '.py', '.ritobin')
+                        os.rename(old_path, new_path)
+
+    @staticmethod
+    def ritobin2py(src, dst):
+        from LtMAO import lepath
+        import os
+
+        if os.path.isfile(src):
+            if src.lower().endswith(('.rito', '.ritobin')):
+                os.rename(src, lepath.ext(src, os.path.splitext(src)[1], '.py'))
+            return
+
+        if os.path.isdir(src):
+            for root, dirs, files in os.walk(src):
+                for file in files:
+                    if file.lower().endswith(('.rito', '.ritobin')):
+                        old_path = os.path.join(root, file)
+                        ext = os.path.splitext(file)[1]
+                        new_path = lepath.ext(old_path, ext, '.py')
+                        os.rename(old_path, new_path)
 
     @staticmethod
     def lfi(src):
@@ -402,6 +450,8 @@ def main():
         'ritobin':          lambda src, dst: CLI.ritobin(src, dst),
         'ritobindir2py':    lambda src, dst: CLI.ritobindir(src, dst, True),
         'ritobindir2bin':   lambda src, dst: CLI.ritobindir(src, dst, False),
+        'py2ritobin':       lambda src, dst: CLI.py2ritobin(src, dst),
+        'ritobin2py':       lambda src, dst: CLI.ritobin2py(src, dst),
 
         'lfi':              lambda src, dst: CLI.lfi(src),
 

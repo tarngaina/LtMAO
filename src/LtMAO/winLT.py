@@ -18,6 +18,8 @@ class Context:
             'ZipFantome': True,
             'RitobinDirToPy': True,
             'RitobinDirToBin': True,
+            'PyToRitobinDir': True,
+            'RitobinToPyDir': True,
             'tex2ddsdir': True,
             'dds2texdir': True,
             'dir2bnk': True,
@@ -43,6 +45,15 @@ class Context:
         },
         'py': {
             'RitobinToBin': True,
+            'PyToRitobin': True,
+        },
+        'rito': {
+            'RitobinToBin': True,
+            'Ritobin2Py': True,
+        },
+        'ritobin': {
+            'RitobinToBin': True,
+            'Ritobin2Py': True,
         },
         'skl': {
             'hashextract': True,
@@ -135,6 +146,22 @@ class Context:
         'RitobinDirToBin': {
             'desc': 'ritobin: Convert All PY To BIN',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobindir2bin" -src="%V"'
+        },
+        'PyToRitobinDir': {
+            'desc': 'ritobin: Rename All PY To RITOBIN',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="py2ritobin" -src="%V"'
+        },
+        'PyToRitobin': {
+            'desc': 'ritobin: Rename To RITOBIN',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="py2ritobin" -src="%V"'
+        },
+        'RitobinToPyDir': {
+            'desc': 'ritobin: Rename All RITOBIN To PY',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin2py" -src="%V"'
+        },
+        'Ritobin2Py': {
+            'desc': 'ritobin: Rename To PY',
+            'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin2py" -src="%V"'
         },
         'LFI': {
             'desc': 'file_inspector: Print infos as JSON',
