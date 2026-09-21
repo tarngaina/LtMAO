@@ -1,6 +1,37 @@
 import os, os.path, json, traceback
 from . import lepath, hash_helper, pyRitoFile
 
+def build_local_wad_hashes(existing_files):
+    """
+    Build temporary WAD hash -> raw path mappings from files
+    physically present in the directory.
+
+    Example:
+        assets/particles/file.png
+        ->
+        <xxh64 hash> : assets/particles/file.png
+    """
+    local_hashes = {}
+
+    for file_path in existing_files:
+        file_path = file_path.lower().replace('\\', '/')
+
+        # Normal raw path:
+        # assets/particles/file.png
+        if not pyRitoFile.wad.WADHasher.is_hash(
+            os.path.splitext(os.path.basename(file_path))[0]
+        ):
+            file_hash = pyRitoFile.wad.WADHasher.raw_to_hex(file_path)
+            local_hashes.setdefault(file_hash, file_path)
+
+        # Also support files whose filename itself is already a WAD hash:
+        # assets/particles/ec9584b0506c2abb.png
+        basename = os.path.splitext(os.path.basename(file_path))[0]
+        if pyRitoFile.wad.WADHasher.is_hash(basename):
+            local_hashes.setdefault(basename, file_path)
+
+    return local_hashes
+
 def unify_path(path):
     # if the path is straight up hex
     # ex: ec9584b0506c2abb -> ec9584b0506c2abb
@@ -126,13 +157,34 @@ def parse_dir(path, delete_junk_files=False):
     # parsing
     print(f'pyntex: Start:  Read bin hashes')
     hash_helper.Storage.read_bin_hashes()
+
     print(f'pyntex: Start:  Read wad hashes')
     hash_helper.Storage.read_wad_hashes()
+
+    # Automatically generate WAD hashes from files physically
+    # present inside the directory being parsed.
+    local_wad_hashes = build_local_wad_hashes(existing_files)
+
+    # Make a temporary copy of the hash tables so that these
+    # automatically generated hashes do not get permanently added
+    # to the user's hash database.
+    working_hashtables = {
+        name: dict(table)
+        for name, table in hash_helper.Storage.hashtables.items()
+    }
+
+    # Only fill hashes that aren't already known.
+    for file_hash, file_path in local_wad_hashes.items():
+        working_hashtables['hashes.game.txt'].setdefault(
+            file_hash,
+            file_path
+        )
+
     for full_file_index, full_file in enumerate(full_files):
         if full_file.endswith('.bin'):
             try:
                 bin = pyRitoFile.bin.BIN().read(full_file)
-                bin.un_hash(hash_helper.Storage.hashtables)
+                bin.un_hash(working_hashtables)
                 result = parse_bin(bin, existing_files=existing_files)
                 if len(result) > 0:
                     res[short_files[full_file_index]] = result
