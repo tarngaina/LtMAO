@@ -2,61 +2,42 @@ import os, os.path, json, traceback
 from . import lepath, hash_helper, pyRitoFile
 
 def build_local_wad_hashes(existing_files):
-    """
-    Build temporary WAD hash -> raw path mappings from files
-    physically present in the directory.
-
-    Example:
-        assets/particles/file.png
-        ->
-        <xxh64 hash> : assets/particles/file.png
-    """
+    """Build temporary WAD hash -> raw path mappings for every local file."""
     local_hashes = {}
 
     for file_path in existing_files:
         file_path = file_path.lower().replace('\\', '/')
-
-        # Normal raw path:
-        # assets/particles/file.png
-        if not pyRitoFile.wad.WADHasher.is_hash(
-            os.path.splitext(os.path.basename(file_path))[0]
-        ):
-            file_hash = pyRitoFile.wad.WADHasher.raw_to_hex(file_path)
-            local_hashes.setdefault(file_hash, file_path)
-
-        # Also support files whose filename itself is already a WAD hash:
-        # assets/particles/ec9584b0506c2abb.png
-        basename = os.path.splitext(os.path.basename(file_path))[0]
-        if pyRitoFile.wad.WADHasher.is_hash(basename):
-            local_hashes.setdefault(basename, file_path)
+        file_hash = pyRitoFile.wad.WADHasher.raw_to_hex(file_path)
+        local_hashes.setdefault(file_hash, file_path)
 
     return local_hashes
 
 def unify_path(path):
-    # if the path is straight up hex
-    # ex: ec9584b0506c2abb -> ec9584b0506c2abb
     if pyRitoFile.wad.WADHasher.is_hash(path):
         return path
-    # if the path is hashed file 
-    # ex: ec9584b0506c2abb.bin -> ec9584b0506c2abb
     basename = path.split('.')[0]
     if pyRitoFile.wad.WADHasher.is_hash(basename):
         return basename
-    # if the path is pure raw
-    # ex: data/effects.bin -> ec9584b0506c2abb
     return pyRitoFile.wad.WADHasher.raw_to_hex(path)
 
-def check_if_path_in_there(path, there):
+def find_path_in_there(path, there):
     path = unify_path(path)
-    for f in there:
-        if path == unify_path(f):
-            return True
-    return False    
+    for file_path in there:
+        if path == unify_path(file_path):
+            return file_path
+    return None
+
+
+def check_if_path_in_there(path, there):
+    return find_path_in_there(path, there) is not None
 
 def checK_if_path_is_same(path1, path2):
     return unify_path(path1) == unify_path(path2)
 
-def parse_bin(bin, *, existing_files={}):
+def parse_bin(bin, *, existing_files=None, hashtables=None):
+    if existing_files is None:
+        existing_files = {}
+
     def parse_entry(entry):
         mentioned_files = []
         missing_files = []
@@ -98,7 +79,8 @@ def parse_bin(bin, *, existing_files={}):
                     value = field.data
                     if field.value_type == pyRitoFile.bin.BINType.FILE:
                         value = pyRitoFile.bin.BINHasher.hex_to_raw(
-                            hash_helper.Storage.hashtables,
+                            hashtables if hashtables is not None
+                            else hash_helper.Storage.hashtables,
                             value
                         )
                     parse_value(value, field.value_type)
@@ -112,8 +94,9 @@ def parse_bin(bin, *, existing_files={}):
 
         if len(existing_files) > 0:   
             for file in mentioned_files:
-                if check_if_path_in_there(file, existing_files):
-                    existing_files[file] = False
+                matching_file = find_path_in_there(file, existing_files)
+                if matching_file is not None:
+                    existing_files[matching_file] = False
                     if file.endswith('.dds'):
                         splits = file.split('/')
                         dds2x = '/'.join(splits[:-1] + ['2x_' + splits[-1]])
@@ -157,43 +140,50 @@ def parse_dir(path, delete_junk_files=False):
     # parsing
     print(f'pyntex: Start:  Read bin hashes')
     hash_helper.Storage.read_bin_hashes()
-
     print(f'pyntex: Start:  Read wad hashes')
     hash_helper.Storage.read_wad_hashes()
 
-    # Automatically generate WAD hashes from files physically
-    # present inside the directory being parsed.
-    local_wad_hashes = build_local_wad_hashes(existing_files)
+    try:
+        # Hash every file in the mod folder from its relative path before
+        # parsing any BIN. These hashes are used only for FILE values.
+        print(f'pyntex: Start:  Hash {len(existing_files)} local file paths')
+        local_wad_hashes = build_local_wad_hashes(existing_files)
 
-    # Make a temporary copy of the hash tables so that these
-    # automatically generated hashes do not get permanently added
-    # to the user's hash database.
-    working_hashtables = {
-        name: dict(table)
-        for name, table in hash_helper.Storage.hashtables.items()
-    }
+        # Work on a temporary copy. The local hashes must not be inserted
+        # into the permanent/global hash tables.
+        working_hashtables = {
+            name: dict(table)
+            for name, table in hash_helper.Storage.hashtables.items()
+        }
 
-    # Only fill hashes that aren't already known.
-    for file_hash, file_path in local_wad_hashes.items():
-        working_hashtables['hashes.game.txt'].setdefault(
-            file_hash,
-            file_path
-        )
+        # Put local paths in the highest-priority WAD hash table used by
+        # the unhashers. This makes the actual files in the mod folder
+        # authoritative for this Pyntex run, while leaving the permanent
+        # hash database untouched.
+        for file_hash, file_path in local_wad_hashes.items():
+            working_hashtables['hashes.lcu.txt'][file_hash] = file_path
 
-    for full_file_index, full_file in enumerate(full_files):
-        if full_file.endswith('.bin'):
-            try:
-                bin = pyRitoFile.bin.BIN().read(full_file)
-                bin.un_hash(working_hashtables)
-                result = parse_bin(bin, existing_files=existing_files)
-                if len(result) > 0:
-                    res[short_files[full_file_index]] = result
-                    print(f'pyntex: Finish: Parse {full_file}')
-                existing_files[short_files[full_file_index]] = False
-            except Exception as e:
-                print(f'pyntex: Error: {e}')
-                print(traceback.format_exc())
-    hash_helper.Storage.free_bin_hashes()
+        for full_file_index, full_file in enumerate(full_files):
+            if full_file.endswith('.bin'):
+                try:
+                    bin = pyRitoFile.bin.BIN().read(full_file)
+                    bin.un_hash(working_hashtables)
+                    result = parse_bin(
+                        bin,
+                        existing_files=existing_files,
+                        hashtables=working_hashtables
+                    )
+                    if len(result) > 0:
+                        res[short_files[full_file_index]] = result
+                        print(f'pyntex: Finish: Parse {full_file}')
+                    existing_files[short_files[full_file_index]] = False
+                except Exception as e:
+                    print(f'pyntex: Error: {e}')
+                    print(traceback.format_exc())
+    finally:
+        # Do not leave Pyntex's hash data in Storage for later commands.
+        hash_helper.Storage.free_bin_hashes()
+        hash_helper.Storage.free_wad_hashes()
     if 'hashed_files.json' in existing_files:
         existing_files['hashed_files.json'] = False
     res['junk_files'] = [file for file in existing_files if existing_files[file]]
@@ -234,7 +224,11 @@ def parse_wad(path, delete_junk_files=False):
                 try:
                     bin = pyRitoFile.bin.BIN().read(chunk.data, raw=True)
                     bin.un_hash(hash_helper.Storage.hashtables)
-                    result = parse_bin(bin, existing_files=chunk_hashes)
+                    result = parse_bin(
+                        bin,
+                        existing_files=chunk_hashes,
+                        hashtables=hash_helper.Storage.hashtables
+                    )
                     if len(result) > 0:
                         res[chunk.hash] = result
                         print(f'pyntex: Finish: Parse {chunk.hash}')
