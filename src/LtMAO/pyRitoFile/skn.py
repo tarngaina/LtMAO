@@ -52,6 +52,49 @@ class SKNSubmesh:
         return {key: getattr(self, key) for key in self.__slots__}
 
 
+def build_influences(vertices, joints=None):
+    # build the skl influence table out of the weighted joint ids in vertices,
+    # then remap each vertex's influences from joint ids to influence slot bytes
+    # vertex blend indices are bytes indexing the skl influence table (max 256 slots),
+    # each slot maps to a joint id, so joints above id 255 can still be weighted
+    # returns the influence table to store on SKL.influences
+    joint_usage = {}  # joint id -> [total weight, weighted vertex count]
+    for vertex in vertices:
+        for i in range(4):
+            if vertex.weights[i] > 0.0:
+                usage = joint_usage.setdefault(vertex.influences[i], [0.0, 0])
+                usage[0] += vertex.weights[i]
+                usage[1] += 1
+
+    influence_table = sorted(joint_usage) if len(joint_usage) > 0 else [0]
+    if len(influence_table) > 256:
+        over_count = len(influence_table) - 256
+        # suggest removing the joints that matter the least on the mesh
+        least_used = sorted(joint_usage, key=lambda joint_id: joint_usage[joint_id])[:over_count]
+        lines = []
+        for joint_id in least_used[:10]:
+            name = joints[joint_id].name if joints != None else f'joint {joint_id}'
+            total_weight, vertex_count = joint_usage[joint_id]
+            lines.append(f'- {name}: {vertex_count} vertices, {total_weight:.3f} total weight')
+        
+        if over_count > 10:
+            lines.append(f'- ... and {over_count - 10} more')
+        
+        raise ValueError(
+            f'Too many weighted joints: {len(influence_table)}, max allowed: 256 weighted joints. (unweighted joints dont count, the skeleton can hold up to 65535 joints)\n'
+            f'Remove weights on at least {over_count} joints, these are the least used ones:\n'
+            + '\n'.join(lines))
+
+    slot_by_joint = {joint_id: slot for slot, joint_id in enumerate(influence_table)}
+    for vertex in vertices:
+        vertex.influences = bytes(
+            slot_by_joint[vertex.influences[i]] if vertex.weights[i] > 0.0 else 0
+            for i in range(4)
+        )
+    
+    return influence_table
+
+
 class SKN:
     __slots__ = (
         'signature', 'version', 'flags',

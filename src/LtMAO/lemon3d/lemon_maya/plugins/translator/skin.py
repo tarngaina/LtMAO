@@ -164,9 +164,9 @@ class SkinExporter(MPxFileTranslator):
             }
             skl = pyRitoFile.skl.SKL()
             SKL.scene_dump(skl, dump_options)
-            helper.mirrorX(skl=skl)
-            skl.write(skl_path)
             # dump skn
+            # this also builds skl.influences out of the weighted joints,
+            # so skl must be written after the skn dump
             riot_skn = None
             riot_skn_path = helper.get_riot_path(skn_path)
             if riot_skn_path != '':
@@ -178,6 +178,9 @@ class SkinExporter(MPxFileTranslator):
                 'riot_skn': riot_skn
             }
             SKN.scene_dump(skn, dump_options)
+            # write
+            helper.mirrorX(skl=skl)
+            skl.write(skl_path)
             helper.mirrorX(skn=skn)
             skn.write(skn_path)
         
@@ -238,6 +241,11 @@ class SKLExporter(MPxFileTranslator):
             }
             skl = pyRitoFile.skl.SKL()
             SKL.scene_dump(skl, dump_options)
+            # no skn dumped along = no weighted joints known to build influences from
+            # -> reuse riot.skl influences (joints are sorted to riot order so they stay valid)
+            # -> otherwise pyRitoFile falls back to identity influences on write
+            if riot_skl != None and riot_skl.influences != None:
+                skl.influences = list(riot_skl.influences)
             helper.mirrorX(skl=skl)
             skl.write(skl_path)
             return True
@@ -652,7 +660,8 @@ class SKN:
                                 position.x, position.y, position.z)
                             vertex.normal = pyRitoFile.structs.Vector(
                                 normal.x, normal.y, normal.z)
-                            vertex.influences = bytes(influences)
+                            # joint ids for now, remapped to influence slot bytes after all meshes are dumped
+                            vertex.influences = influences
                             vertex.weights = vertex_weights
                             vertex.uv = uv
                             vertex.uv_index = uv_index
@@ -834,6 +843,14 @@ class SKN:
             raise helper.FunnyError(
                 f'SKN Exporter: Too many materials assigned: {submesh_count}, max allowed: 32 materials.')
 
+        # build skl influences out of the weighted joints and
+        # remap vertex joint ids -> influence slot bytes
+        try:
+            skl.influences = pyRitoFile.skn.build_influences(
+                skn.vertices, skl.joints)
+        except ValueError as e:
+            raise helper.FunnyError(f'SKN Exporter: {e}')
+
 class SKL:
     @staticmethod
     def scene_load(skl, load_options):
@@ -864,18 +881,27 @@ class SKL:
                 # get the existed joint
                 ik_joint = MFnIkJoint(joint.dagpath)
             # add custom attribute: Riot ID
-            if not cmds.attributeQuery(
+            attribute_exists = cmds.attributeQuery(
                 'riotid',
                 exists=True,
                 node=joint.name
-            ):
+            )
+            if attribute_exists and cmds.attributeQuery(
+                'riotid',
+                node=joint.name,
+                attributeType=True
+            ) == 'byte':
+                # older versions created riotid as byte which cant hold ids above 255
+                cmds.deleteAttr(f'{joint.name}.riotid')
+                attribute_exists = False
+            if not attribute_exists:
                 cmds.addAttr(
                     joint.name,
                     longName='riotid',
                     niceName='Riot ID',
-                    attributeType='byte',
-                    minValue=0, 
-                    maxValue=255, 
+                    attributeType='long',
+                    minValue=0,
+                    maxValue=65535,
                     defaultValue=joint_id
                 )
             cmds.setAttr(f'{joint.name}.riotid', joint_id)
@@ -1053,7 +1079,9 @@ class SKL:
                 joint.parent = -1
 
         # check limit joint
+        # only weighted joints are limited to 256 (checked on skn dump),
+        # the skeleton itself can hold up to 65535 joints
         joint_count = len(skl.joints)
-        if joint_count > 256:
+        if joint_count > 65535:
             raise helper.FunnyError(
-                f'SKL Exporter: Too many joints found: {joint_count}, max allowed: 256 joints.')
+                f'SKL Exporter: Too many joints found: {joint_count}, max allowed: 65535 joints.')
