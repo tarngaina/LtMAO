@@ -133,7 +133,7 @@ class CLI:
 
         if os.path.isfile(src):
             if src.lower().endswith('.py'):
-                os.rename(src, lepath.ext(src, '.py', '.ritobin'))
+                os.rename(src, lepath.ext(src, '.py', '.rito'))
             return
 
         if os.path.isdir(src):
@@ -141,7 +141,7 @@ class CLI:
                 for file in files:
                     if file.lower().endswith('.py'):
                         old_path = os.path.join(root, file)
-                        new_path = lepath.ext(old_path, '.py', '.ritobin')
+                        new_path = lepath.ext(old_path, '.py', '.rito')
                         os.rename(old_path, new_path)
 
     @staticmethod

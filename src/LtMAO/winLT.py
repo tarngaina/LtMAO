@@ -148,15 +148,15 @@ class Context:
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobindir2bin" -src="%V"'
         },
         'PyToRitobinDir': {
-            'desc': 'ritobin: Rename All PY To RITOBIN',
+            'desc': 'ritobin: Rename All PY To RITO',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="py2ritobin" -src="%V"'
         },
         'PyToRitobin': {
-            'desc': 'ritobin: Rename To RITOBIN',
+            'desc': 'ritobin: Rename To RITO',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="py2ritobin" -src="%V"'
         },
         'RitobinToPyDir': {
-            'desc': 'ritobin: Rename All RITOBIN To PY',
+            'desc': 'ritobin: Rename All RITO To PY',
             'value': f'"{os.path.abspath(python_file)}" "{os.path.abspath(cli_file)}" -t="ritobin2py" -src="%V"'
         },
         'Ritobin2Py': {
