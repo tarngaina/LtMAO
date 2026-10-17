@@ -345,35 +345,94 @@ class BNK:
         
     def write(self, path, wem_datas, raw=False):
         with BytesStream.writer(path, raw) as bs:
-            # write bkhd
-            # signature, size, version, id, unknown 24 bytes
-            bs.write_s('BKHD')
-            bs.write_u32(32, 134, 0)
-            bs.write(b'>]p\x17\x00\x00\x00\x00\xfa\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00') 
 
-            # write didx
-            # signature, size
+            # -------------------------
+            # BKHD
+            # -------------------------
+            bs.write_s('BKHD')
+
+            # Preserve original BKHD data when available
+            if self.bkhd is not None:
+                bkhd_unk = getattr(self.bkhd, 'unk', b'')
+                bkhd_size = 8 + len(bkhd_unk)
+
+                bs.write_u32(
+                    bkhd_size,
+                    self.bkhd.version,
+                    self.bkhd.id
+                )
+                bs.write(bkhd_unk)
+            else:
+                # Fallback for newly created banks
+                bs.write_u32(32, 134, 0)
+                bs.write(
+                    b'>]p\x17\x00\x00\x00\x00\xfa\x00\x00\x00'
+                    b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+                )
+
+            # -------------------------
+            # DIDX
+            # -------------------------
             wem_data_offsets = []
+
             bs.write_s('DIDX')
-            bs.write_u32(len(self.didx.wems)*12)
-            # write wem infos
+            bs.write_u32(len(self.didx.wems) * 12)
+
             for i, wem in enumerate(self.didx.wems):
-                wem_data_offsets.append(bs.tell()+4)
+                wem_data_offsets.append(bs.tell() + 4)
+
                 wem.size = len(wem_datas[i])
+
+                # ID, Offset placeholder, Size
                 bs.write_u32(wem.id, 0, wem.size)
 
-            # write data
-            # signature, size
-            bs.write_s('DATA')
-            bs.write_u32(sum(wem.size for wem in self.didx.wems))
-            # wem data - need to minus start offset
-            start_offset = bs.tell()
-            for i, wem_data in enumerate(wem_datas):
-                data_offset = bs.tell()
-                bs.seek(wem_data_offsets[i])
-                bs.write_u32(data_offset-start_offset)
-                bs.seek(data_offset)
-                bs.write(wem_data)
-                
-            return bs.raw() if raw else None
+            # -------------------------
+            # Calculate DATA size
+            # Riot aligns WEMs to 16 bytes
+            # -------------------------
+            data_size = 0
 
+            for wem_data in wem_datas:
+                data_size += len(wem_data)
+
+                # Align next WEM to 16 bytes
+                data_size = (data_size + 15) & ~15
+
+            # Do not add unnecessary padding after the final WEM
+            if wem_datas:
+                data_size = (
+                    data_size
+                    - ((16 - (len(wem_datas[-1]) % 16)) % 16)
+                )
+
+            # -------------------------
+            # DATA
+            # -------------------------
+            bs.write_s('DATA')
+            bs.write_u32(data_size)
+
+            start_offset = bs.tell()
+
+            for i, wem_data in enumerate(wem_datas):
+
+                # Current position relative to DATA start
+                data_offset = bs.tell()
+
+                # Write correct DIDX offset
+                bs.seek(wem_data_offsets[i])
+                bs.write_u32(data_offset - start_offset)
+
+                # Return to DATA
+                bs.seek(data_offset)
+
+                # Write WEM
+                bs.write(wem_data)
+
+                # Pad between WEMs to 16-byte alignment
+                if i < len(wem_datas) - 1:
+                    padding = (-len(wem_data)) % 16
+
+                    if padding:
+                        bs.write(b'\x00' * padding)
+
+            return bs.raw() if raw else None

@@ -36,6 +36,57 @@ class BankWem:
 
 class BankHelper:
     @staticmethod
+    def get_bkhd_chunk(bnk_file):
+        with open(bnk_file, 'rb') as f:
+            data = f.read()
+
+        pos = data.find(b'BKHD')
+
+        if pos == -1:
+            raise Exception(f'bnk_tool: Error: BKHD section not found: {bnk_file}')
+
+        # BKHD structure:
+        # 4 bytes = "BKHD"
+        # 4 bytes = chunk size (little-endian)
+        chunk_size = int.from_bytes(
+            data[pos + 4:pos + 8],
+            byteorder='little'
+        )
+
+        # Return the ENTIRE chunk:
+        # Header + size + all BKHD data
+        return data[pos:pos + 8 + chunk_size]
+
+    @staticmethod
+    def set_bkhd_chunk(bnk_file, original_chunk):
+        with open(bnk_file, 'rb') as f:
+            data = f.read()
+
+        pos = data.find(b'BKHD')
+
+        if pos == -1:
+            raise Exception(f'bnk_tool: Error: BKHD section not found: {bnk_file}')
+
+        # Get size of the newly generated BKHD chunk
+        new_chunk_size = int.from_bytes(
+            data[pos + 4:pos + 8],
+            byteorder='little'
+        )
+
+        new_chunk_end = pos + 8 + new_chunk_size
+
+        # Replace the ENTIRE generated BKHD chunk
+        # with the original untouched one
+        data = (
+            data[:pos]
+            + original_chunk
+            + data[new_chunk_end:]
+        )
+
+        with open(bnk_file, 'wb') as f:
+            f.write(data)
+
+    @staticmethod
     def to_human(size): 
         return str(size >> ((max(size.bit_length()-1, 0)//10)*10)) +  ["", " KB", " MB", " GB", " TB", " PB", " EB"][max(size.bit_length()-1, 0)//10]
     
@@ -399,11 +450,23 @@ class Inspector:
 
     def pack(self, output_file):
         wem_datas = []
+
+        # Preserve the complete original BKHD chunk
+        original_bkhd = None
+        if self.is_bnk:
+            original_bkhd = BankHelper.get_bkhd_chunk(self.audio_path)
+
         for wem in self.wems:
             wem_file = self.get_cache_wem_file(wem.id)
             with open(wem_file, 'rb') as f:
                 wem_datas.append(f.read())
+
+        # Build the BNK normally
         self.audio.write(output_file, wem_datas)
+
+        # Restore the complete original BKHD chunk
+        if original_bkhd is not None:
+            BankHelper.set_bkhd_chunk(output_file, original_bkhd)
 
     def get_cache_dir(self):
         return lepath.join(
@@ -448,42 +511,54 @@ class Inspector:
         for stream in self.streams:
             stream.stop_stream()
 
-def bnk2dir(input_file, output_dir, events_file = '', bin_file = ''):
-    inspector = Inspector(input_file, events_file, bin_file) 
+def bnk2dir(input_file, output_dir, events_file='', bin_file=''):
+    inspector = Inspector(input_file, events_file, bin_file)
     inspector.extract(output_dir, convert_wavs=False)
+
+    # Save the ENTIRE original BKHD chunk
+    if input_file.lower().endswith('.bnk'):
+        bkhd_file = lepath.join(output_dir, '.bkhd')
+
+        with open(bkhd_file, 'wb') as f:
+            f.write(BankHelper.get_bkhd_chunk(input_file))
+
     print(f'wad_tool: Finish: Unpack: {output_dir}')
 
 def dir2bnk(input_dir, output_file, is_bnk):
-    wem_files = {os.path.basename(wem): wem for wem in lepath.walk(input_dir, lambda f: f.endswith('.wem'))}.values()
+    wem_files = {
+        os.path.basename(wem): wem
+        for wem in lepath.walk(input_dir, lambda f: f.endswith('.wem'))
+    }.values()
+
     if is_bnk:
+        # Read the original BNK first so its BKHD is preserved
         audio = pyRitoFile.bnk.BNK()
+
+        if self.audio_path and os.path.exists(self.audio_path):
+            audio.read(self.audio_path)
+
+        # Rebuild only the WEM list
         audio.didx = pyRitoFile.bnk.BNKSectionData()
         audio.didx.wems = []
+
         wem_datas = []
+
         for wem_file in wem_files:
             wem_id = lepath.ext(os.path.basename(wem_file), '.wem', '')
+
             if wem_id.isnumeric():
                 wem_id = int(wem_id)
+
                 wem = pyRitoFile.bnk.BNKWem()
                 wem.id = wem_id
+
                 with open(wem_file, 'rb') as f:
                     wem_datas.append(f.read())
+
                 audio.didx.wems.append(wem)
-        audio.write(output_file, wem_datas) 
-    else:
-        audio = pyRitoFile.wpk.WPK()
-        audio.wems = []
-        wem_datas = []
-        for wem_file in wem_files:
-            wem_id = lepath.ext(os.path.basename(wem_file), '.wem', '')
-            if wem_id.isnumeric():
-                wem_id = int(wem_id)
-                wem = pyRitoFile.wpk.WPKWem()
-                wem.id = wem_id
-                with open(wem_file, 'rb') as f:
-                    wem_datas.append(f.read())
-                audio.wems.append(wem)
+
         audio.write(output_file, wem_datas)
+
     print(f'wad_tool: Finish: Pack: {output_file}')
     
 # event bnk stuffs
