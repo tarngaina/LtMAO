@@ -66,6 +66,10 @@ class CLI:
 
         if src_lower.endswith('.cdtb.py'):
             dst = lepath.ext(src, '.cdtb.py', '')
+        elif src_lower.endswith('.cdtb.rito'):
+            dst = lepath.ext(src, '.cdtb.rito', '')
+        elif src_lower.endswith('.cdtb.ritobin'):
+            dst = lepath.ext(src, '.cdtb.ritobin', '')
         elif src_lower.endswith('.py'):
             dst = lepath.ext(src, '.py', '.bin')
         elif src_lower.endswith(('.ritobin', '.rito')):
@@ -112,6 +116,14 @@ class CLI:
                             py_file = lepath.join(root, file)
                             bin_file = lepath.ext(py_file, '.cdtb.py', '')
                             file_pairs.extend((py_file, bin_file))
+                        elif file.endswith('.cdtb.rito'):
+                            rito_file = lepath.join(root, file)
+                            bin_file = lepath.ext(rito_file, '.cdtb.rito', '')
+                            file_pairs.extend((rito_file, bin_file))
+                        elif file.endswith('.cdtb.ritobin'):
+                            rito_file = lepath.join(root, file)
+                            bin_file = lepath.ext(rito_file, '.cdtb.ritobin', '')
+                            file_pairs.extend((rito_file, bin_file))
                         elif file.endswith('.ritobin'):
                             ritobin_file = lepath.join(root, file)
                             bin_file = lepath.ext(ritobin_file, '.ritobin', '.bin')
